@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 720" fill="none">
+  <rect width="720" height="720" fill="#0A0D14"/>
+  <rect width="720" height="720" fill="url(#bg)"/>
+  <circle cx="560" cy="568" r="166" fill="#6B00FF" fill-opacity=".16"/>
+  <rect x="288" y="144" width="144" height="102" rx="26" fill="#C0C6CC" fill-opacity=".3"/>
+  <rect x="220" y="224" width="280" height="320" rx="48" fill="url(#bottle)"/>
+  <rect x="284" y="184" width="152" height="54" rx="20" fill="#0F1626"/>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="720" y2="720" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0F1626"/>
+      <stop offset="1" stop-color="#090C13"/>
+    </linearGradient>
+    <linearGradient id="bottle" x1="220" y1="224" x2="500" y2="544" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F5F7FA"/>
+      <stop offset=".4" stop-color="#C0C6CC"/>
+      <stop offset="1" stop-color="#6B00FF" stop-opacity=".7"/>
+    </linearGradient>
+  </defs>
+</svg>

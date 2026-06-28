@@ -1,0 +1,8 @@
+<svg width="1200" height="1500" viewBox="0 0 1200 1500" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="1500" fill="#FBF5EE"/>
+  <rect x="54" y="54" width="1092" height="1392" rx="56" fill="#F2E4CB" stroke="#DCC7A9" stroke-width="12"/>
+  <path d="M332 494L554 302H704L482 494L704 686H554L332 494Z" fill="#5A1F2E"/>
+  <path d="M706 302H878L1084 494L878 686H706L912 494L706 302Z" fill="#2F6F73"/>
+  <text x="120" y="1212" fill="#5A1F2E" font-family="Arial, Helvetica, sans-serif" font-size="88" letter-spacing="18">SKXNZ</text>
+  <text x="120" y="1302" fill="#231F1B" font-family="Arial, Helvetica, sans-serif" font-size="34" letter-spacing="10">PRODUCT PREVIEW</text>
+</svg>

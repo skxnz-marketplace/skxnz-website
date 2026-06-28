@@ -1,0 +1,354 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "Source Sans 3";
+  src: url("/assets/fonts/source-sans-3/SourceSans3-VariableFont_wght.ttf")
+    format("truetype");
+  font-weight: 200 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Source Sans 3";
+  src: url("/assets/fonts/source-sans-3/SourceSans3-Italic-VariableFont_wght.ttf")
+    format("truetype");
+  font-weight: 200 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Bodoni Moda SC";
+  src: url("/assets/fonts/bodoni-moda-sc/BodoniModaSC-VariableFont_opsz,wght.ttf")
+    format("truetype");
+  font-weight: 400 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Merriweather Sans";
+  src: url("/assets/fonts/merriweather-sans/MerriweatherSans-VariableFont_wght.ttf")
+    format("truetype");
+  font-weight: 300 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Merriweather Sans";
+  src: url("/assets/fonts/merriweather-sans/MerriweatherSans-Italic-VariableFont_wght.ttf")
+    format("truetype");
+  font-weight: 300 800;
+  font-style: italic;
+  font-display: swap;
+}
+
+:root {
+  --skxnz-header-offset: 5.5rem;
+  --background: #fffefa;
+  --foreground: #120b0d;
+  --skxnz-obsidian: #100006;
+  --skxnz-maroon-deep: #1a030b;
+  --skxnz-maroon: #3a0818;
+  --skxnz-maroon-glass: rgba(42, 6, 19, 0.94);
+  --skxnz-wine: #4b1022;
+  --skxnz-bg: #fffefa;
+  --skxnz-bg-soft: #fffdf7;
+  --skxnz-surface: #ffffff;
+  --skxnz-surface-soft: #fffdf7;
+  --skxnz-card: #fffdf8;
+  --skxnz-text-dark: #120b0d;
+  --skxnz-text-muted: rgba(18, 11, 13, 0.62);
+  --skxnz-text-light: #fffefa;
+  --skxnz-border: rgba(58, 8, 24, 0.12);
+  --skxnz-glint: #22d3ee;
+  --skxnz-iris: #8b5cf6;
+  --skxnz-orchid: #d946ef;
+  --skxnz-pearl: #fffefa;
+  --skxnz-text: #120b0d;
+  --skxnz-muted: rgba(18, 11, 13, 0.62);
+  --skxnz-ai-aqua: #22d3ee;
+  --skxnz-ai-ultra: #8b5cf6;
+  --skxnz-ai-sonic: #d946ef;
+  --font-primary: "Inter", "Source Sans 3", system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-display: "Geist", "Inter", "Source Sans 3", system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-accent: "Space Grotesk", "Inter", "Source Sans 3", system-ui,
+    -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: var(--skxnz-header-offset);
+}
+
+@media (max-width: 767px) {
+  :root {
+    --skxnz-header-offset: 8.5rem;
+  }
+}
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 86% 0%, rgba(58, 8, 24, 0.035), transparent 24%),
+    linear-gradient(180deg, var(--skxnz-bg) 0%, var(--skxnz-bg-soft) 100%);
+  color: var(--foreground);
+  font-family: var(--font-primary);
+  font-size: 15px;
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+
+@media (min-width: 640px) {
+  body {
+    font-size: 16px;
+  }
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+::selection {
+  background: rgba(58, 8, 24, 0.18);
+  color: var(--skxnz-text-dark);
+}
+
+body[data-skxnz-intro-seen="true"] [data-skxnz-opening-loader] {
+  display: none;
+}
+
+.page-frame main [id] {
+  scroll-margin-top: calc(var(--skxnz-header-offset) + 0.75rem);
+}
+
+@keyframes skxnz-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-0.65rem) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes skxnz-drawer-in {
+  from {
+    opacity: 0;
+    transform: translateX(-1rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes skxnz-ai-page-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes skxnz-opening-logo {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes skxnz-opening-loader-fallback {
+  0%,
+  80% {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  100% {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+@keyframes skxnz-opening-loader-fallback-reduced {
+  0%,
+  62% {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  100% {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+@layer components {
+  .display-title,
+  .hero-title,
+  .campaign-title,
+  .brand-hero-title {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+
+  .accent-label,
+  .section-kicker,
+  .category-label,
+  .editorial-label {
+    font-family: var(--font-accent);
+    letter-spacing: 0.03em;
+  }
+
+  .product-title,
+  .product-price,
+  .product-meta,
+  .button,
+  .nav-link,
+  .search-input {
+    font-family: var(--font-primary);
+  }
+
+  .glass-panel {
+    backdrop-filter: blur(24px);
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(251, 245, 238, 0.94)),
+      rgba(251, 245, 238, 0.96);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.68),
+      0 18px 40px rgba(90, 31, 46, 0.08),
+      0 6px 18px rgba(35, 31, 27, 0.08);
+  }
+
+  .page-frame {
+    position: relative;
+  }
+
+  .page-frame::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgba(58, 8, 24, 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(58, 8, 24, 0.035) 1px, transparent 1px);
+    background-size: 72px 72px;
+    mask-image: radial-gradient(circle at center, black 52%, transparent 94%);
+    opacity: 0.16;
+  }
+
+  .text-gradient {
+    background: linear-gradient(
+      120deg,
+      var(--skxnz-maroon-deep) 0%,
+      var(--skxnz-maroon) 48%,
+      var(--skxnz-wine) 72%,
+      var(--skxnz-iris) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .section-border {
+    position: relative;
+  }
+
+  .section-border::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      140deg,
+      rgba(58, 8, 24, 0.14),
+      rgba(255, 254, 250, 0.86),
+      rgba(139, 92, 246, 0.18)
+    );
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  .signal-dot {
+    position: relative;
+  }
+
+  .signal-dot::before {
+    content: "";
+    display: inline-flex;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 9999px;
+    margin-right: 0.75rem;
+    background: linear-gradient(135deg, var(--skxnz-glint), var(--skxnz-iris));
+    box-shadow: 0 0 16px rgba(34, 211, 238, 0.18);
+  }
+
+  .text-wrap-safe {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .chrome-sheen {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .chrome-sheen::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(125deg, rgba(255, 255, 255, 0.18), transparent 24%, transparent 66%, rgba(139, 92, 246, 0.08)),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.1), transparent 32%);
+    pointer-events: none;
+  }
+
+  .field-shell {
+    border: 1px solid rgba(220, 199, 169, 0.95);
+    background: rgba(251, 245, 238, 0.92);
+    color: var(--skxnz-text-dark);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.68);
+  }
+
+  .field-shell::placeholder {
+    color: rgba(127, 107, 89, 0.72);
+  }
+
+  .field-shell:focus {
+    border-color: rgba(58, 8, 24, 0.52);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.68),
+      0 0 0 3px rgba(139, 92, 246, 0.12);
+    outline: none;
+  }
+}

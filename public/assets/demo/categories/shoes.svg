@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 720" fill="none">
+  <rect width="720" height="720" fill="#0A0D14"/>
+  <rect width="720" height="720" fill="url(#bg)"/>
+  <circle cx="548" cy="154" r="132" fill="#6B00FF" fill-opacity=".16"/>
+  <path d="M160 456c72-44 148-72 274-72 90 0 166 20 212 52l30 22c18 12 24 36 14 54-10 18-30 28-50 26l-128-14c-34-4-70-6-104-6H174c-28 0-48-18-48-38 0-12 10-22 34-24Z" fill="url(#shoe)"/>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="720" y2="720" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#10192C"/>
+      <stop offset="1" stop-color="#0A0D14"/>
+    </linearGradient>
+    <linearGradient id="shoe" x1="126" y1="384" x2="690" y2="538" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F5F7FA"/>
+      <stop offset=".46" stop-color="#C0C6CC"/>
+      <stop offset="1" stop-color="#6B00FF" stop-opacity=".76"/>
+    </linearGradient>
+  </defs>
+</svg>

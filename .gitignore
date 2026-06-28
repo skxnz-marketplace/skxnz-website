@@ -1,0 +1,11 @@
+.next
+.next_rebuild_fix_*/
+.next_dev_corrupt_*/
+node_modules
+*.log
+.DS_Store
+.env
+dist
+tsconfig.tsbuildinfo
+scripts/__pycache__/
+*.pyc

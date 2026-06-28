@@ -1,0 +1,993 @@
+{
+  "generatedAt": "2026-05-07T11:44:24.679233+00:00",
+  "source": "project-data/source-sheets/SKXNZ_BACKEND_ARCHITECTURE_PACK_FINAL.xlsx",
+  "backend_tables": [
+    {
+      "tableName": "users",
+      "module": "Auth",
+      "purpose": "Master login identity for all accounts",
+      "ownerApp": "All apps",
+      "phase": "Phase 2",
+      "priority": "P0 Critical",
+      "status": "Planned"
+    },
+    {
+      "tableName": "user_profiles",
+      "module": "Auth",
+      "purpose": "Name, avatar, phone, preferences",
+      "ownerApp": "Buyer/Seller/Rider/Admin",
+      "phase": "Phase 2",
+      "priority": "P1 High",
+      "status": "Planned"
+    },
+    {
+      "tableName": "buyers",
+      "module": "Buyer",
+      "purpose": "Buyer-specific account profile",
+      "ownerApp": "Buyer web/app",
+      "phase": "Phase 2",
+      "priority": "P1 High",
+      "status": "Planned"
+    },
+    {
+      "tableName": "sellers",
+      "module": "Seller",
+      "purpose": "Seller store profile and status",
+      "ownerApp": "Seller dashboard/app",
+      "phase": "Phase 3",
+      "priority": "P0 Critical",
+      "status": "Planned"
+    },
+    {
+      "tableName": "seller_kyc",
+      "module": "Seller",
+      "purpose": "Seller verification documents/status",
+      "ownerApp": "Seller/Admin",
+      "phase": "Phase 3",
+      "priority": "P1 High",
+      "status": "Later"
+    },
+    {
+      "tableName": "seller_bank_accounts",
+      "module": "Seller",
+      "purpose": "Payout bank information token/reference",
+      "ownerApp": "Seller/Admin",
+      "phase": "Phase 4",
+      "priority": "P1 High",
+      "status": "Later"
+    },
+    {
+      "tableName": "riders",
+      "module": "Delivery",
+      "purpose": "Rider profile, status, assigned zones",
+      "ownerApp": "Rider app/Admin",
+      "phase": "Phase 4",
+      "priority": "P1 High",
+      "status": "Later"
+    },
+    {
+      "tableName": "admin_users",
+      "module": "Admin",
+      "purpose": "Admin/back-office users",
+      "ownerApp": "Admin panel",
+      "phase": "Phase 3",
+      "priority": "P0 Critical",
+      "status": "Planned"
+    },
+    {
+      "tableName": "roles",
+      "module": "Security",
+      "purpose": "Role list for access control",
+      "ownerApp": "Backend",
+      "phase": "Phase 2",
+      "priority": "P0 Critical",
+      "status": "Planned"
+    },
+    {
+      "tableName": "permissions",
+      "module": "Security",
+      "purpose": "Granular permission codes",
+      "ownerApp": "Backend/Admin",
+      "phase": "Phase 3",
+      "priority": "P1 High",
+      "status": "Planned"
+    },
+    {
+      "tableName": "brands",
+      "module": "Catalog",
+      "purpose": "Brand profiles and slugs",
+      "ownerApp": "Buyer/Seller/Admin",
+      "phase": "Phase 1",
+      "priority": "P0 Critical",
+      "status": "Ready for Codex"
+    },
+    {
+      "tableName": "categories",
+      "module": "Catalog",
+      "purpose": "Category hierarchy and display order",
+      "ownerApp": "Buyer/Admin",
+      "phase": "Phase 1",
+      "priority": "P0 Critical",
+      "status": "Ready for Codex"
+    },
+    {
+      "tableName": "collections",
+      "module": "Catalog",
+      "purpose": "Curated groups like New Season/Limited Edition",
+      "ownerApp": "Buyer/Admin",
+      "phase": "Phase 1",
+      "priority": "P1 High",
+      "status": "Ready for Codex"
+    },
+    {
+      "tableName": "products",
+      "module": "Catalog",
+      "purpose": "Core product information",
+      "ownerApp": "Buyer/Seller/Admin",
+      "phase": "Phase 1",
+      "priority": "P0 Critical",
+      "status": "Ready for Codex"
+    },
+    {
+      "tableName": "product_images",
+      "module": "Catalog",
+      "purpose": "Product image gallery and ordering",
+      "ownerApp": "Buyer/Seller/Admin",
+      "phase": "Phase 1",
+      "priority": "P0 Critical",
+      "status": "Ready for Codex"
+    },
+    {
+      "tableName": "product_variants",
+      "module": "Catalog",
+      "purpose": "Size/color/material/variant pricing",
+      "ownerApp": "Buyer/Seller/Admin",
+      "phase": "Phase 1",
+      "priority": "P0 Critical",
+      "status": "Ready for Codex"
+    },
+    {
+      "tableName": "inventory",
+      "module": "Catalog",
+      "purpose": "Stock by product variant and seller",
+      "ownerApp": "Seller/Admin",
+      "phase": "Phase 2",
+      "priority": "P0 Critical",
+      "status": "Planned"
+    },
+    {
+      "tableName": "product_tags",
+      "module": "Catalog",
+      "purpose": "Tags for search/discovery",
+      "ownerApp": "Buyer/Admin",
+      "phase": "Phase 1",
+      "priority": "P1 High",
+      "status": "Ready for Codex"
+    },
+    {
+      "tableName": "search_keywords",
+      "module": "Search",
+      "purpose": "Extra keywords mapped to products/brands/categories",
+      "ownerApp": "Buyer/Admin",
+      "phase": "Phase 1",
+      "priority": "P1 High",
+      "status": "Ready for Codex"
+    },
+    {
+      "tableName": "carts",
+      "module": "Buyer",
+      "purpose": "Buyer cart/session cart",
+      "ownerApp": "Buyer web/app",
+      "phase": "Phase 2",
+      "priority": "P0 Critical",
+      "status": "Planned"
+    },
+    {
+      "tableName": "cart_items",
+      "module": "Buyer",
+      "purpose": "Products inside cart",
+      "ownerApp": "Buyer web/app",
+      "phase": "Phase 2",
+      "priority": "P0 Critical",
+      "status": "Planned"
+    },
+    {
+      "tableName": "wishlists",
+      "module": "Buyer",
+      "purpose": "Saved items list",
+      "ownerApp": "Buyer web/app",
+      "phase": "Phase 2",
+      "priority": "P2 Medium",
+      "status": "Later"
+    },
+    {
+      "tableName": "wishlist_items",
+      "module": "Buyer",
+      "purpose": "Items saved inside wishlist",
+      "ownerApp": "Buyer web/app",
+      "phase": "Phase 2",
+      "priority": "P2 Medium",
+      "status": "Later"
+    },
+    {
+      "tableName": "addresses",
+      "module": "Buyer",
+      "purpose": "Delivery addresses",
+      "ownerApp": "Buyer web/app",
+      "phase": "Phase 2",
+      "priority": "P0 Critical",
+      "status": "Planned"
+    },
+    {
+      "tableName": "orders",
+      "module": "Orders",
+      "purpose": "Order header and status",
+      "ownerApp": "Buyer/Seller/Admin/Rider",
+      "phase": "Phase 2",
+      "priority": "P0 Critical",
+      "status": "Planned"
+    },
+    {
+      "tableName": "order_items",
+      "module": "Orders",
+      "purpose": "Products and variants inside each order",
+      "ownerApp": "Buyer/Seller/Admin",
+      "phase": "Phase 2",
+      "priority": "P0 Critical",
+      "status": "Planned"
+    },
+    {
+      "tableName": "payments",
+      "module": "Payments",
+      "purpose": "Payment provider references and status",
+      "ownerApp": "Buyer/Admin",
+      "phase": "Phase 2",
+      "priority": "P0 Critical",
+      "status": "Planned"
+    },
+    {
+      "tableName": "refunds",
+      "module": "Payments",
+      "purpose": "Refund provider references/status",
+      "ownerApp": "Buyer/Admin",
+      "phase": "Phase 3",
+      "priority": "P1 High",
+      "status": "Later"
+    },
+    {
+      "tableName": "shipments",
+      "module": "Delivery",
+      "purpose": "Shipment/delivery record",
+      "ownerApp": "Buyer/Rider/Admin",
+      "phase": "Phase 4",
+      "priority": "P1 High",
+      "status": "Later"
+    },
+    {
+      "tableName": "shipment_events",
+      "module": "Delivery",
+      "purpose": "Tracking timeline events",
+      "ownerApp": "Buyer/Rider/Admin",
+      "phase": "Phase 4",
+      "priority": "P1 High",
+      "status": "Later"
+    },
+    {
+      "tableName": "returns",
+      "module": "Returns",
+      "purpose": "Return request header",
+      "ownerApp": "Buyer/Seller/Admin",
+      "phase": "Phase 3",
+      "priority": "P1 High",
+      "status": "Later"
+    },
+    {
+      "tableName": "return_items",
+      "module": "Returns",
+      "purpose": "Items requested for return",
+      "ownerApp": "Buyer/Seller/Admin",
+      "phase": "Phase 3",
+      "priority": "P1 High",
+      "status": "Later"
+    },
+    {
+      "tableName": "reviews",
+      "module": "Trust",
+      "purpose": "Product reviews/ratings",
+      "ownerApp": "Buyer/Admin",
+      "phase": "Phase 4",
+      "priority": "P2 Medium",
+      "status": "Later"
+    },
+    {
+      "tableName": "support_tickets",
+      "module": "Support",
+      "purpose": "Customer/seller support tickets",
+      "ownerApp": "Buyer/Seller/Admin",
+      "phase": "Phase 3",
+      "priority": "P1 High",
+      "status": "Planned"
+    },
+    {
+      "tableName": "support_messages",
+      "module": "Support",
+      "purpose": "Messages inside support tickets",
+      "ownerApp": "Buyer/Seller/Admin",
+      "phase": "Phase 3",
+      "priority": "P1 High",
+      "status": "Planned"
+    },
+    {
+      "tableName": "homepage_heroes",
+      "module": "Content",
+      "purpose": "Homepage hero slides",
+      "ownerApp": "Buyer/Admin",
+      "phase": "Phase 1",
+      "priority": "P0 Critical",
+      "status": "Ready for Codex"
+    },
+    {
+      "tableName": "brand_heroes",
+      "module": "Content",
+      "purpose": "Brand page hero slides",
+      "ownerApp": "Buyer/Admin",
+      "phase": "Phase 1",
+      "priority": "P0 Critical",
+      "status": "Ready for Codex"
+    },
+    {
+      "tableName": "carousel_slides",
+      "module": "Content",
+      "purpose": "Homepage/category carousel slides",
+      "ownerApp": "Buyer/Admin",
+      "phase": "Phase 1",
+      "priority": "P1 High",
+      "status": "Ready for Codex"
+    },
+    {
+      "tableName": "content_pages",
+      "module": "Content",
+      "purpose": "About, policies, support, terms",
+      "ownerApp": "Buyer/Admin",
+      "phase": "Phase 3",
+      "priority": "P2 Medium",
+      "status": "Later"
+    },
+    {
+      "tableName": "analytics_events",
+      "module": "Analytics",
+      "purpose": "Product views, searches, cart actions",
+      "ownerApp": "Admin",
+      "phase": "Phase 4",
+      "priority": "P2 Medium",
+      "status": "Later"
+    },
+    {
+      "tableName": "audit_logs",
+      "module": "Security",
+      "purpose": "Admin/seller sensitive actions log",
+      "ownerApp": "Admin",
+      "phase": "Phase 3",
+      "priority": "P1 High",
+      "status": "Planned"
+    },
+    {
+      "tableName": "ai_jobs",
+      "module": "AI",
+      "purpose": "AI generation jobs/status/errors/costs",
+      "ownerApp": "Buyer/Seller/Admin",
+      "phase": "Phase 5",
+      "priority": "P1 High",
+      "status": "Later"
+    },
+    {
+      "tableName": "ai_style_profiles",
+      "module": "AI",
+      "purpose": "Buyer style preferences for AI stylist",
+      "ownerApp": "Buyer web/app",
+      "phase": "Phase 5",
+      "priority": "P2 Medium",
+      "status": "Later"
+    },
+    {
+      "tableName": "ai_tryon_sessions",
+      "module": "AI",
+      "purpose": "Try-on session metadata and result references",
+      "ownerApp": "Buyer web/app",
+      "phase": "Phase 5",
+      "priority": "P1 High",
+      "status": "Later"
+    },
+    {
+      "tableName": "seller_payouts",
+      "module": "Seller",
+      "purpose": "Seller payout batch/status references",
+      "ownerApp": "Seller/Admin",
+      "phase": "Phase 4",
+      "priority": "P1 High",
+      "status": "Later"
+    },
+    {
+      "tableName": "coupons",
+      "module": "Marketing",
+      "purpose": "Discount codes and eligibility",
+      "ownerApp": "Buyer/Admin",
+      "phase": "Phase 4",
+      "priority": "P2 Medium",
+      "status": "Later"
+    },
+    {
+      "tableName": "notifications",
+      "module": "Notification",
+      "purpose": "Stored notification history",
+      "ownerApp": "All apps",
+      "phase": "Phase 4",
+      "priority": "P2 Medium",
+      "status": "Later"
+    }
+  ],
+  "backend_api_routes": [
+    {
+      "method": "GET",
+      "route": "/api/health",
+      "module": "System",
+      "access": "Public",
+      "purpose": "Backend health check",
+      "phase": "Phase 1",
+      "status": "Ready for Codex"
+    },
+    {
+      "method": "GET",
+      "route": "/api/products",
+      "module": "Catalog",
+      "access": "Public",
+      "purpose": "List products with filters/search/sort",
+      "phase": "Phase 1",
+      "status": "Ready for Codex"
+    },
+    {
+      "method": "GET",
+      "route": "/api/products/:slug",
+      "module": "Catalog",
+      "access": "Public",
+      "purpose": "Read product detail page",
+      "phase": "Phase 1",
+      "status": "Ready for Codex"
+    },
+    {
+      "method": "GET",
+      "route": "/api/brands",
+      "module": "Catalog",
+      "access": "Public",
+      "purpose": "List brands",
+      "phase": "Phase 1",
+      "status": "Ready for Codex"
+    },
+    {
+      "method": "GET",
+      "route": "/api/brands/:slug",
+      "module": "Catalog",
+      "access": "Public",
+      "purpose": "Read brand page",
+      "phase": "Phase 1",
+      "status": "Ready for Codex"
+    },
+    {
+      "method": "GET",
+      "route": "/api/categories",
+      "module": "Catalog",
+      "access": "Public",
+      "purpose": "List categories",
+      "phase": "Phase 1",
+      "status": "Ready for Codex"
+    },
+    {
+      "method": "GET",
+      "route": "/api/categories/:slug",
+      "module": "Catalog",
+      "access": "Public",
+      "purpose": "Read category page + products",
+      "phase": "Phase 1",
+      "status": "Ready for Codex"
+    },
+    {
+      "method": "GET",
+      "route": "/api/collections",
+      "module": "Catalog",
+      "access": "Public",
+      "purpose": "List collections",
+      "phase": "Phase 1",
+      "status": "Ready for Codex"
+    },
+    {
+      "method": "GET",
+      "route": "/api/search?q=",
+      "module": "Search",
+      "access": "Public",
+      "purpose": "Search products/brands/categories/tags",
+      "phase": "Phase 1",
+      "status": "Ready for Codex"
+    },
+    {
+      "method": "GET",
+      "route": "/api/homepage/heroes",
+      "module": "Content",
+      "access": "Public",
+      "purpose": "Homepage hero slides",
+      "phase": "Phase 1",
+      "status": "Ready for Codex"
+    },
+    {
+      "method": "GET",
+      "route": "/api/brand-heroes/:brandSlug",
+      "module": "Content",
+      "access": "Public",
+      "purpose": "Brand page hero slides",
+      "phase": "Phase 1",
+      "status": "Ready for Codex"
+    },
+    {
+      "method": "GET",
+      "route": "/api/carousels/:name",
+      "module": "Content",
+      "access": "Public",
+      "purpose": "Carousel slides by placement",
+      "phase": "Phase 1",
+      "status": "Ready for Codex"
+    },
+    {
+      "method": "POST",
+      "route": "/api/auth/signup",
+      "module": "Auth",
+      "access": "Public",
+      "purpose": "Buyer signup",
+      "phase": "Phase 2",
+      "status": "Planned"
+    },
+    {
+      "method": "POST",
+      "route": "/api/auth/login",
+      "module": "Auth",
+      "access": "Public",
+      "purpose": "Login",
+      "phase": "Phase 2",
+      "status": "Planned"
+    },
+    {
+      "method": "POST",
+      "route": "/api/auth/logout",
+      "module": "Auth",
+      "access": "Logged-in user",
+      "purpose": "Logout",
+      "phase": "Phase 2",
+      "status": "Planned"
+    },
+    {
+      "method": "POST",
+      "route": "/api/auth/refresh",
+      "module": "Auth",
+      "access": "Logged-in user",
+      "purpose": "Refresh auth token/session",
+      "phase": "Phase 2",
+      "status": "Planned"
+    },
+    {
+      "method": "GET",
+      "route": "/api/me",
+      "module": "Auth",
+      "access": "Logged-in user",
+      "purpose": "Current profile",
+      "phase": "Phase 2",
+      "status": "Planned"
+    },
+    {
+      "method": "PATCH",
+      "route": "/api/me",
+      "module": "Auth",
+      "access": "Logged-in user",
+      "purpose": "Update profile",
+      "phase": "Phase 2",
+      "status": "Planned"
+    },
+    {
+      "method": "GET",
+      "route": "/api/cart",
+      "module": "Buyer",
+      "access": "Buyer/guest",
+      "purpose": "Read cart",
+      "phase": "Phase 2",
+      "status": "Planned"
+    },
+    {
+      "method": "POST",
+      "route": "/api/cart/items",
+      "module": "Buyer",
+      "access": "Buyer/guest",
+      "purpose": "Add item to cart",
+      "phase": "Phase 2",
+      "status": "Planned"
+    },
+    {
+      "method": "PATCH",
+      "route": "/api/cart/items/:id",
+      "module": "Buyer",
+      "access": "Buyer/guest",
+      "purpose": "Update cart quantity",
+      "phase": "Phase 2",
+      "status": "Planned"
+    },
+    {
+      "method": "DELETE",
+      "route": "/api/cart/items/:id",
+      "module": "Buyer",
+      "access": "Buyer/guest",
+      "purpose": "Remove cart item",
+      "phase": "Phase 2",
+      "status": "Planned"
+    },
+    {
+      "method": "GET",
+      "route": "/api/wishlist",
+      "module": "Buyer",
+      "access": "Buyer",
+      "purpose": "Read wishlist",
+      "phase": "Phase 2",
+      "status": "Later"
+    },
+    {
+      "method": "POST",
+      "route": "/api/wishlist/items",
+      "module": "Buyer",
+      "access": "Buyer",
+      "purpose": "Add wishlist item",
+      "phase": "Phase 2",
+      "status": "Later"
+    },
+    {
+      "method": "DELETE",
+      "route": "/api/wishlist/items/:id",
+      "module": "Buyer",
+      "access": "Buyer",
+      "purpose": "Remove wishlist item",
+      "phase": "Phase 2",
+      "status": "Later"
+    },
+    {
+      "method": "GET",
+      "route": "/api/addresses",
+      "module": "Buyer",
+      "access": "Buyer",
+      "purpose": "List delivery addresses",
+      "phase": "Phase 2",
+      "status": "Planned"
+    },
+    {
+      "method": "POST",
+      "route": "/api/addresses",
+      "module": "Buyer",
+      "access": "Buyer",
+      "purpose": "Add address",
+      "phase": "Phase 2",
+      "status": "Planned"
+    },
+    {
+      "method": "PATCH",
+      "route": "/api/addresses/:id",
+      "module": "Buyer",
+      "access": "Buyer",
+      "purpose": "Update address",
+      "phase": "Phase 2",
+      "status": "Planned"
+    },
+    {
+      "method": "DELETE",
+      "route": "/api/addresses/:id",
+      "module": "Buyer",
+      "access": "Buyer",
+      "purpose": "Delete address",
+      "phase": "Phase 2",
+      "status": "Planned"
+    },
+    {
+      "method": "POST",
+      "route": "/api/orders",
+      "module": "Orders",
+      "access": "Buyer",
+      "purpose": "Create order",
+      "phase": "Phase 2",
+      "status": "Planned"
+    },
+    {
+      "method": "GET",
+      "route": "/api/orders",
+      "module": "Orders",
+      "access": "Buyer",
+      "purpose": "List buyer orders",
+      "phase": "Phase 2",
+      "status": "Planned"
+    },
+    {
+      "method": "GET",
+      "route": "/api/orders/:id",
+      "module": "Orders",
+      "access": "Buyer/Admin/Seller",
+      "purpose": "Read order detail",
+      "phase": "Phase 2",
+      "status": "Planned"
+    },
+    {
+      "method": "POST",
+      "route": "/api/payments/create",
+      "module": "Payments",
+      "access": "Buyer",
+      "purpose": "Create payment order/reference",
+      "phase": "Phase 2",
+      "status": "Planned"
+    },
+    {
+      "method": "POST",
+      "route": "/api/payments/webhook",
+      "module": "Payments",
+      "access": "Payment provider",
+      "purpose": "Payment status webhook",
+      "phase": "Phase 2",
+      "status": "Planned"
+    },
+    {
+      "method": "POST",
+      "route": "/api/returns",
+      "module": "Returns",
+      "access": "Buyer",
+      "purpose": "Create return request",
+      "phase": "Phase 3",
+      "status": "Later"
+    },
+    {
+      "method": "GET",
+      "route": "/api/support/tickets",
+      "module": "Support",
+      "access": "Logged-in user",
+      "purpose": "List tickets",
+      "phase": "Phase 3",
+      "status": "Planned"
+    },
+    {
+      "method": "POST",
+      "route": "/api/support/tickets",
+      "module": "Support",
+      "access": "Logged-in user",
+      "purpose": "Create support ticket",
+      "phase": "Phase 3",
+      "status": "Planned"
+    },
+    {
+      "method": "POST",
+      "route": "/api/support/tickets/:id/messages",
+      "module": "Support",
+      "access": "Logged-in user",
+      "purpose": "Reply to ticket",
+      "phase": "Phase 3",
+      "status": "Planned"
+    },
+    {
+      "method": "GET",
+      "route": "/api/seller/products",
+      "module": "Seller",
+      "access": "Seller",
+      "purpose": "List seller products",
+      "phase": "Phase 3",
+      "status": "Planned"
+    },
+    {
+      "method": "POST",
+      "route": "/api/seller/products",
+      "module": "Seller",
+      "access": "Seller",
+      "purpose": "Create seller product draft",
+      "phase": "Phase 3",
+      "status": "Planned"
+    },
+    {
+      "method": "PATCH",
+      "route": "/api/seller/products/:id",
+      "module": "Seller",
+      "access": "Seller",
+      "purpose": "Update seller product",
+      "phase": "Phase 3",
+      "status": "Planned"
+    },
+    {
+      "method": "GET",
+      "route": "/api/seller/orders",
+      "module": "Seller",
+      "access": "Seller",
+      "purpose": "List seller orders",
+      "phase": "Phase 3",
+      "status": "Planned"
+    },
+    {
+      "method": "GET",
+      "route": "/api/seller/payouts",
+      "module": "Seller",
+      "access": "Seller",
+      "purpose": "List payout records",
+      "phase": "Phase 4",
+      "status": "Later"
+    },
+    {
+      "method": "GET",
+      "route": "/api/admin/products",
+      "module": "Admin",
+      "access": "Admin",
+      "purpose": "Manage all products",
+      "phase": "Phase 3",
+      "status": "Planned"
+    },
+    {
+      "method": "PATCH",
+      "route": "/api/admin/products/:id/status",
+      "module": "Admin",
+      "access": "Admin",
+      "purpose": "Approve/hide product",
+      "phase": "Phase 3",
+      "status": "Planned"
+    },
+    {
+      "method": "GET",
+      "route": "/api/admin/sellers",
+      "module": "Admin",
+      "access": "Admin",
+      "purpose": "Manage sellers",
+      "phase": "Phase 3",
+      "status": "Planned"
+    },
+    {
+      "method": "PATCH",
+      "route": "/api/admin/sellers/:id/status",
+      "module": "Admin",
+      "access": "Admin",
+      "purpose": "Approve/block seller",
+      "phase": "Phase 3",
+      "status": "Planned"
+    },
+    {
+      "method": "GET",
+      "route": "/api/admin/orders",
+      "module": "Admin",
+      "access": "Admin",
+      "purpose": "Manage orders",
+      "phase": "Phase 3",
+      "status": "Planned"
+    },
+    {
+      "method": "GET",
+      "route": "/api/admin/support/tickets",
+      "module": "Admin",
+      "access": "Admin",
+      "purpose": "Manage support",
+      "phase": "Phase 3",
+      "status": "Planned"
+    },
+    {
+      "method": "GET",
+      "route": "/api/admin/analytics",
+      "module": "Admin",
+      "access": "Admin",
+      "purpose": "Read analytics dashboard",
+      "phase": "Phase 4",
+      "status": "Later"
+    },
+    {
+      "method": "GET",
+      "route": "/api/rider/tasks",
+      "module": "Rider",
+      "access": "Rider",
+      "purpose": "List assigned delivery tasks",
+      "phase": "Phase 4",
+      "status": "Later"
+    },
+    {
+      "method": "PATCH",
+      "route": "/api/rider/tasks/:id/status",
+      "module": "Rider",
+      "access": "Rider",
+      "purpose": "Update pickup/delivery status",
+      "phase": "Phase 4",
+      "status": "Later"
+    },
+    {
+      "method": "POST",
+      "route": "/api/ai/stylist",
+      "module": "AI",
+      "access": "Buyer",
+      "purpose": "Create AI stylist job",
+      "phase": "Phase 5",
+      "status": "Later"
+    },
+    {
+      "method": "POST",
+      "route": "/api/ai/seller/product-copy",
+      "module": "AI",
+      "access": "Seller",
+      "purpose": "Generate product title/description",
+      "phase": "Phase 5",
+      "status": "Later"
+    },
+    {
+      "method": "POST",
+      "route": "/api/ai/try-on",
+      "module": "AI",
+      "access": "Buyer",
+      "purpose": "Create AI try-on session",
+      "phase": "Phase 5",
+      "status": "Later"
+    },
+    {
+      "method": "GET",
+      "route": "/api/ai/jobs/:id",
+      "module": "AI",
+      "access": "Logged-in user",
+      "purpose": "Read AI job status",
+      "phase": "Phase 5",
+      "status": "Later"
+    }
+  ],
+  "seed_mapping": [
+    {
+      "sourceSheet": "Products",
+      "backendTables": "products, product_images, product_variants, inventory, product_tags, search_keywords",
+      "fieldsToMap": "Product ID, Product Name, Brand Name, Category, Tags, Price, Sale Price, Description, Main Image File Name, Sizes, Colors, SKU, Status, Search Keywords",
+      "importPhase": "Phase 1",
+      "minimumRequired": "Product Name, Brand, Category, Price, Image File Name, Status"
+    },
+    {
+      "sourceSheet": "Brands",
+      "backendTables": "brands, brand_heroes, search_keywords",
+      "fieldsToMap": "Brand ID, Brand Name, Brand Slug, Description, Hero Image, Logo, Featured, Top Brand, Search Keywords, Status",
+      "importPhase": "Phase 1",
+      "minimumRequired": "Brand Name, Slug, Status"
+    },
+    {
+      "sourceSheet": "Categories",
+      "backendTables": "categories, search_keywords",
+      "fieldsToMap": "Category ID, Category Name, Slug, Description, Image File Name, Display Order, Featured, Search Keywords, Status",
+      "importPhase": "Phase 1",
+      "minimumRequired": "Category Name, Slug, Image File Name"
+    },
+    {
+      "sourceSheet": "Homepage Heroes",
+      "backendTables": "homepage_heroes",
+      "fieldsToMap": "Hero ID, Title, Subtitle, Button Text, Button Link, Image File Name, Mobile Image File Name, Display Order, Status",
+      "importPhase": "Phase 1",
+      "minimumRequired": "Title, Image, Display Order, Status"
+    },
+    {
+      "sourceSheet": "Brand Page Heroes",
+      "backendTables": "brand_heroes",
+      "fieldsToMap": "Brand Name, Brand Slug, Hero Title, Hero Subtitle, Hero Image, Mobile Hero Image, CTA Text, CTA Link, Display Order, Status",
+      "importPhase": "Phase 1",
+      "minimumRequired": "Brand Slug, Hero Title, Hero Image"
+    },
+    {
+      "sourceSheet": "Carousels",
+      "backendTables": "carousel_slides",
+      "fieldsToMap": "Carousel ID, Carousel Name, Slide Title, Slide Subtitle, Image File Name, Button Text, Button Link, Display Order, Status",
+      "importPhase": "Phase 1",
+      "minimumRequired": "Carousel Name, Slide Title, Image"
+    },
+    {
+      "sourceSheet": "Assets",
+      "backendTables": "product_images, brands, categories, homepage_heroes, brand_heroes, carousel_slides",
+      "fieldsToMap": "Asset Type, File Name, Used In, Status, Notes",
+      "importPhase": "Phase 1",
+      "minimumRequired": "File Name and where it is used"
+    },
+    {
+      "sourceSheet": "SEO Pages",
+      "backendTables": "content_pages",
+      "fieldsToMap": "Page Slug, SEO Title, SEO Description, Status",
+      "importPhase": "Phase 3",
+      "minimumRequired": "Slug, Title, Description"
+    }
+  ]
+}

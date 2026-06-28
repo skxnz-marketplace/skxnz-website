@@ -1,0 +1,7 @@
+<svg width="900" height="900" viewBox="0 0 900 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="900" height="900" rx="220" fill="#FBF5EE"/>
+  <rect x="45" y="45" width="810" height="810" rx="190" fill="#F2E4CB" stroke="#DCC7A9" stroke-width="10"/>
+  <path d="M224 456L426 240H528L326 456L528 672H426L224 456Z" fill="#5A1F2E"/>
+  <path d="M536 240H684L828 384V528L684 672H536L680 528V384L536 240Z" fill="#2F6F73"/>
+  <text x="180" y="788" fill="#5A1F2E" font-family="Arial, Helvetica, sans-serif" font-size="68" letter-spacing="14">SKXNZ</text>
+</svg>

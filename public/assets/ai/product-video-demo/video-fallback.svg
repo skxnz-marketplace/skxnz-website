@@ -1,0 +1,10 @@
+<svg width="1800" height="900" viewBox="0 0 1800 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1800" height="900" fill="#231F1B"/>
+  <rect y="80" width="1800" height="820" fill="#F2E4CB"/>
+  <rect x="84" y="130" width="1632" height="680" rx="44" fill="#FBF5EE" stroke="#DCC7A9" stroke-width="10"/>
+  <circle cx="1428" cy="302" r="182" fill="#2F6F73" fill-opacity="0.16"/>
+  <circle cx="1312" cy="592" r="224" fill="#B97D5A" fill-opacity="0.18"/>
+  <text x="126" y="362" fill="#5A1F2E" font-family="Arial, Helvetica, sans-serif" font-size="122" letter-spacing="24">WEAR THE SIGNAL.</text>
+  <text x="126" y="464" fill="#231F1B" font-family="Arial, Helvetica, sans-serif" font-size="38" letter-spacing="12">SKXNZ HERO PLACEHOLDER</text>
+  <text x="126" y="548" fill="#2F6F73" font-family="Arial, Helvetica, sans-serif" font-size="28" letter-spacing="8">Premium futurewear imagery can be connected here safely.</text>
+</svg>

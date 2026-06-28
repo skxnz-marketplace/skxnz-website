@@ -1,0 +1,9 @@
+<svg width="900" height="900" viewBox="0 0 900 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="900" height="900" rx="140" fill="#FBF5EE"/>
+  <rect x="40" y="40" width="820" height="820" rx="108" fill="#F2E4CB" stroke="#DCC7A9" stroke-width="10"/>
+  <rect x="226" y="248" width="448" height="308" rx="42" fill="#5A1F2E"/>
+  <rect x="266" y="288" width="368" height="92" rx="20" fill="#FBF5EE"/>
+  <rect x="266" y="408" width="204" height="92" rx="20" fill="#2F6F73"/>
+  <text x="254" y="700" fill="#231F1B" font-family="Arial, Helvetica, sans-serif" font-size="54" letter-spacing="12">SELLER</text>
+  <text x="254" y="760" fill="#5A1F2E" font-family="Arial, Helvetica, sans-serif" font-size="54" letter-spacing="12">PREVIEW</text>
+</svg>

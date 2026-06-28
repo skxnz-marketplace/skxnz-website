@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 720" fill="none">
+  <rect width="1600" height="720" fill="#0A0D14"/>
+  <rect width="1600" height="720" fill="url(#bg)"/>
+  <circle cx="1320" cy="128" r="210" fill="#00E5FF" fill-opacity=".16"/>
+  <circle cx="300" cy="640" r="280" fill="#6B00FF" fill-opacity=".16"/>
+  <circle cx="980" cy="540" r="220" fill="#FF007A" fill-opacity=".1"/>
+  <path d="M1038 118c120 40 216 116 216 212 0 164-172 260-370 260-194 0-310-84-310-208 0-98 78-186 168-230l108 78c-50 28-96 82-96 130 0 68 62 116 176 116 122 0 200-54 200-132 0-52-38-102-106-136l14-90Z" fill="url(#coat)" fill-opacity=".95"/>
+  <path d="M1062 162c84 24 164 76 164 142 0 86-106 162-258 184l-118-84c102-10 176-44 176-96 0-34-26-62-72-84l108-62Z" fill="#F5F7FA" fill-opacity=".2"/>
+  <rect x="96" y="86" width="514" height="548" rx="26" stroke="url(#frame)" stroke-opacity=".6"/>
+  <path d="M136 176h302" stroke="#F5F7FA" stroke-opacity=".3" stroke-width="2"/>
+  <path d="M136 214h206" stroke="#F5F7FA" stroke-opacity=".2" stroke-width="2"/>
+  <path d="M136 552h224" stroke="#00E5FF" stroke-opacity=".32" stroke-width="2"/>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1600" y2="720" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#101829"/>
+      <stop offset=".56" stop-color="#0A0D14"/>
+      <stop offset="1" stop-color="#0D1322"/>
+    </linearGradient>
+    <linearGradient id="coat" x1="754" y1="118" x2="1180" y2="590" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F5F7FA" stop-opacity=".96"/>
+      <stop offset=".44" stop-color="#C0C6CC" stop-opacity=".84"/>
+      <stop offset=".8" stop-color="#6B00FF" stop-opacity=".62"/>
+      <stop offset="1" stop-color="#0F1626"/>
+    </linearGradient>
+    <linearGradient id="frame" x1="96" y1="86" x2="610" y2="634" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#00E5FF"/>
+      <stop offset=".5" stop-color="#F5F7FA" stop-opacity=".4"/>
+      <stop offset="1" stop-color="#6B00FF"/>
+    </linearGradient>
+  </defs>
+</svg>

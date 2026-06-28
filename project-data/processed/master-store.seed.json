@@ -1,0 +1,2791 @@
+{
+  "generatedAt": "2026-05-07T11:44:24.679233+00:00",
+  "source": "project-data/source-sheets/SKXNZ_MASTER_STORE_DATABASE_FINAL.xlsx",
+  "products": [
+    {
+      "id": "sku-001",
+      "sourceProductId": "SKXNZ-001",
+      "slug": "obsidian-signal-oversized-tee",
+      "name": "Obsidian Signal Oversized Tee",
+      "brandId": "brand-001",
+      "brandSlug": "skxnz",
+      "brandName": "SKXNZ",
+      "category": "Men",
+      "subcategory": "T-Shirts",
+      "gender": "Men",
+      "collections": [
+        "Wear The Signal"
+      ],
+      "collectionSlug": "wear-the-signal",
+      "tags": [
+        "oversized",
+        "black",
+        "streetwear",
+        "premium"
+      ],
+      "priceInr": 2499,
+      "salePriceInr": 1999,
+      "currency": "INR",
+      "description": "Premium oversized tee concept built around the SKXNZ signal identity.",
+      "shortDescription": "Oversized premium SKXNZ tee.",
+      "image": "/assets/demo/uploaded/products/skxnz-graphic-tee.png",
+      "gallery": [
+        "/assets/demo/uploaded/products/skxnz-graphic-tee.png",
+        "/assets/demo/products/product-01.webp",
+        "/assets/demo/products/product-03.webp",
+        "/assets/demo/uploaded/products/skxnz-back-tee.png"
+      ],
+      "sourceImageFileNames": [
+        "product-obsidian-signal-tee-01.png",
+        "product-obsidian-signal-tee-02.png",
+        "product-obsidian-signal-tee-03.png",
+        "product-obsidian-signal-tee-04.png"
+      ],
+      "availableSizes": [
+        "S",
+        "M",
+        "L",
+        "XL",
+        "XXL"
+      ],
+      "availableColors": [
+        "Obsidian Black"
+      ],
+      "stockQuantity": 50,
+      "stockStatus": "In Stock",
+      "sku": "SKXNZ-TEE-001",
+      "status": "Demo",
+      "featured": true,
+      "homepageDisplay": true,
+      "brandPageDisplay": true,
+      "searchKeywords": [
+        "men tee",
+        "oversized tee",
+        "black tee",
+        "streetwear",
+        "skxnz",
+        "wear the signal",
+        "oversized",
+        "black",
+        "premium",
+        "Men",
+        "T-Shirts",
+        "SKXNZ",
+        "Wear The Signal"
+      ],
+      "createdDate": "2026-05-04",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "sku-002",
+      "sourceProductId": "SKXNZ-002",
+      "slug": "pearl-signal-crop-jacket",
+      "name": "Pearl Signal Crop Jacket",
+      "brandId": "brand-001",
+      "brandSlug": "skxnz",
+      "brandName": "SKXNZ",
+      "category": "Woman",
+      "subcategory": "Jackets",
+      "gender": "Woman",
+      "collections": [
+        "New Season"
+      ],
+      "collectionSlug": "new-season",
+      "tags": [
+        "jacket",
+        "pearl",
+        "premium",
+        "futuristic"
+      ],
+      "priceInr": 4999,
+      "salePriceInr": 4299,
+      "currency": "INR",
+      "description": "A pearl-toned cropped jacket concept for futurewear styling.",
+      "shortDescription": "Pearl cropped futurewear jacket.",
+      "image": "/assets/demo/uploaded/editorial/afterlast-duo.png",
+      "gallery": [
+        "/assets/demo/uploaded/editorial/afterlast-duo.png",
+        "/assets/demo/products/product-02.webp",
+        "/assets/demo/products/product-07.webp",
+        "/assets/demo/uploaded/editorial/fire-shirt-look.png"
+      ],
+      "sourceImageFileNames": [
+        "product-pearl-crop-jacket-01.png",
+        "product-pearl-crop-jacket-02.png",
+        "product-pearl-crop-jacket-03.png",
+        "product-pearl-crop-jacket-04.png"
+      ],
+      "availableSizes": [
+        "XS",
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "availableColors": [
+        "Pearl White"
+      ],
+      "stockQuantity": 35,
+      "stockStatus": "In Stock",
+      "sku": "SKXNZ-JKT-002",
+      "status": "Demo",
+      "featured": true,
+      "homepageDisplay": true,
+      "brandPageDisplay": true,
+      "searchKeywords": [
+        "woman jacket",
+        "crop jacket",
+        "pearl jacket",
+        "new season",
+        "skxnz",
+        "jacket",
+        "pearl",
+        "premium",
+        "futuristic",
+        "Woman",
+        "Jackets",
+        "SKXNZ",
+        "New Season"
+      ],
+      "createdDate": "2026-05-04",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "sku-003",
+      "sourceProductId": "SKXNZ-003",
+      "slug": "chrome-trace-hoodie",
+      "name": "Chrome Trace Hoodie",
+      "brandId": "brand-001",
+      "brandSlug": "skxnz",
+      "brandName": "SKXNZ",
+      "category": "Streetwear",
+      "subcategory": "Hoodies",
+      "gender": "Unisex",
+      "collections": [
+        "Wear The Signal"
+      ],
+      "collectionSlug": "wear-the-signal",
+      "tags": [
+        "hoodie",
+        "chrome",
+        "streetwear",
+        "unisex"
+      ],
+      "priceInr": 3999,
+      "salePriceInr": 3499,
+      "currency": "INR",
+      "description": "A clean heavyweight hoodie concept with chrome signal detailing.",
+      "shortDescription": "Premium chrome streetwear hoodie.",
+      "image": "/assets/demo/products/product-01.webp",
+      "gallery": [
+        "/assets/demo/products/product-01.webp",
+        "/assets/demo/uploaded/products/skxnz-back-tee.png",
+        "/assets/demo/products/product-07.webp",
+        "/assets/demo/uploaded/editorial/monochrome-fit.png"
+      ],
+      "sourceImageFileNames": [
+        "product-chrome-trace-hoodie-01.png",
+        "product-chrome-trace-hoodie-02.png",
+        "product-chrome-trace-hoodie-03.png",
+        "product-chrome-trace-hoodie-04.png"
+      ],
+      "availableSizes": [
+        "S",
+        "M",
+        "L",
+        "XL",
+        "XXL"
+      ],
+      "availableColors": [
+        "Midnight Navy"
+      ],
+      "stockQuantity": 40,
+      "stockStatus": "In Stock",
+      "sku": "SKXNZ-HDY-003",
+      "status": "Demo",
+      "featured": true,
+      "homepageDisplay": true,
+      "brandPageDisplay": true,
+      "searchKeywords": [
+        "hoodie",
+        "streetwear",
+        "unisex hoodie",
+        "chrome hoodie",
+        "skxnz",
+        "chrome",
+        "unisex",
+        "Streetwear",
+        "Hoodies",
+        "SKXNZ",
+        "Wear The Signal"
+      ],
+      "createdDate": "2026-05-04",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "sku-004",
+      "sourceProductId": "SKXNZ-004",
+      "slug": "sonic-magenta-mini-bag",
+      "name": "Sonic Magenta Mini Bag",
+      "brandId": "brand-001",
+      "brandSlug": "skxnz",
+      "brandName": "SKXNZ",
+      "category": "Accessories",
+      "subcategory": "Bags",
+      "gender": "Unisex",
+      "collections": [
+        "Limited Edition"
+      ],
+      "collectionSlug": "limited-edition",
+      "tags": [
+        "bag",
+        "magenta",
+        "accessory",
+        "luxury"
+      ],
+      "priceInr": 2999,
+      "salePriceInr": 2499,
+      "currency": "INR",
+      "description": "Compact statement bag concept with sonic magenta detailing.",
+      "shortDescription": "Premium mini accessory bag.",
+      "image": "/assets/demo/products/product-06.webp",
+      "gallery": [
+        "/assets/demo/products/product-06.webp",
+        "/assets/demo/products/product-05.webp",
+        "/assets/demo/uploaded/categories/streetwear-chain.png",
+        "/assets/demo/uploaded/editorial/afterlast-duo.png"
+      ],
+      "sourceImageFileNames": [
+        "product-sonic-mini-bag-01.png",
+        "product-sonic-mini-bag-02.png",
+        "product-sonic-mini-bag-03.png",
+        "product-sonic-mini-bag-04.png"
+      ],
+      "availableSizes": [
+        "One Size"
+      ],
+      "availableColors": [
+        "Sonic Magenta"
+      ],
+      "stockQuantity": 25,
+      "stockStatus": "In Stock",
+      "sku": "SKXNZ-BAG-004",
+      "status": "Demo",
+      "featured": true,
+      "homepageDisplay": true,
+      "brandPageDisplay": true,
+      "searchKeywords": [
+        "accessories",
+        "bag",
+        "mini bag",
+        "magenta",
+        "limited edition",
+        "accessory",
+        "luxury",
+        "Accessories",
+        "Bags",
+        "SKXNZ",
+        "Limited Edition"
+      ],
+      "createdDate": "2026-05-04",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "sku-005",
+      "sourceProductId": "SKXNZ-005",
+      "slug": "liquid-silver-perfume",
+      "name": "Liquid Silver Perfume",
+      "brandId": "brand-001",
+      "brandSlug": "skxnz",
+      "brandName": "SKXNZ",
+      "category": "Perfume",
+      "subcategory": "Fragrance",
+      "gender": "Unisex",
+      "collections": [
+        "AI Stylised"
+      ],
+      "collectionSlug": "ai-stylised",
+      "tags": [
+        "perfume",
+        "silver",
+        "fragrance",
+        "luxury"
+      ],
+      "priceInr": 3499,
+      "salePriceInr": 2999,
+      "currency": "INR",
+      "description": "A luxury fragrance concept for the SKXNZ futurewear identity.",
+      "shortDescription": "Liquid silver fragrance concept.",
+      "image": "/assets/demo/uploaded/editorial/chrome-queen.png",
+      "gallery": [
+        "/assets/demo/uploaded/editorial/chrome-queen.png",
+        "/assets/demo/products/product-05.webp",
+        "/assets/demo/products/product-09.webp",
+        "/assets/demo/uploaded/editorial/afterlast-smoke.png"
+      ],
+      "sourceImageFileNames": [
+        "product-liquid-silver-perfume-01.png",
+        "product-liquid-silver-perfume-02.png",
+        "product-liquid-silver-perfume-03.png",
+        "product-liquid-silver-perfume-04.png"
+      ],
+      "availableSizes": [
+        "100ML"
+      ],
+      "availableColors": [
+        "Liquid Silver"
+      ],
+      "stockQuantity": 30,
+      "stockStatus": "In Stock",
+      "sku": "SKXNZ-PRF-005",
+      "status": "Demo",
+      "featured": true,
+      "homepageDisplay": true,
+      "brandPageDisplay": true,
+      "searchKeywords": [
+        "perfume",
+        "fragrance",
+        "unisex perfume",
+        "silver",
+        "ai stylised",
+        "luxury",
+        "Perfume",
+        "Fragrance",
+        "SKXNZ",
+        "AI Stylised"
+      ],
+      "createdDate": "2026-05-04",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "sku-006",
+      "sourceProductId": "SKXNZ-006",
+      "slug": "midnight-cargo-pants",
+      "name": "Midnight Cargo Pants",
+      "brandId": "brand-001",
+      "brandSlug": "skxnz",
+      "brandName": "SKXNZ",
+      "category": "Men",
+      "subcategory": "Pants",
+      "gender": "Men",
+      "collections": [
+        "Streetwear"
+      ],
+      "collectionSlug": "streetwear",
+      "tags": [
+        "cargo",
+        "pants",
+        "navy",
+        "utility"
+      ],
+      "priceInr": 3799,
+      "salePriceInr": 3299,
+      "currency": "INR",
+      "description": "Utility cargo pants concept with premium streetwear proportions.",
+      "shortDescription": "Premium midnight cargo pants.",
+      "image": "/assets/demo/products/product-01.webp",
+      "gallery": [
+        "/assets/demo/products/product-01.webp"
+      ],
+      "sourceImageFileNames": [
+        "product-midnight-cargo-pants-01.png",
+        "product-midnight-cargo-pants-02.png",
+        "product-midnight-cargo-pants-03.png",
+        "product-midnight-cargo-pants-04.png"
+      ],
+      "availableSizes": [
+        "S",
+        "M",
+        "L",
+        "XL",
+        "XXL"
+      ],
+      "availableColors": [
+        "Midnight Navy"
+      ],
+      "stockQuantity": 45,
+      "stockStatus": "In Stock",
+      "sku": "SKXNZ-PNT-006",
+      "status": "Demo",
+      "featured": false,
+      "homepageDisplay": false,
+      "brandPageDisplay": true,
+      "searchKeywords": [
+        "men pants",
+        "cargo pants",
+        "streetwear pants",
+        "utility",
+        "cargo",
+        "pants",
+        "navy",
+        "Men",
+        "Pants",
+        "SKXNZ",
+        "Streetwear"
+      ],
+      "createdDate": "2026-05-04",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "sku-007",
+      "sourceProductId": "SKXNZ-007",
+      "slug": "ultraviolet-mesh-top",
+      "name": "Ultraviolet Mesh Top",
+      "brandId": "brand-001",
+      "brandSlug": "skxnz",
+      "brandName": "SKXNZ",
+      "category": "Woman",
+      "subcategory": "Tops",
+      "gender": "Woman",
+      "collections": [
+        "AI Stylised"
+      ],
+      "collectionSlug": "ai-stylised",
+      "tags": [
+        "mesh",
+        "top",
+        "ultraviolet",
+        "futuristic"
+      ],
+      "priceInr": 2799,
+      "salePriceInr": 2299,
+      "currency": "INR",
+      "description": "Futuristic mesh top concept with ultraviolet visual direction.",
+      "shortDescription": "Ultraviolet premium mesh top.",
+      "image": "/assets/demo/products/product-01.webp",
+      "gallery": [
+        "/assets/demo/products/product-01.webp"
+      ],
+      "sourceImageFileNames": [
+        "product-ultraviolet-mesh-top-01.png",
+        "product-ultraviolet-mesh-top-02.png",
+        "product-ultraviolet-mesh-top-03.png",
+        "product-ultraviolet-mesh-top-04.png"
+      ],
+      "availableSizes": [
+        "XS",
+        "S",
+        "M",
+        "L"
+      ],
+      "availableColors": [
+        "Ultraviolet Purple"
+      ],
+      "stockQuantity": 38,
+      "stockStatus": "In Stock",
+      "sku": "SKXNZ-TOP-007",
+      "status": "Demo",
+      "featured": false,
+      "homepageDisplay": false,
+      "brandPageDisplay": true,
+      "searchKeywords": [
+        "woman top",
+        "mesh top",
+        "ultraviolet",
+        "ai fashion",
+        "mesh",
+        "top",
+        "futuristic",
+        "Woman",
+        "Tops",
+        "SKXNZ",
+        "AI Stylised"
+      ],
+      "createdDate": "2026-05-04",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "sku-008",
+      "sourceProductId": "SKXNZ-008",
+      "slug": "pearl-white-sneakers",
+      "name": "Pearl White Sneakers",
+      "brandId": "brand-001",
+      "brandSlug": "skxnz",
+      "brandName": "SKXNZ",
+      "category": "Footwear",
+      "subcategory": "Sneakers",
+      "gender": "Unisex",
+      "collections": [
+        "New Season"
+      ],
+      "collectionSlug": "new-season",
+      "tags": [
+        "sneakers",
+        "pearl",
+        "footwear",
+        "premium"
+      ],
+      "priceInr": 5999,
+      "salePriceInr": 4999,
+      "currency": "INR",
+      "description": "Clean futuristic sneaker concept with pearl white styling.",
+      "shortDescription": "Pearl white premium sneakers.",
+      "image": "/assets/demo/products/product-01.webp",
+      "gallery": [
+        "/assets/demo/products/product-01.webp"
+      ],
+      "sourceImageFileNames": [
+        "product-pearl-white-sneakers-01.png",
+        "product-pearl-white-sneakers-02.png",
+        "product-pearl-white-sneakers-03.png",
+        "product-pearl-white-sneakers-04.png"
+      ],
+      "availableSizes": [
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11"
+      ],
+      "availableColors": [
+        "Pearl White"
+      ],
+      "stockQuantity": 30,
+      "stockStatus": "In Stock",
+      "sku": "SKXNZ-SNK-008",
+      "status": "Demo",
+      "featured": true,
+      "homepageDisplay": true,
+      "brandPageDisplay": true,
+      "searchKeywords": [
+        "sneakers",
+        "footwear",
+        "pearl sneakers",
+        "new season",
+        "pearl",
+        "premium",
+        "Footwear",
+        "Sneakers",
+        "SKXNZ",
+        "New Season"
+      ],
+      "createdDate": "2026-05-04",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "sku-009",
+      "sourceProductId": "SKXNZ-009",
+      "slug": "obsidian-rider-vest",
+      "name": "Obsidian Rider Vest",
+      "brandId": "brand-001",
+      "brandSlug": "skxnz",
+      "brandName": "SKXNZ",
+      "category": "Streetwear",
+      "subcategory": "Vests",
+      "gender": "Unisex",
+      "collections": [
+        "Limited Edition"
+      ],
+      "collectionSlug": "limited-edition",
+      "tags": [
+        "vest",
+        "black",
+        "utility",
+        "streetwear"
+      ],
+      "priceInr": 4599,
+      "salePriceInr": 3999,
+      "currency": "INR",
+      "description": "Utility vest concept with sharp SKXNZ streetwear language.",
+      "shortDescription": "Obsidian utility rider vest.",
+      "image": "/assets/demo/products/product-01.webp",
+      "gallery": [
+        "/assets/demo/products/product-01.webp"
+      ],
+      "sourceImageFileNames": [
+        "product-obsidian-rider-vest-01.png",
+        "product-obsidian-rider-vest-02.png",
+        "product-obsidian-rider-vest-03.png",
+        "product-obsidian-rider-vest-04.png"
+      ],
+      "availableSizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "availableColors": [
+        "Obsidian Black"
+      ],
+      "stockQuantity": 20,
+      "stockStatus": "In Stock",
+      "sku": "SKXNZ-VST-009",
+      "status": "Demo",
+      "featured": false,
+      "homepageDisplay": false,
+      "brandPageDisplay": true,
+      "searchKeywords": [
+        "vest",
+        "streetwear",
+        "utility vest",
+        "limited edition",
+        "black",
+        "utility",
+        "Streetwear",
+        "Vests",
+        "SKXNZ",
+        "Limited Edition"
+      ],
+      "createdDate": "2026-05-04",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "sku-010",
+      "sourceProductId": "SKXNZ-010",
+      "slug": "electric-cyan-sunglasses",
+      "name": "Electric Cyan Sunglasses",
+      "brandId": "brand-001",
+      "brandSlug": "skxnz",
+      "brandName": "SKXNZ",
+      "category": "Accessories",
+      "subcategory": "Eyewear",
+      "gender": "Unisex",
+      "collections": [
+        "Wear The Signal"
+      ],
+      "collectionSlug": "wear-the-signal",
+      "tags": [
+        "sunglasses",
+        "cyan",
+        "eyewear",
+        "accessory"
+      ],
+      "priceInr": 1999,
+      "salePriceInr": 1699,
+      "currency": "INR",
+      "description": "Futuristic eyewear concept with electric cyan detailing.",
+      "shortDescription": "Electric cyan premium eyewear.",
+      "image": "/assets/demo/products/product-01.webp",
+      "gallery": [
+        "/assets/demo/products/product-01.webp"
+      ],
+      "sourceImageFileNames": [
+        "product-cyan-sunglasses-01.png",
+        "product-cyan-sunglasses-02.png",
+        "product-cyan-sunglasses-03.png",
+        "product-cyan-sunglasses-04.png"
+      ],
+      "availableSizes": [
+        "One Size"
+      ],
+      "availableColors": [
+        "Electric Cyan"
+      ],
+      "stockQuantity": 60,
+      "stockStatus": "In Stock",
+      "sku": "SKXNZ-EYE-010",
+      "status": "Demo",
+      "featured": false,
+      "homepageDisplay": false,
+      "brandPageDisplay": true,
+      "searchKeywords": [
+        "sunglasses",
+        "eyewear",
+        "accessories",
+        "electric cyan",
+        "cyan",
+        "accessory",
+        "Accessories",
+        "Eyewear",
+        "SKXNZ",
+        "Wear The Signal"
+      ],
+      "createdDate": "2026-05-04",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "sku-011",
+      "sourceProductId": "SKXNZ-011",
+      "slug": "signal-layered-shirt",
+      "name": "Signal Layered Shirt",
+      "brandId": "brand-003",
+      "brandSlug": "signal-studio",
+      "brandName": "Signal Studio",
+      "category": "Men",
+      "subcategory": "Shirts",
+      "gender": "Men",
+      "collections": [
+        "New Season"
+      ],
+      "collectionSlug": "new-season",
+      "tags": [
+        "shirt",
+        "layered",
+        "premium",
+        "editorial"
+      ],
+      "priceInr": 3299,
+      "salePriceInr": 2899,
+      "currency": "INR",
+      "description": "Demo layered shirt concept for testing SKXNZ marketplace layouts.",
+      "shortDescription": "Layered premium demo shirt.",
+      "image": "/assets/demo/products/product-01.webp",
+      "gallery": [
+        "/assets/demo/products/product-01.webp"
+      ],
+      "sourceImageFileNames": [
+        "product-signal-layered-shirt-01.png",
+        "",
+        "",
+        ""
+      ],
+      "availableSizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "availableColors": [
+        "Pearl White"
+      ],
+      "stockQuantity": 22,
+      "stockStatus": "In Stock",
+      "sku": "SIG-SHT-011",
+      "status": "Demo",
+      "featured": false,
+      "homepageDisplay": false,
+      "brandPageDisplay": true,
+      "searchKeywords": [
+        "shirt",
+        "men shirt",
+        "layered shirt",
+        "signal studio",
+        "layered",
+        "premium",
+        "editorial",
+        "Men",
+        "Shirts",
+        "Signal Studio",
+        "New Season"
+      ],
+      "createdDate": "2026-05-04",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "sku-012",
+      "sourceProductId": "SKXNZ-012",
+      "slug": "chrome-district-bracelet",
+      "name": "Chrome District Bracelet",
+      "brandId": "brand-004",
+      "brandSlug": "chrome-district",
+      "brandName": "Chrome District",
+      "category": "Accessories",
+      "subcategory": "Jewellery",
+      "gender": "Unisex",
+      "collections": [
+        "Limited Edition"
+      ],
+      "collectionSlug": "limited-edition",
+      "tags": [
+        "bracelet",
+        "chrome",
+        "jewellery",
+        "accessory"
+      ],
+      "priceInr": 1799,
+      "salePriceInr": 1499,
+      "currency": "INR",
+      "description": "Demo chrome bracelet concept for accessory testing.",
+      "shortDescription": "Chrome premium bracelet.",
+      "image": "/assets/demo/products/product-01.webp",
+      "gallery": [
+        "/assets/demo/products/product-01.webp"
+      ],
+      "sourceImageFileNames": [
+        "product-chrome-bracelet-01.png",
+        "",
+        "",
+        ""
+      ],
+      "availableSizes": [
+        "One Size"
+      ],
+      "availableColors": [
+        "Liquid Silver"
+      ],
+      "stockQuantity": 55,
+      "stockStatus": "In Stock",
+      "sku": "CHR-BRC-012",
+      "status": "Demo",
+      "featured": false,
+      "homepageDisplay": false,
+      "brandPageDisplay": true,
+      "searchKeywords": [
+        "bracelet",
+        "jewellery",
+        "chrome district",
+        "accessories",
+        "chrome",
+        "accessory",
+        "Accessories",
+        "Jewellery",
+        "Chrome District",
+        "Limited Edition"
+      ],
+      "createdDate": "2026-05-04",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "sku-013",
+      "sourceProductId": "SKXNZ-013",
+      "slug": "demo-atelier-long-coat",
+      "name": "Demo Atelier Long Coat",
+      "brandId": "brand-002",
+      "brandSlug": "demo-atelier",
+      "brandName": "Demo Atelier",
+      "category": "Woman",
+      "subcategory": "Coats",
+      "gender": "Woman",
+      "collections": [
+        "New Season"
+      ],
+      "collectionSlug": "new-season",
+      "tags": [
+        "coat",
+        "long coat",
+        "premium",
+        "atelier"
+      ],
+      "priceInr": 7999,
+      "salePriceInr": 6999,
+      "currency": "INR",
+      "description": "Demo long coat concept for premium brand-page testing.",
+      "shortDescription": "Premium demo atelier coat.",
+      "image": "/assets/demo/products/product-01.webp",
+      "gallery": [
+        "/assets/demo/products/product-01.webp"
+      ],
+      "sourceImageFileNames": [
+        "product-demo-atelier-long-coat-01.png",
+        "",
+        "",
+        ""
+      ],
+      "availableSizes": [
+        "XS",
+        "S",
+        "M",
+        "L"
+      ],
+      "availableColors": [
+        "Pearl Beige"
+      ],
+      "stockQuantity": 18,
+      "stockStatus": "In Stock",
+      "sku": "DAT-COA-013",
+      "status": "Demo",
+      "featured": true,
+      "homepageDisplay": false,
+      "brandPageDisplay": true,
+      "searchKeywords": [
+        "woman coat",
+        "long coat",
+        "demo atelier",
+        "premium",
+        "coat",
+        "atelier",
+        "Woman",
+        "Coats",
+        "Demo Atelier",
+        "New Season"
+      ],
+      "createdDate": "2026-05-04",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "sku-014",
+      "sourceProductId": "SKXNZ-014",
+      "slug": "future-runner-crossbody",
+      "name": "Future Runner Crossbody",
+      "brandId": "brand-004",
+      "brandSlug": "chrome-district",
+      "brandName": "Chrome District",
+      "category": "Accessories",
+      "subcategory": "Bags",
+      "gender": "Unisex",
+      "collections": [
+        "AI Stylised"
+      ],
+      "collectionSlug": "ai-stylised",
+      "tags": [
+        "crossbody",
+        "bag",
+        "futuristic",
+        "chrome"
+      ],
+      "priceInr": 2599,
+      "salePriceInr": 2199,
+      "currency": "INR",
+      "description": "Demo crossbody bag concept for accessory and search testing.",
+      "shortDescription": "Futurewear crossbody bag.",
+      "image": "/assets/demo/products/product-01.webp",
+      "gallery": [
+        "/assets/demo/products/product-01.webp"
+      ],
+      "sourceImageFileNames": [
+        "product-future-runner-crossbody-01.png",
+        "",
+        "",
+        ""
+      ],
+      "availableSizes": [
+        "One Size"
+      ],
+      "availableColors": [
+        "Obsidian Black"
+      ],
+      "stockQuantity": 33,
+      "stockStatus": "In Stock",
+      "sku": "CHR-BAG-014",
+      "status": "Demo",
+      "featured": false,
+      "homepageDisplay": false,
+      "brandPageDisplay": true,
+      "searchKeywords": [
+        "crossbody",
+        "bag",
+        "accessories",
+        "chrome district",
+        "futuristic",
+        "chrome",
+        "Accessories",
+        "Bags",
+        "Chrome District",
+        "AI Stylised"
+      ],
+      "createdDate": "2026-05-04",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "sku-015",
+      "sourceProductId": "SKXNZ-015",
+      "slug": "ai-drift-co-ord-set",
+      "name": "AI Drift Co-ord Set",
+      "brandId": "brand-001",
+      "brandSlug": "skxnz",
+      "brandName": "SKXNZ",
+      "category": "AI Stylised",
+      "subcategory": "Co-ord Sets",
+      "gender": "Unisex",
+      "collections": [
+        "AI Stylised"
+      ],
+      "collectionSlug": "ai-stylised",
+      "tags": [
+        "co-ord",
+        "ai",
+        "futuristic",
+        "set"
+      ],
+      "priceInr": 5599,
+      "salePriceInr": 4999,
+      "currency": "INR",
+      "description": "AI-inspired co-ord concept for futurewear discovery.",
+      "shortDescription": "AI-styled co-ord set.",
+      "image": "/assets/demo/products/product-01.webp",
+      "gallery": [
+        "/assets/demo/products/product-01.webp"
+      ],
+      "sourceImageFileNames": [
+        "product-ai-drift-coord-01.png",
+        "",
+        "",
+        ""
+      ],
+      "availableSizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "availableColors": [
+        "Ultraviolet Purple"
+      ],
+      "stockQuantity": 28,
+      "stockStatus": "In Stock",
+      "sku": "SKXNZ-COR-015",
+      "status": "Demo",
+      "featured": true,
+      "homepageDisplay": true,
+      "brandPageDisplay": true,
+      "searchKeywords": [
+        "ai stylised",
+        "coord set",
+        "futuristic outfit",
+        "skxnz",
+        "co-ord",
+        "ai",
+        "futuristic",
+        "set",
+        "AI Stylised",
+        "Co-ord Sets",
+        "SKXNZ"
+      ],
+      "createdDate": "2026-05-04",
+      "dataSource": "sheet"
+    }
+  ],
+  "brands": [
+    {
+      "id": "brand-001",
+      "sourceBrandId": "BR-001",
+      "name": "SKXNZ",
+      "slug": "skxnz",
+      "tagline": "WEAR THE SIGNAL.",
+      "shortDescription": "AI-powered futurewear marketplace identity built around premium signal-led fashion.",
+      "description": "AI-powered futurewear marketplace identity built around premium signal-led fashion.",
+      "brandCategory": "Futurewear",
+      "categories": [
+        "AI Stylised",
+        "Accessories",
+        "Footwear",
+        "Men",
+        "Perfume",
+        "Streetwear",
+        "Woman"
+      ],
+      "logo": "/assets/brand/skxnz/logo-mark-transparent.png",
+      "heroImage": "/assets/demo/brands/skxnz/hero.webp",
+      "accentColor": "#5A1F2E",
+      "featured": true,
+      "topBrand": true,
+      "searchKeywords": [
+        "skxnz",
+        "wear the signal",
+        "futurewear",
+        "ai fashion"
+      ],
+      "status": "Active",
+      "availabilityNote": "SKXNZ brand content planned from source sheets.",
+      "productIds": [
+        "sku-001",
+        "sku-002",
+        "sku-003",
+        "sku-004",
+        "sku-005",
+        "sku-006",
+        "sku-007",
+        "sku-008",
+        "sku-009",
+        "sku-010",
+        "sku-015"
+      ],
+      "dataSource": "sheet"
+    },
+    {
+      "id": "brand-002",
+      "sourceBrandId": "BR-002",
+      "name": "Demo Atelier",
+      "slug": "demo-atelier",
+      "tagline": "Demo luxury direction for marketplace testing.",
+      "shortDescription": "Demo premium fashion label used for marketplace testing and layout previews.",
+      "description": "Demo premium fashion label used for marketplace testing and layout previews.",
+      "brandCategory": "Luxury Fashion",
+      "categories": [
+        "Woman"
+      ],
+      "logo": "/assets/demo/brands/pulse-atelier/logo.webp",
+      "heroImage": "/assets/demo/uploaded/editorial/afterlast-duo.png",
+      "accentColor": "#B97D5A",
+      "featured": true,
+      "topBrand": false,
+      "searchKeywords": [
+        "demo atelier",
+        "luxury fashion",
+        "premium clothing"
+      ],
+      "status": "Demo",
+      "availabilityNote": "Demo marketplace brand imported from planning data.",
+      "productIds": [
+        "sku-013"
+      ],
+      "dataSource": "sheet"
+    },
+    {
+      "id": "brand-003",
+      "sourceBrandId": "BR-003",
+      "name": "Signal Studio",
+      "slug": "signal-studio",
+      "tagline": "Streetwear-coded signal edits for preview testing.",
+      "shortDescription": "Demo futurewear studio used for testing brand pages and product discovery.",
+      "description": "Demo futurewear studio used for testing brand pages and product discovery.",
+      "brandCategory": "Streetwear",
+      "categories": [
+        "Men"
+      ],
+      "logo": "/assets/demo/brands/noir-signal/logo.webp",
+      "heroImage": "/assets/demo/uploaded/editorial/afterlast-smoke.png",
+      "accentColor": "#2F6F73",
+      "featured": true,
+      "topBrand": false,
+      "searchKeywords": [
+        "signal studio",
+        "streetwear",
+        "futurewear"
+      ],
+      "status": "Demo",
+      "availabilityNote": "Demo marketplace brand imported from planning data.",
+      "productIds": [
+        "sku-011"
+      ],
+      "dataSource": "sheet"
+    },
+    {
+      "id": "brand-004",
+      "sourceBrandId": "BR-004",
+      "name": "Chrome District",
+      "slug": "chrome-district",
+      "tagline": "Accessories and lifestyle concepts for demo discovery.",
+      "shortDescription": "Demo accessory and lifestyle label for SKXNZ marketplace testing.",
+      "description": "Demo accessory and lifestyle label for SKXNZ marketplace testing.",
+      "brandCategory": "Accessories",
+      "categories": [
+        "Accessories"
+      ],
+      "logo": "/assets/demo/brands/chrome-lab/logo.webp",
+      "heroImage": "/assets/demo/uploaded/editorial/chrome-queen.png",
+      "accentColor": "#231F1B",
+      "featured": false,
+      "topBrand": false,
+      "searchKeywords": [
+        "chrome district",
+        "accessories",
+        "eyewear",
+        "bags"
+      ],
+      "status": "Demo",
+      "availabilityNote": "Demo marketplace brand imported from planning data.",
+      "productIds": [
+        "sku-012",
+        "sku-014"
+      ],
+      "dataSource": "sheet"
+    }
+  ],
+  "categories": [
+    {
+      "id": "category-001",
+      "sourceCategoryId": "CAT-001",
+      "name": "Men",
+      "displayName": "Men",
+      "slug": "men",
+      "description": "Premium men’s fashion, streetwear, footwear, and accessories.",
+      "image": "/assets/demo/uploaded/editorial/monochrome-fit.png",
+      "href": "/shop?q=Men",
+      "displayOrder": 1,
+      "featured": true,
+      "searchKeywords": [
+        "men",
+        "menswear",
+        "male fashion",
+        "t-shirts",
+        "hoodies",
+        "pants"
+      ],
+      "status": "Active",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "category-002",
+      "sourceCategoryId": "CAT-002",
+      "name": "Woman",
+      "displayName": "Women",
+      "slug": "woman",
+      "description": "Premium women’s fashion, new season edits, statementwear, and accessories.",
+      "image": "/assets/demo/uploaded/editorial/afterlast-duo.png",
+      "href": "/shop?q=Woman",
+      "displayOrder": 2,
+      "featured": true,
+      "searchKeywords": [
+        "woman",
+        "womenswear",
+        "female fashion",
+        "tops",
+        "jackets",
+        "bags"
+      ],
+      "status": "Active",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "category-003",
+      "sourceCategoryId": "CAT-003",
+      "name": "Perfume",
+      "displayName": "Perfumes",
+      "slug": "perfume",
+      "description": "Fragrance concepts and luxury scent discovery for the SKXNZ marketplace.",
+      "image": "/assets/demo/uploaded/editorial/chrome-queen.png",
+      "href": "/shop?q=Perfume",
+      "displayOrder": 3,
+      "featured": true,
+      "searchKeywords": [
+        "perfume",
+        "fragrance",
+        "scent",
+        "luxury perfume"
+      ],
+      "status": "Active",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "category-004",
+      "sourceCategoryId": "CAT-004",
+      "name": "Accessories",
+      "displayName": "Accessories",
+      "slug": "accessories",
+      "description": "Bags, eyewear, objects, and finishing pieces for futurewear styling.",
+      "image": "/assets/demo/uploaded/categories/streetwear-chain.png",
+      "href": "/shop?q=Accessories",
+      "displayOrder": 4,
+      "featured": true,
+      "searchKeywords": [
+        "accessories",
+        "bags",
+        "sunglasses",
+        "eyewear",
+        "jewellery"
+      ],
+      "status": "Active",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "category-005",
+      "sourceCategoryId": "CAT-005",
+      "name": "Streetwear",
+      "displayName": "Streetwear",
+      "slug": "streetwear",
+      "description": "Premium streetwear silhouettes built for Gen Z fashion discovery.",
+      "image": "/assets/demo/uploaded/editorial/afterlast-smoke.png",
+      "href": "/shop?q=Streetwear",
+      "displayOrder": 5,
+      "featured": true,
+      "searchKeywords": [
+        "streetwear",
+        "hoodies",
+        "oversized",
+        "cargo",
+        "urban fashion"
+      ],
+      "status": "Active",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "category-006",
+      "sourceCategoryId": "CAT-006",
+      "name": "Wear The Signal",
+      "displayName": "Wear The Signal",
+      "slug": "wear-the-signal",
+      "description": "Signature SKXNZ edits built around the brand signal identity.",
+      "image": "/assets/demo/uploaded/editorial/monochrome-fit.png",
+      "href": "/shop?q=Wear%20The%20Signal",
+      "displayOrder": 6,
+      "featured": true,
+      "searchKeywords": [
+        "wear the signal",
+        "skxnz",
+        "signature",
+        "futurewear"
+      ],
+      "status": "Active",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "category-007",
+      "sourceCategoryId": "CAT-007",
+      "name": "New Season",
+      "displayName": "New Season",
+      "slug": "new-season",
+      "description": "Fresh seasonal edits across fashion, accessories, and footwear.",
+      "image": "/assets/demo/uploaded/editorial/monochrome-fit.png",
+      "href": "/shop?q=New%20Season",
+      "displayOrder": 7,
+      "featured": true,
+      "searchKeywords": [
+        "new season",
+        "latest",
+        "fresh drops",
+        "new collection"
+      ],
+      "status": "Active",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "category-008",
+      "sourceCategoryId": "CAT-008",
+      "name": "AI Stylised",
+      "displayName": "AI Stylised",
+      "slug": "ai-stylised",
+      "description": "AI-inspired fashion visuals, styling concepts, and futurewear edits.",
+      "image": "/assets/demo/uploaded/editorial/monochrome-fit.png",
+      "href": "/shop?q=AI%20Stylised",
+      "displayOrder": 8,
+      "featured": true,
+      "searchKeywords": [
+        "ai stylised",
+        "ai fashion",
+        "futurewear",
+        "digital fashion"
+      ],
+      "status": "Active",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "category-009",
+      "sourceCategoryId": "CAT-009",
+      "name": "Limited Edition",
+      "displayName": "Limited Edition",
+      "slug": "limited-edition",
+      "description": "Limited drop concepts, premium pieces, and exclusive edits.",
+      "image": "/assets/demo/uploaded/editorial/monochrome-fit.png",
+      "href": "/shop?q=Limited%20Edition",
+      "displayOrder": 9,
+      "featured": true,
+      "searchKeywords": [
+        "limited edition",
+        "drops",
+        "exclusive",
+        "rare"
+      ],
+      "status": "Active",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "category-010",
+      "sourceCategoryId": "CAT-010",
+      "name": "Footwear",
+      "displayName": "Shoes",
+      "slug": "footwear",
+      "description": "Premium sneaker and footwear concepts for marketplace expansion.",
+      "image": "/assets/demo/uploaded/editorial/monochrome-fit.png",
+      "href": "/shop?q=Footwear",
+      "displayOrder": 10,
+      "featured": false,
+      "searchKeywords": [
+        "footwear",
+        "shoes",
+        "sneakers",
+        "premium sneakers"
+      ],
+      "status": "Demo",
+      "dataSource": "sheet"
+    }
+  ],
+  "collections": [
+    {
+      "id": "collection-ai-stylised",
+      "name": "AI Stylised",
+      "slug": "ai-stylised",
+      "description": "Editorial SKXNZ concepts prepared for future AI-assisted discovery.",
+      "image": "/assets/demo/uploaded/editorial/chrome-queen.png",
+      "href": "/shop?q=AI%20Stylised",
+      "searchKeywords": [
+        "ai stylised",
+        "ai styled",
+        "futurewear concepts"
+      ],
+      "productIds": [
+        "sku-005",
+        "sku-007",
+        "sku-014",
+        "sku-015"
+      ],
+      "status": "Demo",
+      "dataSource": "sheet-derived"
+    },
+    {
+      "id": "collection-limited-edition",
+      "name": "Limited Edition",
+      "slug": "limited-edition",
+      "description": "Curated limited edit pieces for high-signal wardrobes.",
+      "image": "/assets/demo/uploaded/editorial/afterlast-duo.png",
+      "href": "/shop?q=Limited%20Edition",
+      "searchKeywords": [
+        "limited edition",
+        "limited drops",
+        "drop zone"
+      ],
+      "productIds": [
+        "sku-004",
+        "sku-009",
+        "sku-012"
+      ],
+      "status": "Demo",
+      "dataSource": "sheet-derived"
+    },
+    {
+      "id": "collection-new-season",
+      "name": "New Season",
+      "slug": "new-season",
+      "description": "Fresh season edits curated for sharper daily rotation.",
+      "image": "/assets/demo/uploaded/products/afterlast-portrait-shirt.png",
+      "href": "/shop?q=New%20Season",
+      "searchKeywords": [
+        "new season",
+        "season picks",
+        "fresh drops"
+      ],
+      "productIds": [
+        "sku-002",
+        "sku-008",
+        "sku-011",
+        "sku-013"
+      ],
+      "status": "Demo",
+      "dataSource": "sheet-derived"
+    },
+    {
+      "id": "collection-streetwear",
+      "name": "Streetwear",
+      "slug": "streetwear",
+      "description": "Streetwear collection from SKXNZ planning data.",
+      "image": "/assets/demo/uploaded/editorial/afterlast-duo.png",
+      "href": "/shop?q=Streetwear",
+      "searchKeywords": [
+        "streetwear"
+      ],
+      "productIds": [
+        "sku-006"
+      ],
+      "status": "Demo",
+      "dataSource": "sheet-derived"
+    },
+    {
+      "id": "collection-wear-the-signal",
+      "name": "Wear The Signal",
+      "slug": "wear-the-signal",
+      "description": "Core SKXNZ signal-led essentials and futurewear foundations.",
+      "image": "/assets/demo/uploaded/products/skxnz-graphic-tee.png",
+      "href": "/shop?q=Wear%20The%20Signal",
+      "searchKeywords": [
+        "wear the signal",
+        "signal",
+        "skxnz signature"
+      ],
+      "productIds": [
+        "sku-001",
+        "sku-003",
+        "sku-010"
+      ],
+      "status": "Demo",
+      "dataSource": "sheet-derived"
+    }
+  ],
+  "homepageHeroes": [
+    {
+      "id": "hero-001",
+      "sourceHeroId": "HERO-001",
+      "title": "WEAR THE SIGNAL.",
+      "subtitle": "AI-powered fashion discovery for the next generation.",
+      "tagline": "SKXNZ",
+      "buttonText": "Explore Drops",
+      "buttonLink": "/shop",
+      "image": "/assets/demo/uploaded/editorial/fire-shirt-look.png",
+      "mobileImage": "/assets/demo/uploaded/editorial/fire-shirt-look.png",
+      "sourceImageFileName": "hero-wear-the-signal-desktop.png",
+      "sourceMobileImageFileName": "hero-wear-the-signal-mobile.png",
+      "displayOrder": 1,
+      "status": "Active",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "hero-002",
+      "sourceHeroId": "HERO-002",
+      "title": "FUTUREWEAR ENTERS.",
+      "subtitle": "Premium fashion, smarter discovery, sharper style.",
+      "tagline": "SKXNZ",
+      "buttonText": "Shop New Season",
+      "buttonLink": "/shop?q=New%20Season",
+      "image": "/assets/demo/uploaded/products/afterlast-portrait-shirt.png",
+      "mobileImage": "/assets/demo/uploaded/products/afterlast-portrait-shirt.png",
+      "sourceImageFileName": "hero-futurewear-enters-desktop.png",
+      "sourceMobileImageFileName": "hero-futurewear-enters-mobile.png",
+      "displayOrder": 2,
+      "status": "Active",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "hero-003",
+      "sourceHeroId": "HERO-003",
+      "title": "THE SIGNAL IS LIVE.",
+      "subtitle": "Discover fashion through brands, drops, and AI-led styling.",
+      "tagline": "SKXNZ",
+      "buttonText": "Discover SKXNZ",
+      "buttonLink": "/brands/skxnz",
+      "image": "/assets/demo/uploaded/products/skxnz-back-tee.png",
+      "mobileImage": "/assets/demo/uploaded/products/skxnz-back-tee.png",
+      "sourceImageFileName": "hero-signal-live-desktop.png",
+      "sourceMobileImageFileName": "hero-signal-live-mobile.png",
+      "displayOrder": 3,
+      "status": "Active",
+      "dataSource": "sheet"
+    }
+  ],
+  "brandHeroes": [
+    {
+      "id": "brand-hero-skxnz",
+      "brandName": "SKXNZ",
+      "brandSlug": "skxnz",
+      "title": "SKXNZ SIGNAL DROP",
+      "subtitle": "Premium AI-powered futurewear for the new market.",
+      "image": "/assets/demo/brands/skxnz/hero.webp",
+      "mobileImage": "/assets/demo/brands/skxnz/hero.webp",
+      "sourceImageFileName": "brand-skxnz-hero-01.png",
+      "sourceMobileImageFileName": "brand-skxnz-hero-01-mobile.png",
+      "ctaText": "Shop SKXNZ",
+      "ctaLink": "/brands/skxnz",
+      "displayOrder": 1,
+      "status": "Active",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "brand-hero-demo-atelier",
+      "brandName": "Demo Atelier",
+      "brandSlug": "demo-atelier",
+      "title": "DEMO ATELIER EDIT",
+      "subtitle": "Premium demo collection for testing the SKXNZ brand experience.",
+      "image": "/assets/demo/uploaded/editorial/afterlast-duo.png",
+      "mobileImage": "/assets/demo/uploaded/editorial/afterlast-duo.png",
+      "sourceImageFileName": "brand-demo-atelier-hero.png",
+      "sourceMobileImageFileName": "brand-demo-atelier-hero-mobile.png",
+      "ctaText": "View Brand",
+      "ctaLink": "/brands/demo-atelier",
+      "displayOrder": 2,
+      "status": "Demo",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "brand-hero-signal-studio",
+      "brandName": "Signal Studio",
+      "brandSlug": "signal-studio",
+      "title": "SIGNAL STUDIO DROP",
+      "subtitle": "Streetwear-inspired demo brand page for SKXNZ marketplace testing.",
+      "image": "/assets/demo/uploaded/editorial/afterlast-smoke.png",
+      "mobileImage": "/assets/demo/uploaded/editorial/afterlast-smoke.png",
+      "sourceImageFileName": "brand-signal-studio-hero.png",
+      "sourceMobileImageFileName": "brand-signal-studio-hero-mobile.png",
+      "ctaText": "View Brand",
+      "ctaLink": "/brands/signal-studio",
+      "displayOrder": 3,
+      "status": "Demo",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "brand-hero-chrome-district",
+      "brandName": "Chrome District",
+      "brandSlug": "chrome-district",
+      "title": "CHROME DISTRICT ACCESSORIES",
+      "subtitle": "Demo accessories page for testing brand discovery and search.",
+      "image": "/assets/demo/uploaded/editorial/chrome-queen.png",
+      "mobileImage": "/assets/demo/uploaded/editorial/chrome-queen.png",
+      "sourceImageFileName": "brand-chrome-district-hero.png",
+      "sourceMobileImageFileName": "brand-chrome-district-hero-mobile.png",
+      "ctaText": "View Brand",
+      "ctaLink": "/brands/chrome-district",
+      "displayOrder": 4,
+      "status": "Demo",
+      "dataSource": "sheet"
+    }
+  ],
+  "carouselSlides": [
+    {
+      "id": "car-001",
+      "carouselName": "Homepage Main Carousel",
+      "title": "WEAR THE SIGNAL.",
+      "subtitle": "Signature futurewear edits by SKXNZ.",
+      "image": "/assets/demo/uploaded/editorial/fire-shirt-look.png",
+      "mobileImage": "/assets/demo/uploaded/editorial/fire-shirt-look.png",
+      "sourceImageFileName": "carousel-wear-the-signal.png",
+      "buttonText": "Explore Now",
+      "buttonLink": "/shop",
+      "displayOrder": 1,
+      "status": "Active",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "car-002",
+      "carouselName": "Homepage Main Carousel",
+      "title": "NEW SEASON SIGNALS",
+      "subtitle": "Fresh premium drops and category edits.",
+      "image": "/assets/demo/uploaded/products/afterlast-portrait-shirt.png",
+      "mobileImage": "/assets/demo/uploaded/products/afterlast-portrait-shirt.png",
+      "sourceImageFileName": "carousel-new-season.png",
+      "buttonText": "Shop New Season",
+      "buttonLink": "/shop?q=New%20Season",
+      "displayOrder": 2,
+      "status": "Active",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "car-003",
+      "carouselName": "Homepage Main Carousel",
+      "title": "AI STYLED FUTUREWEAR",
+      "subtitle": "Discover fashion through smarter visual direction.",
+      "image": "/assets/demo/uploaded/products/skxnz-back-tee.png",
+      "mobileImage": "/assets/demo/uploaded/products/skxnz-back-tee.png",
+      "sourceImageFileName": "carousel-ai-styled.png",
+      "buttonText": "Explore AI Stylised",
+      "buttonLink": "/shop?q=AI%20Stylised",
+      "displayOrder": 3,
+      "status": "Active",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "car-004",
+      "carouselName": "Homepage Main Carousel",
+      "title": "LIMITED EDITION DROPS",
+      "subtitle": "Premium limited edits for early discovery.",
+      "image": "/assets/demo/uploaded/products/skxnz-graphic-tee.png",
+      "mobileImage": "/assets/demo/uploaded/products/skxnz-graphic-tee.png",
+      "sourceImageFileName": "carousel-limited-edition.png",
+      "buttonText": "View Drops",
+      "buttonLink": "/shop?q=Limited%20Edition",
+      "displayOrder": 4,
+      "status": "Active",
+      "dataSource": "sheet"
+    }
+  ],
+  "searchIndex": [
+    {
+      "id": "product-sku-001",
+      "type": "product",
+      "label": "Obsidian Signal Oversized Tee",
+      "href": "/shop?q=Obsidian%20Signal%20Oversized%20Tee",
+      "keywords": [
+        "men tee",
+        "oversized tee",
+        "black tee",
+        "streetwear",
+        "skxnz",
+        "wear the signal",
+        "oversized",
+        "black",
+        "premium",
+        "Men",
+        "T-Shirts",
+        "SKXNZ",
+        "Wear The Signal"
+      ],
+      "image": "/assets/demo/uploaded/products/skxnz-graphic-tee.png",
+      "description": "SKXNZ • Men",
+      "status": "Demo",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "product-sku-002",
+      "type": "product",
+      "label": "Pearl Signal Crop Jacket",
+      "href": "/shop?q=Pearl%20Signal%20Crop%20Jacket",
+      "keywords": [
+        "woman jacket",
+        "crop jacket",
+        "pearl jacket",
+        "new season",
+        "skxnz",
+        "jacket",
+        "pearl",
+        "premium",
+        "futuristic",
+        "Woman",
+        "Jackets",
+        "SKXNZ",
+        "New Season"
+      ],
+      "image": "/assets/demo/uploaded/editorial/afterlast-duo.png",
+      "description": "SKXNZ • Woman",
+      "status": "Demo",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "product-sku-003",
+      "type": "product",
+      "label": "Chrome Trace Hoodie",
+      "href": "/shop?q=Chrome%20Trace%20Hoodie",
+      "keywords": [
+        "hoodie",
+        "streetwear",
+        "unisex hoodie",
+        "chrome hoodie",
+        "skxnz",
+        "chrome",
+        "unisex",
+        "Streetwear",
+        "Hoodies",
+        "SKXNZ",
+        "Wear The Signal"
+      ],
+      "image": "/assets/demo/products/product-01.webp",
+      "description": "SKXNZ • Streetwear",
+      "status": "Demo",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "product-sku-004",
+      "type": "product",
+      "label": "Sonic Magenta Mini Bag",
+      "href": "/shop?q=Sonic%20Magenta%20Mini%20Bag",
+      "keywords": [
+        "accessories",
+        "bag",
+        "mini bag",
+        "magenta",
+        "limited edition",
+        "accessory",
+        "luxury",
+        "Accessories",
+        "Bags",
+        "SKXNZ",
+        "Limited Edition"
+      ],
+      "image": "/assets/demo/products/product-06.webp",
+      "description": "SKXNZ • Accessories",
+      "status": "Demo",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "product-sku-005",
+      "type": "product",
+      "label": "Liquid Silver Perfume",
+      "href": "/shop?q=Liquid%20Silver%20Perfume",
+      "keywords": [
+        "perfume",
+        "fragrance",
+        "unisex perfume",
+        "silver",
+        "ai stylised",
+        "luxury",
+        "Perfume",
+        "Fragrance",
+        "SKXNZ",
+        "AI Stylised"
+      ],
+      "image": "/assets/demo/uploaded/editorial/chrome-queen.png",
+      "description": "SKXNZ • Perfume",
+      "status": "Demo",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "product-sku-006",
+      "type": "product",
+      "label": "Midnight Cargo Pants",
+      "href": "/shop?q=Midnight%20Cargo%20Pants",
+      "keywords": [
+        "men pants",
+        "cargo pants",
+        "streetwear pants",
+        "utility",
+        "cargo",
+        "pants",
+        "navy",
+        "Men",
+        "Pants",
+        "SKXNZ",
+        "Streetwear"
+      ],
+      "image": "/assets/demo/products/product-01.webp",
+      "description": "SKXNZ • Men",
+      "status": "Demo",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "product-sku-007",
+      "type": "product",
+      "label": "Ultraviolet Mesh Top",
+      "href": "/shop?q=Ultraviolet%20Mesh%20Top",
+      "keywords": [
+        "woman top",
+        "mesh top",
+        "ultraviolet",
+        "ai fashion",
+        "mesh",
+        "top",
+        "futuristic",
+        "Woman",
+        "Tops",
+        "SKXNZ",
+        "AI Stylised"
+      ],
+      "image": "/assets/demo/products/product-01.webp",
+      "description": "SKXNZ • Woman",
+      "status": "Demo",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "product-sku-008",
+      "type": "product",
+      "label": "Pearl White Sneakers",
+      "href": "/shop?q=Pearl%20White%20Sneakers",
+      "keywords": [
+        "sneakers",
+        "footwear",
+        "pearl sneakers",
+        "new season",
+        "pearl",
+        "premium",
+        "Footwear",
+        "Sneakers",
+        "SKXNZ",
+        "New Season"
+      ],
+      "image": "/assets/demo/products/product-01.webp",
+      "description": "SKXNZ • Footwear",
+      "status": "Demo",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "product-sku-009",
+      "type": "product",
+      "label": "Obsidian Rider Vest",
+      "href": "/shop?q=Obsidian%20Rider%20Vest",
+      "keywords": [
+        "vest",
+        "streetwear",
+        "utility vest",
+        "limited edition",
+        "black",
+        "utility",
+        "Streetwear",
+        "Vests",
+        "SKXNZ",
+        "Limited Edition"
+      ],
+      "image": "/assets/demo/products/product-01.webp",
+      "description": "SKXNZ • Streetwear",
+      "status": "Demo",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "product-sku-010",
+      "type": "product",
+      "label": "Electric Cyan Sunglasses",
+      "href": "/shop?q=Electric%20Cyan%20Sunglasses",
+      "keywords": [
+        "sunglasses",
+        "eyewear",
+        "accessories",
+        "electric cyan",
+        "cyan",
+        "accessory",
+        "Accessories",
+        "Eyewear",
+        "SKXNZ",
+        "Wear The Signal"
+      ],
+      "image": "/assets/demo/products/product-01.webp",
+      "description": "SKXNZ • Accessories",
+      "status": "Demo",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "product-sku-011",
+      "type": "product",
+      "label": "Signal Layered Shirt",
+      "href": "/shop?q=Signal%20Layered%20Shirt",
+      "keywords": [
+        "shirt",
+        "men shirt",
+        "layered shirt",
+        "signal studio",
+        "layered",
+        "premium",
+        "editorial",
+        "Men",
+        "Shirts",
+        "Signal Studio",
+        "New Season"
+      ],
+      "image": "/assets/demo/products/product-01.webp",
+      "description": "Signal Studio • Men",
+      "status": "Demo",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "product-sku-012",
+      "type": "product",
+      "label": "Chrome District Bracelet",
+      "href": "/shop?q=Chrome%20District%20Bracelet",
+      "keywords": [
+        "bracelet",
+        "jewellery",
+        "chrome district",
+        "accessories",
+        "chrome",
+        "accessory",
+        "Accessories",
+        "Jewellery",
+        "Chrome District",
+        "Limited Edition"
+      ],
+      "image": "/assets/demo/products/product-01.webp",
+      "description": "Chrome District • Accessories",
+      "status": "Demo",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "product-sku-013",
+      "type": "product",
+      "label": "Demo Atelier Long Coat",
+      "href": "/shop?q=Demo%20Atelier%20Long%20Coat",
+      "keywords": [
+        "woman coat",
+        "long coat",
+        "demo atelier",
+        "premium",
+        "coat",
+        "atelier",
+        "Woman",
+        "Coats",
+        "Demo Atelier",
+        "New Season"
+      ],
+      "image": "/assets/demo/products/product-01.webp",
+      "description": "Demo Atelier • Woman",
+      "status": "Demo",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "product-sku-014",
+      "type": "product",
+      "label": "Future Runner Crossbody",
+      "href": "/shop?q=Future%20Runner%20Crossbody",
+      "keywords": [
+        "crossbody",
+        "bag",
+        "accessories",
+        "chrome district",
+        "futuristic",
+        "chrome",
+        "Accessories",
+        "Bags",
+        "Chrome District",
+        "AI Stylised"
+      ],
+      "image": "/assets/demo/products/product-01.webp",
+      "description": "Chrome District • Accessories",
+      "status": "Demo",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "product-sku-015",
+      "type": "product",
+      "label": "AI Drift Co-ord Set",
+      "href": "/shop?q=AI%20Drift%20Co-ord%20Set",
+      "keywords": [
+        "ai stylised",
+        "coord set",
+        "futuristic outfit",
+        "skxnz",
+        "co-ord",
+        "ai",
+        "futuristic",
+        "set",
+        "AI Stylised",
+        "Co-ord Sets",
+        "SKXNZ"
+      ],
+      "image": "/assets/demo/products/product-01.webp",
+      "description": "SKXNZ • AI Stylised",
+      "status": "Demo",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "brand-skxnz",
+      "type": "brand",
+      "label": "SKXNZ",
+      "href": "/brands/skxnz",
+      "keywords": [
+        "skxnz",
+        "wear the signal",
+        "futurewear",
+        "ai fashion",
+        "AI Stylised",
+        "Accessories",
+        "Footwear",
+        "Men",
+        "Perfume",
+        "Streetwear",
+        "Woman",
+        "SKXNZ"
+      ],
+      "image": "/assets/brand/skxnz/logo-mark-transparent.png",
+      "description": "Brand",
+      "status": "Active",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "brand-demo-atelier",
+      "type": "brand",
+      "label": "Demo Atelier",
+      "href": "/brands/demo-atelier",
+      "keywords": [
+        "demo atelier",
+        "luxury fashion",
+        "premium clothing",
+        "Woman",
+        "Demo Atelier",
+        "demo-atelier"
+      ],
+      "image": "/assets/demo/brands/pulse-atelier/logo.webp",
+      "description": "Brand",
+      "status": "Demo",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "brand-signal-studio",
+      "type": "brand",
+      "label": "Signal Studio",
+      "href": "/brands/signal-studio",
+      "keywords": [
+        "signal studio",
+        "streetwear",
+        "futurewear",
+        "Men",
+        "Signal Studio",
+        "signal-studio"
+      ],
+      "image": "/assets/demo/brands/noir-signal/logo.webp",
+      "description": "Brand",
+      "status": "Demo",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "brand-chrome-district",
+      "type": "brand",
+      "label": "Chrome District",
+      "href": "/brands/chrome-district",
+      "keywords": [
+        "chrome district",
+        "accessories",
+        "eyewear",
+        "bags",
+        "Accessories",
+        "Chrome District",
+        "chrome-district"
+      ],
+      "image": "/assets/demo/brands/chrome-lab/logo.webp",
+      "description": "Brand",
+      "status": "Demo",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "category-men",
+      "type": "category",
+      "label": "Men",
+      "href": "/shop?q=Men",
+      "keywords": [
+        "men",
+        "menswear",
+        "male fashion",
+        "t-shirts",
+        "hoodies",
+        "pants",
+        "Men"
+      ],
+      "image": "/assets/demo/uploaded/editorial/monochrome-fit.png",
+      "description": "Category",
+      "status": "Active",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "category-woman",
+      "type": "category",
+      "label": "Women",
+      "href": "/shop?q=Woman",
+      "keywords": [
+        "woman",
+        "womenswear",
+        "female fashion",
+        "tops",
+        "jackets",
+        "bags",
+        "Woman",
+        "Women"
+      ],
+      "image": "/assets/demo/uploaded/editorial/afterlast-duo.png",
+      "description": "Category",
+      "status": "Active",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "category-perfume",
+      "type": "category",
+      "label": "Perfumes",
+      "href": "/shop?q=Perfume",
+      "keywords": [
+        "perfume",
+        "fragrance",
+        "scent",
+        "luxury perfume",
+        "Perfume",
+        "Perfumes"
+      ],
+      "image": "/assets/demo/uploaded/editorial/chrome-queen.png",
+      "description": "Category",
+      "status": "Active",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "category-accessories",
+      "type": "category",
+      "label": "Accessories",
+      "href": "/shop?q=Accessories",
+      "keywords": [
+        "accessories",
+        "bags",
+        "sunglasses",
+        "eyewear",
+        "jewellery",
+        "Accessories"
+      ],
+      "image": "/assets/demo/uploaded/categories/streetwear-chain.png",
+      "description": "Category",
+      "status": "Active",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "category-streetwear",
+      "type": "category",
+      "label": "Streetwear",
+      "href": "/shop?q=Streetwear",
+      "keywords": [
+        "streetwear",
+        "hoodies",
+        "oversized",
+        "cargo",
+        "urban fashion",
+        "Streetwear"
+      ],
+      "image": "/assets/demo/uploaded/editorial/afterlast-smoke.png",
+      "description": "Category",
+      "status": "Active",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "category-wear-the-signal",
+      "type": "category",
+      "label": "Wear The Signal",
+      "href": "/shop?q=Wear%20The%20Signal",
+      "keywords": [
+        "wear the signal",
+        "skxnz",
+        "signature",
+        "futurewear",
+        "Wear The Signal",
+        "wear-the-signal"
+      ],
+      "image": "/assets/demo/uploaded/editorial/monochrome-fit.png",
+      "description": "Category",
+      "status": "Active",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "category-new-season",
+      "type": "category",
+      "label": "New Season",
+      "href": "/shop?q=New%20Season",
+      "keywords": [
+        "new season",
+        "latest",
+        "fresh drops",
+        "new collection",
+        "New Season",
+        "new-season"
+      ],
+      "image": "/assets/demo/uploaded/editorial/monochrome-fit.png",
+      "description": "Category",
+      "status": "Active",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "category-ai-stylised",
+      "type": "category",
+      "label": "AI Stylised",
+      "href": "/shop?q=AI%20Stylised",
+      "keywords": [
+        "ai stylised",
+        "ai fashion",
+        "futurewear",
+        "digital fashion",
+        "AI Stylised",
+        "ai-stylised"
+      ],
+      "image": "/assets/demo/uploaded/editorial/monochrome-fit.png",
+      "description": "Category",
+      "status": "Active",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "category-limited-edition",
+      "type": "category",
+      "label": "Limited Edition",
+      "href": "/shop?q=Limited%20Edition",
+      "keywords": [
+        "limited edition",
+        "drops",
+        "exclusive",
+        "rare",
+        "Limited Edition",
+        "limited-edition"
+      ],
+      "image": "/assets/demo/uploaded/editorial/monochrome-fit.png",
+      "description": "Category",
+      "status": "Active",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "category-footwear",
+      "type": "category",
+      "label": "Shoes",
+      "href": "/shop?q=Footwear",
+      "keywords": [
+        "footwear",
+        "shoes",
+        "sneakers",
+        "premium sneakers",
+        "Footwear",
+        "Shoes"
+      ],
+      "image": "/assets/demo/uploaded/editorial/monochrome-fit.png",
+      "description": "Category",
+      "status": "Demo",
+      "dataSource": "sheet"
+    },
+    {
+      "id": "collection-ai-stylised",
+      "type": "collection",
+      "label": "AI Stylised",
+      "href": "/shop?q=AI%20Stylised",
+      "keywords": [
+        "ai stylised",
+        "ai styled",
+        "futurewear concepts",
+        "AI Stylised",
+        "ai-stylised"
+      ],
+      "image": "/assets/demo/uploaded/editorial/chrome-queen.png",
+      "description": "Collection",
+      "status": "Demo",
+      "dataSource": "sheet-derived"
+    },
+    {
+      "id": "collection-limited-edition",
+      "type": "collection",
+      "label": "Limited Edition",
+      "href": "/shop?q=Limited%20Edition",
+      "keywords": [
+        "limited edition",
+        "limited drops",
+        "drop zone",
+        "Limited Edition",
+        "limited-edition"
+      ],
+      "image": "/assets/demo/uploaded/editorial/afterlast-duo.png",
+      "description": "Collection",
+      "status": "Demo",
+      "dataSource": "sheet-derived"
+    },
+    {
+      "id": "collection-new-season",
+      "type": "collection",
+      "label": "New Season",
+      "href": "/shop?q=New%20Season",
+      "keywords": [
+        "new season",
+        "season picks",
+        "fresh drops",
+        "New Season",
+        "new-season"
+      ],
+      "image": "/assets/demo/uploaded/products/afterlast-portrait-shirt.png",
+      "description": "Collection",
+      "status": "Demo",
+      "dataSource": "sheet-derived"
+    },
+    {
+      "id": "collection-streetwear",
+      "type": "collection",
+      "label": "Streetwear",
+      "href": "/shop?q=Streetwear",
+      "keywords": [
+        "streetwear",
+        "Streetwear"
+      ],
+      "image": "/assets/demo/uploaded/editorial/afterlast-duo.png",
+      "description": "Collection",
+      "status": "Demo",
+      "dataSource": "sheet-derived"
+    },
+    {
+      "id": "collection-wear-the-signal",
+      "type": "collection",
+      "label": "Wear The Signal",
+      "href": "/shop?q=Wear%20The%20Signal",
+      "keywords": [
+        "wear the signal",
+        "signal",
+        "skxnz signature",
+        "Wear The Signal",
+        "wear-the-signal"
+      ],
+      "image": "/assets/demo/uploaded/products/skxnz-graphic-tee.png",
+      "description": "Collection",
+      "status": "Demo",
+      "dataSource": "sheet-derived"
+    },
+    {
+      "id": "page-ai-stylist",
+      "type": "page",
+      "label": "AI Stylist",
+      "href": "/ai-stylist",
+      "keywords": [
+        "ai stylist",
+        "ai stylised",
+        "ai styled",
+        "stylist",
+        "style"
+      ],
+      "image": null,
+      "description": "Page",
+      "status": "Demo",
+      "dataSource": "sheet-derived"
+    },
+    {
+      "id": "page-brands",
+      "type": "page",
+      "label": "Brands",
+      "href": "/brands",
+      "keywords": [
+        "brands",
+        "shop by brand",
+        "top brands"
+      ],
+      "image": null,
+      "description": "Page",
+      "status": "Active",
+      "dataSource": "sheet-derived"
+    }
+  ],
+  "aiOutfitMetadata": [
+    {
+      "productId": "sku-001",
+      "slug": "obsidian-signal-oversized-tee",
+      "itemType": "T-Shirts",
+      "styleTags": [
+        "oversized",
+        "streetwear",
+        "premium",
+        "signal"
+      ],
+      "occasionTags": [
+        "daily",
+        "streetwear",
+        "casual"
+      ],
+      "colorFamily": [
+        "Black"
+      ],
+      "budgetRange": "Under ₹2,500",
+      "fitType": "Oversized",
+      "gender": "Men",
+      "availableSizes": [
+        "S",
+        "M",
+        "L",
+        "XL",
+        "XXL"
+      ],
+      "stockStatus": "In Stock",
+      "dataSource": "sheet-derived"
+    },
+    {
+      "productId": "sku-002",
+      "slug": "pearl-signal-crop-jacket",
+      "itemType": "Jackets",
+      "styleTags": [
+        "cropped",
+        "futurewear",
+        "premium",
+        "new season"
+      ],
+      "occasionTags": [
+        "editorial",
+        "evening",
+        "fashion"
+      ],
+      "colorFamily": [
+        "White"
+      ],
+      "budgetRange": "₹4,000-₹5,999",
+      "fitType": "Cropped",
+      "gender": "Woman",
+      "availableSizes": [
+        "XS",
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "stockStatus": "In Stock",
+      "dataSource": "sheet-derived"
+    },
+    {
+      "productId": "sku-003",
+      "slug": "chrome-trace-hoodie",
+      "itemType": "Hoodies",
+      "styleTags": [
+        "hoodie",
+        "chrome",
+        "streetwear",
+        "unisex"
+      ],
+      "occasionTags": [
+        "daily",
+        "streetwear",
+        "layering"
+      ],
+      "colorFamily": [
+        "Blue"
+      ],
+      "budgetRange": "₹2,500-₹3,999",
+      "fitType": "Relaxed",
+      "gender": "Unisex",
+      "availableSizes": [
+        "S",
+        "M",
+        "L",
+        "XL",
+        "XXL"
+      ],
+      "stockStatus": "In Stock",
+      "dataSource": "sheet-derived"
+    },
+    {
+      "productId": "sku-004",
+      "slug": "sonic-magenta-mini-bag",
+      "itemType": "Bags",
+      "styleTags": [
+        "bag",
+        "luxury",
+        "statement",
+        "limited edition"
+      ],
+      "occasionTags": [
+        "party",
+        "editorial",
+        "evening"
+      ],
+      "colorFamily": [
+        "Magenta"
+      ],
+      "budgetRange": "₹2,500-₹3,999",
+      "fitType": "Accessory",
+      "gender": "Unisex",
+      "availableSizes": [
+        "One Size"
+      ],
+      "stockStatus": "In Stock",
+      "dataSource": "sheet-derived"
+    },
+    {
+      "productId": "sku-005",
+      "slug": "liquid-silver-perfume",
+      "itemType": "Fragrance",
+      "styleTags": [
+        "perfume",
+        "luxury",
+        "fragrance",
+        "ai stylised"
+      ],
+      "occasionTags": [
+        "daily",
+        "evening",
+        "signature"
+      ],
+      "colorFamily": [
+        "Silver"
+      ],
+      "budgetRange": "₹2,500-₹3,999",
+      "fitType": "Accessory",
+      "gender": "Unisex",
+      "availableSizes": [
+        "100ML"
+      ],
+      "stockStatus": "In Stock",
+      "dataSource": "sheet-derived"
+    },
+    {
+      "productId": "sku-006",
+      "slug": "midnight-cargo-pants",
+      "itemType": "Pants",
+      "styleTags": [
+        "cargo",
+        "pants",
+        "navy",
+        "utility"
+      ],
+      "occasionTags": [
+        "daily"
+      ],
+      "colorFamily": [
+        "Blue"
+      ],
+      "budgetRange": "₹2,500-₹3,999",
+      "fitType": "Regular",
+      "gender": "Men",
+      "availableSizes": [
+        "S",
+        "M",
+        "L",
+        "XL",
+        "XXL"
+      ],
+      "stockStatus": "In Stock",
+      "dataSource": "sheet-derived"
+    },
+    {
+      "productId": "sku-007",
+      "slug": "ultraviolet-mesh-top",
+      "itemType": "Tops",
+      "styleTags": [
+        "mesh",
+        "top",
+        "ultraviolet",
+        "futuristic"
+      ],
+      "occasionTags": [
+        "daily"
+      ],
+      "colorFamily": [
+        "Ultraviolet Purple"
+      ],
+      "budgetRange": "₹2,500-₹3,999",
+      "fitType": "Regular",
+      "gender": "Woman",
+      "availableSizes": [
+        "XS",
+        "S",
+        "M",
+        "L"
+      ],
+      "stockStatus": "In Stock",
+      "dataSource": "sheet-derived"
+    },
+    {
+      "productId": "sku-008",
+      "slug": "pearl-white-sneakers",
+      "itemType": "Sneakers",
+      "styleTags": [
+        "sneakers",
+        "pearl",
+        "footwear",
+        "premium"
+      ],
+      "occasionTags": [
+        "daily"
+      ],
+      "colorFamily": [
+        "White"
+      ],
+      "budgetRange": "₹4,000-₹5,999",
+      "fitType": "Regular",
+      "gender": "Unisex",
+      "availableSizes": [
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11"
+      ],
+      "stockStatus": "In Stock",
+      "dataSource": "sheet-derived"
+    },
+    {
+      "productId": "sku-009",
+      "slug": "obsidian-rider-vest",
+      "itemType": "Vests",
+      "styleTags": [
+        "vest",
+        "black",
+        "utility",
+        "streetwear"
+      ],
+      "occasionTags": [
+        "daily"
+      ],
+      "colorFamily": [
+        "Black"
+      ],
+      "budgetRange": "₹4,000-₹5,999",
+      "fitType": "Regular",
+      "gender": "Unisex",
+      "availableSizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "stockStatus": "In Stock",
+      "dataSource": "sheet-derived"
+    },
+    {
+      "productId": "sku-010",
+      "slug": "electric-cyan-sunglasses",
+      "itemType": "Eyewear",
+      "styleTags": [
+        "sunglasses",
+        "cyan",
+        "eyewear",
+        "accessory"
+      ],
+      "occasionTags": [
+        "daily"
+      ],
+      "colorFamily": [
+        "Electric Cyan"
+      ],
+      "budgetRange": "Under ₹2,500",
+      "fitType": "Regular",
+      "gender": "Unisex",
+      "availableSizes": [
+        "One Size"
+      ],
+      "stockStatus": "In Stock",
+      "dataSource": "sheet-derived"
+    },
+    {
+      "productId": "sku-011",
+      "slug": "signal-layered-shirt",
+      "itemType": "Shirts",
+      "styleTags": [
+        "shirt",
+        "layered",
+        "premium",
+        "editorial"
+      ],
+      "occasionTags": [
+        "daily"
+      ],
+      "colorFamily": [
+        "White"
+      ],
+      "budgetRange": "₹2,500-₹3,999",
+      "fitType": "Regular",
+      "gender": "Men",
+      "availableSizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "stockStatus": "In Stock",
+      "dataSource": "sheet-derived"
+    },
+    {
+      "productId": "sku-012",
+      "slug": "chrome-district-bracelet",
+      "itemType": "Jewellery",
+      "styleTags": [
+        "bracelet",
+        "chrome",
+        "jewellery",
+        "accessory"
+      ],
+      "occasionTags": [
+        "daily"
+      ],
+      "colorFamily": [
+        "Silver"
+      ],
+      "budgetRange": "Under ₹2,500",
+      "fitType": "Regular",
+      "gender": "Unisex",
+      "availableSizes": [
+        "One Size"
+      ],
+      "stockStatus": "In Stock",
+      "dataSource": "sheet-derived"
+    },
+    {
+      "productId": "sku-013",
+      "slug": "demo-atelier-long-coat",
+      "itemType": "Coats",
+      "styleTags": [
+        "coat",
+        "long coat",
+        "premium",
+        "atelier"
+      ],
+      "occasionTags": [
+        "daily"
+      ],
+      "colorFamily": [
+        "White"
+      ],
+      "budgetRange": "₹6,000+",
+      "fitType": "Regular",
+      "gender": "Woman",
+      "availableSizes": [
+        "XS",
+        "S",
+        "M",
+        "L"
+      ],
+      "stockStatus": "In Stock",
+      "dataSource": "sheet-derived"
+    },
+    {
+      "productId": "sku-014",
+      "slug": "future-runner-crossbody",
+      "itemType": "Bags",
+      "styleTags": [
+        "crossbody",
+        "bag",
+        "futuristic",
+        "chrome"
+      ],
+      "occasionTags": [
+        "daily"
+      ],
+      "colorFamily": [
+        "Black"
+      ],
+      "budgetRange": "₹2,500-₹3,999",
+      "fitType": "Regular",
+      "gender": "Unisex",
+      "availableSizes": [
+        "One Size"
+      ],
+      "stockStatus": "In Stock",
+      "dataSource": "sheet-derived"
+    },
+    {
+      "productId": "sku-015",
+      "slug": "ai-drift-co-ord-set",
+      "itemType": "Co-ord Sets",
+      "styleTags": [
+        "co-ord",
+        "ai",
+        "futuristic",
+        "set"
+      ],
+      "occasionTags": [
+        "daily"
+      ],
+      "colorFamily": [
+        "Ultraviolet Purple"
+      ],
+      "budgetRange": "₹4,000-₹5,999",
+      "fitType": "Regular",
+      "gender": "Unisex",
+      "availableSizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "stockStatus": "In Stock",
+      "dataSource": "sheet-derived"
+    }
+  ]
+}

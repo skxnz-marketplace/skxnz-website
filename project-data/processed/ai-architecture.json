@@ -1,0 +1,545 @@
+{
+  "generatedAt": "2026-05-07T11:44:24.679233+00:00",
+  "source": "project-data/source-sheets/SKXNZ_AI_OPERATING_SYSTEM_PACK_FINAL.xlsx",
+  "ai_modules": [
+    {
+      "id": "AI-001",
+      "feature": "Buyer AI Assistant",
+      "userType": "Buyer",
+      "purpose": "Help shoppers discover products, compare choices, understand policies, and get order/support guidance.",
+      "launchPhase": "Phase 1",
+      "needsBackend": "Yes",
+      "needsImageAi": "No",
+      "needsAdminReview": "No",
+      "status": "Planned"
+    },
+    {
+      "id": "AI-002",
+      "feature": "AI Outfit Builder",
+      "userType": "Buyer",
+      "purpose": "Build complete outfits from active SKXNZ products using budget, style, size, occasion, and stock constraints.",
+      "launchPhase": "Phase 1",
+      "needsBackend": "Yes",
+      "needsImageAi": "No",
+      "needsAdminReview": "No",
+      "status": "Planned"
+    },
+    {
+      "id": "AI-003",
+      "feature": "Seller Product Validation",
+      "userType": "Seller/Admin",
+      "purpose": "Check seller uploads for missing fields, duplicate risk, image quality, category/tag readiness, and publish-readiness.",
+      "launchPhase": "Phase 1",
+      "needsBackend": "Yes",
+      "needsImageAi": "No",
+      "needsAdminReview": "Yes",
+      "status": "Planned"
+    },
+    {
+      "id": "AI-004",
+      "feature": "Backend AI Data Handler",
+      "userType": "System",
+      "purpose": "Control AI calls, data access, tool permissions, usage logs, cost tracking, audit logs, and job queues.",
+      "launchPhase": "Phase 1",
+      "needsBackend": "Yes",
+      "needsImageAi": "No",
+      "needsAdminReview": "Yes",
+      "status": "Planned"
+    },
+    {
+      "id": "AI-005",
+      "feature": "Rider Helper",
+      "userType": "Rider",
+      "purpose": "Guide delivery partners through pickup, delivery, COD, failed delivery, return pickup, and policy-based next steps.",
+      "launchPhase": "Phase 2",
+      "needsBackend": "Yes",
+      "needsImageAi": "No",
+      "needsAdminReview": "No",
+      "status": "Planned"
+    },
+    {
+      "id": "AI-006",
+      "feature": "Admin Daily Summary",
+      "userType": "Admin",
+      "purpose": "Summarize orders, returns, support issues, seller alerts, failed deliveries, and top searches.",
+      "launchPhase": "Phase 2",
+      "needsBackend": "Yes",
+      "needsImageAi": "No",
+      "needsAdminReview": "Yes",
+      "status": "Planned"
+    },
+    {
+      "id": "AI-007",
+      "feature": "Support Triage",
+      "userType": "Support/Admin",
+      "purpose": "Classify support tickets by urgency, topic, order relation, and suggested next action.",
+      "launchPhase": "Phase 2",
+      "needsBackend": "Yes",
+      "needsImageAi": "No",
+      "needsAdminReview": "Yes",
+      "status": "Planned"
+    },
+    {
+      "id": "AI-008",
+      "feature": "Return Reason Summary",
+      "userType": "Admin/Seller",
+      "purpose": "Summarize why products are returned and identify recurring product/fit/delivery issues.",
+      "launchPhase": "Phase 2",
+      "needsBackend": "Yes",
+      "needsImageAi": "No",
+      "needsAdminReview": "Yes",
+      "status": "Planned"
+    },
+    {
+      "id": "AI-009",
+      "feature": "AI Visual Search",
+      "userType": "Buyer",
+      "purpose": "Allow users to upload/screenshot a look and find visually similar products in SKXNZ.",
+      "launchPhase": "Phase 3",
+      "needsBackend": "Yes",
+      "needsImageAi": "Yes",
+      "needsAdminReview": "No",
+      "status": "Planned"
+    },
+    {
+      "id": "AI-010",
+      "feature": "Full Outfit Try-On",
+      "userType": "Buyer",
+      "purpose": "Generate a visual try-on preview for selected outfits after user consent.",
+      "launchPhase": "Phase 3",
+      "needsBackend": "Yes",
+      "needsImageAi": "Yes",
+      "needsAdminReview": "Yes",
+      "status": "Planned"
+    },
+    {
+      "id": "AI-011",
+      "feature": "Size Confidence Assistant",
+      "userType": "Buyer",
+      "purpose": "Estimate size confidence using brand size charts, user preference, and product measurements without guaranteeing fit.",
+      "launchPhase": "Phase 3",
+      "needsBackend": "Yes",
+      "needsImageAi": "No",
+      "needsAdminReview": "No",
+      "status": "Planned"
+    },
+    {
+      "id": "AI-012",
+      "feature": "Personalized Homepage AI",
+      "userType": "Buyer",
+      "purpose": "Reorder homepage/category/product suggestions based on style profile, wishlist, searches, and budget signals.",
+      "launchPhase": "Phase 3",
+      "needsBackend": "Yes",
+      "needsImageAi": "No",
+      "needsAdminReview": "Yes",
+      "status": "Planned"
+    }
+  ],
+  "ai_routes": [
+    {
+      "route": "/api/ai/buyer-assistant",
+      "method": "POST",
+      "feature": "Buyer AI Assistant",
+      "userType": "Buyer",
+      "purpose": "Answer shopping, product, order, and policy questions using permitted data.",
+      "launchPhase": "Phase 1",
+      "status": "Planned"
+    },
+    {
+      "route": "/api/ai/outfit-builder",
+      "method": "POST",
+      "feature": "AI Outfit Builder",
+      "userType": "Buyer",
+      "purpose": "Build complete outfits from products, budget, size, occasion, and style preferences.",
+      "launchPhase": "Phase 1",
+      "status": "Planned"
+    },
+    {
+      "route": "/api/ai/outfit-results/:id",
+      "method": "GET",
+      "feature": "AI Outfit Builder",
+      "userType": "Buyer",
+      "purpose": "Fetch saved outfit result.",
+      "launchPhase": "Phase 1",
+      "status": "Planned"
+    },
+    {
+      "route": "/api/ai/seller-product-check",
+      "method": "POST",
+      "feature": "Seller Validation",
+      "userType": "Seller",
+      "purpose": "Validate product draft fields, images, category/tags, risk, and publish-readiness.",
+      "launchPhase": "Phase 1",
+      "status": "Planned"
+    },
+    {
+      "route": "/api/ai/usage",
+      "method": "GET",
+      "feature": "Backend AI Handler",
+      "userType": "Admin",
+      "purpose": "View usage/cost summary.",
+      "launchPhase": "Phase 1",
+      "status": "Planned"
+    },
+    {
+      "route": "/api/ai/audit-logs",
+      "method": "GET",
+      "feature": "Backend AI Handler",
+      "userType": "Admin",
+      "purpose": "View AI audit logs.",
+      "launchPhase": "Phase 1",
+      "status": "Planned"
+    },
+    {
+      "route": "/api/ai/rider-helper",
+      "method": "POST",
+      "feature": "Rider Helper",
+      "userType": "Rider",
+      "purpose": "Get policy-based guidance for delivery task issues.",
+      "launchPhase": "Phase 2",
+      "status": "Planned"
+    },
+    {
+      "route": "/api/ai/admin-summary",
+      "method": "GET",
+      "feature": "Admin AI",
+      "userType": "Admin",
+      "purpose": "Daily operating summary.",
+      "launchPhase": "Phase 2",
+      "status": "Planned"
+    },
+    {
+      "route": "/api/ai/support-triage",
+      "method": "POST",
+      "feature": "Support Triage",
+      "userType": "Support/Admin",
+      "purpose": "Classify support ticket and suggest next action.",
+      "launchPhase": "Phase 2",
+      "status": "Planned"
+    },
+    {
+      "route": "/api/ai/visual-search",
+      "method": "POST",
+      "feature": "AI Visual Search",
+      "userType": "Buyer",
+      "purpose": "Find similar products from uploaded image/screenshot.",
+      "launchPhase": "Phase 3",
+      "status": "Planned"
+    },
+    {
+      "route": "/api/ai/try-on/jobs",
+      "method": "POST",
+      "feature": "Full Outfit Try-On",
+      "userType": "Buyer",
+      "purpose": "Create try-on job after consent.",
+      "launchPhase": "Phase 3",
+      "status": "Planned"
+    },
+    {
+      "route": "/api/ai/try-on/jobs/:id",
+      "method": "GET",
+      "feature": "Full Outfit Try-On",
+      "userType": "Buyer",
+      "purpose": "Fetch try-on job status/result.",
+      "launchPhase": "Phase 3",
+      "status": "Planned"
+    },
+    {
+      "route": "/api/ai/try-on/results/:id",
+      "method": "DELETE",
+      "feature": "Full Outfit Try-On",
+      "userType": "Buyer",
+      "purpose": "Delete try-on result/photo references according to policy.",
+      "launchPhase": "Phase 3",
+      "status": "Planned"
+    }
+  ],
+  "ai_data_sources": [
+    {
+      "dataSource": "Products",
+      "usedBy": "Buyer Assistant, Outfit Builder, Seller Validation",
+      "accessLevel": "Read",
+      "examples": "name, brand, category, price, tags, stock, sizes, images",
+      "privacyLevel": "Public/Marketplace",
+      "notes": "Core source for recommendations."
+    },
+    {
+      "dataSource": "Brands",
+      "usedBy": "Buyer Assistant, Outfit Builder",
+      "accessLevel": "Read",
+      "examples": "brand name, slug, verification status, hero, categories",
+      "privacyLevel": "Public/Marketplace",
+      "notes": "Never claim official partnership unless verified field says so."
+    },
+    {
+      "dataSource": "Categories",
+      "usedBy": "Buyer Assistant, Outfit Builder, Search",
+      "accessLevel": "Read",
+      "examples": "Men, Woman, Perfume, Accessories, Streetwear",
+      "privacyLevel": "Public/Marketplace",
+      "notes": "Used for filtering and navigation."
+    },
+    {
+      "dataSource": "Inventory",
+      "usedBy": "Outfit Builder, Cart, Buyer Assistant",
+      "accessLevel": "Read",
+      "examples": "stock status, size availability",
+      "privacyLevel": "Internal",
+      "notes": "AI must not suggest out-of-stock items."
+    },
+    {
+      "dataSource": "User Profile",
+      "usedBy": "Buyer Assistant, Personalization",
+      "accessLevel": "Read with consent/login",
+      "examples": "style preference, budget preference, size preference",
+      "privacyLevel": "Private",
+      "notes": "Use only for authenticated users."
+    },
+    {
+      "dataSource": "Orders",
+      "usedBy": "Buyer Assistant, Support, Admin",
+      "accessLevel": "Read for owner/admin",
+      "examples": "order status, shipment status, return eligibility",
+      "privacyLevel": "Private",
+      "notes": "Buyer can access own orders only."
+    },
+    {
+      "dataSource": "Seller Product Drafts",
+      "usedBy": "Seller Validation",
+      "accessLevel": "Read/Write validation output",
+      "examples": "draft fields, images, status, risk score",
+      "privacyLevel": "Seller/Internal",
+      "notes": "Admin review at launch."
+    },
+    {
+      "dataSource": "Rider Tasks",
+      "usedBy": "Rider Helper",
+      "accessLevel": "Read limited task context",
+      "examples": "pickup, delivery, return, COD",
+      "privacyLevel": "Internal",
+      "notes": "Rider sees assigned tasks only."
+    },
+    {
+      "dataSource": "Policies",
+      "usedBy": "Buyer Assistant, Support, Rider Helper",
+      "accessLevel": "Read",
+      "examples": "return, refund, delivery, support rules",
+      "privacyLevel": "Public/Internal",
+      "notes": "AI answers must follow stored policies."
+    },
+    {
+      "dataSource": "AI Logs",
+      "usedBy": "Admin, Backend Handler",
+      "accessLevel": "Write/Read admin",
+      "examples": "feature use, audit events, cost tracking",
+      "privacyLevel": "Internal",
+      "notes": "Useful for debugging and safety."
+    }
+  ],
+  "ai_tables": [
+    {
+      "table": "ai_usage_logs",
+      "purpose": "Track AI usage by feature/user/cost.",
+      "keyColumns": "id, user_id, role, feature, model, input_tokens, output_tokens, cost_estimate, created_at",
+      "usedBy": "All AI",
+      "launchPhase": "Phase 1",
+      "status": "Planned"
+    },
+    {
+      "table": "ai_audit_logs",
+      "purpose": "Record AI decisions and automation actions.",
+      "keyColumns": "id, feature, actor_type, actor_id, input_summary, output_summary, action_taken, risk_score, created_at",
+      "usedBy": "Seller/Admin/Automation",
+      "launchPhase": "Phase 1",
+      "status": "Planned"
+    },
+    {
+      "table": "ai_conversations",
+      "purpose": "Store buyer assistant sessions.",
+      "keyColumns": "id, user_id, channel, title, status, created_at, updated_at",
+      "usedBy": "Buyer Assistant",
+      "launchPhase": "Phase 1",
+      "status": "Planned"
+    },
+    {
+      "table": "ai_messages",
+      "purpose": "Store chat messages safely.",
+      "keyColumns": "id, conversation_id, role, content, metadata_json, created_at",
+      "usedBy": "Buyer Assistant",
+      "launchPhase": "Phase 1",
+      "status": "Planned"
+    },
+    {
+      "table": "ai_outfit_requests",
+      "purpose": "Store outfit builder inputs.",
+      "keyColumns": "id, user_id, budget, occasion, style_tags, size_profile, color_preferences, created_at",
+      "usedBy": "Outfit Builder",
+      "launchPhase": "Phase 1",
+      "status": "Planned"
+    },
+    {
+      "table": "ai_outfit_results",
+      "purpose": "Store outfit results and chosen products.",
+      "keyColumns": "id, request_id, outfit_name, total_price, product_ids_json, explanation, over_budget, created_at",
+      "usedBy": "Outfit Builder",
+      "launchPhase": "Phase 1",
+      "status": "Planned"
+    },
+    {
+      "table": "seller_product_checks",
+      "purpose": "Store seller validation results.",
+      "keyColumns": "id, seller_id, product_draft_id, missing_fields_json, suggested_tags_json, risk_score, status, created_at",
+      "usedBy": "Seller Validation",
+      "launchPhase": "Phase 1",
+      "status": "Planned"
+    },
+    {
+      "table": "ai_automation_rules",
+      "purpose": "Rules that move data between states.",
+      "keyColumns": "id, trigger, condition_json, action_json, enabled, requires_review, created_at",
+      "usedBy": "Automation Engine",
+      "launchPhase": "Phase 1",
+      "status": "Planned"
+    },
+    {
+      "table": "ai_jobs",
+      "purpose": "Long-running AI jobs.",
+      "keyColumns": "id, feature, user_id, status, provider, provider_job_id, input_ref, output_ref, error_message, created_at",
+      "usedBy": "Try-On/Visual Search",
+      "launchPhase": "Phase 3",
+      "status": "Planned"
+    },
+    {
+      "table": "ai_tryon_consents",
+      "purpose": "Store try-on user consent proof.",
+      "keyColumns": "id, user_id, consent_version, consented_at, photo_policy, revoked_at",
+      "usedBy": "Try-On",
+      "launchPhase": "Phase 3",
+      "status": "Planned"
+    },
+    {
+      "table": "ai_tryon_results",
+      "purpose": "Store generated try-on result metadata.",
+      "keyColumns": "id, job_id, user_id, outfit_id, source_photo_ref, result_image_ref, status, created_at, deleted_at",
+      "usedBy": "Try-On",
+      "launchPhase": "Phase 3",
+      "status": "Planned"
+    }
+  ],
+  "ai_prompt_rules": [
+    {
+      "promptArea": "Buyer Assistant",
+      "systemRule": "Act as SKXNZ shopping assistant. Recommend only products available in marketplace data and explain briefly.",
+      "mustUseDataFrom": "Products, brands, categories, stock, sizes, policies, orders when authenticated.",
+      "mustNeverDo": "Never invent products, prices, delivery dates, partnerships, or authenticity claims.",
+      "outputStyle": "Clear, premium, concise, useful.",
+      "status": "Planned"
+    },
+    {
+      "promptArea": "Outfit Builder",
+      "systemRule": "Build complete outfits from active products using budget, size, occasion, color, and style constraints.",
+      "mustUseDataFrom": "Products, inventory, variants, item_type, style_tags, price.",
+      "mustNeverDo": "Never suggest sold-out products or exceed budget without warning.",
+      "outputStyle": "2–3 outfit options with total price and links.",
+      "status": "Planned"
+    },
+    {
+      "promptArea": "Seller Validation",
+      "systemRule": "Check seller product draft for missing data, image quality, duplicates, risk, and admin readiness.",
+      "mustUseDataFrom": "Product draft, seller ID, existing products, category rules.",
+      "mustNeverDo": "Never auto-claim product is authentic. Never auto-publish high-risk products.",
+      "outputStyle": "Pass/fail list, warnings, suggested metadata, review state.",
+      "status": "Planned"
+    },
+    {
+      "promptArea": "Rider Helper",
+      "systemRule": "Give delivery partner policy-based next step guidance.",
+      "mustUseDataFrom": "Assigned task, order status, policy rules.",
+      "mustNeverDo": "Never cancel, refund, alter COD amount, or mark delivered without required confirmation.",
+      "outputStyle": "Step-by-step operational guidance.",
+      "status": "Planned"
+    },
+    {
+      "promptArea": "Admin Summary",
+      "systemRule": "Summarize marketplace operations in a clean executive format.",
+      "mustUseDataFrom": "Orders, returns, failed deliveries, sellers, support, top searches.",
+      "mustNeverDo": "Never hide critical issues or invent numbers.",
+      "outputStyle": "Daily summary with risks and next actions.",
+      "status": "Planned"
+    },
+    {
+      "promptArea": "Try-On",
+      "systemRule": "Generate/handle visual try-on only after consent and show disclaimer.",
+      "mustUseDataFrom": "Outfit products, photo reference, consent record.",
+      "mustNeverDo": "Never retain/share photos without policy. Never claim exact fit.",
+      "outputStyle": "Visual guidance only, delete option present.",
+      "status": "Planned"
+    }
+  ],
+  "outfit_builder_rules": [
+    {
+      "ruleId": "OB-001",
+      "rule": "Only suggest products that are active and in stock.",
+      "priority": "Critical",
+      "dataNeeded": "product.status, inventory.stock_quantity",
+      "example": "Do not show sold-out hoodie.",
+      "status": "Planned"
+    },
+    {
+      "ruleId": "OB-002",
+      "rule": "Stay inside user budget unless over-budget is clearly stated.",
+      "priority": "Critical",
+      "dataNeeded": "price, sale_price, budget",
+      "example": "₹10,500 outfit for ₹10,000 budget must show warning.",
+      "status": "Planned"
+    },
+    {
+      "ruleId": "OB-003",
+      "rule": "Build complete outfits, not random product lists.",
+      "priority": "High",
+      "dataNeeded": "item_type",
+      "example": "Topwear + bottomwear + footwear + accessory/perfume.",
+      "status": "Planned"
+    },
+    {
+      "ruleId": "OB-004",
+      "rule": "Match size availability when user gives size.",
+      "priority": "High",
+      "dataNeeded": "variants, size_availability",
+      "example": "User wears XL, avoid products without XL.",
+      "status": "Planned"
+    },
+    {
+      "ruleId": "OB-005",
+      "rule": "Respect occasion and style.",
+      "priority": "High",
+      "dataNeeded": "occasion_tags, style_tags",
+      "example": "Party outfit should not look like gymwear.",
+      "status": "Planned"
+    },
+    {
+      "ruleId": "OB-006",
+      "rule": "Give 2–3 options maximum.",
+      "priority": "Medium",
+      "dataNeeded": "ranking score",
+      "example": "Minimal / bold / premium options.",
+      "status": "Planned"
+    },
+    {
+      "ruleId": "OB-007",
+      "rule": "Show total price and savings clearly.",
+      "priority": "High",
+      "dataNeeded": "price, sale_price",
+      "example": "Total ₹9,497, saved ₹1,000.",
+      "status": "Planned"
+    },
+    {
+      "ruleId": "OB-008",
+      "rule": "Allow regenerate/refine.",
+      "priority": "Medium",
+      "dataNeeded": "user preferences",
+      "example": "Make it darker, cheaper, more formal.",
+      "status": "Planned"
+    }
+  ]
+}
