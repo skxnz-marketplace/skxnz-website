@@ -10,6 +10,11 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        "home-ivory": "#F4F1EC",
+        "home-dark": "#0E0E10",
+        "home-oxblood": "#2E1014",
+        "home-cyan": "#00E5FF",
+        "home-text": "#161616",
         warmivory: "#FFFEFA",
         sangria: "#3A0818",
         teal: "#3A0818",
@@ -34,6 +39,7 @@ const config: Config = {
           "radial-gradient(circle at top, rgba(58, 8, 24, 0.08), transparent 28%), radial-gradient(circle at 85% 20%, rgba(34, 211, 238, 0.06), transparent 24%), radial-gradient(circle at 20% 80%, rgba(139, 92, 246, 0.05), transparent 28%)",
       },
       fontFamily: {
+        grotesk: ["var(--font-grotesk)", "system-ui", "sans-serif"],
         display: ["var(--font-display)", "Times New Roman", "serif"],
         sans: [
           "var(--font-primary)",

@@ -13,6 +13,28 @@ import {
 } from "@/lib/demo-role";
 import { siteConfig } from "@/lib/site";
 
+function FooterCol({ title, links }: { title: string; links: { label: string; href: string }[] }) {
+  return (
+    <div>
+      <p className="mb-4 text-[0.66rem] font-bold uppercase tracking-[0.18em] text-[#F4F1EC]/40">
+        {title}
+      </p>
+      <ul className="space-y-2.5">
+        {links.map((l) => (
+          <li key={l.label}>
+            <Link
+              href={l.href}
+              className="text-[0.76rem] text-[#F4F1EC]/60 transition hover:text-[#F4F1EC]"
+            >
+              {l.label}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 const trustFooterLinks = [
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
@@ -53,31 +75,113 @@ export function Footer() {
 
   if (showBuyerFooter) {
     return (
-      <footer className="border-t border-sandstone/90 bg-midnightbrown text-pearlcream">
-        <div className="mx-auto grid max-w-7xl gap-7 px-4 py-8 sm:px-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-start lg:px-8">
-          <div className="space-y-4">
-            <BrandMark className="max-w-full" />
-            <p className="max-w-lg text-sm leading-7 text-pearlcream/72">
-              SKXNZ is preparing a private beta foundation for futurewear
-              discovery, sellers, AI-assisted shopping, and Signal Community.
-              Policy pages are drafts for review before public launch.
-            </p>
-          </div>
+      <footer className="bg-[#0E0E10] text-[#F4F1EC]">
+        {/* Main columns */}
+        <div className="mx-auto max-w-[1440px] px-6 py-14 sm:px-10 lg:px-16">
+          <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr_1fr]">
+            {/* Brand column */}
+            <div className="space-y-5 sm:col-span-2 lg:col-span-1">
+              <div>
+                <p className="text-[1.1rem] font-bold uppercase tracking-[0.46em] text-[#F4F1EC]">
+                  SKXNZ
+                </p>
+                <p className="mt-1 text-[0.66rem] uppercase tracking-[0.22em] text-[#F4F1EC]/40">
+                  AI-powered premium futurewear fashion marketplace
+                </p>
+              </div>
+              <p className="text-[0.72rem] text-[#F4F1EC]/45">{siteConfig.socialHandle}</p>
+              {/* Social icons row */}
+              <div className="flex gap-2">
+                {["Instagram", "Twitter/X", "YouTube"].map((s) => (
+                  <span
+                    key={s}
+                    className="flex h-8 w-8 items-center justify-center rounded-full border border-[#F4F1EC]/10 text-[0.56rem] font-bold uppercase tracking-tight text-[#F4F1EC]/30"
+                    title={s}
+                  >
+                    {s[0]}
+                  </span>
+                ))}
+              </div>
+              {/* Newsletter */}
+              <div className="flex max-w-[280px] overflow-hidden rounded-full border border-[#F4F1EC]/12 bg-[#F4F1EC]/5">
+                <input
+                  type="email"
+                  placeholder="Enter your email"
+                  aria-label="Newsletter email"
+                  className="flex-1 bg-transparent px-4 py-2.5 text-[0.72rem] text-[#F4F1EC] placeholder:text-[#F4F1EC]/30 outline-none"
+                />
+                <button
+                  type="button"
+                  className="shrink-0 rounded-full bg-[#F4F1EC] px-4 py-2.5 text-[0.66rem] font-bold uppercase tracking-[0.08em] text-[#0E0E10] transition hover:bg-white"
+                >
+                  Join
+                </button>
+              </div>
+            </div>
 
-          <nav
-            aria-label="Footer trust and policy links"
-            className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4"
-          >
-            {trustFooterLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={getFooterLinkClassName(pathname, link.href)}
-              >
-                {link.label}
-              </Link>
-            ))}
-          </nav>
+            {/* Shop */}
+            <FooterCol title="Shop" links={[
+              { label: "New In", href: "/shop?new=1" },
+              { label: "Sneakers", href: "/categories/sneakers" },
+              { label: "Streetwear", href: "/categories/streetwear" },
+              { label: "Watches", href: "/categories/watches" },
+              { label: "Bags", href: "/categories/bags" },
+              { label: "Accessories", href: "/categories/accessories" },
+              { label: "Sale", href: "/shop?sale=1" },
+            ]} />
+
+            {/* Company */}
+            <FooterCol title="Company" links={[
+              { label: "About Us", href: "/about" },
+              { label: "Careers", href: "/about" },
+              { label: "Press", href: "/about" },
+              { label: "Sustainability", href: "/about" },
+              { label: "Affiliates", href: "/sell" },
+            ]} />
+
+            {/* Support */}
+            <FooterCol title="Support" links={[
+              { label: "Help Center", href: "/support" },
+              { label: "Track Order", href: "/orders" },
+              { label: "Returns", href: "/returns" },
+              { label: "Shipping Info", href: "/shipping" },
+              { label: "Size Guide", href: "/support" },
+              { label: "Contact Us", href: "/contact" },
+            ]} />
+
+            {/* Sellers */}
+            <FooterCol title="Sellers" links={[
+              { label: "Sell on SKXNZ", href: "/sell" },
+              { label: "Seller Center", href: "/seller" },
+              { label: "Partnerships", href: "/sell" },
+              { label: "Resources", href: "/sell" },
+            ]} />
+          </div>
+        </div>
+
+        {/* Bottom strip */}
+        <div className="border-t border-[#F4F1EC]/8">
+          <div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-3 px-6 py-5 sm:px-10 lg:px-16">
+            <p className="text-[0.66rem] text-[#F4F1EC]/35">
+              © 2025 SKXNZ. All rights reserved.
+            </p>
+            <div className="flex flex-wrap gap-4">
+              {[
+                { label: "Terms", href: "/terms" },
+                { label: "Privacy", href: "/privacy" },
+                { label: "Cookies", href: "/privacy" },
+              ].map((l) => (
+                <Link
+                  key={l.href + l.label}
+                  href={l.href}
+                  className="text-[0.66rem] text-[#F4F1EC]/35 transition hover:text-[#F4F1EC]/70"
+                >
+                  {l.label}
+                </Link>
+              ))}
+            </div>
+            <p className="text-[0.66rem] text-[#F4F1EC]/35">India (INR ₹)</p>
+          </div>
         </div>
       </footer>
     );

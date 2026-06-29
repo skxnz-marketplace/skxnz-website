@@ -4,8 +4,8 @@ Single source of truth for status. Every session: read this first, update it las
 
 ## Current state
 - Frontend live at https://skxnz.com (Next.js + TS + Tailwind, deployed via Vercel / bom1).
+- Homepage fully built (all 9 sections, responsive, per spec). No backend yet.
 - Backend not yet started (no Supabase, payments, or shipping yet).
-- (Edit this section if anything is out of date.)
 
 ## How we work
 - Planning: discussed with ChatGPT + Claude, then turned into a precise task.
@@ -17,6 +17,8 @@ Single source of truth for status. Every session: read this first, update it las
 - Stack: Next.js + TS + Tailwind, Supabase, Vercel, Razorpay, Shiprocket, Claude API.
 - Multi-seller marketplace (buyers, sellers, admin).
 - Compliance baked in from the start: DPDP (India) + RBI card rules (see CLAUDE.md).
+- Homepage content in lib/home-data.ts (typed, Supabase-ready to swap later).
+- All product images are CSS placeholder gradients — real photos drop in via the `image` field.
 
 ## Roadmap
 - Phase 0 — Foundation: Supabase project; full schema + RLS on every table; Auth (email/phone/Google) + roles (buyer/seller/admin); shared TS types.
@@ -29,3 +31,9 @@ Single source of truth for status. Every session: read this first, update it las
 
 ## Done this session
 - Added CLAUDE.md + PROGRESS.md (project context + rules).
+- Built full homepage: HeroCarousel, CategoryStrip, FeaturedLabels (marquee), ProductRow (reusable ×3), MosaicSection, AiStylistBanner, TrustBar.
+- All content typed in lib/home-data.ts — zero hardcoded JSX content.
+- Updated Navbar (New In / Sneakers / Streetwear / Watches / Brands / AI Stylist with cyan dot).
+- Rebuilt buyer Footer with 4 columns (Shop / Company / Support / Sellers) + newsletter.
+- Added Space Grotesk font via next/font; marquee keyframe animation in globals.css.
+- Responsive: desktop 5–6 product cols, mobile 2-col grid, all sections collapse cleanly.

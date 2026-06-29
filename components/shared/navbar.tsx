@@ -201,19 +201,24 @@ export function Navbar() {
               </div>
 
               <div className="flex min-w-0 items-center justify-end gap-2">
-                <nav className="hidden min-w-0 items-center justify-end gap-4 xl:flex">
+                <nav className="hidden min-w-0 items-center justify-end gap-5 xl:flex">
                   {[
-                    { href: "/shop", label: "Discover" },
-                    { href: "/brands", label: "Brands" },
-                    { href: "/ai-stylist", label: "AI Styled" },
-                    { href: "/#limited-drops", label: "Limited" },
+                    { href: "/shop?new=1", label: "New In", ai: false },
+                    { href: "/categories/sneakers", label: "Sneakers", ai: false },
+                    { href: "/categories/streetwear", label: "Streetwear", ai: false },
+                    { href: "/categories/watches", label: "Watches", ai: false },
+                    { href: "/brands", label: "Brands", ai: false },
+                    { href: "/ai-stylist", label: "AI Stylist", ai: true },
                   ].map((link) => (
                     <Link
                       key={link.href}
                       href={link.href}
-                      className="whitespace-nowrap text-[0.78rem] font-semibold text-[rgba(255,254,250,0.76)] transition hover:text-[#FFFEFA]"
+                      className="relative inline-flex items-center gap-1.5 whitespace-nowrap text-[0.78rem] font-semibold text-[rgba(255,254,250,0.76)] transition hover:text-[#FFFEFA]"
                     >
                       {link.label}
+                      {link.ai && (
+                        <span className="h-[5px] w-[5px] rounded-full bg-[#00E5FF]" aria-hidden="true" />
+                      )}
                     </Link>
                   ))}
                 </nav>

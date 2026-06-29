@@ -1,5 +1,13 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { Space_Grotesk } from "next/font/google";
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-grotesk",
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+});
 
 import { DemoRoleProvider } from "@/components/auth/demo-role-provider";
 import { MarketplaceProvider } from "@/components/marketplace/marketplace-provider";
@@ -35,7 +43,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className="bg-warmivory font-sans text-midnightbrown antialiased"
+        className={`${spaceGrotesk.variable} bg-warmivory font-sans text-midnightbrown antialiased`}
         suppressHydrationWarning
       >
         <script
