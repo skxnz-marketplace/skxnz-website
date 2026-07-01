@@ -18,6 +18,8 @@
     "@fontsource/manrope": "^5.2.8",
     "@fontsource/syne": "^5.2.7",
     "@prisma/client": "^6.7.0",
+    "@supabase/ssr": "^0.12.0",
+    "@supabase/supabase-js": "^2.109.0",
     "next": "^15.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"

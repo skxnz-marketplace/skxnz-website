@@ -5,7 +5,14 @@ import { DemoLoginPanel } from "@/components/auth/demo-login-panel";
 import { PageIntro } from "@/components/sections/page-intro";
 import { buttonVariants } from "@/components/ui/button";
 
-export default function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string>>
+}) {
+  const params = await searchParams
+  const authError = params.error ?? null
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
       <div className="space-y-6">
@@ -52,6 +59,13 @@ export default function LoginPage() {
             </div>
           }
         />
+
+        {authError && (
+          <div className="rounded-[20px] border border-sangria/30 bg-sangria/10 px-5 py-4 text-sm leading-6 text-midnightbrown">
+            <span className="font-semibold">Sign-in error:&nbsp;</span>
+            {authError}
+          </div>
+        )}
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_0.8fr]">
           <DemoLoginPanel />
