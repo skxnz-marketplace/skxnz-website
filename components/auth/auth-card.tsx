@@ -14,6 +14,7 @@ type AuthCardProps = {
 export function AuthCard({ mode }: AuthCardProps) {
   const isSignup = mode === "signup"
   const router = useRouter()
+  const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
@@ -34,13 +35,16 @@ export function AuthCard({ mode }: AuthCardProps) {
         const { error } = await supabase.auth.signUp({
           email,
           password,
-          options: { emailRedirectTo },
+          options: {
+            emailRedirectTo,
+            data: { name: name.trim() },
+          },
         })
         if (error) {
           setError(error.message)
         } else {
           setSuccessMsg(
-            "Check your email to confirm your account before signing in.",
+            "Check your inbox to confirm your SKXNZ account.",
           )
         }
       } else {
@@ -65,13 +69,34 @@ export function AuthCard({ mode }: AuthCardProps) {
   return (
     <Card className="section-border rounded-[36px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-6 sm:p-8">
       <p className="section-kicker text-[0.68rem] uppercase tracking-[0.24em] text-sangria">
-        {isSignup ? "Create account" : "Sign in"}
+        {isSignup ? "JOIN SKXNZ" : "Sign in"}
       </p>
       <h2 className="mt-4 font-display text-3xl uppercase leading-tight tracking-[0.04em] text-midnightbrown">
-        {isSignup ? "Join SKXNZ." : "Welcome back."}
+        {isSignup ? "ENTER THE SIGNAL." : "Welcome back."}
       </h2>
 
       <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4">
+        {isSignup && (
+          <div className="flex flex-col gap-1">
+            <label
+              htmlFor={`${mode}-name`}
+              className="text-[0.72rem] uppercase tracking-[0.18em] text-stone"
+            >
+              Name
+            </label>
+            <input
+              id={`${mode}-name`}
+              type="text"
+              autoComplete="name"
+              required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="rounded-[14px] border border-[rgba(58,8,24,0.15)] bg-white/60 px-4 py-3 text-sm text-midnightbrown placeholder:text-stone/50 focus:outline-none focus:ring-2 focus:ring-sangria/30"
+              placeholder="Your name"
+            />
+          </div>
+        )}
+
         <div className="flex flex-col gap-1">
           <label
             htmlFor={`${mode}-email`}
@@ -128,7 +153,7 @@ export function AuthCard({ mode }: AuthCardProps) {
           disabled={loading}
           className={buttonVariants({ variant: "primary", size: "lg" }) + " mt-2 w-full disabled:opacity-60"}
         >
-          {loading ? "Please wait…" : isSignup ? "Create account" : "Sign in"}
+          {loading ? "Please wait..." : isSignup ? "CREATE ACCOUNT" : "Sign in"}
         </button>
       </form>
 

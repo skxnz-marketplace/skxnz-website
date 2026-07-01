@@ -9,16 +9,16 @@ export default function SignupPage() {
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
       <div className="space-y-6">
         <PageIntro
-          eyebrow="Signup Beta"
-          title="Account creation is planned, not live."
-          description="This page prepares the SKXNZ account foundation safely. Real signup, password handling, email verification, and persistent account sync are not connected yet."
+          eyebrow="JOIN SKXNZ"
+          title="ENTER THE SIGNAL."
+          description="Create your SKXNZ account to access the futurewear marketplace."
           actions={
             <>
               <Link
                 href="/login"
                 className={buttonVariants({ variant: "secondary", size: "lg" })}
               >
-                Open Demo Login
+                Sign In
               </Link>
               <Link
                 href="/shop"
