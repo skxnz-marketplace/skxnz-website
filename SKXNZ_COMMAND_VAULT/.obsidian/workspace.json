@@ -4,11 +4,11 @@
     "type": "split",
     "children": [
       {
-        "id": "8288f83d3cb6973f",
+        "id": "968814e478331581",
         "type": "tabs",
         "children": [
           {
-            "id": "3b43516c69bfbe87",
+            "id": "0bf864a0be551b57",
             "type": "leaf",
             "state": {
               "type": "graph",
@@ -70,7 +70,8 @@
               "title": "Bookmarks"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "horizontal",
@@ -178,9 +179,12 @@
       "obsidian-kanban:Create new board": false
     }
   },
-  "active": "3b43516c69bfbe87",
+  "active": "0bf864a0be551b57",
   "lastOpenFiles": [
+    "01_COMMAND_CENTER/TODAY_KANBAN.md",
+    "01_COMMAND_CENTER/MASTER_DASHBOARD.md",
     "07_REPORTS/POWER_CUT_RECOVERY_REPORT.md",
+    "Untitled Kanban.md",
     "07_REPORTS/POWER_CUT_RECOVERY_REPORT.md.tmp.18284.9d685343ff4a"
   ]
 }

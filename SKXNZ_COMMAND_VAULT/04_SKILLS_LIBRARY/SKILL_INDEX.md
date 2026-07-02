@@ -17,4 +17,18 @@ Vault docs for each SKXNZ skill. Runnable versions live in `.claude/skills/*/SKI
 | [[SKXNZ_TOKEN_SAVER_GRAPHIFY]] | Compress + graph-link notes to save tokens |
 | [[SKXNZ_LEGAL_CLEAN_COPY]] | Legally clean, no-fake-claims copy |
 
-Related: [[MASTER_INDEX]] · [[AGENT_TASK_BOARD]]
+## Official Obsidian Skills
+
+- [[OFFICIAL_OBSIDIAN_SKILLS_INSTALL_GUIDE]]
+- obsidian-markdown
+- obsidian-bases
+- json-canvas
+- obsidian-cli
+- defuddle
+
+## Community Design Skills
+
+- impeccable
+- taste-skill
+
+Related: [[MASTER_INDEX]] - [[AGENT_TASK_BOARD]]

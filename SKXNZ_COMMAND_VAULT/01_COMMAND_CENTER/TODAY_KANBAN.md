@@ -1,7 +1,10 @@
 ---
 
 kanban-plugin: board
-tags: [skxnz, dashboard, daily-report]
+tags:
+  - skxnz
+  - dashboard
+  - daily-report
 
 ---
 
@@ -9,6 +12,7 @@ tags: [skxnz, dashboard, daily-report]
 
 - [ ] Create animation planning board
 - [ ] Prepare next Claude prompt
+
 
 ## Today
 
@@ -22,15 +26,19 @@ tags: [skxnz, dashboard, daily-report]
 - [ ] Test one Claude agent
 - [ ] Test one SKXNZ skill
 
+
 ## In Progress
 
 - [ ] Do not touch product code yet
+
 
 ## Review
 
 
 
 ## Done
+
+
 
 
 
