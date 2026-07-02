@@ -54,4 +54,10 @@ _Date: 2026-07-02_
 - **H3 env drift = FIXED** (docs-only; no real secret file opened, no secret printed). Not yet committed.
 - Open backend risks now: **H2 paise/rupees** (next), catalog M7 repoint (after `0002`), Stripe-vs-Razorpay placeholder cleanup (minor).
 
+## Slice 5 — H2 money-unit guardrail (2026-07-02)
+- ✅ **Slice 5:** created canonical `lib/money.ts` (`rupeesToPaise`, `paiseToRupees`, `formatInrFromPaise`, `formatInrFromRupees`) + recorded money rule → [[SLICE_5_H2_MONEY_UNIT_AUDIT_FIX_REPORT]].
+- **Money rule:** backend/order/payment = integer paise; `products.price_inr` = rupees → convert at boundary; UI shows `₹`. Prevents future 100x bug.
+- No schema/payment/seed touched. `price_inr` rename = deferred schema slice (H2b).
+- Open backend risks now: H2b schema decision (later), catalog M7 repoint (after `0002`), Stripe→Razorpay placeholder cleanup (minor).
+
 See [[NEXT_ACTIONS]] - [[MASTER_INDEX]].
