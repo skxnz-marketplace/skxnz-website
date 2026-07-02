@@ -311,27 +311,27 @@ export const aiSteps: AiStep[] = [
 export const trustItems: TrustItem[] = [
   {
     icon: "✓",
-    title: "Verified Sellers",
-    desc: "100% Authentic",
+    title: "Curated Labels",
+    desc: "Hand-Picked",
   },
   {
     icon: "🔒",
-    title: "Secure Payments",
-    desc: "Protected Checkout",
+    title: "Encrypted Checkout",
+    desc: "Coming Soon",
   },
   {
     icon: "↩",
-    title: "Easy Returns",
-    desc: "Hassle-free",
+    title: "Simple Returns",
+    desc: "In Development",
   },
   {
     icon: "⚡",
-    title: "Fast Delivery",
-    desc: "Across India",
+    title: "Nationwide Shipping",
+    desc: "Rolling Out",
   },
   {
     icon: "✦",
-    title: "AI Style Help",
-    desc: "Smart Recommendations",
+    title: "AI Styling",
+    desc: "In Development",
   },
 ];

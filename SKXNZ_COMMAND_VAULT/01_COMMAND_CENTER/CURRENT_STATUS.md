@@ -19,5 +19,25 @@ _Date: 2026-07-02_
 - 9 Claude agents + 6 skills created. Verified -> [[INFRA_SETUP_REPORT]].
 - Official Obsidian skills are being installed for Claude Code / Codex and exported as ZIP files for normal Claude upload. SKXNZ app/source code remains untouched.
 - Additional community design skills `impeccable` and `taste-skill` are installed from their upstream repositories and exported as Claude.ai ZIP files.
+- All 9 Claude agents smoke-tested (read-only): 9/9 PASS, 0 fixes → [[AGENT_SMOKE_TEST_REPORT]]. No app/source touched.
+- Multi-agent work plan created → [[MULTI_AGENT_SKXNZ_WORK_PLAN]] (phases 0-4, [[FILE_OWNERSHIP_RULES]], [[PARALLEL_AGENT_RULES]]). Audit-first, build phase LOCKED. No app/source touched.
+- Working tree dirty (protected): 33 modified + 16 untracked app/source files on `local-polish-auth-ui`. Do NOT reset/stash/stage/commit — inventory first.
+
+## Parallel run — 2026-07-02 (consolidated)
+- 4 workers + coordinator ran → [[PARALLEL_AGENT_RUN_SUMMARY]]. Scope discipline: 5/5 respected. Forbidden files touched: **none**.
+- **T1 Homepage Cleanup (code):** softened AI stylist banner claims (`ai-stylist-banner.tsx`), `tsc` clean → [[SLICE_1_HOMEPAGE_CLAIMS_CLEANUP_REPORT]]. **Slice 1 done as scoped.**
+- **T2 ReactBits (read-only):** 4 components need only `ogl` (installed); stays LOCKED → [[REACTBITS_READONLY_INTEGRATION_PLAN]].
+- **T3 Supabase Security (read-only):** H1 recursive RLS, H2 rupees-not-paise, H3 env drift, M6 open-redirect → [[SUPABASE_SECURITY_DEEP_AUDIT]]. Backend fixes WAIT.
+- **T4 Backend Architecture (read-only):** readiness 32/100; spoofable AI-route auth, money mismatch, Prisma/Supabase overlap → [[BACKEND_ARCHITECTURE_READONLY_AUDIT]]. Backend fixes WAIT.
+- **Decision:** trust-bar claims still live in `lib/home-data.ts` (unverified) → **Slice 1b next** (copy-only, single file). ReactBits/Supabase/Backend all remain locked.
+
+## Homepage claims cleanup — COMPLETE at copy level (2026-07-02)
+- ✅ **Slice 1 (partial):** `components/home/ai-stylist-banner.tsx` copy cleaned (BETA→COMING SOON, CTA→Get Early Access); trust-bar source identified in `lib/home-data.ts` → [[SLICE_1_HOMEPAGE_CLAIMS_CLEANUP_REPORT]].
+- ✅ **Slice 1b (complete):** `lib/home-data.ts` `trustItems` softened — unverified claims (Verified Sellers/100% Authentic, Secure Payments, Fast Delivery, AI Style Help, Easy Returns) → future-safe premium copy. Data shape unchanged → [[SLICE_1B_TRUSTBAR_CLAIMS_CLEANUP_REPORT]].
+- **Homepage trust/AI claims now legally clean at copy level.**
+- **App/source files edited so far:** `components/home/ai-stylist-banner.tsx`, `lib/home-data.ts` (2 files only).
+- **ReactBits:** LOCKED (planning only) → [[REACTBITS_READONLY_INTEGRATION_PLAN]].
+- **Supabase / backend:** read-only until owner unlocks a dedicated backend slice.
+- **No commit / push / PR yet.** → [[SLICE_1_AND_1B_STATUS_UPDATE]].
 
 See [[NEXT_ACTIONS]] - [[MASTER_INDEX]].
