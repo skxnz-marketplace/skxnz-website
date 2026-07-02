@@ -15,10 +15,13 @@ See [[MULTI_AGENT_SKXNZ_WORK_PLAN]] for phases.
 |---|---|---|---|
 | Slice 1 — Homepage claims cleanup | Brand Guardian (code) | `components/home/ai-stylist-banner.tsx` | 🔍 **Review** (banner cleaned, trust-bar source identified) |
 | Slice 1b — Trust-bar claims cleanup | Brand Guardian (code) | `lib/home-data.ts` (`trustItems` only) | ✅ **Done** (claims softened, shape unchanged) |
-| Auth open-redirect fix | (human-directed) | `app/auth/callback/route.ts` | 🟢 **NEXT** (single file, M6) |
+| Slice 2 — Auth open-redirect fix | Backend Auditor (code) | `app/auth/callback/route.ts` | ✅ **Done** (committed `e64ec62`) |
+| Slice 3 — Supabase RLS admin fix | Backend Auditor (code) | `supabase/migrations/0003` | ✅ **Done / Live verified** (`01ed642`, applied+verified) |
+| H2 — paise/rupees money-unit | (human-directed) | `supabase/migrations/**` (design) | 🟢 Next candidate |
+| H3 — `.env.example` drift | (human-directed) | `.env.example` | 🟢 Next candidate (safest, docs-only) |
+| Catalog `0002` apply | (human-directed) | `supabase/migrations/0002` + seeds | 🔒 Locked (not applied) |
 | ReactBits import | UI/UX + Animation | `components/reactbits/**` | 🔒 Locked / planning only |
-| Supabase security fixes | (human-directed) | `supabase/migrations/**` | 🔒 Locked / needs isolated backend slice |
-| Backend architecture fixes | (human-directed) | `lib/catalog/**`, apply `0002` | 🔒 Locked / needs isolated backend slice |
+| Backend architecture fixes | (human-directed) | `lib/catalog/**` | 🔒 Locked / needs isolated backend slice |
 
 Rule holds: **one code-editor at a time**, exact file list before edit.
 

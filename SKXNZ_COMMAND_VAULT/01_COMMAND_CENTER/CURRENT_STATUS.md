@@ -40,4 +40,13 @@ _Date: 2026-07-02_
 - **Supabase / backend:** read-only until owner unlocks a dedicated backend slice.
 - **No commit / push / PR yet.** → [[SLICE_1_AND_1B_STATUS_UPDATE]].
 
+## Backend security — Slice 2 + Slice 3 (2026-07-02)
+- ✅ **Slice 2 (`e64ec62`):** auth callback open-redirect fix — `app/auth/callback/route.ts` `next` param sanitized. Committed local.
+- ✅ **Slice 3 (`01ed642`):** `public.is_admin()` helper + de-recursed `"users: admin can select all"` policy. **Committed local, applied live, verified.**
+  - Live verify: `is_admin` present, `prosecdef=true`, `search_path=public`, policy `using_expr=is_admin()`, `select count(*) from public.users` = **6**, no recursion error → [[SLICE_3_SUPABASE_LIVE_APPLY_REPORT]].
+- **`public.users` recursive admin RLS issue = FIXED** (H1 closed in live DB). RLS stays enabled all tables.
+- **LOCKED:** ReactBits, package/config, catalog `0002` migration (authored, NOT applied), seeds/verification, broad backend architecture.
+- Open backend risks: H2 paise/rupees, H3 `.env.example` drift, catalog M7 repoint (after `0002`).
+- Branch `local-polish-auth-ui`: 3 commits (`e24526d`, `e64ec62`, `01ed642`), none pushed.
+
 See [[NEXT_ACTIONS]] - [[MASTER_INDEX]].

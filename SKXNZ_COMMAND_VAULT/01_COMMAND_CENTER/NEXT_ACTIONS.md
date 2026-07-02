@@ -22,6 +22,11 @@ Exact order. No app code until step 8.
 15. Decide whether to commit **only** Slice 1 + 1b files + related vault reports (isolated from the rest of the dirty tree).
 16. Next safe code slice = **auth callback open-redirect fix** (`app/auth/callback/route.ts`, single file, M6 in [[SUPABASE_SECURITY_DEEP_AUDIT]]). Then brand-bar logos.
 17. Keep **LOCKED:** ReactBits, package/config files, Supabase migrations, backend architecture — each needs its own isolated slice.
-18. Master Planner reviews before any commit. Full 4-agent code parallelism only after dirty tree cleaned into worktrees.
+18. ✅ **Slice 2 committed** (`e64ec62`) — auth callback open-redirect fix. ✅ **Slice 3 committed** (`01ed642`) — `is_admin()` helper + de-recurse `public.users` policy (migration `0003`, **not applied**).
+19. ✅ **Slice 3 migration `0003` applied live + verified** → [[SLICE_3_SUPABASE_LIVE_APPLY_REPORT]]. H1 (recursive `public.users` admin RLS) closed in live DB. `count(*) = 6`, no recursion error.
+20. **NEXT recommended slice:** **H3 `.env.example` drift audit/fix** (docs-only, no schema/live-DB risk — safest) OR **H2 paise/rupees money-unit decision** (higher value, design-level, blocks cart/order wiring). Recommend H3 first, then H2.
+21. **Do NOT apply catalog `0002` yet.** Do NOT push. Do NOT create PR.
+22. Still LOCKED: ReactBits, package/config, catalog `0002` apply, seeds/verification, catalog M7 `is_admin()` repoint (after `0002`), brand-bar logos, middleware route-protection.
+23. Master Planner reviews before any commit. Full 4-agent code parallelism only after dirty tree cleaned into worktrees.
 
 Related: [[CURRENT_STATUS]] · [[DAILY_COMMAND]] · [[AGENT_TASK_BOARD]] · [[MULTI_AGENT_SKXNZ_WORK_PLAN]] · [[PARALLEL_AGENT_RULES]] · [[COWORK_COORDINATION_PLAN]]
