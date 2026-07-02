@@ -49,4 +49,9 @@ _Date: 2026-07-02_
 - Open backend risks: H2 paise/rupees, H3 `.env.example` drift, catalog M7 repoint (after `0002`).
 - Branch `local-polish-auth-ui`: 3 commits (`e24526d`, `e64ec62`, `01ed642`), none pushed.
 
+## Slice 4 — H3 env drift fix (2026-07-02)
+- ✅ **Slice 4:** `.env.example` Supabase var names corrected to match code (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY` server-only). Dead Clerk/NextAuth placeholders removed → [[SLICE_4_H3_ENV_DRIFT_AUDIT_FIX_REPORT]].
+- **H3 env drift = FIXED** (docs-only; no real secret file opened, no secret printed). Not yet committed.
+- Open backend risks now: **H2 paise/rupees** (next), catalog M7 repoint (after `0002`), Stripe-vs-Razorpay placeholder cleanup (minor).
+
 See [[NEXT_ACTIONS]] - [[MASTER_INDEX]].

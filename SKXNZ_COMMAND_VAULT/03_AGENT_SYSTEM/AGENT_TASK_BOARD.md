@@ -17,8 +17,8 @@ See [[MULTI_AGENT_SKXNZ_WORK_PLAN]] for phases.
 | Slice 1b — Trust-bar claims cleanup | Brand Guardian (code) | `lib/home-data.ts` (`trustItems` only) | ✅ **Done** (claims softened, shape unchanged) |
 | Slice 2 — Auth open-redirect fix | Backend Auditor (code) | `app/auth/callback/route.ts` | ✅ **Done** (committed `e64ec62`) |
 | Slice 3 — Supabase RLS admin fix | Backend Auditor (code) | `supabase/migrations/0003` | ✅ **Done / Live verified** (`01ed642`, applied+verified) |
-| H2 — paise/rupees money-unit | (human-directed) | `supabase/migrations/**` (design) | 🟢 Next candidate |
-| H3 — `.env.example` drift | (human-directed) | `.env.example` | 🟢 Next candidate (safest, docs-only) |
+| Slice 4 — H3 `.env.example` drift | Backend Auditor (config) | `.env.example` | ✅ **Done** (fixed, uncommitted) |
+| H2 — paise/rupees money-unit | (human-directed) | `supabase/migrations/**` (design) | 🟢 **Next candidate** |
 | Catalog `0002` apply | (human-directed) | `supabase/migrations/0002` + seeds | 🔒 Locked (not applied) |
 | ReactBits import | UI/UX + Animation | `components/reactbits/**` | 🔒 Locked / planning only |
 | Backend architecture fixes | (human-directed) | `lib/catalog/**` | 🔒 Locked / needs isolated backend slice |
