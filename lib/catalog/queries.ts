@@ -1,0 +1,206 @@
+// SERVER ONLY — uses lib/supabase/server.ts (anon key + cookies, RLS enforced).
+// Every function here is defensive: if the catalog tables don't exist yet
+// (migration not applied), we log a warning and return an empty/null result
+// instead of throwing, so pages relying on lib/home-data.ts keep rendering.
+import { createClient } from "@/lib/supabase/server";
+import type { Brand, Category, Product, ProductVariant, ProductImage, ProductWithRelations } from "./types";
+
+function isMissingTableError(error: { code?: string; message?: string } | null): boolean {
+  if (!error) return false;
+  // Postgres 42P01 = undefined_table
+  return error.code === "42P01" || Boolean(error.message?.includes("does not exist"));
+}
+
+export async function getActiveBrands(): Promise<Brand[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("brands")
+    .select("*")
+    .eq("is_active", true)
+    .order("name");
+
+  if (error) {
+    if (!isMissingTableError(error)) {
+      console.warn("[catalog] getActiveBrands failed:", error.message);
+    }
+    return [];
+  }
+  return data ?? [];
+}
+
+export async function getActiveCategories(): Promise<Category[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("categories")
+    .select("*")
+    .eq("is_active", true)
+    .order("sort_order");
+
+  if (error) {
+    if (!isMissingTableError(error)) {
+      console.warn("[catalog] getActiveCategories failed:", error.message);
+    }
+    return [];
+  }
+  return data ?? [];
+}
+
+export async function getActiveProducts(): Promise<Product[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("products")
+    .select("*")
+    .eq("status", "ACTIVE")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    if (!isMissingTableError(error)) {
+      console.warn("[catalog] getActiveProducts failed:", error.message);
+    }
+    return [];
+  }
+  return data ?? [];
+}
+
+export async function getActiveProductsWithRelations(): Promise<ProductWithRelations[]> {
+  const supabase = await createClient();
+  const { data: products, error } = await supabase
+    .from("products")
+    .select("*")
+    .eq("status", "ACTIVE")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    if (!isMissingTableError(error)) {
+      console.warn("[catalog] getActiveProductsWithRelations failed:", error.message);
+    }
+    return [];
+  }
+
+  if (!products?.length) {
+    return [];
+  }
+
+  const productIds = products.map((product) => product.id);
+  const brandIds = [...new Set(products.map((product) => product.brand_id).filter(Boolean))] as string[];
+  const categoryIds = [...new Set(products.map((product) => product.category_id).filter(Boolean))] as string[];
+
+  const [
+    { data: brands, error: brandsError },
+    { data: categories, error: categoriesError },
+    { data: variants, error: variantsError },
+    { data: images, error: imagesError },
+  ] = await Promise.all([
+    brandIds.length
+      ? supabase.from("brands").select("*").in("id", brandIds).eq("is_active", true)
+      : Promise.resolve({ data: [] as Brand[], error: null }),
+    categoryIds.length
+      ? supabase.from("categories").select("*").in("id", categoryIds).eq("is_active", true)
+      : Promise.resolve({ data: [] as Category[], error: null }),
+    supabase.from("product_variants").select("*").in("product_id", productIds).eq("is_active", true),
+    supabase.from("product_images").select("*").in("product_id", productIds).order("sort_order"),
+  ]);
+
+  const relationError = brandsError ?? categoriesError ?? variantsError ?? imagesError;
+  if (relationError) {
+    if (!isMissingTableError(relationError)) {
+      console.warn("[catalog] active product relations failed:", relationError.message);
+    }
+    return [];
+  }
+
+  const brandsById = new Map((brands ?? []).map((brand) => [brand.id, brand as Brand]));
+  const categoriesById = new Map((categories ?? []).map((category) => [category.id, category as Category]));
+  const variantsByProductId = groupByProductId((variants ?? []) as ProductVariant[]);
+  const imagesByProductId = groupByProductId((images ?? []) as ProductImage[]);
+
+  return products.map((product) => ({
+    ...(product as Product),
+    brand: product.brand_id ? brandsById.get(product.brand_id) ?? null : null,
+    category: product.category_id ? categoriesById.get(product.category_id) ?? null : null,
+    variants: variantsByProductId.get(product.id) ?? [],
+    images: imagesByProductId.get(product.id) ?? [],
+  }));
+}
+
+export async function getProductBySlug(slug: string): Promise<ProductWithRelations | null> {
+  const supabase = await createClient();
+  const { data: product, error } = await supabase
+    .from("products")
+    .select("*")
+    .eq("slug", slug)
+    .eq("status", "ACTIVE")
+    .maybeSingle();
+
+  if (error) {
+    if (!isMissingTableError(error)) {
+      console.warn("[catalog] getProductBySlug failed:", error.message);
+    }
+    return null;
+  }
+  if (!product) return null;
+
+  const [{ data: brand }, { data: category }, { data: variants }, { data: images }] = await Promise.all([
+    product.brand_id
+      ? supabase.from("brands").select("*").eq("id", product.brand_id).maybeSingle()
+      : Promise.resolve({ data: null }),
+    product.category_id
+      ? supabase.from("categories").select("*").eq("id", product.category_id).maybeSingle()
+      : Promise.resolve({ data: null }),
+    supabase.from("product_variants").select("*").eq("product_id", product.id).eq("is_active", true),
+    supabase.from("product_images").select("*").eq("product_id", product.id).order("sort_order"),
+  ]);
+
+  return {
+    ...product,
+    brand: (brand as Brand | null) ?? null,
+    category: (category as Category | null) ?? null,
+    variants: (variants as ProductVariant[] | null) ?? [],
+    images: (images as ProductImage[] | null) ?? [],
+  };
+}
+
+export async function getFeaturedProducts(): Promise<Product[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("products")
+    .select("*")
+    .eq("status", "ACTIVE")
+    .eq("is_featured", true)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    if (!isMissingTableError(error)) {
+      console.warn("[catalog] getFeaturedProducts failed:", error.message);
+    }
+    return [];
+  }
+  return data ?? [];
+}
+
+export async function getLimitedProducts(): Promise<Product[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("products")
+    .select("*")
+    .eq("status", "ACTIVE")
+    .eq("is_limited", true)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    if (!isMissingTableError(error)) {
+      console.warn("[catalog] getLimitedProducts failed:", error.message);
+    }
+    return [];
+  }
+  return data ?? [];
+}
+
+function groupByProductId<T extends { product_id: string }>(rows: T[]) {
+  return rows.reduce((map, row) => {
+    const existing = map.get(row.product_id) ?? [];
+    existing.push(row);
+    map.set(row.product_id, existing);
+    return map;
+  }, new Map<string, T[]>());
+}
