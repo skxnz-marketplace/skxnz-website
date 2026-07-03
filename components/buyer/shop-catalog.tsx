@@ -3,24 +3,41 @@
 import { ShopBrowser } from "@/components/buyer/shop-browser";
 import { useMarketplace } from "@/components/marketplace/marketplace-provider";
 import { demoBrands } from "@/lib/data/brands";
+import { deriveProductFacets, type Product } from "@/lib/data/products";
 
 type ShopCatalogProps = {
   initialBrandSlug?: string;
   initialQuery?: string;
+  liveProducts?: Product[];
+  liveBrands?: Array<{
+    slug: string;
+    name: string;
+  }>;
 };
 
-export function ShopCatalog({ initialBrandSlug, initialQuery }: ShopCatalogProps) {
+export function ShopCatalog({
+  initialBrandSlug,
+  initialQuery,
+  liveProducts = [],
+  liveBrands = [],
+}: ShopCatalogProps) {
   const { approvedProducts, approvedFacets } = useMarketplace();
+  const hasLiveProducts = liveProducts.length > 0;
+  const products = hasLiveProducts ? liveProducts : approvedProducts;
+  const facets = hasLiveProducts ? deriveProductFacets(liveProducts) : approvedFacets;
+  const brands = hasLiveProducts
+    ? liveBrands
+    : demoBrands.map((brand) => ({ slug: brand.slug, name: brand.name }));
 
   return (
     <ShopBrowser
-      products={approvedProducts}
-      categories={approvedFacets.categories}
-      brands={demoBrands.map((brand) => ({ slug: brand.slug, name: brand.name }))}
+      products={products}
+      categories={facets.categories}
+      brands={brands}
       initialBrandSlug={initialBrandSlug}
       initialQuery={initialQuery}
-      sizes={approvedFacets.sizes}
-      colors={approvedFacets.colors}
+      sizes={facets.sizes}
+      colors={facets.colors}
     />
   );
 }
