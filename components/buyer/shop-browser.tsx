@@ -35,6 +35,8 @@ const priceBands: PriceBand[] = [
   "$350+",
 ];
 
+const unknownBrandValue = "__unknown_brand__";
+
 const matchesPriceBand = (price: number, band: PriceBand) => {
   if (band === "All") {
     return true;
@@ -64,23 +66,29 @@ export function ShopBrowser({
   initialBrandSlug,
   initialQuery,
 }: ShopBrowserProps) {
-  const requestedBrand = initialBrandSlug ?? "All";
-  const hasRequestedBrand = brands.some((brandOption) => brandOption.slug === requestedBrand);
+  const requestedBrand = normalizeSearchQuery(initialBrandSlug ?? "");
+  const matchedRequestedBrand = requestedBrand
+    ? brands.find((brandOption) => normalizeSearchQuery(brandOption.slug) === requestedBrand)
+    : undefined;
+  const unresolvedRequestedBrand = Boolean(requestedBrand && !matchedRequestedBrand);
   const normalizedQuery = normalizeSearchQuery(initialQuery ?? "");
   const [category, setCategory] = useState("All");
-  const [brand, setBrand] = useState(hasRequestedBrand ? requestedBrand : "All");
+  const [brand, setBrand] = useState(
+    matchedRequestedBrand?.slug ?? (unresolvedRequestedBrand ? unknownBrandValue : "All"),
+  );
   const [size, setSize] = useState("All");
   const [color, setColor] = useState("All");
   const [priceBand, setPriceBand] = useState<PriceBand>("All");
 
   useEffect(() => {
-    setBrand(hasRequestedBrand ? requestedBrand : "All");
-  }, [hasRequestedBrand, requestedBrand]);
+    setBrand(matchedRequestedBrand?.slug ?? (unresolvedRequestedBrand ? unknownBrandValue : "All"));
+  }, [matchedRequestedBrand?.slug, unresolvedRequestedBrand]);
 
   const searchMatchedProducts = filterProductsBySearch(products, normalizedQuery);
   const filteredProducts = searchMatchedProducts.filter((product) => {
     const matchesCategory = category === "All" || product.category === category;
-    const matchesBrand = brand === "All" || product.brandSlug === brand;
+    const matchesBrand =
+      brand === "All" ? true : brand !== unknownBrandValue && product.brandSlug === brand;
     const matchesSize = size === "All" || product.sizes.includes(size);
     const matchesColor = color === "All" || product.colors.includes(color);
     const matchesPrice = matchesPriceBand(product.price, priceBand);
@@ -140,6 +148,9 @@ export function ShopBrowser({
                 className={fieldClassName}
               >
                 <option value="All">All</option>
+                {unresolvedRequestedBrand ? (
+                  <option value={unknownBrandValue}>Unknown brand: {requestedBrand}</option>
+                ) : null}
                 {brands.map((option) => (
                   <option key={option.slug} value={option.slug}>
                     {option.name}
@@ -203,7 +214,9 @@ export function ShopBrowser({
             <Badge>
               {brand === "All"
                 ? "All brands"
-                : brands.find((option) => option.slug === brand)?.name ?? brand}
+                : brand === unknownBrandValue
+                  ? `Unknown brand: ${requestedBrand}`
+                  : brands.find((option) => option.slug === brand)?.name ?? brand}
             </Badge>
             <Badge>{size === "All" ? "All sizes" : size}</Badge>
             <Badge>{color === "All" ? "All colors" : color}</Badge>
