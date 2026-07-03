@@ -12,6 +12,15 @@ const featurePermissions: Record<AiFeatureKey, DemoRequestRole[]> = {
 };
 
 export function getDemoRoleFromHeaders(headers: Headers): DemoRequestRole {
+  // SECURITY: the x-skxnz-demo-role header is client-controlled and therefore
+  // spoofable. It is honored ONLY in non-production (local/preview demo) so a
+  // request cannot self-assign a role in production. Real role authorization
+  // must come from the Supabase session (public.users.role) — see
+  // lib/auth/roles.ts. In production this always returns null.
+  if (process.env.NODE_ENV === "production") {
+    return null;
+  }
+
   const rawRole = headers.get("x-skxnz-demo-role")?.trim().toLowerCase() ?? null;
 
   if (rawRole === "buyer" || rawRole === "seller" || rawRole === "admin") {
