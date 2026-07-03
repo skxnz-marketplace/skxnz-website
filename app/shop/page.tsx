@@ -70,21 +70,35 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
   const topBrands = getTopBrands({ limit: 6 });
   const liveCatalog = await getLiveShopCatalog();
   const hasLiveCatalog = liveCatalog.products.length > 0;
+  const activeBrandSlug = normalizeSearchQuery(brand ?? "");
+  const isBrandMode = activeBrandSlug.length > 0;
+  const activeBrand = isBrandMode
+    ? liveCatalog.brands.find(
+        (entry) => normalizeSearchQuery(entry.slug) === activeBrandSlug,
+      )
+    : undefined;
+  const activeBrandLabel = activeBrand?.name ?? activeBrandSlug.toUpperCase();
+  const pageTitle = isSearchMode
+    ? isBrandMode
+      ? `Search results for "${displayQuery}" in ${activeBrandLabel}.`
+      : `Search results for "${displayQuery}".`
+    : isBrandMode
+      ? `${activeBrandLabel} products.`
+      : "Preview the SKXNZ catalogue before live commerce begins.";
+  const pageDescription = isSearchMode
+    ? isBrandMode
+      ? `Search is scoped to the ${activeBrandLabel} brand filter when matching products are available. Checkout and fulfillment systems remain offline.`
+      : "Search runs across current public catalogue data when available, with local preview fallback. Checkout and fulfillment systems remain offline."
+    : isBrandMode
+      ? `Showing the ${activeBrandLabel} brand filter from current public catalogue data when available, with local preview fallback if needed.`
+      : "Approved public catalogue products are visible here for discovery while checkout and fulfillment systems remain offline.";
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
       <PageIntro
         eyebrow="Shop Preview"
-        title={
-          isSearchMode
-            ? `Search results for “${displayQuery}”.`
-            : "Preview the SKXNZ catalogue before live commerce begins."
-        }
-        description={
-          isSearchMode
-            ? "Search runs across current public catalogue data when available, with local preview fallback. Checkout and fulfillment systems remain offline."
-            : "Approved public catalogue products are visible here for discovery while checkout and fulfillment systems remain offline."
-        }
+        title={pageTitle}
+        description={pageDescription}
         titleClassName="max-w-[13ch] text-[1.38rem] leading-[0.98] tracking-[0.04em] sm:max-w-none sm:text-3xl sm:tracking-[0.1em]"
         descriptionClassName="max-w-[20rem] sm:max-w-full"
         actions={
@@ -109,6 +123,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
             <Badge>{hasLiveCatalog ? "Live catalogue" : "Preview fallback"}</Badge>
             <Badge>Preview catalogue — checkout is not live yet.</Badge>
             {isSearchMode ? <Badge>Query: {normalizedQuery}</Badge> : null}
+            {isBrandMode ? <Badge>Brand: {activeBrandLabel}</Badge> : null}
           </div>
         }
       />
@@ -117,7 +132,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
         <TopBrandsToolbar
           rankedBrands={topBrands}
           mode="shop"
-          activeBrandSlug={brand ?? "all"}
+          activeBrandSlug={activeBrandSlug || "all"}
         />
       </div>
 
@@ -125,7 +140,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
         <div className="grid gap-6">
           <ShopByBrandSection />
           <ShopCatalog
-            initialBrandSlug={brand}
+            initialBrandSlug={activeBrandSlug || undefined}
             initialQuery={normalizedQuery}
             liveProducts={liveCatalog.products}
             liveBrands={liveCatalog.brands}
