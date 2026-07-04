@@ -1,7 +1,15 @@
 import type { Metadata } from "next";
 
 import { ProductDetailShell } from "@/components/buyer/product-detail-shell";
-import { getProductById, products } from "@/lib/data/products";
+import { mapCatalogProductToBuyerProduct } from "@/lib/catalog/mappers";
+import { getProductById } from "@/lib/catalog/queries";
+import {
+  getProductById as getSeedProductById,
+  products,
+  type Product,
+} from "@/lib/data/products";
+
+export const revalidate = 300;
 
 type ProductPageProps = {
   params: Promise<{
@@ -15,11 +23,25 @@ export async function generateStaticParams() {
   }));
 }
 
+async function resolveProduct(id: string): Promise<Product | null> {
+  try {
+    const liveProduct = await getProductById(id);
+
+    if (liveProduct) {
+      return mapCatalogProductToBuyerProduct(liveProduct);
+    }
+  } catch (err) {
+    console.warn("[product] falling back to local product data:", err);
+  }
+
+  return getSeedProductById(id) ?? null;
+}
+
 export async function generateMetadata({
   params,
 }: ProductPageProps): Promise<Metadata> {
   const { id } = await params;
-  const product = getProductById(id);
+  const product = await resolveProduct(id);
 
   if (!product) {
     return {
@@ -35,6 +57,7 @@ export async function generateMetadata({
 
 export default async function ProductDetailPage({ params }: ProductPageProps) {
   const { id } = await params;
+  const product = await resolveProduct(id);
 
-  return <ProductDetailShell productId={id} seedProduct={getProductById(id) ?? null} />;
+  return <ProductDetailShell productId={id} seedProduct={product} />;
 }

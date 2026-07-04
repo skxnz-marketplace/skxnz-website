@@ -160,6 +160,43 @@ export async function getProductBySlug(slug: string): Promise<ProductWithRelatio
   };
 }
 
+export async function getProductById(id: string): Promise<ProductWithRelations | null> {
+  const supabase = await createClient();
+  const { data: product, error } = await supabase
+    .from("products")
+    .select("*")
+    .eq("id", id)
+    .eq("status", "ACTIVE")
+    .maybeSingle();
+
+  if (error) {
+    if (!isMissingTableError(error)) {
+      console.warn("[catalog] getProductById failed:", error.message);
+    }
+    return null;
+  }
+  if (!product) return null;
+
+  const [{ data: brand }, { data: category }, { data: variants }, { data: images }] = await Promise.all([
+    product.brand_id
+      ? supabase.from("brands").select("*").eq("id", product.brand_id).maybeSingle()
+      : Promise.resolve({ data: null }),
+    product.category_id
+      ? supabase.from("categories").select("*").eq("id", product.category_id).maybeSingle()
+      : Promise.resolve({ data: null }),
+    supabase.from("product_variants").select("*").eq("product_id", product.id).eq("is_active", true),
+    supabase.from("product_images").select("*").eq("product_id", product.id).order("sort_order"),
+  ]);
+
+  return {
+    ...product,
+    brand: (brand as Brand | null) ?? null,
+    category: (category as Category | null) ?? null,
+    variants: (variants as ProductVariant[] | null) ?? [],
+    images: (images as ProductImage[] | null) ?? [],
+  };
+}
+
 export async function getFeaturedProducts(): Promise<Product[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
