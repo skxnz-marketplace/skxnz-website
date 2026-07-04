@@ -1,13 +1,11 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useActionState, useEffect, useState } from "react";
+import { useFormStatus } from "react-dom";
 
-import { useDemoRole } from "@/components/auth/demo-role-provider";
-import { useMarketplace } from "@/components/marketplace/marketplace-provider";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { categories } from "@/lib/data/products";
 import type { SellerProductCheckResponse } from "@/src/lib/ai/types";
 
 const fieldClassName =
@@ -16,20 +14,64 @@ const fieldClassName =
 const textareaClassName =
   "field-shell w-full min-w-0 max-w-full break-words rounded-[24px] px-4 py-3 text-sm";
 
-const initialForm = {
-  name: "",
-  category: "Outerwear",
-  price: "248",
-  salePrice: "",
-  sizes: "S, M, L, XL",
-  colors: "Obsidian Black, Midnight Navy",
-  tags: "streetwear, premium, layered",
-  stock: "12",
-  fabric: "Technical cotton blend",
-  fit: "Relaxed structured fit",
-  description: "",
-  imageUrl: "https://placeholder.skxnz.local/products/new-product.jpg",
+type ProductUploadActionState = {
+  message?: string;
 };
+
+type ProductUploadAction = (
+  previousState: ProductUploadActionState,
+  formData: FormData,
+) => Promise<ProductUploadActionState>;
+
+type ProductUploadOption = {
+  id: string;
+  name: string;
+};
+
+type ProductUploadFormProps = {
+  brands?: ProductUploadOption[];
+  categories?: ProductUploadOption[];
+  action?: ProductUploadAction;
+};
+
+type ProductUploadFormState = {
+  name: string;
+  brandId: string;
+  categoryId: string;
+  price: string;
+  compareAtPrice: string;
+  sizes: string;
+  colors: string;
+  tags: string;
+  stock: string;
+  fabric: string;
+  fit: string;
+  description: string;
+  imageUrl: string;
+};
+
+const initialActionState: ProductUploadActionState = {};
+
+function createInitialForm(
+  brands: ProductUploadOption[],
+  categories: ProductUploadOption[],
+): ProductUploadFormState {
+  return {
+    name: "",
+    brandId: brands[0]?.id ?? "",
+    categoryId: categories[0]?.id ?? "",
+    price: "248",
+    compareAtPrice: "",
+    sizes: "S, M, L, XL",
+    colors: "Obsidian Black, Midnight Navy",
+    tags: "streetwear, premium, layered",
+    stock: "12",
+    fabric: "Technical cotton blend",
+    fit: "Relaxed structured fit",
+    description: "",
+    imageUrl: "",
+  };
+}
 
 function splitCommaValues(value: string) {
   return value
@@ -46,17 +88,56 @@ function getApiErrorMessage(
     : "Seller validation could not run.";
 }
 
-export function ProductUploadForm() {
-  const { submitProduct } = useMarketplace();
-  const { role } = useDemoRole();
-  const [form, setForm] = useState(initialForm);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+async function disabledProductAction(): Promise<ProductUploadActionState> {
+  return { message: "Live product submission is not available on this surface." };
+}
+
+function SubmitButton({ disabled }: { disabled: boolean }) {
+  const { pending } = useFormStatus();
+
+  return (
+    <Button
+      type="submit"
+      size="lg"
+      className="w-full sm:w-auto"
+      disabled={disabled || pending}
+    >
+      {pending ? "Submitting..." : "Submit For Review"}
+    </Button>
+  );
+}
+
+export function ProductUploadForm({
+  brands = [],
+  categories = [],
+  action,
+}: ProductUploadFormProps) {
+  const [actionState, formAction] = useActionState(
+    action ?? disabledProductAction,
+    initialActionState,
+  );
+  const [form, setForm] = useState(() => createInitialForm(brands, categories));
   const [validationResult, setValidationResult] =
     useState<SellerProductCheckResponse | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [isValidating, setIsValidating] = useState(false);
 
-  function updateField(field: keyof typeof initialForm, value: string) {
+  useEffect(() => {
+    setForm((current) => ({
+      ...current,
+      brandId: current.brandId || brands[0]?.id || "",
+      categoryId: current.categoryId || categories[0]?.id || "",
+    }));
+  }, [brands, categories]);
+
+  const selectedBrand = brands.find((brand) => brand.id === form.brandId);
+  const selectedCategory = categories.find(
+    (category) => category.id === form.categoryId,
+  );
+  const isSubmissionDisabled =
+    !action || brands.length === 0 || categories.length === 0;
+
+  function updateField(field: keyof ProductUploadFormState, value: string) {
     setForm((current) => ({
       ...current,
       [field]: value,
@@ -74,13 +155,13 @@ export function ProductUploadForm() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-skxnz-demo-role": role ?? "seller",
+          "x-skxnz-demo-role": "seller",
         },
         body: JSON.stringify({
           name: form.name.trim(),
-          category: form.category.trim(),
+          category: selectedCategory?.name ?? "",
           price: form.price ? Number(form.price) : null,
-          salePrice: form.salePrice ? Number(form.salePrice) : null,
+          salePrice: form.compareAtPrice ? Number(form.compareAtPrice) : null,
           sizes: splitCommaValues(form.sizes),
           colors: splitCommaValues(form.colors),
           stock: form.stock ? Number(form.stock) : null,
@@ -110,35 +191,28 @@ export function ProductUploadForm() {
     }
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    const nextProduct = submitProduct({
-      name: form.name.trim(),
-      category: form.category.trim(),
-      price: Number(form.price),
-      salePrice: form.salePrice ? Number(form.salePrice) : null,
-      sizes: splitCommaValues(form.sizes),
-      colors: splitCommaValues(form.colors),
-      stock: Number(form.stock),
-      fabric: form.fabric.trim(),
-      fit: form.fit.trim(),
-      description: form.description.trim(),
-      imageUrl: form.imageUrl.trim(),
-      tags: splitCommaValues(form.tags),
-    });
-
-    setSuccessMessage(
-      `Product submitted for SKXNZ admin review. ${nextProduct.name} now appears as Pending Review in browser-local MVP state.`,
-    );
-    setForm(initialForm);
+  function resetForm() {
+    setForm(createInitialForm(brands, categories));
     setValidationResult(null);
+    setValidationError(null);
+  }
+
+  if (!action) {
+    return (
+      <Card className="section-border rounded-[36px] p-6 sm:p-8">
+        <Badge>Live submit unavailable</Badge>
+        <p className="mt-4 text-sm leading-6 text-stone">
+          Open the seller product creation page to submit a real Supabase product
+          for admin review.
+        </p>
+      </Card>
+    );
   }
 
   return (
     <Card className="section-border rounded-[36px] p-6 sm:p-8">
-      <Badge>MVP Placeholder</Badge>
-      <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
+      <Badge>Live Supabase Submit</Badge>
+      <form className="mt-6 space-y-4" action={formAction}>
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="space-y-2">
             <span className="text-[0.68rem] uppercase tracking-[0.22em] text-silver">
@@ -146,6 +220,7 @@ export function ProductUploadForm() {
             </span>
             <input
               type="text"
+              name="name"
               value={form.name}
               onChange={(event) => updateField("name", event.target.value)}
               placeholder="Neutra X Hoodie"
@@ -155,36 +230,65 @@ export function ProductUploadForm() {
           </label>
           <label className="space-y-2">
             <span className="text-[0.68rem] uppercase tracking-[0.22em] text-silver">
-              Category
+              Brand
             </span>
-            <input
-              list="skxnz-category-options"
-              value={form.category}
-              onChange={(event) => updateField("category", event.target.value)}
-              placeholder="Outerwear"
+            <select
+              name="brand_id"
+              value={form.brandId}
+              onChange={(event) => updateField("brandId", event.target.value)}
               className={fieldClassName}
+              disabled={brands.length === 0}
               required
-            />
-            <datalist id="skxnz-category-options">
-              {categories.map((category) => (
-                <option key={category} value={category} />
+            >
+              {brands.length === 0 ? (
+                <option value="">No active brands available</option>
+              ) : null}
+              {brands.map((brand) => (
+                <option key={brand.id} value={brand.id}>
+                  {brand.name}
+                </option>
               ))}
-            </datalist>
+            </select>
           </label>
         </div>
 
-        <label className="space-y-2">
-          <span className="text-[0.68rem] uppercase tracking-[0.22em] text-silver">
-            Tags
-          </span>
-          <input
-            type="text"
-            value={form.tags}
-            onChange={(event) => updateField("tags", event.target.value)}
-            placeholder="streetwear, limited edition, oversized"
-            className={fieldClassName}
-          />
-        </label>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <label className="space-y-2">
+            <span className="text-[0.68rem] uppercase tracking-[0.22em] text-silver">
+              Category
+            </span>
+            <select
+              name="category_id"
+              value={form.categoryId}
+              onChange={(event) => updateField("categoryId", event.target.value)}
+              className={fieldClassName}
+              disabled={categories.length === 0}
+              required
+            >
+              {categories.length === 0 ? (
+                <option value="">No active categories available</option>
+              ) : null}
+              {categories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="space-y-2">
+            <span className="text-[0.68rem] uppercase tracking-[0.22em] text-silver">
+              Tags
+            </span>
+            <input
+              type="text"
+              name="tags"
+              value={form.tags}
+              onChange={(event) => updateField("tags", event.target.value)}
+              placeholder="streetwear, limited edition, oversized"
+              className={fieldClassName}
+            />
+          </label>
+        </div>
 
         <div className="grid gap-4 sm:grid-cols-3">
           <label className="space-y-2">
@@ -193,6 +297,7 @@ export function ProductUploadForm() {
             </span>
             <input
               type="number"
+              name="price_inr"
               min="1"
               step="1"
               value={form.price}
@@ -204,15 +309,18 @@ export function ProductUploadForm() {
           </label>
           <label className="space-y-2">
             <span className="text-[0.68rem] uppercase tracking-[0.22em] text-silver">
-              Sale price
+              Compare-at price
             </span>
             <input
               type="number"
+              name="compare_at_price_inr"
               min="0"
               step="1"
-              value={form.salePrice}
-              onChange={(event) => updateField("salePrice", event.target.value)}
-              placeholder="219"
+              value={form.compareAtPrice}
+              onChange={(event) =>
+                updateField("compareAtPrice", event.target.value)
+              }
+              placeholder="279"
               className={fieldClassName}
             />
           </label>
@@ -222,6 +330,7 @@ export function ProductUploadForm() {
             </span>
             <input
               type="number"
+              name="stock_quantity"
               min="0"
               step="1"
               value={form.stock}
@@ -240,11 +349,11 @@ export function ProductUploadForm() {
             </span>
             <input
               type="text"
+              name="sizes"
               value={form.sizes}
               onChange={(event) => updateField("sizes", event.target.value)}
               placeholder="S, M, L, XL"
               className={fieldClassName}
-              required
             />
           </label>
           <label className="space-y-2">
@@ -253,11 +362,11 @@ export function ProductUploadForm() {
             </span>
             <input
               type="text"
+              name="colors"
               value={form.colors}
               onChange={(event) => updateField("colors", event.target.value)}
               placeholder="Obsidian Black, Liquid Silver"
               className={fieldClassName}
-              required
             />
           </label>
         </div>
@@ -269,11 +378,11 @@ export function ProductUploadForm() {
             </span>
             <input
               type="text"
+              name="fabric"
               value={form.fabric}
               onChange={(event) => updateField("fabric", event.target.value)}
               placeholder="Technical nylon"
               className={fieldClassName}
-              required
             />
           </label>
           <label className="space-y-2">
@@ -282,11 +391,11 @@ export function ProductUploadForm() {
             </span>
             <input
               type="text"
+              name="fit"
               value={form.fit}
               onChange={(event) => updateField("fit", event.target.value)}
               placeholder="Relaxed structured fit"
               className={fieldClassName}
-              required
             />
           </label>
         </div>
@@ -296,6 +405,7 @@ export function ProductUploadForm() {
             Description
           </span>
           <textarea
+            name="description"
             rows={5}
             value={form.description}
             onChange={(event) => updateField("description", event.target.value)}
@@ -307,21 +417,21 @@ export function ProductUploadForm() {
 
         <label className="space-y-2">
           <span className="text-[0.68rem] uppercase tracking-[0.22em] text-silver">
-            Product image URL placeholder
+            Product image URL
           </span>
           <input
             type="url"
+            name="image_url"
             value={form.imageUrl}
             onChange={(event) => updateField("imageUrl", event.target.value)}
-            placeholder="https://placeholder.skxnz.local/products/new-product.jpg"
+            placeholder="https://example.com/products/new-product.jpg"
             className={fieldClassName}
-            required
           />
         </label>
 
-        {successMessage ? (
-          <div className="rounded-[24px] border border-teal/20 bg-teal/10 p-4 text-sm leading-6 text-pearl break-words">
-            {successMessage}
+        {actionState.message ? (
+          <div className="rounded-[24px] border border-sangria/20 bg-sangria/10 p-4 text-sm leading-6 text-sangria break-words">
+            {actionState.message}
           </div>
         ) : null}
 
@@ -376,9 +486,10 @@ export function ProductUploadForm() {
           </div>
         ) : null}
 
-        <div className="rounded-[24px] border border-sangria/20 bg-sangria/10 p-4 text-sm leading-6 text-silver break-words">
-          This form writes only to browser-local MVP state. Media upload, real database
-          writes, and background processing are not live yet.
+        <div className="rounded-[24px] border border-teal/20 bg-teal/10 p-4 text-sm leading-6 text-silver break-words">
+          Submitting creates a real Supabase product owned by the current seller
+          as PENDING_REVIEW. Buyers will not see it until admin approval changes
+          the status to ACTIVE.
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
@@ -392,17 +503,21 @@ export function ProductUploadForm() {
           >
             {isValidating ? "Checking draft..." : "Run Seller AI Validation"}
           </Button>
-          <Button type="submit" size="lg" className="w-full sm:w-auto">
-            Submit For Review
-          </Button>
+          <SubmitButton disabled={isSubmissionDisabled} />
           <button
             type="button"
-            onClick={() => setForm(initialForm)}
+            onClick={resetForm}
             className={`${buttonVariants({ variant: "secondary", size: "lg" })} w-full sm:w-auto`}
           >
             Reset Form
           </button>
         </div>
+
+        {selectedBrand && selectedCategory ? (
+          <p className="text-xs leading-5 text-stone">
+            Selected review path: {selectedBrand.name} / {selectedCategory.name}
+          </p>
+        ) : null}
       </form>
     </Card>
   );
