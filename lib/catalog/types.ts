@@ -1,7 +1,12 @@
 // Types mirror supabase/migrations/0002_catalog_layer.sql. Keep in sync manually
 // until Supabase-generated types replace this file.
 
-export type ProductStatus = "DRAFT" | "ACTIVE" | "ARCHIVED";
+export type ProductStatus =
+  | "DRAFT"
+  | "PENDING_REVIEW"
+  | "ACTIVE"
+  | "REJECTED"
+  | "ARCHIVED";
 
 export type Brand = {
   id: string;

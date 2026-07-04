@@ -30,7 +30,7 @@ export function SellerDashboardShell({
     <DemoRoleGate
       allowedRoles={["seller"]}
       areaLabel="Seller dashboard beta"
-      helperText="Seller dashboard routes use demo role access and browser-local data only. Real seller authentication, verification, payouts, and database persistence are not connected yet."
+      helperText="Seller dashboard routes are server role-gated. Product list data reads from Supabase where connected; creation, verification, payouts, and moderation actions are not connected here yet."
     >
       <main className="min-h-screen bg-[var(--skxnz-bg)] px-4 py-8 text-midnightbrown sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-7xl gap-5 lg:grid-cols-[15rem_minmax(0,1fr)]">
@@ -43,7 +43,7 @@ export function SellerDashboardShell({
                 Control
               </h2>
               <p className="mt-2 text-xs leading-5 text-white/64">
-                Beta workspace. Local data only.
+                Beta workspace. Live where connected.
               </p>
             </div>
 
