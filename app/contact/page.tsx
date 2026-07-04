@@ -10,7 +10,6 @@ import { siteConfig } from "@/lib/site";
 
 const contactChannels = [
   ["Support", siteConfig.supportEmail],
-  ["Seller Applications", siteConfig.sellerEmail],
   ["Instagram", siteConfig.socialHandle],
   ["Domain", siteConfig.domain],
 ];
@@ -20,7 +19,7 @@ export default function ContactPage() {
     <LegalPageShell
       eyebrow="Contact"
       title="Connect with SKXNZ."
-      description="Use this draft contact surface for support questions, seller interest, Signal Community reports, and private beta launch preparation."
+      description="Use this draft contact surface for support questions, Signal Community reports, and private beta launch preparation."
       notice="Contact flows are MVP/demo foundations. Real inbox routing, SLA commitments, and support tooling must be finalized before public launch."
     >
       <div className="grid gap-5 lg:grid-cols-[0.9fr_1.1fr]">
@@ -36,15 +35,11 @@ export default function ContactPage() {
       </div>
 
       <PolicyNotice>
-        For seller interest, use the seller application flow. For community reports,
-        use the Signal Community report flow where available. Do not submit sensitive
-        documents through this demo contact form.
+        For community reports, use the Signal Community report flow where available.
+        Do not submit sensitive documents through this demo contact form.
       </PolicyNotice>
 
       <div className="flex flex-wrap gap-3">
-        <Link href="/sell" className={buttonVariants({ variant: "secondary", size: "lg" })}>
-          Sell on SKXNZ
-        </Link>
         <Link href="/support" className={buttonVariants({ variant: "ghost", size: "lg" })}>
           Support
         </Link>

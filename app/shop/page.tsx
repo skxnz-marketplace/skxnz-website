@@ -24,10 +24,10 @@ const previewMetrics = [
     description: "Live approved products when available. Checkout is not live yet.",
   },
   {
-    name: "Seller Intake",
-    value: "Open",
-    trend: "Apply",
-    description: "Public seller application remains available during private MVP testing.",
+    name: "Checkout",
+    value: "Offline",
+    trend: "Preview",
+    description: "Product discovery is available while payment and fulfillment stay offline.",
   },
 ];
 
@@ -102,20 +102,12 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
         titleClassName="max-w-[13ch] text-[1.38rem] leading-[0.98] tracking-[0.04em] sm:max-w-none sm:text-3xl sm:tracking-[0.1em]"
         descriptionClassName="max-w-[20rem] sm:max-w-full"
         actions={
-          <>
-            <Link
-              href="/waitlist"
-              className={buttonVariants({ variant: "secondary", size: "lg" })}
-            >
-              Join Early Access
-            </Link>
-            <Link
-              href="/sell"
-              className={buttonVariants({ variant: "ghost", size: "lg" })}
-            >
-              Sell on SKXNZ
-            </Link>
-          </>
+          <Link
+            href="/waitlist"
+            className={buttonVariants({ variant: "secondary", size: "lg" })}
+          >
+            Join Early Access
+          </Link>
         }
         footer={
           <div className="flex flex-wrap gap-3">

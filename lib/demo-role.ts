@@ -37,7 +37,6 @@ export const guestNavLinks: DemoNavLink[] = [
   { href: "/", label: "Home" },
   { href: "/shop", label: "Shop" },
   { href: "/community", label: "Community Beta" },
-  { href: "/sell", label: "Sell on SKXNZ" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
   { href: "/login", label: "Login / Private MVP" },
@@ -78,7 +77,6 @@ export const footerUtilityLinks: DemoNavLink[] = [
   { href: "/", label: "Home" },
   { href: "/shop", label: "Shop" },
   { href: "/community", label: "Community Beta" },
-  { href: "/sell", label: "Sell on SKXNZ" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
 ];

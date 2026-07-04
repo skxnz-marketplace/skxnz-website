@@ -45,9 +45,7 @@ const trustFooterLinks = [
   { href: "/returns", label: "Returns" },
   { href: "/shipping", label: "Shipping" },
   { href: "/authenticity", label: "Authenticity" },
-  { href: "/seller-terms", label: "Seller Terms" },
   { href: "/community-guidelines", label: "Community Guidelines" },
-  { href: "/sell", label: "Sell on SKXNZ" },
   { href: "/community", label: "Signal Community Beta" },
 ] as const;
 
@@ -136,7 +134,7 @@ export function Footer() {
               { label: "Careers", href: "/about" },
               { label: "Press", href: "/about" },
               { label: "Sustainability", href: "/about" },
-              { label: "Affiliates", href: "/sell" },
+              { label: "Waitlist", href: "/waitlist" },
             ]} />
 
             {/* Support */}
@@ -149,12 +147,12 @@ export function Footer() {
               { label: "Contact Us", href: "/contact" },
             ]} />
 
-            {/* Sellers */}
-            <FooterCol title="Sellers" links={[
-              { label: "Sell on SKXNZ", href: "/sell" },
-              { label: "Seller Center", href: "/seller" },
-              { label: "Partnerships", href: "/sell" },
-              { label: "Resources", href: "/sell" },
+            {/* Explore */}
+            <FooterCol title="Explore" links={[
+              { label: "Brands", href: "/brands" },
+              { label: "AI Stylist", href: "/ai" },
+              { label: "Signal Community", href: "/community" },
+              { label: "Early Access", href: "/waitlist" },
             ]} />
           </div>
         </div>

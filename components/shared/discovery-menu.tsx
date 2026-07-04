@@ -281,7 +281,6 @@ export function DesktopMegaMenu({
             { label: "AI Styled", href: "/categories/ai-styled" },
             { label: "Limited Edition", href: "/categories/limited-edition" },
             { label: "Signal Community Beta", href: "/community" },
-            { label: "Sell on SKXNZ", href: "/sell" },
           ].map((item) => (
             <Link
               key={item.href}
@@ -417,22 +416,6 @@ export function MobileDiscoveryDrawer({
           ))}
         </div>
 
-        <div className="mt-5 rounded-[20px] bg-[var(--skxnz-card)] p-4 ring-1 ring-[rgba(58,8,24,0.08)]">
-          <p className="text-[0.62rem] font-bold uppercase tracking-[0.24em] text-[var(--skxnz-text-muted)]">
-            Seller Access
-          </p>
-          <p className="mt-2 text-sm leading-6 text-[var(--skxnz-text-muted)]">
-            Apply for internal seller review.
-          </p>
-          <Link
-            href="/sell"
-            onClick={onNavigate}
-            className="mt-4 inline-flex w-full items-center justify-between rounded-full border border-[var(--skxnz-border)] bg-[var(--skxnz-maroon)] px-4 py-3 text-xs font-bold uppercase tracking-[0.16em] text-[#FFFEFA]"
-          >
-            Apply as Seller
-            <ArrowIcon />
-          </Link>
-        </div>
       </div>
     </aside>
   );
