@@ -65,6 +65,13 @@ Single source of truth for project status. Read this before starting work and up
   - `/account` is now `force-dynamic` and shows a diagnostics card: auth user id, email, Supabase project host, `public.users` row status, `public.users.id`, and role (or the exact query error).
   - Added real Sign Out (server action `app/account/actions.ts` → `supabase.auth.signOut()` → `/login`).
   - Next: Vivaan reloads `/account` and reads the diagnostics card — it now names the exact failure instead of "MISSING".
+
+- **Day 1 / Step 27 seller form catalog options (this session):**
+  - Symptom: `/seller/products/new` showed "No active brands available" / "No active categories available", blocking product submission.
+  - Code + RLS verified correct: `getActiveBrands`/`getActiveCategories` filter `is_active = true`; 0002 policies `"brands/categories: public can select active"` apply to anon AND authenticated. Root cause is data/env: the connected project has no active brand/category rows visible, or the query fails silently (helpers logged to console only).
+  - Added `getActiveBrandsDetail`/`getActiveCategoriesDetail` (error vs empty distinguished) and a visible red diagnostics banner on `/seller/products/new` naming the exact problem (query error message vs "0 active rows in this project"). Page is `force-dynamic`.
+  - Buyer pages were masking the same emptiness behind demo fallbacks — seller form has no fallback, which is why it surfaced here first.
+  - Manual: Vivaan runs catalog verification/seed SQL (provided in session report) in the SAME project shown on `/account` diagnostics.
   - No Supabase SQL was run and no push was performed.
 
 ## Next up

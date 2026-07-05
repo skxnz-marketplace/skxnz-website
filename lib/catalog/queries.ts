@@ -11,7 +11,14 @@ function isMissingTableError(error: { code?: string; message?: string } | null):
   return error.code === "42P01" || Boolean(error.message?.includes("does not exist"));
 }
 
-export async function getActiveBrands(): Promise<Brand[]> {
+/** Result that distinguishes a failed query from a genuinely empty table. */
+export type CatalogListResult<T> = {
+  data: T[];
+  /** Supabase error message when the query itself failed; null when it ran. */
+  error: string | null;
+};
+
+export async function getActiveBrandsDetail(): Promise<CatalogListResult<Brand>> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("brands")
@@ -23,12 +30,16 @@ export async function getActiveBrands(): Promise<Brand[]> {
     if (!isMissingTableError(error)) {
       console.warn("[catalog] getActiveBrands failed:", error.message);
     }
-    return [];
+    return { data: [], error: error.message };
   }
-  return data ?? [];
+  return { data: data ?? [], error: null };
 }
 
-export async function getActiveCategories(): Promise<Category[]> {
+export async function getActiveBrands(): Promise<Brand[]> {
+  return (await getActiveBrandsDetail()).data;
+}
+
+export async function getActiveCategoriesDetail(): Promise<CatalogListResult<Category>> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("categories")
@@ -40,9 +51,13 @@ export async function getActiveCategories(): Promise<Category[]> {
     if (!isMissingTableError(error)) {
       console.warn("[catalog] getActiveCategories failed:", error.message);
     }
-    return [];
+    return { data: [], error: error.message };
   }
-  return data ?? [];
+  return { data: data ?? [], error: null };
+}
+
+export async function getActiveCategories(): Promise<Category[]> {
+  return (await getActiveCategoriesDetail()).data;
 }
 
 export async function getActiveProducts(): Promise<Product[]> {
