@@ -58,6 +58,13 @@ Single source of truth for project status. Read this before starting work and up
   - SellerDashboardShell client gate now allows `seller` and `admin` (matches middleware, which admits ADMIN to `/seller/*`).
   - `/seller/products` stale copy fixed (creation is live, demo upload widget removed, Add Product action added). `/admin/products` "mock review loop" copy corrected to live.
   - Still manual: role SQL for QA accounts and Supabase redirect allowlist for localhost:3000/3001/3002 `/auth/callback`.
+
+- **Day 1 / Step 27 role lookup diagnostics (this session):**
+  - Symptom: Supabase SQL Editor shows `role = SELLER` with matching ids for info@skxnz.com, but the app showed role MISSING. SQL Editor bypasses RLS as postgres; the app reads through RLS as the signed-in user — so the app sees nothing when the row is invisible to it.
+  - `lib/auth/roles.ts`: new `getCurrentUserRoleDetail()` uses `maybeSingle` and separates three cases — query error (message surfaced), row visible with role, and no visible row (row absent in the connected project OR the `"users: owner can select"` RLS policy missing live). Errors are no longer swallowed as "missing".
+  - `/account` is now `force-dynamic` and shows a diagnostics card: auth user id, email, Supabase project host, `public.users` row status, `public.users.id`, and role (or the exact query error).
+  - Added real Sign Out (server action `app/account/actions.ts` → `supabase.auth.signOut()` → `/login`).
+  - Next: Vivaan reloads `/account` and reads the diagnostics card — it now names the exact failure instead of "MISSING".
   - No Supabase SQL was run and no push was performed.
 
 ## Next up
