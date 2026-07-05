@@ -114,16 +114,21 @@ function AccountIcon() {
 
 export function Navbar() {
   const pathname = usePathname();
-  const { role, isHydrated, clearRole } = useDemoRole();
+  const { role, isHydrated, clearRole, user } = useDemoRole();
   const { cartItems } = useMarketplace();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [searchFocusSignal, setSearchFocusSignal] = useState(0);
   const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
   const activeRole = isHydrated ? role : null;
   const navLinks = getDemoNavLinks(activeRole);
-  const roleLabel = activeRole
-    ? `${demoRoleSummaries[activeRole].label} Demo`
-    : "Private Beta Preview";
+  // Signed-in users see their real account state; guests see demo labels.
+  const roleLabel = user
+    ? activeRole
+      ? `${demoRoleSummaries[activeRole].label} Account`
+      : "Signed In"
+    : activeRole
+      ? `${demoRoleSummaries[activeRole].label} Demo`
+      : "Private Beta Preview";
   const showBuyerHeader = activeRole !== "seller" && activeRole !== "admin";
 
   useEffect(() => {
@@ -208,7 +213,7 @@ export function Navbar() {
                     { href: "/categories/streetwear", label: "Streetwear", ai: false },
                     { href: "/categories/watches", label: "Watches", ai: false },
                     { href: "/brands", label: "Brands", ai: false },
-                    { href: "/ai-stylist", label: "AI Stylist", ai: true },
+                    { href: "/ai", label: "AI Stylist", ai: true },
                   ].map((link) => (
                     <Link
                       key={link.href}
@@ -307,16 +312,23 @@ export function Navbar() {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b border-sandstone/90 bg-pearlcream/92 backdrop-blur-xl">
+    <header className="sticky top-0 z-50 border-b border-[rgba(255,255,255,0.10)] bg-[var(--skxnz-obsidian)] text-white shadow-[0_14px_34px_rgba(9,7,10,0.22)]">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-4 py-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <BrandMark compact />
             <div className="flex flex-wrap items-center gap-3">
-              <span className="max-w-full truncate rounded-full border border-sandstone bg-white/80 px-4 py-2 text-[0.68rem] uppercase tracking-[0.2em] text-silver">
+              <span className="max-w-full truncate rounded-full border border-white/10 bg-white/[0.08] px-4 py-2 text-[0.68rem] uppercase tracking-[0.2em] text-white/68">
                 {roleLabel}
               </span>
-              {activeRole ? (
+              {user ? (
+                <Link
+                  href="/account"
+                  className={buttonVariants({ variant: "secondary", size: "sm" })}
+                >
+                  My Account
+                </Link>
+              ) : activeRole ? (
                 <>
                   <Link
                     href="/login"
@@ -340,8 +352,8 @@ export function Navbar() {
                   className={cn(
                     "rounded-full border px-4 py-2 text-[0.7rem] uppercase tracking-[0.22em] transition",
                     isActiveNavItem(pathname, link.href)
-                      ? "border-teal/35 bg-teal/10 text-sangria"
-                      : "border-sandstone bg-white/80 text-silver hover:border-teal/35 hover:text-sangria",
+                      ? "border-white/20 bg-white/[0.12] text-white"
+                      : "border-white/10 bg-white/[0.06] text-white/68 hover:border-white/20 hover:text-white",
                   )}
                 >
                   {link.label}

@@ -1,110 +1,122 @@
-"use client";
-
 import Link from "next/link";
-import { useEffect, useState } from "react";
 
-import { AccountShell } from "@/components/account/account-shell";
-import { OrderHistoryDemo } from "@/components/account/order-history-demo";
-import { StylePreferences } from "@/components/account/style-preferences";
-import { useMarketplace } from "@/components/marketplace/marketplace-provider";
 import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { getDemoAddresses } from "@/lib/data/addresses";
-import { demoBuyerName } from "@/lib/data/orders";
+import { requireUser, getCurrentUserRole } from "@/lib/auth/roles";
+import { createClient } from "@/lib/supabase/server";
 
-export default function AccountPage() {
-  const { cartItems, wishlistProducts, supportTickets, buyerOrders, returnRequests } =
-    useMarketplace();
-  const [addressCount, setAddressCount] = useState(0);
-  const buyerSupportCount = supportTickets.filter(
-    (ticket) => ticket.userType === "Buyer",
-  ).length;
-  const buyerReturnCount = returnRequests.filter(
-    (request) => request.buyerName === demoBuyerName,
-  ).length;
-  const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
+// Real Supabase-auth account page. Logged out -> /login?next=/account.
+// Shows the actual signed-in identity and DB role so QA can verify auth state.
+export default async function AccountPage() {
+  const user = await requireUser("/account");
+  const role = await getCurrentUserRole();
 
-  useEffect(() => {
-    setAddressCount(getDemoAddresses().length);
-  }, []);
+  const supabase = await createClient();
+  const { data: profile } = await supabase
+    .from("users")
+    .select("name, email")
+    .eq("id", user.id)
+    .single();
 
-  const stats = [
-    ["Wishlist", wishlistProducts.length.toString(), "/account/wishlist"],
-    ["Cart", cartCount.toString(), "/cart"],
-    ["Addresses", addressCount.toString(), "/account/addresses"],
-    ["Orders", buyerOrders.length.toString(), "/account/orders"],
-    ["Returns", buyerReturnCount.toString(), "/returns"],
-    ["Support", buyerSupportCount.toString(), "/support"],
-  ];
+  const displayName =
+    profile?.name ??
+    (typeof user.user_metadata?.name === "string" ? user.user_metadata.name : null);
+  const email = profile?.email ?? user.email ?? "Unknown email";
+
+  const roleNotes: Record<string, string> = {
+    BUYER:
+      "Buyer account. You can browse the live catalog and product pages. Orders, cart sync, and payments are not connected yet.",
+    SELLER:
+      "Seller account. You can open the seller workspace, list your products, and submit new products for review.",
+    ADMIN:
+      "Admin account. You can open the admin workspace and moderate seller product submissions.",
+    RIDER:
+      "Rider account. Rider tools are not built yet.",
+  };
+
+  const roleNote = role
+    ? roleNotes[role] ?? "Account role is set, but this role has no workspace yet."
+    : "No role found for this account in public.users. Route access will be denied until a role exists.";
 
   return (
-    <AccountShell
-      title="Buyer signal hub."
-      description="A premium account foundation for profile, wishlist, cart, and demo order visibility before real authentication and persistent account sync are connected."
-      aside={<StylePreferences />}
-    >
+    <main className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
       <div className="space-y-6">
         <Card className="section-border rounded-[36px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-6 sm:p-8">
           <p className="section-kicker text-[0.68rem] uppercase tracking-[0.24em] text-sangria">
-            Demo buyer account
+            Your account
           </p>
-          <h2 className="mt-3 font-display text-3xl uppercase leading-tight tracking-[0.04em] text-midnightbrown">
-            Profile overview
-          </h2>
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
-            {stats.map(([label, value, href]) => (
-              <Link
-                key={label}
-                href={href}
-                className="rounded-[24px] border border-[rgba(58,8,24,0.10)] bg-[var(--skxnz-bg-soft)] p-4 transition hover:border-[rgba(34,211,238,0.28)]"
-              >
-                <p className="text-[0.62rem] font-bold uppercase tracking-[0.18em] text-stone">
-                  {label}
-                </p>
-                <p className="mt-2 text-3xl font-black text-sangria">{value}</p>
-              </Link>
-            ))}
-          </div>
+          <h1 className="mt-3 font-display text-3xl uppercase leading-tight tracking-[0.04em] text-midnightbrown">
+            Account signal.
+          </h1>
+
+          <dl className="mt-6 grid gap-4 sm:grid-cols-3">
+            <div className="rounded-[24px] border border-[rgba(58,8,24,0.10)] bg-[var(--skxnz-bg-soft)] p-4">
+              <dt className="text-[0.62rem] font-bold uppercase tracking-[0.18em] text-stone">
+                Signed in as
+              </dt>
+              <dd className="mt-2 break-all text-sm font-semibold text-midnightbrown">
+                {email}
+              </dd>
+            </div>
+            <div className="rounded-[24px] border border-[rgba(58,8,24,0.10)] bg-[var(--skxnz-bg-soft)] p-4">
+              <dt className="text-[0.62rem] font-bold uppercase tracking-[0.18em] text-stone">
+                Name
+              </dt>
+              <dd className="mt-2 text-sm font-semibold text-midnightbrown">
+                {displayName ?? "Not set"}
+              </dd>
+            </div>
+            <div className="rounded-[24px] border border-[rgba(58,8,24,0.10)] bg-[var(--skxnz-bg-soft)] p-4">
+              <dt className="text-[0.62rem] font-bold uppercase tracking-[0.18em] text-stone">
+                Role
+              </dt>
+              <dd className="mt-2 text-sm font-black uppercase tracking-[0.08em] text-sangria">
+                {role ?? "MISSING"}
+              </dd>
+            </div>
+          </dl>
+
+          <p className="mt-6 rounded-[24px] border border-[rgba(34,211,238,0.22)] bg-[rgba(34,211,238,0.06)] p-4 text-sm leading-6 text-midnightbrown">
+            {roleNote}
+          </p>
+
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            {(role === "SELLER" || role === "ADMIN") && (
+              <Link
+                href="/seller/products"
+                className={buttonVariants({ variant: "primary", size: "lg" })}
+              >
+                Seller Products
+              </Link>
+            )}
+            {role === "ADMIN" && (
+              <Link
+                href="/admin/products"
+                className={buttonVariants({ variant: "primary", size: "lg" })}
+              >
+                Admin Product Review
+              </Link>
+            )}
             <Link
-              href="/account/profile"
-              className={buttonVariants({ variant: "primary", size: "lg" })}
-            >
-              Edit Demo Profile
-            </Link>
-            <Link
-              href="/account/wishlist"
+              href="/shop"
               className={buttonVariants({ variant: "secondary", size: "lg" })}
             >
-              Open Wishlist
-            </Link>
-            <Link
-              href="/account/addresses"
-              className={buttonVariants({ variant: "secondary", size: "lg" })}
-            >
-              Manage Addresses
-            </Link>
-            <Link
-              href="/account/cart-sync"
-              className={buttonVariants({ variant: "ghost", size: "lg" })}
-            >
-              Cart Sync Prep
-            </Link>
-            <Link
-              href="/cart"
-              className={buttonVariants({ variant: "ghost", size: "lg" })}
-            >
-              Review Cart
+              Browse Shop
             </Link>
           </div>
-          <p className="mt-5 rounded-[24px] border border-[rgba(34,211,238,0.22)] bg-[rgba(34,211,238,0.06)] p-4 text-sm leading-6 text-midnightbrown">
-            Demo account area. Real authentication, cloud sync, and private
-            database user persistence are not connected yet.
-          </p>
         </Card>
 
-        <OrderHistoryDemo />
+        <Card className="section-border rounded-[36px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-6 sm:p-8">
+          <p className="section-kicker text-[0.68rem] uppercase tracking-[0.24em] text-sangria">
+            Coming next
+          </p>
+          <p className="mt-3 text-sm leading-7 text-stone">
+            Profile editing, addresses, order history, and cart sync are not
+            connected to your account yet. They will be added as the backend
+            build continues.
+          </p>
+        </Card>
       </div>
-    </AccountShell>
+    </main>
   );
 }

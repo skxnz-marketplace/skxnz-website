@@ -50,6 +50,14 @@ Single source of truth for project status. Read this before starting work and up
   - Verified role plumbing end to end: middleware + `requireRole` read uppercase `public.users.role`; `AuthProvider` downcases the DB role for the client gate; localStorage demo role applies to guests only. No casing mismatch.
   - Root cause of "stays on homepage": wrong-role redirect in middleware — QA account is still `BUYER` in `public.users.role` (or its `public.users` row is missing for pre-trigger accounts). Fix is manual role SQL, not code.
   - Middleware wrong-role redirect now appends `?denied=role` so a blocked QA attempt is visible in the URL instead of a silent homepage landing.
+
+- **Day 1 / Step 27 real-auth account cleanup (this session):**
+  - `/account` rebuilt as a real server-auth page: logged out redirects to `/login?next=/account`; logged in shows real email, name, and `public.users.role` with honest per-role notes and role-appropriate workspace links. Old demo gate ("Buyer account is available only in Buyer demo mode") removed from `/account`.
+  - Navbar header chip now reflects real signed-in state ("… Account" / "Signed In") instead of always showing demo labels; signed-in users get a My Account link instead of demo Switch Role buttons.
+  - DemoRoleGate: signed-in users with the wrong role now see an honest "Restricted Area" card with their email and role instead of no-op demo buttons; removed the false "real authentication is not connected yet" claim.
+  - SellerDashboardShell client gate now allows `seller` and `admin` (matches middleware, which admits ADMIN to `/seller/*`).
+  - `/seller/products` stale copy fixed (creation is live, demo upload widget removed, Add Product action added). `/admin/products` "mock review loop" copy corrected to live.
+  - Still manual: role SQL for QA accounts and Supabase redirect allowlist for localhost:3000/3001/3002 `/auth/callback`.
   - No Supabase SQL was run and no push was performed.
 
 ## Next up

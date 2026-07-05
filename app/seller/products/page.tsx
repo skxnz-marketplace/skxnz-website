@@ -1,6 +1,8 @@
+import Link from "next/link";
+
 import { SellerDashboardShell } from "@/components/seller/seller-dashboard-shell";
 import { SellerProductTable } from "@/components/seller/seller-product-table";
-import { SellerProductUploadDemo } from "@/components/seller/seller-product-upload-demo";
+import { buttonVariants } from "@/components/ui/button";
 import { getSellerProductsWithRelations } from "@/lib/catalog/queries";
 
 export default async function SellerProductsPage() {
@@ -8,14 +10,19 @@ export default async function SellerProductsPage() {
 
   return (
     <SellerDashboardShell
-      eyebrow="Seller products beta"
+      eyebrow="Seller products"
       title="Products and review queue"
-      description="Review seller-owned Supabase products. Product creation remains in demo mode until the next backend step connects submissions safely."
+      description="Your live Supabase products. New products are submitted as PENDING_REVIEW and appear publicly after admin approval."
+      actions={
+        <Link
+          href="/seller/products/new"
+          className={buttonVariants({ variant: "primary", size: "lg" })}
+        >
+          Add Product
+        </Link>
+      }
     >
-      <div className="space-y-6">
-        <SellerProductUploadDemo />
-        <SellerProductTable liveProducts={products} />
-      </div>
+      <SellerProductTable liveProducts={products} />
     </SellerDashboardShell>
   );
 }

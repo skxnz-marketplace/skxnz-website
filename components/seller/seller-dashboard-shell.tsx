@@ -28,9 +28,9 @@ export function SellerDashboardShell({
 
   return (
     <DemoRoleGate
-      allowedRoles={["seller"]}
-      areaLabel="Seller dashboard beta"
-      helperText="Seller dashboard routes are server role-gated. Product list data reads from Supabase where connected; creation, verification, payouts, and moderation actions are not connected here yet."
+      allowedRoles={["seller", "admin"]}
+      areaLabel="Seller dashboard"
+      helperText="Seller dashboard routes are server role-gated for SELLER and ADMIN accounts. Product list and creation are live; verification, payouts, and order tools are not connected yet."
     >
       <main className="min-h-screen bg-[var(--skxnz-bg)] px-4 py-8 text-midnightbrown sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-7xl gap-5 lg:grid-cols-[15rem_minmax(0,1fr)]">

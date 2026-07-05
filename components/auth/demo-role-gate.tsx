@@ -21,7 +21,7 @@ export function DemoRoleGate({
   helperText,
   children,
 }: DemoRoleGateProps) {
-  const { role, isHydrated, setRole, clearRole } = useDemoRole();
+  const { role, isHydrated, setRole, clearRole, user } = useDemoRole();
 
   if (!isHydrated) {
     return (
@@ -52,6 +52,42 @@ export function DemoRoleGate({
 
   const currentRoleLabel = role ? demoRoleSummaries[role].label : "No role selected";
 
+  // Signed-in user with a different role: demo-role buttons are no-ops for
+  // real sessions, so show the real account state instead.
+  if (user) {
+    return (
+      <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
+        <Card className="section-border rounded-[36px] p-6 sm:p-8">
+          <p className="text-[0.68rem] uppercase tracking-[0.24em] text-teal">
+            Restricted Area
+          </p>
+          <h1 className="mt-4 break-words font-display text-[1.8rem] uppercase leading-[0.98] tracking-[0.08em] text-midnightbrown sm:text-3xl sm:tracking-[0.14em]">
+            {areaLabel} needs a {allowedRoleLabels} account.
+          </h1>
+          <p className="mt-4 text-sm leading-7 text-midnightbrown/72">
+            You are signed in with a {currentRoleLabel} account
+            {user.email ? ` (${user.email})` : ""}. This area is limited to{" "}
+            {allowedRoleLabels} accounts.
+          </p>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Link
+              href="/account"
+              className={buttonVariants({ variant: "secondary", size: "lg" })}
+            >
+              My Account
+            </Link>
+            <Link
+              href="/"
+              className={buttonVariants({ variant: "ghost", size: "lg" })}
+            >
+              Back Home
+            </Link>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
       <Card className="section-border rounded-[36px] p-6 sm:p-8">
@@ -63,10 +99,10 @@ export function DemoRoleGate({
         </h1>
         <p className="mt-4 text-sm leading-7 text-midnightbrown/72">
           You are currently in {currentRoleLabel}. Switch roles below to preview this
-          protected MVP area without turning on real authentication or database writes.
+          protected MVP area, or sign in for your real account.
         </p>
         <p className="mt-4 rounded-[24px] border border-sangria/20 bg-sangria/10 p-4 text-sm leading-6 text-midnightbrown/78">
-          Demo access only — real authentication is not connected yet.
+          Demo preview only — sign in to use your real SKXNZ account.
         </p>
         <p className="mt-4 text-sm leading-7 text-midnightbrown/72">{helperText}</p>
 
@@ -85,7 +121,7 @@ export function DemoRoleGate({
             href="/login"
             className={buttonVariants({ variant: "secondary", size: "lg" })}
           >
-            Open Demo Login
+            Sign In
           </Link>
           {role ? (
             <Button type="button" variant="ghost" size="lg" onClick={clearRole}>

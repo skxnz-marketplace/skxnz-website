@@ -21,7 +21,7 @@ export default async function AdminProductsPage() {
       <DashboardShell
         eyebrow="Product Approval"
         title="Moderate product submissions before they reach buyers."
-        description="This admin route now drives the core SKXNZ mock review loop: seller submission, approval or rejection, and buyer shop visibility."
+        description="This admin route drives the live SKXNZ review loop: seller submission, approval or rejection, and buyer shop visibility."
         actions={
           <>
             <Link
