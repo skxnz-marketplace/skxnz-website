@@ -62,7 +62,9 @@ export default async function NewSellerProductPage() {
         <Card className="section-border rounded-[28px] p-5 text-sm leading-6 text-stone">
           This page writes to the live catalog through Supabase RLS. The server
           sets the current seller as owner and forces the product status to
-          PENDING_REVIEW.
+          PENDING_REVIEW. For this V1 QA flow, SKXNZ assigns the first active
+          brand/category automatically when none is selected. Brand-specific
+          seller assignment will be added later.
         </Card>
         {loadProblems.length > 0 && (
           <Card className="section-border rounded-[28px] border-sangria/30 bg-sangria/10 p-5">

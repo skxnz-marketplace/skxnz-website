@@ -114,17 +114,47 @@ export async function createSellerProduct(
       return { message: "Product name is required." };
     }
 
-    if (!brandId || !categoryId) {
-      return { message: "Choose a brand and category before submitting." };
-    }
-
     if (description.length < 20) {
       return { message: "Description should be at least 20 characters for review context." };
     }
 
+    // V1 QA fallback: sellers do not have to pick a brand/category manually.
+    // When omitted, assign the first active brand (by name) and first active
+    // category (by sort_order). Brand-specific seller assignment comes later.
+    let resolvedBrandId = brandId;
+    if (!resolvedBrandId) {
+      const { data: fallbackBrand } = await supabase
+        .from("brands")
+        .select("id")
+        .eq("is_active", true)
+        .order("name")
+        .limit(1)
+        .maybeSingle();
+      resolvedBrandId = fallbackBrand?.id ?? "";
+    }
+
+    let resolvedCategoryId = categoryId;
+    if (!resolvedCategoryId) {
+      const { data: fallbackCategory } = await supabase
+        .from("categories")
+        .select("id")
+        .eq("is_active", true)
+        .order("sort_order")
+        .limit(1)
+        .maybeSingle();
+      resolvedCategoryId = fallbackCategory?.id ?? "";
+    }
+
+    if (!resolvedBrandId || !resolvedCategoryId) {
+      return {
+        message:
+          "No active brand or category exists in the catalog, so the product cannot be submitted. Ask the admin to activate at least one brand and one category.",
+      };
+    }
+
     const [{ data: brand }, { data: category }] = await Promise.all([
-      supabase.from("brands").select("id").eq("id", brandId).eq("is_active", true).maybeSingle(),
-      supabase.from("categories").select("id").eq("id", categoryId).eq("is_active", true).maybeSingle(),
+      supabase.from("brands").select("id").eq("id", resolvedBrandId).eq("is_active", true).maybeSingle(),
+      supabase.from("categories").select("id").eq("id", resolvedCategoryId).eq("is_active", true).maybeSingle(),
     ]);
 
     if (!brand || !category) {
@@ -140,8 +170,8 @@ export async function createSellerProduct(
       .from("products")
       .insert({
         seller_id: user.id,
-        brand_id: brandId,
-        category_id: categoryId,
+        brand_id: resolvedBrandId,
+        category_id: resolvedCategoryId,
         slug,
         name,
         subtitle,

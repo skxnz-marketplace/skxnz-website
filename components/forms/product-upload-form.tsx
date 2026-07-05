@@ -53,13 +53,15 @@ type ProductUploadFormState = {
 const initialActionState: ProductUploadActionState = {};
 
 function createInitialForm(
-  brands: ProductUploadOption[],
-  categories: ProductUploadOption[],
+  _brands: ProductUploadOption[],
+  _categories: ProductUploadOption[],
 ): ProductUploadFormState {
   return {
     name: "",
-    brandId: brands[0]?.id ?? "",
-    categoryId: categories[0]?.id ?? "",
+    // Empty = auto-assign; the server action resolves the first active
+    // brand/category for the V1 QA flow.
+    brandId: "",
+    categoryId: "",
     price: "248",
     compareAtPrice: "",
     sizes: "S, M, L, XL",
@@ -123,10 +125,16 @@ export function ProductUploadForm({
   const [isValidating, setIsValidating] = useState(false);
 
   useEffect(() => {
+    // Clear a selected option if it disappears from the loaded lists; keep ""
+    // (auto-assign) as the default.
     setForm((current) => ({
       ...current,
-      brandId: current.brandId || brands[0]?.id || "",
-      categoryId: current.categoryId || categories[0]?.id || "",
+      brandId: brands.some((brand) => brand.id === current.brandId)
+        ? current.brandId
+        : "",
+      categoryId: categories.some((category) => category.id === current.categoryId)
+        ? current.categoryId
+        : "",
     }));
   }, [brands, categories]);
 
@@ -134,8 +142,9 @@ export function ProductUploadForm({
   const selectedCategory = categories.find(
     (category) => category.id === form.categoryId,
   );
-  const isSubmissionDisabled =
-    !action || brands.length === 0 || categories.length === 0;
+  // Brand/category are optional for the V1 QA flow — the server action
+  // auto-assigns the first active brand/category when omitted.
+  const isSubmissionDisabled = !action;
 
   function updateField(field: keyof ProductUploadFormState, value: string) {
     setForm((current) => ({
@@ -159,7 +168,7 @@ export function ProductUploadForm({
         },
         body: JSON.stringify({
           name: form.name.trim(),
-          category: selectedCategory?.name ?? "",
+          category: selectedCategory?.name ?? "Auto-assigned (SKXNZ)",
           price: form.price ? Number(form.price) : null,
           salePrice: form.compareAtPrice ? Number(form.compareAtPrice) : null,
           sizes: splitCommaValues(form.sizes),
@@ -237,12 +246,8 @@ export function ProductUploadForm({
               value={form.brandId}
               onChange={(event) => updateField("brandId", event.target.value)}
               className={fieldClassName}
-              disabled={brands.length === 0}
-              required
             >
-              {brands.length === 0 ? (
-                <option value="">No active brands available</option>
-              ) : null}
+              <option value="">Auto-assign (SKXNZ)</option>
               {brands.map((brand) => (
                 <option key={brand.id} value={brand.id}>
                   {brand.name}
@@ -262,12 +267,8 @@ export function ProductUploadForm({
               value={form.categoryId}
               onChange={(event) => updateField("categoryId", event.target.value)}
               className={fieldClassName}
-              disabled={categories.length === 0}
-              required
             >
-              {categories.length === 0 ? (
-                <option value="">No active categories available</option>
-              ) : null}
+              <option value="">Auto-assign (SKXNZ)</option>
               {categories.map((category) => (
                 <option key={category.id} value={category.id}>
                   {category.name}
@@ -513,11 +514,10 @@ export function ProductUploadForm({
           </button>
         </div>
 
-        {selectedBrand && selectedCategory ? (
-          <p className="text-xs leading-5 text-stone">
-            Selected review path: {selectedBrand.name} / {selectedCategory.name}
-          </p>
-        ) : null}
+        <p className="text-xs leading-5 text-stone">
+          Selected review path: {selectedBrand?.name ?? "Auto-assign"} /{" "}
+          {selectedCategory?.name ?? "Auto-assign"}
+        </p>
       </form>
     </Card>
   );

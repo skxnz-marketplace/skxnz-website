@@ -72,6 +72,14 @@ Single source of truth for project status. Read this before starting work and up
   - Added `getActiveBrandsDetail`/`getActiveCategoriesDetail` (error vs empty distinguished) and a visible red diagnostics banner on `/seller/products/new` naming the exact problem (query error message vs "0 active rows in this project"). Page is `force-dynamic`.
   - Buyer pages were masking the same emptiness behind demo fallbacks — seller form has no fallback, which is why it surfaced here first.
   - Manual: Vivaan runs catalog verification/seed SQL (provided in session report) in the SAME project shown on `/account` diagnostics.
+
+- **Day 1 / Step 27 seller submit unblock (this session):**
+  - DB confirmed 11 active brands + 6 active categories, but the form still blocked submission (submit disabled whenever brand/category option arrays were empty, selects `required`).
+  - Product owner decision: sellers should not pick brand manually long-term (brand assignment will be role/account-based later). V1 QA fallback implemented:
+    - Brand/category dropdowns now optional with a default "Auto-assign (SKXNZ)" option; submit no longer gated on options loading.
+    - Server action resolves missing brand to the first active brand (by name) and missing category to the first active category (by sort_order) using the seller's own RLS-scoped client (no service role). Clear error if no active rows exist.
+    - Status still forced to PENDING_REVIEW, seller stays owner, buyer visibility unchanged (ACTIVE only). Honest auto-assign copy added to the create page.
+  - This is a temporary V1 flow, not final seller-brand architecture.
   - No Supabase SQL was run and no push was performed.
 
 ## Next up
