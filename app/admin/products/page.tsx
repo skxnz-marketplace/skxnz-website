@@ -4,9 +4,14 @@ import { AdminProductReviewPanel } from "@/components/admin/admin-product-review
 import { DemoRoleGate } from "@/components/auth/demo-role-gate";
 import { DashboardShell } from "@/components/shared/dashboard-shell";
 import { buttonVariants } from "@/components/ui/button";
+import { requireRole } from "@/lib/auth/roles";
+import { getAdminProductsForReview } from "@/lib/catalog/queries";
 import { adminSidebarLinks } from "@/lib/data/site-content";
 
-export default function AdminProductsPage() {
+export default async function AdminProductsPage() {
+  await requireRole(["ADMIN"], "/admin/products");
+  const products = await getAdminProductsForReview();
+
   return (
     <DemoRoleGate
       allowedRoles={["admin"]}
@@ -37,7 +42,7 @@ export default function AdminProductsPage() {
         sidebarLinks={adminSidebarLinks}
         activeHref="/admin/products"
       >
-        <AdminProductReviewPanel />
+        <AdminProductReviewPanel products={products} />
       </DashboardShell>
     </DemoRoleGate>
   );
