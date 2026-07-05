@@ -80,6 +80,12 @@ Single source of truth for project status. Read this before starting work and up
     - Server action resolves missing brand to the first active brand (by name) and missing category to the first active category (by sort_order) using the seller's own RLS-scoped client (no service role). Clear error if no active rows exist.
     - Status still forced to PENDING_REVIEW, seller stays owner, buyer visibility unchanged (ACTIVE only). Honest auto-assign copy added to the create page.
   - This is a temporary V1 flow, not final seller-brand architecture.
+
+- **Day 1 / Step 27 safe image fallback (this session):**
+  - Root cause: `supabase/seeds/0002_catalog_seed.sql` seeded `product_images.url = 'placeholder://gradient'`; SafeImage passed it straight into next/image → render crash on `/shop` ("Invalid src prop … hostname \"gradient\" is not configured"). Also latent: `next.config.ts` has no `images.remotePatterns`, so ANY remote URL (e.g. seller-submitted https image) would crash the same way.
+  - SafeImage rewritten with tiered handling: local `/...` paths → optimized next/image; valid http(s) URLs → next/image with `unoptimized` (no config change needed); empty/null/`placeholder://`/junk/failed loads → local SKXNZ fallback asset; if even the fallback dies → styled gradient placeholder div. next/image can no longer throw from bad catalog data.
+  - All product surfaces (product card, grid, product detail shell, community, checkout demos) funnel through SafeImage — one central fix.
+  - Verified: `/shop` and `/` render 200 with 0 broken images and no console errors.
   - No Supabase SQL was run and no push was performed.
 
 ## Next up
