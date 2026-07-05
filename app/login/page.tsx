@@ -11,6 +11,7 @@ export default async function LoginPage({
 }) {
   const params = await searchParams
   const authError = params.error ?? null
+  const nextPath = params.next ?? undefined
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
@@ -51,7 +52,7 @@ export default async function LoginPage({
         )}
 
         <div className="max-w-xl">
-          <AuthCard mode="login" />
+          <AuthCard mode="login" nextPath={nextPath} />
         </div>
       </div>
     </div>

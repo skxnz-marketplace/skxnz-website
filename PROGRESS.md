@@ -38,6 +38,12 @@ Single source of truth for project status. Read this before starting work and up
   - Added server-side admin moderation action for approve, reject, and archive status updates.
   - Kept seller creation forced to PENDING_REVIEW and buyer catalogue/detail queries ACTIVE-only.
   - Revalidation added for `/admin/products`, `/shop`, `/seller/products`, and product detail paths after moderation.
+
+- **Day 1 / Step 27 QA blocker fix (this session):**
+  - Login now honors the `?next=` return path set by middleware (sanitized, same-origin only); previously it always redirected to `/`, which made protected seller/admin routes look "stuck on homepage".
+  - Email verification now lands on `/account` via `/auth/callback?next=/account` so the signed-in state is visible.
+  - Login errors mapped to clearer copy (unconfirmed email vs wrong credentials).
+  - NOT code-fixable, needs manual steps: (1) QA accounts must get `SELLER`/`ADMIN` in `public.users.role` via Supabase SQL Editor; (2) `http://localhost:3000/auth/callback` must be in Supabase Auth → URL Configuration → Redirect URLs, else verification links fall back to the Site URL homepage without a session.
   - No Supabase SQL was run and no push was performed.
 
 ## Next up

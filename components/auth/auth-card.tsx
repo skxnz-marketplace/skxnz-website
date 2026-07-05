@@ -9,9 +9,30 @@ import { buttonVariants } from "@/components/ui/button"
 
 type AuthCardProps = {
   mode: "login" | "signup"
+  /** Safe relative path to return to after successful login (from ?next=). */
+  nextPath?: string
 }
 
-export function AuthCard({ mode }: AuthCardProps) {
+/** Guarantee a root-relative same-origin path, else "/". */
+function safeRelative(path: string | undefined): string {
+  if (!path || !path.startsWith("/") || path.startsWith("//") || path.includes("\\")) {
+    return "/"
+  }
+  return path
+}
+
+/** Map raw Supabase auth errors to clearer, honest copy. */
+function friendlyAuthError(message: string): string {
+  if (/email not confirmed/i.test(message)) {
+    return "Email not confirmed yet. Open the confirmation link we sent you, then sign in."
+  }
+  if (/invalid login credentials/i.test(message)) {
+    return "Email or password is incorrect — or this email has not finished signup/confirmation."
+  }
+  return message
+}
+
+export function AuthCard({ mode, nextPath }: AuthCardProps) {
   const isSignup = mode === "signup"
   const router = useRouter()
   const [name, setName] = useState("")
@@ -31,7 +52,8 @@ export function AuthCard({ mode }: AuthCardProps) {
 
     try {
       if (isSignup) {
-        const emailRedirectTo = `${window.location.origin}/auth/callback`
+        // Land verified users on /account so the authenticated state is obvious.
+        const emailRedirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent("/account")}`
         const { error } = await supabase.auth.signUp({
           email,
           password,
@@ -53,9 +75,9 @@ export function AuthCard({ mode }: AuthCardProps) {
           password,
         })
         if (error) {
-          setError(error.message)
+          setError(friendlyAuthError(error.message))
         } else {
-          router.push("/")
+          router.push(safeRelative(nextPath))
           router.refresh()
         }
       }
