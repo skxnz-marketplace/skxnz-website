@@ -44,6 +44,12 @@ Single source of truth for project status. Read this before starting work and up
   - Email verification now lands on `/account` via `/auth/callback?next=/account` so the signed-in state is visible.
   - Login errors mapped to clearer copy (unconfirmed email vs wrong credentials).
   - NOT code-fixable, needs manual steps: (1) QA accounts must get `SELLER`/`ADMIN` in `public.users.role` via Supabase SQL Editor; (2) `http://localhost:3000/auth/callback` must be in Supabase Auth → URL Configuration → Redirect URLs, else verification links fall back to the Site URL homepage without a session.
+
+- **Day 1 / Step 27 route-map diagnosis (this session):**
+  - Verified routes exist exactly as documented: `/seller/products`, `/seller/products/new`, `/admin/products`. No route-name mismatch.
+  - Verified role plumbing end to end: middleware + `requireRole` read uppercase `public.users.role`; `AuthProvider` downcases the DB role for the client gate; localStorage demo role applies to guests only. No casing mismatch.
+  - Root cause of "stays on homepage": wrong-role redirect in middleware — QA account is still `BUYER` in `public.users.role` (or its `public.users` row is missing for pre-trigger accounts). Fix is manual role SQL, not code.
+  - Middleware wrong-role redirect now appends `?denied=role` so a blocked QA attempt is visible in the URL instead of a silent homepage landing.
   - No Supabase SQL was run and no push was performed.
 
 ## Next up

@@ -73,7 +73,11 @@ export async function middleware(request: NextRequest) {
 
       if (!allowed) {
         // Wrong role: send home, do not leak the protected area.
-        return NextResponse.redirect(new URL('/', request.url))
+        // ?denied=role makes the redirect visible for QA instead of silently
+        // "staying on the homepage" (roles come from public.users.role).
+        const homeUrl = new URL('/', request.url)
+        homeUrl.searchParams.set('denied', 'role')
+        return NextResponse.redirect(homeUrl)
       }
     }
   }
