@@ -17,9 +17,9 @@ export function mapProductToHomeProduct(
     id: product.id,
     brand: brandName,
     name: product.name,
-    price: product.price_inr * 100, // price_inr is whole rupees; HomeProduct.price is paise
+    price: (product.price_inr ?? 0) * 100, // price_inr is whole rupees; HomeProduct.price is paise
     oldPrice: product.compare_at_price_inr != null ? product.compare_at_price_inr * 100 : undefined,
-    href: "/shop",
+    href: `/product/${product.slug}`,
     image: product.image_url ?? "",
   };
 }
@@ -99,13 +99,16 @@ export function mapCatalogProductToBuyerProduct(
   const brandSlug = product.brand?.slug ?? "skxnz";
   const categoryName = product.category?.name ?? "Product";
   const categorySlug = product.category?.slug ?? "product";
-  const sortedImages = [...product.images].sort((left, right) => left.sort_order - right.sort_order);
+  const sortedImages = [...product.images].sort(
+    (left, right) => (left.sort_order ?? 0) - (right.sort_order ?? 0),
+  );
   const gallery = sortedImages.map((image) => image.url);
   const primaryImage = gallery[0] ?? product.image_url ?? fallbackProductImage;
   const sizes = uniqueValues(product.variants.map((variant) => variant.size));
   const colors = uniqueValues(product.variants.map((variant) => variant.color));
-  const stock = product.variants.reduce((total, variant) => total + variant.stock_quantity, 0);
+  const stock = product.variants.reduce((total, variant) => total + (variant.stock_quantity ?? 0), 0);
   const description = product.description ?? product.subtitle ?? product.name;
+  const tags = product.tags ?? [];
 
   return {
     id: product.id,
@@ -118,8 +121,8 @@ export function mapCatalogProductToBuyerProduct(
     brandName,
     name: product.name,
     shortDescription: product.subtitle ?? description,
-    price: product.price_inr,
-    priceCents: product.price_inr * 100,
+    price: product.price_inr ?? 0,
+    priceCents: (product.price_inr ?? 0) * 100,
     salePrice: null,
     category: categoryName,
     subcategory: categoryName,
@@ -142,12 +145,12 @@ export function mapCatalogProductToBuyerProduct(
     launchNote: "Active catalog product.",
     fabric: "Catalog item",
     fit: "Standard",
-    tags: product.tags,
+    tags,
     collections: [
       product.is_featured ? "Featured" : "",
       product.is_limited ? "Limited Edition" : "",
     ].filter(Boolean),
-    searchAliases: [product.slug, brandName, categoryName, ...product.tags],
+    searchAliases: [product.slug, brandName, categoryName, ...tags],
     image: primaryImage,
     gallery: gallery.length ? gallery : [primaryImage],
     imageUrl: primaryImage,

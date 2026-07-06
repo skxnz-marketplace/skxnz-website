@@ -88,13 +88,20 @@ Single source of truth for project status. Read this before starting work and up
   - Verified: `/shop` and `/` render 200 with 0 broken images and no console errors.
   - No Supabase SQL was run and no push was performed.
 
-- **D2-4 live product detail pages (this session):**
+- **D2-4 live product detail pages (this session — code committed, runtime QA pending):**
   - `/product/[id]` now tries an ACTIVE live Supabase product by slug first, then ACTIVE product id, then falls back to the existing demo product data if live data is missing or unavailable.
   - Added `getActiveProductBySlug()` and abort-aware live detail lookups for product, brand, category, active variants, and images so slow Supabase/network reads do not block fallback forever.
   - Live catalog rows map into the existing buyer product detail shape with truthful brand/category, image gallery, price, description, tags, active variant sizes/colors, and summed active stock.
   - Live product detail pages use buyer-safe copy: `Active Catalog` status, no demo-catalog language on the live path, checkout disabled with honest "not live yet" messaging.
   - Product card route buttons now use product slugs, which keeps demo pages working and lets live catalog cards open slug-first detail URLs.
   - Checks: secret grep on touched files clean; `git diff --check` clean except Git line-ending warnings; `tsc --noEmit` still blocked by unrelated pre-existing `lib/prisma.ts` generated-client error (`@prisma/client` has no exported `PrismaClient`).
+  - No SQL was run and no push was performed.
+
+- **D2-5 product links + live detail QA/fix pass (this session):**
+  - Homepage live product cards (`mapProductToHomeProduct`) now link to `/product/{slug}` instead of hardcoded `/shop`; static demo fallback cards still intentionally point to `/shop`.
+  - Confirmed D2-4 already fixed live-vs-local priority in the product detail shell (`seedProduct?.dataSource === "live"` wins; local marketplace product remains the fallback for seller/local-only previews).
+  - Added minimal null-safety in `mapCatalogProductToBuyerProduct` / `mapProductToHomeProduct`: `price_inr ?? 0`, `stock_quantity ?? 0`, `sort_order ?? 0`, `tags ?? []`.
+  - D2-4's 2.5s live-lookup timeout reviewed and kept; watch for premature demo fallback on cold Supabase starts.
   - No SQL was run and no push was performed.
 
 ## Next up
