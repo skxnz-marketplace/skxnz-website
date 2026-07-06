@@ -114,6 +114,17 @@ Single source of truth for project status. Read this before starting work and up
   - Verified in local dev server: size gating, add to cart, badge count, qty increment, remove, empty state, persistence across reload, checkout shell rendering with cart summary. No console errors.
   - Checks: `tsc --noEmit` clean except the pre-existing `lib/prisma.ts` `PrismaClient` export error; secret grep clean (only server-side `lib/supabase/admin.ts` env read). No SQL was run and no push was performed.
 
+- **Day 3 / D3-2 checkout draft foundation (this session, branch `day3-cart-order-flow`):**
+  - `/checkout` upgraded from the demo test-order wizard to a single checkout review page (`components/checkout/checkout-draft-flow.tsx`): contact details (name/phone/email), shipping address (line1, optional line2, city, state, pincode, country defaulting to India), optional delivery note, cart summary sidebar.
+  - New `lib/checkout/checkout-draft.ts`: `skxnz-checkout-draft` localStorage draft with sanitized read/write/clear and V1 client-side validation (required fields, phone digits 7-15, email format, pincode digits 4-10).
+  - Draft auto-persists as the buyer types; "Save Checkout Draft" validates and shows "Checkout draft ready" (or highlights missing fields). Refresh restores entered details.
+  - Summary is honest: Subtotal, Delivery "Calculated at live checkout", Taxes "Calculated at live checkout", "Estimated payable" = subtotal only, labeled as an estimate before payment.
+  - Payment step is a clearly disabled "Continue To Secure Payment" button with helper "Live payment connection is next. No order is placed yet." No order creation, no fake order ID, no payment success state anywhere on the new path.
+  - Empty cart shows a premium empty checkout state with a CTA back to `/shop`.
+  - Old `DemoCheckoutFlow` / `/checkout/success` files remain on disk but are no longer routed from `/checkout`.
+  - Verified in local dev server: empty state, all form sections, country default, 7-field validation errors, draft save + ready status, disabled CTA, refresh persistence of draft fields. No console errors.
+  - Checks: `tsc --noEmit` clean except pre-existing `lib/prisma.ts` `PrismaClient` error; secret grep clean on checkout files. No SQL was run and no push was performed.
+
 ## Next up
 1. Wire wishlist to accept live product snapshots so Save For Later can return for live cart items.
 2. Real backend order path (orders table + server-side order creation) before any order confirmation UI; then Razorpay integration.

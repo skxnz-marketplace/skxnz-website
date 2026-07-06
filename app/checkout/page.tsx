@@ -1,14 +1,13 @@
 import type { Metadata } from "next";
 
-import { DemoCheckoutFlow } from "@/components/checkout/demo-checkout-flow";
+import { CheckoutDraftFlow } from "@/components/checkout/checkout-draft-flow";
 
 export const metadata: Metadata = {
-  title: "Demo Checkout | SKXNZ",
+  title: "Checkout Review | SKXNZ",
   description:
-    "Internal SKXNZ demo checkout flow. Payment integration is not live.",
+    "SKXNZ checkout review. Prepare contact and shipping details before live payment is connected.",
 };
 
 export default function CheckoutPage() {
-  return <DemoCheckoutFlow />;
+  return <CheckoutDraftFlow />;
 }
-
