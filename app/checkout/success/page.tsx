@@ -1,14 +1,56 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
-import { DemoCheckoutSuccess } from "@/components/checkout/demo-checkout-success";
+import { buttonVariants } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+
+// NOTE: The old demo checkout success view (DemoCheckoutSuccess) is
+// intentionally no longer rendered. This route must never look like a real
+// order confirmation while live payment is not connected. It becomes a real
+// confirmation page only after server-verified payment exists.
 
 export const metadata: Metadata = {
-  title: "Internal Test Order | SKXNZ",
+  title: "Checkout Status | SKXNZ",
   description:
-    "SKXNZ internal demo checkout success state. No live payment was processed.",
+    "SKXNZ checkout status. Live payment is not connected yet, so no order has been placed.",
 };
 
 export default function CheckoutSuccessPage() {
-  return <DemoCheckoutSuccess />;
+  return (
+    <main className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
+      <Card className="section-border rounded-[36px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-8 text-center sm:p-10">
+        <p className="section-kicker text-[0.68rem] uppercase tracking-[0.24em] text-sangria">
+          Checkout status
+        </p>
+        <h1 className="mx-auto mt-4 max-w-[16ch] break-words font-display text-4xl uppercase leading-tight tracking-[0.04em] text-midnightbrown sm:text-5xl">
+          No order has been placed.
+        </h1>
+        <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-stone">
+          Live payment is not connected yet. Nothing was charged, no order was
+          created, and there is no order confirmation to show. Your checkout
+          details stay saved as a draft on this device.
+        </p>
+        <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+          <Link
+            href="/checkout"
+            className={buttonVariants({ variant: "primary", size: "lg" })}
+          >
+            Back To Checkout Review
+          </Link>
+          <Link
+            href="/cart"
+            className={buttonVariants({ variant: "secondary", size: "lg" })}
+          >
+            View Cart
+          </Link>
+          <Link
+            href="/shop"
+            className={buttonVariants({ variant: "ghost", size: "lg" })}
+          >
+            Continue Shopping
+          </Link>
+        </div>
+      </Card>
+    </main>
+  );
 }
-

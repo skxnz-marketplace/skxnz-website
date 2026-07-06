@@ -134,6 +134,15 @@ Single source of truth for project status. Read this before starting work and up
   - localStorage keys: reads existing `skxnz-checkout-draft` + cart; adds `skxnz-checkout-review` (review snapshot, never called an order).
   - Checks: `tsc --noEmit` clean except pre-existing `lib/prisma.ts` `PrismaClient` export error (unrelated, not fixed); secret grep on `app/orders app/account components/checkout components/orders lib/checkout lib/orders` clean. No SQL was run and no push was performed. Did not touch admin/seller/auth/middleware/migrations or Day 2 catalog pages.
 
+- **Day 3 / D3-4 buyer purchase-flow honesty cleanup (this session, branch `day3-cart-order-flow`):**
+  - `/orders` no longer renders the seeded demo order table (`BuyerOrdersPanel`); the page now shows only the honest `OrderReadinessPanel` (empty history / saved checkout review states) with truthful intro copy ("SKXNZ does not show placeholder or mock orders here").
+  - `/orders/[id]` no longer renders `OrderDetailShell` (mock order with real-looking statuses/timeline); it now shows an honest "No order exists at this address" card with CTAs to `/orders` and `/shop`.
+  - `/checkout/success` no longer renders `DemoCheckoutSuccess`; replaced with an honest "No order has been placed" status page ("Live payment is not connected yet. Nothing was charged...") with CTAs to `/checkout`, `/cart`, `/shop`. Metadata retitled to "Checkout Status".
+  - Demo components (`buyer-orders-panel.tsx`, `order-detail-shell.tsx`, `demo-checkout-success.tsx`, `demo-checkout-flow.tsx`) remain in the repo but are no longer imported from any `app/` route (verified by grep — only NOTE comments mention them).
+  - Copy scan of orders/checkout surfaces: remaining "placed/paid/tracking/order id/success" wording is all negative or future framing ("No order is placed yet", "Order IDs are issued by the backend... Not active yet").
+  - Checks: `tsc --noEmit` clean except pre-existing `lib/prisma.ts` `PrismaClient` error; secret grep clean. No SQL, no push. Admin/seller/auth/middleware/migrations/Day 2 catalog untouched.
+  - Known limitation: `/account/orders` still renders `OrderHistoryDemo` (labeled as demo) — outside this slice's allowed scope; flag for a follow-up honesty pass.
+
 ## Next up
 1. Wire wishlist to accept live product snapshots so Save For Later can return for live cart items.
 2. Real backend order path (orders table + server-side order creation) before any order confirmation UI; then Razorpay integration.

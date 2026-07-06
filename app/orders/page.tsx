@@ -1,10 +1,14 @@
 import Link from "next/link";
 
 import { DemoRoleGate } from "@/components/auth/demo-role-gate";
-import { BuyerOrdersPanel } from "@/components/orders/buyer-orders-panel";
 import { OrderReadinessPanel } from "@/components/orders/order-readiness-panel";
 import { PageIntro } from "@/components/sections/page-intro";
 import { buttonVariants } from "@/components/ui/button";
+
+// NOTE: The seeded demo order table (BuyerOrdersPanel) is intentionally not
+// rendered here. Buyers must never see mock orders presented as history.
+// Order history returns to this page only once real, server-created orders
+// exist after live payment is connected.
 
 export default function OrdersPage() {
   return (
@@ -17,15 +21,15 @@ export default function OrdersPage() {
         <div className="space-y-6">
           <PageIntro
             eyebrow="Buyer Orders"
-            title="Track the SKXNZ order lifecycle without pretending it is live."
-            description="This route shows the buyer-side order lifecycle with mock/local data only, including order, payment, delivery, and return visibility."
+            title="Your orders, only when they are real."
+            description="SKXNZ does not show placeholder or mock orders here. Order history will appear after live payment is connected and real orders exist."
             actions={
               <>
                 <Link
-                  href="/returns"
+                  href="/shop"
                   className={buttonVariants({ variant: "secondary", size: "lg" })}
                 >
-                  Open Returns
+                  Back To Shop
                 </Link>
                 <Link
                   href="/support"
@@ -38,8 +42,6 @@ export default function OrdersPage() {
           />
 
           <OrderReadinessPanel />
-
-          <BuyerOrdersPanel />
         </div>
       </div>
     </DemoRoleGate>
