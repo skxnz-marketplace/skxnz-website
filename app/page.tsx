@@ -5,32 +5,73 @@ import { HeroCarousel } from "@/components/home/hero-carousel";
 import { MosaicSection } from "@/components/home/mosaic-section";
 import { ProductRow } from "@/components/home/product-row";
 import { TrustBar } from "@/components/home/trust-bar";
-import { trendingProducts, newInProducts, luxuryFinds } from "@/lib/home-data";
+import { getActiveBrands, getActiveProducts } from "@/lib/catalog/queries";
+import { mapBrandToBrandLabel, mapProductToHomeProduct } from "@/lib/catalog/mappers";
+import {
+  trendingProducts as fallbackTrending,
+  newInProducts as fallbackNewIn,
+  luxuryFinds as fallbackLuxury,
+  type HomeProduct,
+} from "@/lib/home-data";
 
 export const revalidate = 300;
 
-export default function HomePage() {
+const TRENDING_COUNT = 6;
+const NEW_IN_COUNT = 4;
+const LUXURY_COUNT = 4;
+
+export default async function HomePage() {
+  const [liveBrands, liveProducts] = await Promise.all([
+    getActiveBrands(),
+    getActiveProducts(),
+  ]);
+
+  const brandNameById = new Map(liveBrands.map((brand) => [brand.id, brand.name]));
+  const brandLabels = liveBrands.map(mapBrandToBrandLabel);
+
+  // liveProducts is already ordered by created_at desc (latest first).
+  const latestHomeProducts: HomeProduct[] = liveProducts.map((product) =>
+    mapProductToHomeProduct(product, brandNameById),
+  );
+
+  const trendingSection =
+    latestHomeProducts.length >= TRENDING_COUNT
+      ? latestHomeProducts.slice(0, TRENDING_COUNT)
+      : fallbackTrending;
+
+  const newInSection =
+    latestHomeProducts.length >= TRENDING_COUNT + NEW_IN_COUNT
+      ? latestHomeProducts.slice(TRENDING_COUNT, TRENDING_COUNT + NEW_IN_COUNT)
+      : fallbackNewIn;
+
+  const premiumHomeProducts = [...liveProducts]
+    .sort((a, b) => b.price_inr - a.price_inr)
+    .slice(0, LUXURY_COUNT)
+    .map((product) => mapProductToHomeProduct(product, brandNameById));
+
+  const luxurySection = premiumHomeProducts.length >= LUXURY_COUNT ? premiumHomeProducts : fallbackLuxury;
+
   return (
     <div className="min-h-screen bg-[#F4F1EC]">
       <HeroCarousel />
       <CategoryStrip />
-      <FeaturedLabels />
+      <FeaturedLabels brands={brandLabels} />
       <ProductRow
         heading="Trending Now"
         viewAllHref="/shop"
-        products={trendingProducts}
+        products={trendingSection}
       />
       <MosaicSection />
       <ProductRow
         heading="New In"
         viewAllHref="/shop?new=1"
-        products={newInProducts}
+        products={newInSection}
       />
       <AiStylistBanner />
       <ProductRow
         heading="Luxury Finds"
         viewAllHref="/shop"
-        products={luxuryFinds}
+        products={luxurySection}
       />
       <TrustBar />
     </div>

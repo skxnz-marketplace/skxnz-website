@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 
-import { brandLabels } from "@/lib/home-data";
+import { brandLabels, type BrandLabel } from "@/lib/home-data";
 
 const BADGE_COLORS = [
   "bg-[#1a1a24] text-[#8888cc]",
@@ -20,11 +20,17 @@ const BADGE_COLORS = [
 
 const PLUS_BADGE = "bg-[#0E0E10] text-[#F4F1EC]/60";
 
-const allBadges = [...brandLabels, { name: "+18", monogram: "+18" }];
-// Duplicate for seamless marquee loop
-const doubled = [...allBadges, ...allBadges];
+type FeaturedLabelsProps = {
+  /** Live active brands from Supabase; falls back to static labels when empty. */
+  brands?: BrandLabel[];
+};
 
-export function FeaturedLabels() {
+export function FeaturedLabels({ brands }: FeaturedLabelsProps) {
+  const source = brands && brands.length > 0 ? brands : brandLabels;
+  const allBadges = [...source, { name: "+18", monogram: "+18" }];
+  // Duplicate for seamless marquee loop
+  const doubled = [...allBadges, ...allBadges];
+
   return (
     <section aria-label="Top brands" className="overflow-hidden bg-[#F4F1EC] py-8">
       <div className="mx-auto mb-5 flex max-w-[1440px] items-center justify-between px-6 sm:px-10 lg:px-16">
