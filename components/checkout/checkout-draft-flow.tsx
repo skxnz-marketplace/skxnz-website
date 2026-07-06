@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState, type ChangeEvent } from "react";
 
+import { CheckoutNextSteps } from "@/components/checkout/checkout-next-steps";
 import { useMarketplace } from "@/components/marketplace/marketplace-provider";
 import { EmptyState } from "@/components/shared/empty-state";
 import { SafeImage } from "@/components/shared/safe-image";
@@ -16,6 +17,10 @@ import {
   type CheckoutDraft,
   type CheckoutDraftErrors,
 } from "@/lib/checkout/checkout-draft";
+import {
+  buildCheckoutReviewSnapshot,
+  writeCheckoutReview,
+} from "@/lib/checkout/checkout-review";
 import { formatProductPrice } from "@/lib/data/products";
 import { cn } from "@/lib/cn";
 import { skxnzFallbackAssets } from "@/src/lib/assets";
@@ -95,6 +100,9 @@ export function CheckoutDraftFlow() {
     }
 
     writeCheckoutDraft(draft);
+    // Save a device-local review snapshot for the future live-payment handoff.
+    // This is NOT an order: no order id, payment, or delivery is created here.
+    writeCheckoutReview(buildCheckoutReviewSnapshot(cartItems, draft));
     setDraftStatus("ready");
   }
 
@@ -295,6 +303,8 @@ export function CheckoutDraftFlow() {
               </p>
             </div>
           </Card>
+
+          <CheckoutNextSteps />
         </section>
 
         <aside className="min-w-0 space-y-4 self-start xl:sticky xl:top-28">
@@ -378,6 +388,16 @@ export function CheckoutDraftFlow() {
                   Checkout draft ready
                 </span>
                 Your details are saved on this device for the live payment step.
+                No order is placed and no payment is taken yet.
+                <Link
+                  href="/orders"
+                  className={cn(
+                    buttonVariants({ variant: "secondary", size: "sm" }),
+                    "mt-3 w-full",
+                  )}
+                >
+                  See Order Readiness
+                </Link>
               </div>
             ) : null}
 

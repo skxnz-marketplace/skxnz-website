@@ -125,6 +125,15 @@ Single source of truth for project status. Read this before starting work and up
   - Verified in local dev server: empty state, all form sections, country default, 7-field validation errors, draft save + ready status, disabled CTA, refresh persistence of draft fields. No console errors.
   - Checks: `tsc --noEmit` clean except pre-existing `lib/prisma.ts` `PrismaClient` error; secret grep clean on checkout files. No SQL was run and no push was performed.
 
+- **Day 3 / D3-3 buyer order readiness shell + checkout handoff (this session, branch `day3-cart-order-flow`):**
+  - New future-safe types in `lib/orders/order-readiness.ts`: `OrderLineItemSnapshot`, `OrderIntentDraft`, `CheckoutReviewStage` (`draft` | `review`), `CheckoutReviewSnapshot` (versioned). Pure types only — no order is created, no order id / payment / delivery is invented. All amounts are integer paise.
+  - New `lib/checkout/checkout-review.ts`: device-local `skxnz-checkout-review` snapshot built from cart items (`unitPriceCents`) + the existing `skxnz-checkout-draft`. `build/read/write/clear` helpers; explicitly NOT an order. Subtotal is summed line paise (estimate before delivery + tax).
+  - `/checkout` handoff improved: saving a valid draft now also writes the `skxnz-checkout-review` snapshot, the ready state gained honest copy ("No order is placed and no payment is taken yet") plus a "See Order Readiness" link to `/orders`, and a new "What happens next" panel (`components/checkout/checkout-next-steps.tsx`) lists secure payment / live order creation / delivery partner assignment — each tagged Upcoming, none active.
+  - `/orders` gained `components/orders/order-readiness-panel.tsx` (rendered above the existing seeded demo table): honest "Order history will appear after live payment is connected" state, CTA back to `/shop`, CTA to `/cart` only when the cart has items, and a "Saved checkout review (Not an order)" block with estimated subtotal + a link back to `/checkout` when a review snapshot exists. No fake order rows added by this slice.
+  - Intentionally disabled / not faked: no order placement, no payment success, no delivery ETA, no tracking number, no production order IDs; payment button stays disabled; Razorpay not wired.
+  - localStorage keys: reads existing `skxnz-checkout-draft` + cart; adds `skxnz-checkout-review` (review snapshot, never called an order).
+  - Checks: `tsc --noEmit` clean except pre-existing `lib/prisma.ts` `PrismaClient` export error (unrelated, not fixed); secret grep on `app/orders app/account components/checkout components/orders lib/checkout lib/orders` clean. No SQL was run and no push was performed. Did not touch admin/seller/auth/middleware/migrations or Day 2 catalog pages.
+
 ## Next up
 1. Wire wishlist to accept live product snapshots so Save For Later can return for live cart items.
 2. Real backend order path (orders table + server-side order creation) before any order confirmation UI; then Razorpay integration.

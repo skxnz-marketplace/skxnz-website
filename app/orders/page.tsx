@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { DemoRoleGate } from "@/components/auth/demo-role-gate";
 import { BuyerOrdersPanel } from "@/components/orders/buyer-orders-panel";
+import { OrderReadinessPanel } from "@/components/orders/order-readiness-panel";
 import { PageIntro } from "@/components/sections/page-intro";
 import { buttonVariants } from "@/components/ui/button";
 
@@ -35,6 +36,8 @@ export default function OrdersPage() {
               </>
             }
           />
+
+          <OrderReadinessPanel />
 
           <BuyerOrdersPanel />
         </div>
