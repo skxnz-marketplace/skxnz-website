@@ -104,9 +104,21 @@ Single source of truth for project status. Read this before starting work and up
   - D2-4's 2.5s live-lookup timeout reviewed and kept; watch for premature demo fallback on cold Supabase starts.
   - No SQL was run and no push was performed.
 
+- **Day 3 / D3-1 buyer cart + checkout foundation (this session, branch `day3-cart-order-flow`):**
+  - Live ACTIVE catalog products can now be added to the cart: `addToCart` accepts a full product snapshot for `dataSource: "live"` products (they are not in the browser-local demo catalog), while demo products keep the existing approved-only rule.
+  - Cart items store stable snapshots (product id/slug, size, color, quantity, price in paise, image/title/brand) in `localStorage` under `skxnz-marketplace-cart`; live snapshots are kept as-stored on rehydrate instead of being demo-media-normalized.
+  - Product detail purchase panel: products with more than one size now require an explicit size choice (button reads "Select A Size" and stays disabled until picked); Add To Cart works for live products; premium "Added to cart" success state with error styling for failures.
+  - Honest stock: added optional `Product.variantCount` (set from real variant rows in `mapCatalogProductToBuyerProduct`); live products without variant rows show "Stock data being connected" with no unit count and are not falsely blocked; live products with variants use real summed stock (out-of-stock disables Add To Cart).
+  - Cart page/table copy moved from "demo checkout" to truthful "checkout review" language: Subtotal / Delivery "Calculated at a later step" / Estimated total; CTA is "Continue To Checkout Review"; Save For Later hidden for live items (wishlist can't render live products yet).
+  - Checkout `/checkout` remains the existing honest internal-test-order shell (shipping, demo-payment placeholders, review); no fake payment success and no fake production order claims. Navbar cart badge already counts live cart quantity.
+  - Verified in local dev server: size gating, add to cart, badge count, qty increment, remove, empty state, persistence across reload, checkout shell rendering with cart summary. No console errors.
+  - Checks: `tsc --noEmit` clean except the pre-existing `lib/prisma.ts` `PrismaClient` export error; secret grep clean (only server-side `lib/supabase/admin.ts` env read). No SQL was run and no push was performed.
+
 ## Next up
-1. Manually QA the product approval flow with one seller-created PENDING_REVIEW product and one ADMIN account.
-2. Regenerate/fix Prisma client so `lib/prisma.ts` typecheck can pass again (`PrismaClient` is currently not exported from generated `@prisma/client`).
-3. Browser-QA one live ACTIVE product slug and one demo fallback product after the local Windows dev-server launch friction is resolved.
-4. Review remaining pre-existing ReactBits lint warnings.
-5. No push or deploy without user approval.
+1. Wire wishlist to accept live product snapshots so Save For Later can return for live cart items.
+2. Real backend order path (orders table + server-side order creation) before any order confirmation UI; then Razorpay integration.
+3. Manually QA the product approval flow with one seller-created PENDING_REVIEW product and one ADMIN account.
+4. Regenerate/fix Prisma client so `lib/prisma.ts` typecheck can pass again (`PrismaClient` is currently not exported from generated `@prisma/client`).
+5. Browser-QA one live ACTIVE product slug end-to-end into the cart once Supabase is reachable from the dev machine.
+6. Review remaining pre-existing ReactBits lint warnings.
+7. No push or deploy without user approval.

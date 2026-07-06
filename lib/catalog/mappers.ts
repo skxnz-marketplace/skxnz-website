@@ -141,6 +141,7 @@ export function mapCatalogProductToBuyerProduct(
     colors: colors.length ? colors : ["Default"],
     stock,
     inventoryCount: stock,
+    variantCount: product.variants.length,
     status: "Active Catalog",
     launchNote: "Active catalog product.",
     fabric: "Catalog item",

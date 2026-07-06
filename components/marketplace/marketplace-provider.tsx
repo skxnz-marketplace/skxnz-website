@@ -114,6 +114,10 @@ type AddToCartInput = {
   size: string;
   color: string;
   quantity?: number;
+  /** Full product snapshot for live catalog products that are not part of the
+   * browser-local demo catalog. The snapshot keeps cart rendering stable even
+   * if the live catalog changes later. */
+  product?: Product;
 };
 
 type CreateSupportTicketInput = {
@@ -607,6 +611,12 @@ function normalizeStoredProduct(
 
 function normalizeStoredCartItems(items: CartPreviewItem[]) {
   return items.map((item) => {
+    // Live catalog snapshots are kept exactly as stored so cart rendering
+    // stays stable; demo-media normalization only applies to demo products.
+    if (item.product?.dataSource === "live") {
+      return item;
+    }
+
     const seedMatch = seedProducts.find(
       (seedProduct) => seedProduct.id === (legacyProductIdAliases[item.productId] ?? item.productId),
     );
@@ -1174,8 +1184,17 @@ export function MarketplaceProvider({ children }: MarketplaceProviderProps) {
     return nextRequest;
   }
 
-  function addToCart({ productId, size, color, quantity = 1 }: AddToCartInput) {
-    const product = catalog.find((item) => item.id === productId);
+  function addToCart({
+    productId,
+    size,
+    color,
+    quantity = 1,
+    product: productSnapshot,
+  }: AddToCartInput) {
+    const isLiveSnapshot = productSnapshot?.dataSource === "live";
+    const product = isLiveSnapshot
+      ? productSnapshot
+      : catalog.find((item) => item.id === productId);
 
     if (!product) {
       return {
@@ -1184,7 +1203,7 @@ export function MarketplaceProvider({ children }: MarketplaceProviderProps) {
       };
     }
 
-    if (!isApprovedProduct(product)) {
+    if (!isLiveSnapshot && !isApprovedProduct(product)) {
       return {
         ok: false,
         message:
@@ -1244,7 +1263,9 @@ export function MarketplaceProvider({ children }: MarketplaceProviderProps) {
 
     return {
       ok: true,
-      message: `${product.name} was added to the cart in browser-local MVP state.`,
+      message: isLiveSnapshot
+        ? `${product.name} was added to your cart.`
+        : `${product.name} was added to the cart in browser-local MVP state.`,
     };
   }
 

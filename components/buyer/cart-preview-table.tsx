@@ -35,7 +35,7 @@ export function CartPreviewTable() {
     return (
       <EmptyState
         title="Your cart is empty."
-        description="Add a product from the SKXNZ catalogue to test the internal demo checkout flow. No live payment or order processing is connected."
+        description="Add pieces from the SKXNZ catalog to build your cart. Live payment is not connected yet."
         actionHref="/shop"
         actionLabel="Back To Shop"
       />
@@ -58,7 +58,7 @@ export function CartPreviewTable() {
                 Cart Items
               </p>
               <h2 className="mt-2 break-words font-display text-2xl uppercase leading-tight tracking-[0.06em] text-midnightbrown sm:text-3xl">
-                Ready for demo review
+                Ready for checkout review
               </h2>
             </div>
             <p className="rounded-full border border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-bg-soft)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-stone">
@@ -161,20 +161,22 @@ export function CartPreviewTable() {
                       </button>
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={() =>
-                        saveForLater(
-                          item.product.id,
-                          item.size,
-                          item.color,
-                          item.product.name,
-                        )
-                      }
-                      className="rounded-full border border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-bg-soft)] px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] text-sangria transition hover:border-[rgba(139,92,246,0.28)]"
-                    >
-                      Save For Later
-                    </button>
+                    {item.product.dataSource !== "live" ? (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          saveForLater(
+                            item.product.id,
+                            item.size,
+                            item.color,
+                            item.product.name,
+                          )
+                        }
+                        className="rounded-full border border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-bg-soft)] px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] text-sangria transition hover:border-[rgba(139,92,246,0.28)]"
+                      >
+                        Save For Later
+                      </button>
+                    ) : null}
                     <button
                       type="button"
                       onClick={() =>
@@ -237,8 +239,8 @@ function CartSummary({
 }) {
   const rows = [
     ["Subtotal", formatProductPrice(subtotal)],
-    ["Estimated delivery", shipping === 0 ? "Demo estimate only" : formatProductPrice(shipping)],
-    ["Demo total", formatProductPrice(total)],
+    ["Delivery", shipping === 0 ? "Calculated at a later step" : formatProductPrice(shipping)],
+    ["Estimated total", formatProductPrice(total)],
   ];
 
   return (
@@ -247,7 +249,7 @@ function CartSummary({
         Order Summary
       </p>
       <h2 className="mt-3 break-words font-display text-2xl uppercase leading-tight tracking-[0.06em] text-midnightbrown">
-        Demo checkout
+        Checkout review
       </h2>
 
       <div className="mt-6 space-y-3">
@@ -270,7 +272,8 @@ function CartSummary({
       </div>
 
       <div className="mt-5 rounded-[24px] border border-[rgba(34,211,238,0.22)] bg-[rgba(34,211,238,0.06)] p-4 text-sm leading-6 text-midnightbrown">
-        Demo checkout for internal testing. Payment integration coming later.
+        Live payment is not connected yet. The next step is a checkout review
+        only.
       </div>
 
       <div className="mt-6 flex flex-col gap-3">
@@ -282,7 +285,7 @@ function CartSummary({
             className: "w-full",
           })}
         >
-          Continue To Demo Checkout
+          Continue To Checkout Review
         </Link>
         <Link
           href="/shop"

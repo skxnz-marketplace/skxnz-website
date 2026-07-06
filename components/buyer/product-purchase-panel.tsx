@@ -50,16 +50,28 @@ function resolveSwatchColor(color: string) {
 
 export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
   const { addToCart, isInWishlist, toggleWishlist } = useMarketplace();
-  const [selectedSize, setSelectedSize] = useState(product.sizes[0] ?? "One Size");
+  const requiresSizeChoice = product.sizes.length > 1;
+  const [selectedSize, setSelectedSize] = useState<string | null>(
+    requiresSizeChoice ? null : product.sizes[0] ?? "One Size",
+  );
   const [selectedColor, setSelectedColor] = useState(product.colors[0] ?? "Pearl Cream");
   const [quantity, setQuantity] = useState(1);
-  const [feedback, setFeedback] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<{ ok: boolean; message: string } | null>(
+    null,
+  );
 
   const displayPrice = product.salePrice ?? product.price;
   const isLiveProduct = product.dataSource === "live";
   const isApproved = product.status === "Approved Preview" || isLiveProduct;
   const savedInWishlist = isInWishlist(product.id);
+  // Live products only carry real stock when variant rows exist behind them.
+  const hasRealStockData = !isLiveProduct || (product.variantCount ?? 0) > 0;
+  const isOutOfStock = hasRealStockData && product.stock <= 0;
   const stockLabel = useMemo(() => {
+    if (!hasRealStockData) {
+      return "Stock data being connected";
+    }
+
     if (product.stock <= 0) {
       return isLiveProduct ? "Currently unavailable" : "Currently unavailable in MVP stock";
     }
@@ -69,17 +81,23 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
     }
 
     return isLiveProduct ? "In stock" : "In MVP stock preview";
-  }, [isLiveProduct, product.stock]);
+  }, [hasRealStockData, isLiveProduct, product.stock]);
 
   function handleAddToCart() {
+    if (!selectedSize) {
+      setFeedback({ ok: false, message: "Select a size to add this piece to your cart." });
+      return;
+    }
+
     const result = addToCart({
       productId: product.id,
       size: selectedSize,
       color: selectedColor,
       quantity,
+      product,
     });
 
-    setFeedback(result.message);
+    setFeedback(result);
   }
 
   return (
@@ -131,9 +149,11 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
               {stockLabel}
             </p>
           </div>
-          <span className="shrink-0 rounded-full border border-[rgba(47,111,115,0.22)] bg-[rgba(34,211,238,0.08)] px-3 py-1 text-[0.66rem] font-bold uppercase tracking-[0.14em] text-[var(--skxnz-maroon)]">
-            {product.stock} units
-          </span>
+          {hasRealStockData ? (
+            <span className="shrink-0 rounded-full border border-[rgba(47,111,115,0.22)] bg-[rgba(34,211,238,0.08)] px-3 py-1 text-[0.66rem] font-bold uppercase tracking-[0.14em] text-[var(--skxnz-maroon)]">
+              {product.stock} units
+            </span>
+          ) : null}
         </div>
       </div>
 
@@ -144,7 +164,7 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
               Size
             </p>
             <span className="text-xs font-semibold text-[var(--skxnz-text-muted)]">
-              {selectedSize}
+              {selectedSize ?? "Select a size"}
             </span>
           </div>
           <div className="mt-3 flex flex-wrap gap-2">
@@ -237,10 +257,14 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
           type="button"
           size="lg"
           onClick={handleAddToCart}
-          disabled={!isApproved || product.stock <= 0 || isLiveProduct}
+          disabled={!isApproved || isOutOfStock || !selectedSize}
           className="w-full"
         >
-          {isLiveProduct ? "Checkout Not Live Yet" : "Add To Cart"}
+          {isOutOfStock
+            ? "Currently Unavailable"
+            : !selectedSize
+              ? "Select A Size"
+              : "Add To Cart"}
         </Button>
         <button
           type="button"
@@ -267,8 +291,20 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
       </div>
 
       {feedback ? (
-        <div className="mt-4 rounded-[22px] border border-[rgba(34,211,238,0.24)] bg-[rgba(34,211,238,0.08)] p-4 text-sm leading-6 text-[var(--skxnz-text-dark)]">
-          {feedback}
+        <div
+          role="status"
+          className={
+            feedback.ok
+              ? "mt-4 rounded-[22px] border border-[rgba(34,211,238,0.28)] bg-[rgba(34,211,238,0.08)] p-4 text-sm leading-6 text-[var(--skxnz-text-dark)]"
+              : "mt-4 rounded-[22px] border border-[rgba(217,70,239,0.24)] bg-[rgba(217,70,239,0.06)] p-4 text-sm leading-6 text-[var(--skxnz-text-dark)]"
+          }
+        >
+          {feedback.ok ? (
+            <span className="mr-2 text-[0.66rem] font-bold uppercase tracking-[0.2em] text-[var(--skxnz-maroon)]">
+              Added to cart
+            </span>
+          ) : null}
+          {feedback.message}
         </div>
       ) : null}
 
@@ -281,8 +317,8 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
 
       {isLiveProduct ? (
         <div className="mt-4 rounded-[22px] border border-[var(--skxnz-border)] bg-[var(--skxnz-card)] p-4 text-sm leading-6 text-[var(--skxnz-text-muted)]">
-          This active catalog product is visible for review. Live cart, payment, and
-          delivery workflows are still being connected.
+          This active catalog product can be added to your cart on this device.
+          Live payment and delivery are still being connected.
         </div>
       ) : null}
 

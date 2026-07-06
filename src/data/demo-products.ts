@@ -46,6 +46,9 @@ export type Product = {
   colors: string[];
   stock: number;
   inventoryCount: number;
+  /** Number of real variant rows behind a live catalog product. When 0 or
+   * undefined, stock/size data is not backed by real variant records. */
+  variantCount?: number;
   status: ProductStatus;
   launchNote: string;
   fabric: string;
