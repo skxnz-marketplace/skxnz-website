@@ -150,6 +150,11 @@ Single source of truth for project status. Read this before starting work and up
   - Preview verification blocked: middleware redirects `/account/orders` to `/login`, and Supabase is unreachable from this dev machine, so the logged-in render could not be checked in-browser. Route compiles and typechecks.
   - Checks: `tsc --noEmit` clean except pre-existing `lib/prisma.ts` `PrismaClient` error; secret grep clean. No SQL, no push.
 
+- **Day 3 / D3-6 Prisma typecheck blocker fixed (this session, branch `day3-cart-order-flow`):**
+  - Root cause: Prisma client was never generated on this machine — `@prisma/client` (installed v6.19.3) is a stub that re-exports from the generated `.prisma/client`, which was missing, so `PrismaClient` had no export and `lib/prisma.ts(1,10)` failed typecheck.
+  - Fix: ran `pnpm exec prisma generate` (no DB connection needed) and added `"postinstall": "prisma generate"` to package.json so fresh installs and Vercel builds regenerate the client automatically. No schema, dependency, or app-code changes; generated client stays in node_modules (not committed).
+  - `pnpm exec tsc --noEmit` now passes with ZERO errors — the long-standing pre-existing blocker is cleared. Next-up item 4 is done.
+
 ## Next up
 1. Wire wishlist to accept live product snapshots so Save For Later can return for live cart items.
 2. Real backend order path (orders table + server-side order creation) before any order confirmation UI; then Razorpay integration.

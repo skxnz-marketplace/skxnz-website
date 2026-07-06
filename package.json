@@ -10,6 +10,7 @@
     "lint": "eslint .",
     "check:colors": "node scripts/check-colors.mjs",
     "typecheck": "next typegen && tsc --noEmit --incremental false",
+    "postinstall": "prisma generate",
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push",
     "db:seed": "prisma db seed"
