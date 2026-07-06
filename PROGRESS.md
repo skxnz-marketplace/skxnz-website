@@ -143,6 +143,13 @@ Single source of truth for project status. Read this before starting work and up
   - Checks: `tsc --noEmit` clean except pre-existing `lib/prisma.ts` `PrismaClient` error; secret grep clean. No SQL, no push. Admin/seller/auth/middleware/migrations/Day 2 catalog untouched.
   - Known limitation: `/account/orders` still renders `OrderHistoryDemo` (labeled as demo) — outside this slice's allowed scope; flag for a follow-up honesty pass.
 
+- **Day 3 / D3-5 account order history honesty cleanup (this session, branch `day3-cart-order-flow`):**
+  - `/account/orders` no longer renders `OrderHistoryDemo` (seeded buyer order placeholders + local demo checkout order). Page now reuses the honest `OrderReadinessPanel` inside `AccountShell` with truthful copy: "No order has been placed yet." / "Order history will appear here after live payment is connected. SKXNZ does not show placeholder or mock orders."
+  - Panel provides CTA to `/shop`, CTA to `/cart` when cart has items, and the "Saved checkout review (Not an order)" block when a `skxnz-checkout-review` snapshot exists.
+  - `OrderHistoryDemo` component stays on disk but is no longer imported from any route (grep: only its own definition + a NOTE comment).
+  - Preview verification blocked: middleware redirects `/account/orders` to `/login`, and Supabase is unreachable from this dev machine, so the logged-in render could not be checked in-browser. Route compiles and typechecks.
+  - Checks: `tsc --noEmit` clean except pre-existing `lib/prisma.ts` `PrismaClient` error; secret grep clean. No SQL, no push.
+
 ## Next up
 1. Wire wishlist to accept live product snapshots so Save For Later can return for live cart items.
 2. Real backend order path (orders table + server-side order creation) before any order confirmation UI; then Razorpay integration.
