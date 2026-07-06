@@ -3,6 +3,7 @@
 // unaware of where data came from.
 import type { HomeProduct, BrandLabel } from "@/lib/home-data";
 import { fallbackProductImage, type Product as BuyerProduct } from "@/lib/data/products";
+import type { DemoBrand } from "@/lib/data/brands";
 import type { Brand, Product, ProductWithRelations } from "./types";
 
 export function mapProductToHomeProduct(
@@ -31,6 +32,41 @@ export function mapBrandToBrandLabel(brand: Brand): BrandLabel {
     .toUpperCase();
 
   return { name: brand.name.toUpperCase(), monogram };
+}
+
+/** Maps a live Supabase brand row into the DemoBrand shape the brand pages
+ * already render, so brand-page-shell / brands-index-shell need no redesign.
+ * productCount must come from a real ACTIVE product query — never invented. */
+export function mapBrandToDemoBrand(brand: Brand, productCount: number): DemoBrand {
+  return {
+    id: brand.id,
+    slug: brand.slug,
+    name: brand.name,
+    category: "Live Catalog",
+    tagline: brand.description ?? "SKXNZ live catalog brand.",
+    shortDescription: brand.description ?? "Live SKXNZ catalog brand.",
+    logo: brand.logo_url ?? "",
+    logoType: "Live",
+    heroImage: brand.hero_image_url ?? "",
+    accentColor: "#2E1014",
+    featured: false,
+    isFeatured: false,
+    isTopBrand: false,
+    isLuxury: false,
+    isStreetwear: false,
+    isNew: false,
+    isDemo: false,
+    country: "",
+    productCount,
+    description: brand.description ?? "",
+    availabilityNote: "Live SKXNZ catalog brand.",
+    heroProductId: "",
+    categories: [],
+    searchKeywords: [brand.slug, brand.name],
+    tags: [],
+    createdAt: brand.created_at,
+    updatedAt: brand.updated_at,
+  };
 }
 
 export function mapCatalogProductToBuyerProduct(

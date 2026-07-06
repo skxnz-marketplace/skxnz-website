@@ -14,11 +14,12 @@ import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/cn";
 import {
   type BrandPerformanceSnapshot,
+  type DemoBrand,
   getBrandHeroImage,
   getDemoBrandBySlug,
   getProductsForBrand,
 } from "@/lib/data/brands";
-import { formatProductPrice } from "@/lib/data/products";
+import { formatProductPrice, type Product } from "@/lib/data/products";
 import {
   ensureBrandHeroAsset,
   ensureBrandLogoAsset,
@@ -29,6 +30,10 @@ import { brandPageHeroes } from "@/src/data/brandPageHeroes";
 type BrandPageShellProps = {
   brandSlug: string;
   topBrands: BrandPerformanceSnapshot[];
+  /** Live Supabase brand for this slug; null when no active brand matches. */
+  liveBrand?: DemoBrand | null;
+  /** Live ACTIVE products for liveBrand; only meaningful when liveBrand is set. */
+  liveProducts?: Product[];
 };
 
 type BrandProductSort = "Featured" | "Newest" | "Price Low" | "Price High";
@@ -40,19 +45,26 @@ const sortOptions: BrandProductSort[] = [
   "Price High",
 ];
 
-export function BrandPageShell({ brandSlug, topBrands }: BrandPageShellProps) {
+export function BrandPageShell({
+  brandSlug,
+  topBrands,
+  liveBrand = null,
+  liveProducts = [],
+}: BrandPageShellProps) {
   const { catalog } = useMarketplace();
-  const brand = getDemoBrandBySlug(brandSlug);
+  const isLiveBrand = Boolean(liveBrand);
+  const brand = liveBrand ?? getDemoBrandBySlug(brandSlug);
   const [categoryFilter, setCategoryFilter] = useState("All");
   const [sort, setSort] = useState<BrandProductSort>("Featured");
 
-  const allBrandProducts = useMemo(
-    () =>
-      getProductsForBrand(catalog, brandSlug).filter(
-        (product) => product.status === "Approved Preview",
-      ),
-    [brandSlug, catalog],
-  );
+  const allBrandProducts = useMemo(() => {
+    if (isLiveBrand) {
+      return liveProducts;
+    }
+    return getProductsForBrand(catalog, brandSlug).filter(
+      (product) => product.status === "Approved Preview",
+    );
+  }, [brandSlug, catalog, isLiveBrand, liveProducts]);
   const brandCategories = useMemo(
     () => ["All", ...Array.from(new Set(allBrandProducts.map((product) => product.category)))],
     [allBrandProducts],
@@ -73,10 +85,12 @@ export function BrandPageShell({ brandSlug, topBrands }: BrandPageShellProps) {
       return rightFeaturedScore - leftFeaturedScore;
     });
   }, [allBrandProducts, categoryFilter, sort]);
-  const brandHeroImage = useMemo(
-    () => getBrandHeroImage(brandSlug, catalog),
-    [brandSlug, catalog],
-  );
+  const brandHeroImage = useMemo(() => {
+    if (isLiveBrand) {
+      return brand?.heroImage || allBrandProducts[0]?.image || "";
+    }
+    return getBrandHeroImage(brandSlug, catalog);
+  }, [allBrandProducts, brand, brandSlug, catalog, isLiveBrand]);
   const brandPageHero = useMemo(
     () => brandPageHeroes.find((entry) => entry.brandSlug === brandSlug) ?? null,
     [brandSlug],
@@ -134,7 +148,7 @@ export function BrandPageShell({ brandSlug, topBrands }: BrandPageShellProps) {
                 </div>
                 <div className="min-w-0">
                   <p className="text-[0.68rem] font-black uppercase tracking-[0.26em] text-[var(--skxnz-glint)]">
-                    Demo brand profile
+                    {isLiveBrand ? "Live brand profile" : "Demo brand profile"}
                   </p>
                   <h1 className="mt-2 line-clamp-2 break-words font-display text-[2.4rem] uppercase leading-[0.9] tracking-[0.08em] sm:text-6xl">
                     {brandPageHero?.title ?? brand.name}
@@ -175,9 +189,9 @@ export function BrandPageShell({ brandSlug, topBrands }: BrandPageShellProps) {
               </h2>
               <p className="mt-3 text-sm leading-7 text-stone">{brand.description}</p>
               <p className="mt-4 rounded-[24px] border border-[rgba(58,8,24,0.10)] bg-[var(--skxnz-bg-soft)] p-4 text-sm leading-6 text-stone">
-                Saved brands are stored locally for now. Brand partnerships,
-                authorization, cloud sync, and seller verification are not claimed
-                by this demo profile.
+                {isLiveBrand
+                  ? "Live SKXNZ catalog brand. Saved brands are stored locally for now."
+                  : "Saved brands are stored locally for now. Brand partnerships, authorization, cloud sync, and seller verification are not claimed by this demo profile."}
               </p>
             </div>
 
