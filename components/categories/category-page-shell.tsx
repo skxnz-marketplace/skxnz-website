@@ -22,6 +22,9 @@ import {
 
 type CategoryPageShellProps = {
   category: StructuredCategory | null;
+  /** Live ACTIVE products for this category; when set, replaces the demo
+   * catalog signal-matching path entirely. */
+  liveProducts?: Product[];
 };
 
 type CategorySort = "Featured" | "Newest" | "Price low to high" | "Price high to low" | "Limited edition";
@@ -249,8 +252,9 @@ function FeaturedProductStrip({ products }: { products: Product[] }) {
   );
 }
 
-export function CategoryPageShell({ category }: CategoryPageShellProps) {
+export function CategoryPageShell({ category, liveProducts }: CategoryPageShellProps) {
   const { approvedProducts, isHydrated } = useMarketplace();
+  const isLiveCategory = liveProducts != null;
   const [brand, setBrand] = useState("All");
   const [priceBand, setPriceBand] = useState<PriceBand>("All");
   const [size, setSize] = useState("All");
@@ -263,10 +267,11 @@ export function CategoryPageShell({ category }: CategoryPageShellProps) {
   const [featuredOnly, setFeaturedOnly] = useState(false);
 
   const baseCategoryProducts = useMemo(() => {
+    if (isLiveCategory) return liveProducts ?? [];
     if (!category) return [] as Product[];
 
     return approvedProducts.filter((product) => productMatchesCategory(product, category));
-  }, [approvedProducts, category]);
+  }, [approvedProducts, category, isLiveCategory, liveProducts]);
 
   const brandOptions = useMemo(
     () =>
@@ -421,7 +426,9 @@ export function CategoryPageShell({ category }: CategoryPageShellProps) {
                 Filter the signal
               </h2>
               <p className="mt-2 text-sm leading-6 text-stone">
-                Filter central demo products by brand, price, size, color, and signal.
+                {isLiveCategory
+                  ? "Filter live SKXNZ catalog products by brand, price, size, color, and signal."
+                  : "Filter central demo products by brand, price, size, color, and signal."}
               </p>
             </div>
 
@@ -571,7 +578,7 @@ export function CategoryPageShell({ category }: CategoryPageShellProps) {
             <Badge>{baseCategoryProducts.length} total matches</Badge>
           </div>
 
-          {!isHydrated && filteredProducts.length === 0 ? (
+          {!isLiveCategory && !isHydrated && filteredProducts.length === 0 ? (
             <EmptyState
               title="Loading local category preview."
               description="SKXNZ is checking the browser-local catalog before showing the final category product set."
@@ -580,7 +587,11 @@ export function CategoryPageShell({ category }: CategoryPageShellProps) {
             <ProductGrid
               products={filteredProducts}
               emptyTitle={`No ${category.displayName.toLowerCase()} products match these filters.`}
-              emptyDescription="Try a broader brand, price, size, color, or signal filter. Category pages are powered by local demo catalog data right now."
+              emptyDescription={
+                isLiveCategory
+                  ? "Try a broader brand, price, size, color, or signal filter."
+                  : "Try a broader brand, price, size, color, or signal filter. Category pages are powered by local demo catalog data right now."
+              }
               showWishlistAction
             />
           )}

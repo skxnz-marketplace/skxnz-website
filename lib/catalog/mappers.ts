@@ -4,7 +4,8 @@
 import type { HomeProduct, BrandLabel } from "@/lib/home-data";
 import { fallbackProductImage, type Product as BuyerProduct } from "@/lib/data/products";
 import type { DemoBrand } from "@/lib/data/brands";
-import type { Brand, Product, ProductWithRelations } from "./types";
+import type { StructuredCategory } from "@/src/data/categories";
+import type { Brand, Category, Product, ProductWithRelations } from "./types";
 
 export function mapProductToHomeProduct(
   product: Product,
@@ -66,6 +67,28 @@ export function mapBrandToDemoBrand(brand: Brand, productCount: number): DemoBra
     tags: [],
     createdAt: brand.created_at,
     updatedAt: brand.updated_at,
+  };
+}
+
+/** Maps a live Supabase category row into the StructuredCategory shape the
+ * category shell already renders, so category-page-shell needs no redesign.
+ * dataSource stays "sheet" (the only literal the shared type allows) — it is
+ * internal bookkeeping only and never rendered to buyers. */
+export function mapCategoryToStructuredCategory(category: Category): StructuredCategory {
+  return {
+    id: category.id,
+    sourceCategoryId: category.id,
+    name: category.name,
+    displayName: category.name,
+    slug: category.slug,
+    description: `Live SKXNZ catalog category: ${category.name}.`,
+    image: "",
+    href: `/categories/${category.slug}`,
+    displayOrder: category.sort_order,
+    featured: false,
+    searchKeywords: [category.name, category.slug],
+    status: category.is_active ? "Active" : "Inactive",
+    dataSource: "sheet",
   };
 }
 
