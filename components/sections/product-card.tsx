@@ -74,7 +74,7 @@ export function ProductCard({
           </div>
 
           <Link
-            href={`/product/${product.id}`}
+            href={`/product/${product.slug}`}
             className={`${buttonVariants({ variant: "secondary", size: "sm" })} shrink-0`}
           >
             View

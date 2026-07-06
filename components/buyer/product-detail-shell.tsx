@@ -83,7 +83,8 @@ export function ProductDetailShell({
   seedProduct,
 }: ProductDetailShellProps) {
   const { getProductById, approvedProducts, isHydrated } = useMarketplace();
-  const product = getProductById(productId) ?? seedProduct;
+  const product =
+    seedProduct?.dataSource === "live" ? seedProduct : getProductById(productId) ?? seedProduct;
   const [activeImage, setActiveImage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -247,10 +248,17 @@ export function ProductDetailShell({
             </ProductAccordion>
 
             <ProductAccordion title="Size Guide">
-              <p>
-                Available MVP sizes: {product.sizes.join(", ")}. Select the size you want
-                to test in cart state. SKXNZ does not guarantee perfect fit in MVP mode.
-              </p>
+              {product.dataSource === "live" ? (
+                <p>
+                  Available sizes: {product.sizes.join(", ")}. Fit guidance is still being
+                  prepared, so please use the listed size options as the current catalog data.
+                </p>
+              ) : (
+                <p>
+                  Available MVP sizes: {product.sizes.join(", ")}. Select the size you want
+                  to test in cart state. SKXNZ does not guarantee perfect fit in MVP mode.
+                </p>
+              )}
             </ProductAccordion>
 
             <ProductAccordion title="Delivery And Returns">
@@ -272,7 +280,9 @@ export function ProductDetailShell({
                 Ask SKXNZ AI how this could be styled.
               </h2>
               <p className="mt-4 text-sm leading-7 text-[rgba(255,254,250,0.76)]">
-                Get MVP styling guidance using SKXNZ catalog context only. AI try-on coming soon.
+                {product.dataSource === "live"
+                  ? "Get styling guidance using SKXNZ catalog context only. AI try-on is not live yet."
+                  : "Get MVP styling guidance using SKXNZ catalog context only. AI try-on coming soon."}
               </p>
               <Link
                 href={`/ai-stylist?q=${encodeURIComponent(product.name)}`}

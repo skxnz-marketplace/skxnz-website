@@ -88,8 +88,18 @@ Single source of truth for project status. Read this before starting work and up
   - Verified: `/shop` and `/` render 200 with 0 broken images and no console errors.
   - No Supabase SQL was run and no push was performed.
 
+- **D2-4 live product detail pages (this session):**
+  - `/product/[id]` now tries an ACTIVE live Supabase product by slug first, then ACTIVE product id, then falls back to the existing demo product data if live data is missing or unavailable.
+  - Added `getActiveProductBySlug()` and abort-aware live detail lookups for product, brand, category, active variants, and images so slow Supabase/network reads do not block fallback forever.
+  - Live catalog rows map into the existing buyer product detail shape with truthful brand/category, image gallery, price, description, tags, active variant sizes/colors, and summed active stock.
+  - Live product detail pages use buyer-safe copy: `Active Catalog` status, no demo-catalog language on the live path, checkout disabled with honest "not live yet" messaging.
+  - Product card route buttons now use product slugs, which keeps demo pages working and lets live catalog cards open slug-first detail URLs.
+  - Checks: secret grep on touched files clean; `git diff --check` clean except Git line-ending warnings; `tsc --noEmit` still blocked by unrelated pre-existing `lib/prisma.ts` generated-client error (`@prisma/client` has no exported `PrismaClient`).
+  - No SQL was run and no push was performed.
+
 ## Next up
 1. Manually QA the product approval flow with one seller-created PENDING_REVIEW product and one ADMIN account.
-2. Run `0002_catalog_layer.sql` in Supabase SQL Editor, then `0002_catalog_seed.sql`, then `0002_catalog_verify.sql` if the catalog tables are not already applied.
-3. Review remaining pre-existing ReactBits lint warnings.
-4. No push or deploy without user approval.
+2. Regenerate/fix Prisma client so `lib/prisma.ts` typecheck can pass again (`PrismaClient` is currently not exported from generated `@prisma/client`).
+3. Browser-QA one live ACTIVE product slug and one demo fallback product after the local Windows dev-server launch friction is resolved.
+4. Review remaining pre-existing ReactBits lint warnings.
+5. No push or deploy without user approval.

@@ -12,6 +12,7 @@ import {
 import { ensureProductAsset } from "@/src/lib/assets";
 
 export type ProductStatus =
+  | "Active Catalog"
   | "Approved Preview"
   | "Pending Review"
   | "Rejected Review"
@@ -20,6 +21,7 @@ export type ProductStatus =
 export type Product = {
   id: string;
   slug: string;
+  dataSource?: "demo" | "live";
   sellerProfileId: string;
   categoryId: string;
   brandId: string;

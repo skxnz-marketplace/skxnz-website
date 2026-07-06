@@ -11,6 +11,17 @@ function isMissingTableError(error: { code?: string; message?: string } | null):
   return error.code === "42P01" || Boolean(error.message?.includes("does not exist"));
 }
 
+function withAbortSignal<T>(
+  query: T,
+  signal?: AbortSignal,
+) {
+  if (!signal || typeof (query as { abortSignal?: unknown }).abortSignal !== "function") {
+    return query;
+  }
+
+  return (query as { abortSignal: (signal: AbortSignal) => T }).abortSignal(signal);
+}
+
 /** Result that distinguishes a failed query from a genuinely empty table. */
 export type CatalogListResult<T> = {
   data: T[];
@@ -425,14 +436,15 @@ export async function getAdminProductsForReview(): Promise<ProductWithRelations[
   }));
 }
 
-export async function getProductBySlug(slug: string): Promise<ProductWithRelations | null> {
+export async function getProductBySlug(
+  slug: string,
+  signal?: AbortSignal,
+): Promise<ProductWithRelations | null> {
   const supabase = await createClient();
-  const { data: product, error } = await supabase
-    .from("products")
-    .select("*")
-    .eq("slug", slug)
-    .eq("status", "ACTIVE")
-    .maybeSingle();
+  const { data: product, error } = await withAbortSignal(
+    supabase.from("products").select("*").eq("slug", slug).eq("status", "ACTIVE").maybeSingle(),
+    signal,
+  );
 
   if (error) {
     if (!isMissingTableError(error)) {
@@ -442,16 +454,29 @@ export async function getProductBySlug(slug: string): Promise<ProductWithRelatio
   }
   if (!product) return null;
 
-  const [{ data: brand }, { data: category }, { data: variants }, { data: images }] = await Promise.all([
-    product.brand_id
-      ? supabase.from("brands").select("*").eq("id", product.brand_id).maybeSingle()
-      : Promise.resolve({ data: null }),
-    product.category_id
-      ? supabase.from("categories").select("*").eq("id", product.category_id).maybeSingle()
-      : Promise.resolve({ data: null }),
-    supabase.from("product_variants").select("*").eq("product_id", product.id).eq("is_active", true),
-    supabase.from("product_images").select("*").eq("product_id", product.id).order("sort_order"),
-  ]);
+  const [{ data: brand }, { data: category }, { data: variants }, { data: images }] =
+    await Promise.all([
+      product.brand_id
+        ? withAbortSignal(
+            supabase.from("brands").select("*").eq("id", product.brand_id).maybeSingle(),
+            signal,
+          )
+        : Promise.resolve({ data: null }),
+      product.category_id
+        ? withAbortSignal(
+            supabase.from("categories").select("*").eq("id", product.category_id).maybeSingle(),
+            signal,
+          )
+        : Promise.resolve({ data: null }),
+      withAbortSignal(
+        supabase.from("product_variants").select("*").eq("product_id", product.id).eq("is_active", true),
+        signal,
+      ),
+      withAbortSignal(
+        supabase.from("product_images").select("*").eq("product_id", product.id).order("sort_order"),
+        signal,
+      ),
+    ]);
 
   return {
     ...product,
@@ -462,14 +487,22 @@ export async function getProductBySlug(slug: string): Promise<ProductWithRelatio
   };
 }
 
-export async function getProductById(id: string): Promise<ProductWithRelations | null> {
+export async function getActiveProductBySlug(
+  slug: string,
+  signal?: AbortSignal,
+): Promise<ProductWithRelations | null> {
+  return getProductBySlug(slug, signal);
+}
+
+export async function getProductById(
+  id: string,
+  signal?: AbortSignal,
+): Promise<ProductWithRelations | null> {
   const supabase = await createClient();
-  const { data: product, error } = await supabase
-    .from("products")
-    .select("*")
-    .eq("id", id)
-    .eq("status", "ACTIVE")
-    .maybeSingle();
+  const { data: product, error } = await withAbortSignal(
+    supabase.from("products").select("*").eq("id", id).eq("status", "ACTIVE").maybeSingle(),
+    signal,
+  );
 
   if (error) {
     if (!isMissingTableError(error)) {
@@ -479,16 +512,29 @@ export async function getProductById(id: string): Promise<ProductWithRelations |
   }
   if (!product) return null;
 
-  const [{ data: brand }, { data: category }, { data: variants }, { data: images }] = await Promise.all([
-    product.brand_id
-      ? supabase.from("brands").select("*").eq("id", product.brand_id).maybeSingle()
-      : Promise.resolve({ data: null }),
-    product.category_id
-      ? supabase.from("categories").select("*").eq("id", product.category_id).maybeSingle()
-      : Promise.resolve({ data: null }),
-    supabase.from("product_variants").select("*").eq("product_id", product.id).eq("is_active", true),
-    supabase.from("product_images").select("*").eq("product_id", product.id).order("sort_order"),
-  ]);
+  const [{ data: brand }, { data: category }, { data: variants }, { data: images }] =
+    await Promise.all([
+      product.brand_id
+        ? withAbortSignal(
+            supabase.from("brands").select("*").eq("id", product.brand_id).maybeSingle(),
+            signal,
+          )
+        : Promise.resolve({ data: null }),
+      product.category_id
+        ? withAbortSignal(
+            supabase.from("categories").select("*").eq("id", product.category_id).maybeSingle(),
+            signal,
+          )
+        : Promise.resolve({ data: null }),
+      withAbortSignal(
+        supabase.from("product_variants").select("*").eq("product_id", product.id).eq("is_active", true),
+        signal,
+      ),
+      withAbortSignal(
+        supabase.from("product_images").select("*").eq("product_id", product.id).order("sort_order"),
+        signal,
+      ),
+    ]);
 
   return {
     ...product,

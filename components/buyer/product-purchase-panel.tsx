@@ -56,19 +56,20 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
   const [feedback, setFeedback] = useState<string | null>(null);
 
   const displayPrice = product.salePrice ?? product.price;
-  const isApproved = product.status === "Approved Preview";
+  const isLiveProduct = product.dataSource === "live";
+  const isApproved = product.status === "Approved Preview" || isLiveProduct;
   const savedInWishlist = isInWishlist(product.id);
   const stockLabel = useMemo(() => {
     if (product.stock <= 0) {
-      return "Currently unavailable in MVP stock";
+      return isLiveProduct ? "Currently unavailable" : "Currently unavailable in MVP stock";
     }
 
     if (product.stock <= 5) {
-      return "Low MVP stock preview";
+      return isLiveProduct ? "Low stock" : "Low MVP stock preview";
     }
 
-    return "In MVP stock preview";
-  }, [product.stock]);
+    return isLiveProduct ? "In stock" : "In MVP stock preview";
+  }, [isLiveProduct, product.stock]);
 
   function handleAddToCart() {
     const result = addToCart({
@@ -236,10 +237,10 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
           type="button"
           size="lg"
           onClick={handleAddToCart}
-          disabled={!isApproved}
+          disabled={!isApproved || product.stock <= 0 || isLiveProduct}
           className="w-full"
         >
-          Add To Cart
+          {isLiveProduct ? "Checkout Not Live Yet" : "Add To Cart"}
         </Button>
         <button
           type="button"
@@ -278,13 +279,20 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
         </div>
       ) : null}
 
+      {isLiveProduct ? (
+        <div className="mt-4 rounded-[22px] border border-[var(--skxnz-border)] bg-[var(--skxnz-card)] p-4 text-sm leading-6 text-[var(--skxnz-text-muted)]">
+          This active catalog product is visible for review. Live cart, payment, and
+          delivery workflows are still being connected.
+        </div>
+      ) : null}
+
       <div className="mt-6 grid gap-3">
         <div className="rounded-[22px] border border-[var(--skxnz-border)] bg-[var(--skxnz-card)] p-4">
           <p className="text-[0.62rem] font-bold uppercase tracking-[0.22em] text-[var(--skxnz-text-muted)]">
             Delivery
           </p>
           <p className="mt-2 text-sm leading-6 text-[var(--skxnz-text-muted)]">
-            {product.deliveryWindow}. Delivery tracking is not live in MVP.
+            {product.deliveryWindow}. Delivery tracking is not live yet.
           </p>
         </div>
         <div className="rounded-[22px] border border-[var(--skxnz-border)] bg-[var(--skxnz-card)] p-4">
@@ -298,7 +306,9 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
       </div>
 
       <p className="mt-5 rounded-[22px] border border-[var(--skxnz-border)] bg-[var(--skxnz-bg-soft)] p-4 text-sm leading-6 text-[var(--skxnz-text-muted)]">
-        Demo checkout for internal testing. Live payment, delivery, and refund processing are not connected yet.
+        {isLiveProduct
+          ? "This product is loaded from the active catalog. Live payment, delivery, and refund processing are not connected yet."
+          : "Demo checkout for internal testing. Live payment, delivery, and refund processing are not connected yet."}
       </p>
     </Card>
   );
