@@ -106,6 +106,8 @@ export function SiteSearchBar({
   const { approvedProducts } = useMarketplace();
   const [query, setQuery] = useState("");
   const [isFocused, setIsFocused] = useState(false);
+  /** Live catalog product suggestions; null = live unavailable/failed → local fallback. */
+  const [liveProductSuggestions, setLiveProductSuggestions] = useState<SearchSuggestion[] | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const urlQuery = searchParams.get("q") ?? "";
@@ -124,16 +126,68 @@ export function SiteSearchBar({
   }, [focusSignal]);
 
   const normalizedQuery = normalizeSearchQuery(query);
-  const suggestions = useMemo(
-    () =>
-      buildSearchSuggestions({
-        query,
-        products: approvedProducts,
-        brands: demoBrands,
-        limit: 8,
-      }),
-    [approvedProducts, query],
-  );
+
+  useEffect(() => {
+    if (normalizedQuery.length < 2) {
+      setLiveProductSuggestions(null);
+      return;
+    }
+
+    const controller = new AbortController();
+    const timer = window.setTimeout(async () => {
+      try {
+        const response = await fetch(
+          `/api/search/suggestions?q=${encodeURIComponent(normalizedQuery)}`,
+          { signal: controller.signal },
+        );
+
+        if (!response.ok) {
+          throw new Error(`suggestions request failed: ${response.status}`);
+        }
+
+        const data = (await response.json()) as {
+          live?: boolean;
+          suggestions?: SearchSuggestion[];
+        };
+
+        // live=true means the catalog query ran (even with 0 rows) — honest
+        // empty beats swapping in demo items for a term with no real matches.
+        setLiveProductSuggestions(data.live ? data.suggestions ?? [] : null);
+      } catch {
+        if (!controller.signal.aborted) {
+          setLiveProductSuggestions(null);
+        }
+      }
+    }, 300);
+
+    return () => {
+      window.clearTimeout(timer);
+      controller.abort();
+    };
+  }, [normalizedQuery]);
+
+  const suggestions = useMemo(() => {
+    const localSuggestions = buildSearchSuggestions({
+      query,
+      products: approvedProducts,
+      brands: demoBrands,
+      limit: 8,
+    });
+
+    if (liveProductSuggestions === null) {
+      return localSuggestions;
+    }
+
+    // Live catalog reachable: live products replace local product rows;
+    // brand/category/collection/page navigation suggestions stay local.
+    const navigationSuggestions = localSuggestions.filter(
+      (suggestion) => suggestion.type !== "product",
+    );
+
+    return [...liveProductSuggestions, ...navigationSuggestions]
+      .sort((left, right) => right.score - left.score)
+      .slice(0, 8);
+  }, [approvedProducts, liveProductSuggestions, query]);
   const shouldShowSuggestions = isFocused && normalizedQuery.length > 0;
 
   const navigateToQuery = (nextQuery: string) => {

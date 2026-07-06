@@ -545,6 +545,89 @@ export async function getProductById(
   };
 }
 
+/** Search result that distinguishes a failed live query from zero matches. */
+export type CatalogSearchResult = {
+  products: ProductWithRelations[];
+  /** true when the live query executed successfully (even with 0 rows). */
+  live: boolean;
+};
+
+/** ACTIVE products matching a buyer search term (name/slug/subtitle/description
+ * substring match). Sanitizes the term for PostgREST `or=` syntax. */
+export async function searchActiveProducts(term: string, limit = 8): Promise<CatalogSearchResult> {
+  const cleaned = term.replace(/[^\p{L}\p{N}\s-]/gu, "").trim().replace(/\s+/g, " ");
+  if (cleaned.length < 2) {
+    return { products: [], live: true };
+  }
+
+  const supabase = await createClient();
+  const pattern = `%${cleaned}%`;
+  const { data: products, error } = await supabase
+    .from("products")
+    .select("*")
+    .eq("status", "ACTIVE")
+    .or(
+      `name.ilike.${pattern},slug.ilike.${pattern},subtitle.ilike.${pattern},description.ilike.${pattern}`,
+    )
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    if (!isMissingTableError(error)) {
+      console.warn("[catalog] searchActiveProducts failed:", error.message);
+    }
+    return { products: [], live: false };
+  }
+
+  if (!products?.length) {
+    return { products: [], live: true };
+  }
+
+  const productIds = products.map((product) => product.id);
+  const brandIds = [...new Set(products.map((product) => product.brand_id).filter(Boolean))] as string[];
+  const categoryIds = [...new Set(products.map((product) => product.category_id).filter(Boolean))] as string[];
+
+  const [
+    { data: brands, error: brandsError },
+    { data: categories, error: categoriesError },
+    { data: variants, error: variantsError },
+    { data: images, error: imagesError },
+  ] = await Promise.all([
+    brandIds.length
+      ? supabase.from("brands").select("*").in("id", brandIds).eq("is_active", true)
+      : Promise.resolve({ data: [] as Brand[], error: null }),
+    categoryIds.length
+      ? supabase.from("categories").select("*").in("id", categoryIds).eq("is_active", true)
+      : Promise.resolve({ data: [] as Category[], error: null }),
+    supabase.from("product_variants").select("*").in("product_id", productIds).eq("is_active", true),
+    supabase.from("product_images").select("*").in("product_id", productIds).order("sort_order"),
+  ]);
+
+  const relationError = brandsError ?? categoriesError ?? variantsError ?? imagesError;
+  if (relationError) {
+    if (!isMissingTableError(relationError)) {
+      console.warn("[catalog] search product relations failed:", relationError.message);
+    }
+    return { products: [], live: false };
+  }
+
+  const brandsById = new Map((brands ?? []).map((brand) => [brand.id, brand as Brand]));
+  const categoriesById = new Map((categories ?? []).map((category) => [category.id, category as Category]));
+  const variantsByProductId = groupByProductId((variants ?? []) as ProductVariant[]);
+  const imagesByProductId = groupByProductId((images ?? []) as ProductImage[]);
+
+  return {
+    live: true,
+    products: products.map((product) => ({
+      ...(product as Product),
+      brand: product.brand_id ? brandsById.get(product.brand_id) ?? null : null,
+      category: product.category_id ? categoriesById.get(product.category_id) ?? null : null,
+      variants: variantsByProductId.get(product.id) ?? [],
+      images: imagesByProductId.get(product.id) ?? [],
+    })),
+  };
+}
+
 export async function getFeaturedProducts(): Promise<Product[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
