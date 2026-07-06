@@ -155,6 +155,20 @@ Single source of truth for project status. Read this before starting work and up
   - Fix: ran `pnpm exec prisma generate` (no DB connection needed) and added `"postinstall": "prisma generate"` to package.json so fresh installs and Vercel builds regenerate the client automatically. No schema, dependency, or app-code changes; generated client stays in node_modules (not committed).
   - `pnpm exec tsc --noEmit` now passes with ZERO errors — the long-standing pre-existing blocker is cleared. Next-up item 4 is done.
 
+- **Day 4 / D4-1 internal commerce backend foundation (this session, branch `day3-cart-order-flow`):**
+  - **DRAFT migration `supabase/migrations/0005_commerce_layer.sql` — NOT APPLIED.** 7 tables: `orders`, `order_items`, `order_events`, `support_tickets`, `support_ticket_messages`, `return_requests`, `return_request_items`. All uuid PKs, integer-paise amounts with non-negative checks, status/category/priority check constraints, `set_updated_at` triggers, indexes. `orders.buyer_id` references `public.users` with NO cascade (financial records survive). Currency locked to INR.
+  - RLS on all 7 tables: buyers select own rows only (direct `auth.uid()` or via parent order/ticket/request); buyers can insert only their own pre-payment orders (`DRAFT`/`PAYMENT_PENDING` enforced in policy), OPEN tickets, BUYER-role messages, REQUESTED returns; NO buyer update policy on orders (status transitions server-side only); NO buyer insert on `order_events`; admin via existing `public.is_admin()`; `revoke all ... from anon` on every table; `authenticated` granted only select/insert (select-only on order_events) — no update/delete grants.
+  - Verification draft `supabase/verification/0005_commerce_layer_verify.sql`: tables exist, RLS enabled, policy counts + full listing, anon zero-grant check, authenticated grant surface, check constraints, triggers, and a manual 2-user cross-buyer isolation script (buyer B cannot read/insert/update buyer A's orders; anon denied).
+  - TypeScript: `lib/orders/order-intent.ts` (`CheckoutContactSnapshot`, `ShippingAddressSnapshot`, `OrderLineItemInput`, `CreateOrderIntentInput`, `CreateOrderIntentResult`, `validateOrderIntentInput` with paise/line-total/subtotal integrity checks reusing `validateCheckoutDraft`, `mapCheckoutDraftToOrderIntent` from cart + checkout draft); `lib/support/support-requests.ts` (`CreateSupportTicketInput`, category/status constants, `validateSupportTicketInput`); `lib/returns/return-requests.ts` (`CreateReturnRequestInput`, `ReturnRequestItemInput`, status constants, `validateReturnRequestInput`).
+  - Server action skeleton `lib/orders/create-order-intent.ts` (`"use server"`): validates input, documents the exact future insert payload, returns `{ ok: false, code: "NOT_WIRED" }` — never invents an order id, never claims payment. Not imported by any UI; checkout payment CTA remains disabled. `buyer_id` will be session-derived server-side, never client input. `PAID` reserved for the future signature-verified webhook handler.
+  - Intentionally NOT done: no SQL applied, no `supabase db push`, no Razorpay, no delivery partner, no UI enablement, no fake success states.
+  - Checks: `tsc --noEmit` ZERO errors; secret grep clean on all new files. No SQL run, no push.
+  - **Tomorrow's manual apply/test steps:**
+    1. Supabase Dashboard → SQL Editor → New query → paste `supabase/migrations/0005_commerce_layer.sql` → Run once.
+    2. Same editor → paste `supabase/verification/0005_commerce_layer_verify.sql` → run queries 1–8, compare with EXPECT comments.
+    3. Run the manual cross-buyer isolation script (verification section 9) with two test buyer accounts.
+    4. Only after all pass: wire the real insert into `lib/orders/create-order-intent.ts` via `lib/supabase/server` client and re-verify.
+
 ## Next up
 1. Wire wishlist to accept live product snapshots so Save For Later can return for live cart items.
 2. Real backend order path (orders table + server-side order creation) before any order confirmation UI; then Razorpay integration.
