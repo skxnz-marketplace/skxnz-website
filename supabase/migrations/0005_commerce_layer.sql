@@ -1,23 +1,27 @@
 -- =============================================================
--- SKXNZ — Slice 5: Internal commerce layer (DRAFT — NOT APPLIED YET)
+-- SKXNZ — Slice 5: Internal commerce layer (finalized D4-2 — NOT APPLIED YET)
 -- Tables: orders, order_items, order_events,
 --         support_tickets, support_ticket_messages,
 --         return_requests, return_request_items
 --
 -- Run this in the Supabase SQL Editor (Project → SQL Editor → New query).
 -- Do NOT run via CLI or ORM. Do NOT modify .env.local.
+-- The script is idempotent: safe to re-run if a partial run failed.
 --
 -- Money rule: ALL amounts are integer paise (1 rupee = 100 paise).
 -- Never floats. Never rupees in amount columns.
 --
 -- Status rule: an order becomes PAID only from a signature-verified
--- Razorpay webhook (server-side). Client code must never set PAID,
--- REFUNDED, or any post-payment status.
+-- payment-provider webhook (server-side). Client code must never set
+-- PAID, REFUNDED, or any post-payment status. No provider is wired
+-- yet; payment_provider/payment_reference stay NULL until then.
 --
 -- Depends on: 0001_user_layer.sql (public.users, public.set_updated_at),
 --             0003_fix_admin_rls_helper.sql (public.is_admin),
---             0002_catalog_layer (public.products / product_variants,
+--             0002_catalog_layer (public.products with seller_id —
 --             applied in the live project; file not in this repo).
+--             The seller policy on order_items references
+--             public.products and will fail if 0002 is not applied.
 -- =============================================================
 
 
@@ -30,7 +34,7 @@
 --    strategy later).
 -- =============================================================
 
-create table public.orders (
+create table if not exists public.orders (
   id                          uuid        primary key default gen_random_uuid(),
   buyer_id                    uuid        not null references public.users(id),
   status                      text        not null default 'DRAFT'
@@ -54,16 +58,26 @@ create table public.orders (
   payment_provider            text,
   payment_reference           text,
   created_at                  timestamptz not null default now(),
-  updated_at                  timestamptz not null default now()
+  updated_at                  timestamptz not null default now(),
+  -- When total is present it must equal the sum of its parts, so a
+  -- buyer (or a buggy server path) can never store a mismatched total.
+  constraint orders_total_consistent check (
+    total_amount_paise is null
+    or total_amount_paise =
+      subtotal_amount_paise
+      + coalesce(shipping_amount_paise, 0)
+      + coalesce(tax_amount_paise, 0)
+  )
 );
 
 comment on table public.orders is
   'Buyer orders. Amounts are integer paise. PAID status may only be set server-side after a signature-verified payment webhook.';
 
-create index orders_buyer_id_idx on public.orders (buyer_id);
-create index orders_status_idx on public.orders (status);
-create index orders_created_at_idx on public.orders (created_at desc);
+create index if not exists orders_buyer_id_idx on public.orders (buyer_id);
+create index if not exists orders_status_idx on public.orders (status);
+create index if not exists orders_created_at_idx on public.orders (created_at desc);
 
+drop trigger if exists orders_set_updated_at on public.orders;
 create trigger orders_set_updated_at
   before update on public.orders
   for each row execute function public.set_updated_at();
@@ -76,7 +90,7 @@ create trigger orders_set_updated_at
 --    keeps its history even if a product is later removed.
 -- =============================================================
 
-create table public.order_items (
+create table if not exists public.order_items (
   id                 uuid        primary key default gen_random_uuid(),
   order_id           uuid        not null references public.orders(id) on delete cascade,
   product_id         uuid,
@@ -93,13 +107,19 @@ create table public.order_items (
     constraint order_items_quantity_positive check (quantity > 0),
   line_total_paise   integer     not null
     constraint order_items_line_total_nonnegative check (line_total_paise >= 0),
-  created_at         timestamptz not null default now()
+  created_at         timestamptz not null default now(),
+  -- Line totals are derived, never trusted from input.
+  constraint order_items_line_total_consistent check (
+    line_total_paise = unit_price_paise * quantity
+  )
 );
 
 comment on table public.order_items is
   'Per-order line snapshots in integer paise. Snapshots survive catalog changes.';
 
-create index order_items_order_id_idx on public.order_items (order_id);
+create index if not exists order_items_order_id_idx on public.order_items (order_id);
+-- Supports the seller read policy and future seller dashboards.
+create index if not exists order_items_product_id_idx on public.order_items (product_id);
 
 
 -- =============================================================
@@ -108,11 +128,13 @@ create index order_items_order_id_idx on public.order_items (order_id);
 --    outcomes, fulfillment notes). Written server-side.
 -- =============================================================
 
-create table public.order_events (
+create table if not exists public.order_events (
   id          uuid        primary key default gen_random_uuid(),
   order_id    uuid        not null references public.orders(id) on delete cascade,
-  event_type  text        not null,
-  message     text        not null,
+  event_type  text        not null
+    constraint order_events_event_type_not_blank check (length(trim(event_type)) > 0),
+  message     text        not null
+    constraint order_events_message_not_blank check (length(trim(message)) > 0),
   metadata    jsonb       not null default '{}'::jsonb,
   created_at  timestamptz not null default now()
 );
@@ -120,14 +142,14 @@ create table public.order_events (
 comment on table public.order_events is
   'Append-only order timeline. Inserted by server-side/service logic only.';
 
-create index order_events_order_id_idx on public.order_events (order_id, created_at);
+create index if not exists order_events_order_id_idx on public.order_events (order_id, created_at);
 
 
 -- =============================================================
 -- 4. TABLE: public.support_tickets
 -- =============================================================
 
-create table public.support_tickets (
+create table if not exists public.support_tickets (
   id          uuid        primary key default gen_random_uuid(),
   buyer_id    uuid        not null references public.users(id),
   order_id    uuid        references public.orders(id),
@@ -149,9 +171,10 @@ create table public.support_tickets (
   updated_at  timestamptz not null default now()
 );
 
-create index support_tickets_buyer_id_idx on public.support_tickets (buyer_id);
-create index support_tickets_order_id_idx on public.support_tickets (order_id);
+create index if not exists support_tickets_buyer_id_idx on public.support_tickets (buyer_id);
+create index if not exists support_tickets_order_id_idx on public.support_tickets (order_id);
 
+drop trigger if exists support_tickets_set_updated_at on public.support_tickets;
 create trigger support_tickets_set_updated_at
   before update on public.support_tickets
   for each row execute function public.set_updated_at();
@@ -161,7 +184,7 @@ create trigger support_tickets_set_updated_at
 -- 5. TABLE: public.support_ticket_messages
 -- =============================================================
 
-create table public.support_ticket_messages (
+create table if not exists public.support_ticket_messages (
   id           uuid        primary key default gen_random_uuid(),
   ticket_id    uuid        not null references public.support_tickets(id) on delete cascade,
   sender_id    uuid        references public.users(id),
@@ -175,7 +198,7 @@ create table public.support_ticket_messages (
   created_at   timestamptz not null default now()
 );
 
-create index support_ticket_messages_ticket_id_idx
+create index if not exists support_ticket_messages_ticket_id_idx
   on public.support_ticket_messages (ticket_id, created_at);
 
 
@@ -185,7 +208,7 @@ create index support_ticket_messages_ticket_id_idx
 --    refund is confirmed by the payment provider — never by client.
 -- =============================================================
 
-create table public.return_requests (
+create table if not exists public.return_requests (
   id          uuid        primary key default gen_random_uuid(),
   order_id    uuid        not null references public.orders(id),
   buyer_id    uuid        not null references public.users(id),
@@ -201,9 +224,10 @@ create table public.return_requests (
   updated_at  timestamptz not null default now()
 );
 
-create index return_requests_order_id_idx on public.return_requests (order_id);
-create index return_requests_buyer_id_idx on public.return_requests (buyer_id);
+create index if not exists return_requests_order_id_idx on public.return_requests (order_id);
+create index if not exists return_requests_buyer_id_idx on public.return_requests (buyer_id);
 
+drop trigger if exists return_requests_set_updated_at on public.return_requests;
 create trigger return_requests_set_updated_at
   before update on public.return_requests
   for each row execute function public.set_updated_at();
@@ -211,9 +235,13 @@ create trigger return_requests_set_updated_at
 
 -- =============================================================
 -- 7. TABLE: public.return_request_items
+--    NOTE: quantity may not exceed the ordered quantity for the
+--    line; that cross-row rule cannot live in a check constraint
+--    and MUST be enforced by the server action that creates the
+--    return request.
 -- =============================================================
 
-create table public.return_request_items (
+create table if not exists public.return_request_items (
   id                 uuid        primary key default gen_random_uuid(),
   return_request_id  uuid        not null references public.return_requests(id) on delete cascade,
   order_item_id      uuid        not null references public.order_items(id),
@@ -223,14 +251,17 @@ create table public.return_request_items (
   created_at         timestamptz not null default now()
 );
 
-create index return_request_items_request_id_idx
+create index if not exists return_request_items_request_id_idx
   on public.return_request_items (return_request_id);
+create index if not exists return_request_items_order_item_id_idx
+  on public.return_request_items (order_item_id);
 
 
 -- =============================================================
 -- 8. ROW LEVEL SECURITY
 --    Every table: RLS on, no anon/public read, buyers see only
---    their own rows, admin via public.is_admin().
+--    their own rows, sellers see only order items for their own
+--    products (post-payment), admin via public.is_admin().
 -- =============================================================
 
 alter table public.orders enable row level security;
@@ -243,21 +274,28 @@ alter table public.return_request_items enable row level security;
 
 -- ---------- orders ----------
 
+drop policy if exists "orders: buyer can select own" on public.orders;
 create policy "orders: buyer can select own"
   on public.orders
   for select
   using ( auth.uid() = buyer_id );
 
 -- Buyers may create only their own order in a pre-payment state.
--- PAID and beyond can never be inserted directly by a buyer.
+-- PAID and beyond can never be inserted directly by a buyer, and a
+-- buyer can never pre-fill payment fields — those are written only
+-- by server-side payment logic after a real provider is wired.
+drop policy if exists "orders: buyer can insert own pre-payment" on public.orders;
 create policy "orders: buyer can insert own pre-payment"
   on public.orders
   for insert
   with check (
     auth.uid() = buyer_id
     and status in ('DRAFT', 'PAYMENT_PENDING')
+    and payment_provider is null
+    and payment_reference is null
   );
 
+drop policy if exists "orders: admin can manage all" on public.orders;
 create policy "orders: admin can manage all"
   on public.orders
   for all
@@ -270,6 +308,7 @@ create policy "orders: admin can manage all"
 
 -- ---------- order_items ----------
 
+drop policy if exists "order_items: buyer can select own" on public.order_items;
 create policy "order_items: buyer can select own"
   on public.order_items
   for select
@@ -281,6 +320,25 @@ create policy "order_items: buyer can select own"
     )
   );
 
+-- Sellers can read line items for their own products, but only once
+-- the order is past the pre-payment stage — sellers never see other
+-- buyers' open carts or drafts. Requires public.products (0002).
+drop policy if exists "order_items: seller can select own product lines" on public.order_items;
+create policy "order_items: seller can select own product lines"
+  on public.order_items
+  for select
+  using (
+    exists (
+      select 1
+      from public.orders o
+      join public.products p on p.id = order_items.product_id
+      where o.id = order_items.order_id
+        and p.seller_id = auth.uid()
+        and o.status not in ('DRAFT', 'PAYMENT_PENDING')
+    )
+  );
+
+drop policy if exists "order_items: buyer can insert into own pre-payment order" on public.order_items;
 create policy "order_items: buyer can insert into own pre-payment order"
   on public.order_items
   for insert
@@ -293,6 +351,7 @@ create policy "order_items: buyer can insert into own pre-payment order"
     )
   );
 
+drop policy if exists "order_items: admin can manage all" on public.order_items;
 create policy "order_items: admin can manage all"
   on public.order_items
   for all
@@ -301,6 +360,7 @@ create policy "order_items: admin can manage all"
 
 -- ---------- order_events ----------
 
+drop policy if exists "order_events: buyer can select own" on public.order_events;
 create policy "order_events: buyer can select own"
   on public.order_events
   for select
@@ -313,6 +373,7 @@ create policy "order_events: buyer can select own"
   );
 
 -- No buyer insert: the timeline is written by server-side logic only.
+drop policy if exists "order_events: admin can manage all" on public.order_events;
 create policy "order_events: admin can manage all"
   on public.order_events
   for all
@@ -321,19 +382,32 @@ create policy "order_events: admin can manage all"
 
 -- ---------- support_tickets ----------
 
+drop policy if exists "support_tickets: buyer can select own" on public.support_tickets;
 create policy "support_tickets: buyer can select own"
   on public.support_tickets
   for select
   using ( auth.uid() = buyer_id );
 
+-- A buyer opens tickets for themselves only, always in OPEN state,
+-- and may only attach an order they own.
+drop policy if exists "support_tickets: buyer can insert own" on public.support_tickets;
 create policy "support_tickets: buyer can insert own"
   on public.support_tickets
   for insert
   with check (
     auth.uid() = buyer_id
     and status = 'OPEN'
+    and (
+      order_id is null
+      or exists (
+        select 1 from public.orders o
+        where o.id = support_tickets.order_id
+          and o.buyer_id = auth.uid()
+      )
+    )
   );
 
+drop policy if exists "support_tickets: admin can manage all" on public.support_tickets;
 create policy "support_tickets: admin can manage all"
   on public.support_tickets
   for all
@@ -342,6 +416,7 @@ create policy "support_tickets: admin can manage all"
 
 -- ---------- support_ticket_messages ----------
 
+drop policy if exists "support_ticket_messages: buyer can select own" on public.support_ticket_messages;
 create policy "support_ticket_messages: buyer can select own"
   on public.support_ticket_messages
   for select
@@ -353,6 +428,9 @@ create policy "support_ticket_messages: buyer can select own"
     )
   );
 
+-- Buyers may reply as themselves on their own ticket while it is
+-- still active (not RESOLVED/CLOSED).
+drop policy if exists "support_ticket_messages: buyer can insert own as buyer" on public.support_ticket_messages;
 create policy "support_ticket_messages: buyer can insert own as buyer"
   on public.support_ticket_messages
   for insert
@@ -363,9 +441,11 @@ create policy "support_ticket_messages: buyer can insert own as buyer"
       select 1 from public.support_tickets t
       where t.id = support_ticket_messages.ticket_id
         and t.buyer_id = auth.uid()
+        and t.status in ('OPEN', 'WAITING_FOR_CUSTOMER', 'IN_REVIEW')
     )
   );
 
+drop policy if exists "support_ticket_messages: admin can manage all" on public.support_ticket_messages;
 create policy "support_ticket_messages: admin can manage all"
   on public.support_ticket_messages
   for all
@@ -374,11 +454,15 @@ create policy "support_ticket_messages: admin can manage all"
 
 -- ---------- return_requests ----------
 
+drop policy if exists "return_requests: buyer can select own" on public.return_requests;
 create policy "return_requests: buyer can select own"
   on public.return_requests
   for select
   using ( auth.uid() = buyer_id );
 
+-- Returns can only be requested on the buyer's own DELIVERED order.
+-- No return against drafts, unpaid, in-transit, or cancelled orders.
+drop policy if exists "return_requests: buyer can insert own requested" on public.return_requests;
 create policy "return_requests: buyer can insert own requested"
   on public.return_requests
   for insert
@@ -389,9 +473,11 @@ create policy "return_requests: buyer can insert own requested"
       select 1 from public.orders o
       where o.id = return_requests.order_id
         and o.buyer_id = auth.uid()
+        and o.status = 'DELIVERED'
     )
   );
 
+drop policy if exists "return_requests: admin can manage all" on public.return_requests;
 create policy "return_requests: admin can manage all"
   on public.return_requests
   for all
@@ -400,6 +486,7 @@ create policy "return_requests: admin can manage all"
 
 -- ---------- return_request_items ----------
 
+drop policy if exists "return_request_items: buyer can select own" on public.return_request_items;
 create policy "return_request_items: buyer can select own"
   on public.return_request_items
   for select
@@ -411,18 +498,25 @@ create policy "return_request_items: buyer can select own"
     )
   );
 
+-- The order item being returned must belong to the SAME order as the
+-- return request — a buyer cannot attach a line from another order.
+drop policy if exists "return_request_items: buyer can insert own" on public.return_request_items;
 create policy "return_request_items: buyer can insert own"
   on public.return_request_items
   for insert
   with check (
     exists (
-      select 1 from public.return_requests r
+      select 1
+      from public.return_requests r
+      join public.order_items oi on oi.id = return_request_items.order_item_id
       where r.id = return_request_items.return_request_id
         and r.buyer_id = auth.uid()
         and r.status = 'REQUESTED'
+        and oi.order_id = r.order_id
     )
   );
 
+drop policy if exists "return_request_items: admin can manage all" on public.return_request_items;
 create policy "return_request_items: admin can manage all"
   on public.return_request_items
   for all
@@ -433,17 +527,20 @@ create policy "return_request_items: admin can manage all"
 -- =============================================================
 -- 9. GRANTS
 --    RLS is the row filter; grants are the table-level gate.
+--    Supabase default privileges grant ALL on new public tables to
+--    anon AND authenticated, so both must be revoked first —
+--    otherwise authenticated silently keeps UPDATE/DELETE grants.
 --    anon gets NOTHING on commerce tables. authenticated gets only
 --    what the policies above can allow through.
 -- =============================================================
 
-revoke all on public.orders from anon;
-revoke all on public.order_items from anon;
-revoke all on public.order_events from anon;
-revoke all on public.support_tickets from anon;
-revoke all on public.support_ticket_messages from anon;
-revoke all on public.return_requests from anon;
-revoke all on public.return_request_items from anon;
+revoke all on public.orders from anon, authenticated;
+revoke all on public.order_items from anon, authenticated;
+revoke all on public.order_events from anon, authenticated;
+revoke all on public.support_tickets from anon, authenticated;
+revoke all on public.support_ticket_messages from anon, authenticated;
+revoke all on public.return_requests from anon, authenticated;
+revoke all on public.return_request_items from anon, authenticated;
 
 grant select, insert on public.orders to authenticated;
 grant select, insert on public.order_items to authenticated;

@@ -169,6 +169,28 @@ Single source of truth for project status. Read this before starting work and up
     3. Run the manual cross-buyer isolation script (verification section 9) with two test buyer accounts.
     4. Only after all pass: wire the real insert into `lib/orders/create-order-intent.ts` via `lib/supabase/server` client and re-verify.
 
+- **Day 4 / D4-2 commerce migration verification + safety pass (this session, branch `day3-cart-order-flow`):**
+  - Deep-reviewed and hardened `supabase/migrations/0005_commerce_layer.sql` (still **NOT APPLIED** — manual SQL Editor apply required, see steps below). Internal-only: no Razorpay/Cashfree/Shiprocket/Delhivery, no fake paid/delivered state anywhere.
+  - **Grants bug fixed (important):** Supabase default privileges grant ALL on new public tables to `anon` AND `authenticated`. The draft only revoked from `anon`, so `authenticated` would have silently kept UPDATE/DELETE table grants. Migration now runs `revoke all ... from anon, authenticated` on all 7 tables before granting the minimal surface (select+insert; select-only on `order_events`).
+  - **New integrity constraints:** `orders_total_consistent` (total = subtotal + shipping + tax when total present), `order_items_line_total_consistent` (line_total = unit_price × quantity), not-blank checks on `order_events.event_type` / `.message`. Cross-row rule that a return quantity cannot exceed the ordered quantity is documented as a server-action responsibility (not expressible as a check constraint).
+  - **RLS hardening:**
+    - Orders insert policy now also requires `payment_provider IS NULL AND payment_reference IS NULL` — buyers can never pre-fill payment fields.
+    - New seller read policy on `order_items`: sellers see only lines whose product (`public.products.seller_id`) is theirs AND whose parent order is past `DRAFT`/`PAYMENT_PENDING` — sellers never see open carts. (Depends on 0002 catalog layer being applied live, which it is.)
+    - Support tickets: buyer insert now requires any attached `order_id` to be the buyer's own order.
+    - Ticket messages: buyer replies allowed only while ticket status is `OPEN`/`WAITING_FOR_CUSTOMER`/`IN_REVIEW`.
+    - Return requests: buyer insert now requires the order to be their own AND `DELIVERED` (no returns on drafts/unpaid/in-transit/cancelled).
+    - Return request items: buyer insert now requires the `order_item` to belong to the SAME order as the return request (cross-order attach blocked).
+  - **Idempotency:** whole migration is now safe to re-run — `create table/index if not exists`, `drop trigger/policy if exists` before every create. A partial SQL Editor run can be repaired by running the file again.
+  - **New indexes:** `order_items_product_id_idx` (seller policy support), `return_request_items_order_item_id_idx`.
+  - Rewrote `supabase/verification/0005_commerce_layer_verify.sql`: 10 read-only checks (tables, RLS, policy counts incl. new order_items count of 4, full policy listing with updated expectations, anon zero grants, authenticated grant surface, check constraints incl. money-consistency, **new FK + on-delete listing**, **new index listing**, triggers) plus the manual isolation script extended with payment-field-injection and seller-visibility spot-checks.
+  - Payments/shipments as dedicated tables: intentionally NOT added this slice. `order_events` + `orders.payment_provider/payment_reference` carry internal state until a real provider integration slice.
+  - No frontend, TypeScript, or config changes. No SQL run against Supabase, no push/deploy.
+  - **Manual apply steps (unchanged from D4-1, now with the finalized files):**
+    1. Supabase Dashboard → SQL Editor → New query → paste `supabase/migrations/0005_commerce_layer.sql` → Run once (safe to re-run).
+    2. Same editor → paste `supabase/verification/0005_commerce_layer_verify.sql` → run queries 1–10, compare with EXPECT comments.
+    3. Run the manual cross-buyer isolation script (verification section 11) with two test buyer accounts (+ one seller for check g).
+    4. Only after all pass: wire the real insert into `lib/orders/create-order-intent.ts` (D4-3).
+
 ## Next up
 1. Wire wishlist to accept live product snapshots so Save For Later can return for live cart items.
 2. Real backend order path (orders table + server-side order creation) before any order confirmation UI; then Razorpay integration.
