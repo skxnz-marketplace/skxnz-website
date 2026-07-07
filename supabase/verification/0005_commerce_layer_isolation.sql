@@ -35,11 +35,15 @@
 
 -- =============================================================
 -- CONFIG — edit this ONE insert if you need different test accounts.
--- Values below are pre-filled from the live D4-7 test run. NOTE:
--- admin_id and seller_id are the SAME user in that data — Block G below
--- detects this and SKIPs (rather than falsely PASSes/FAILs) unless that
--- user's public.users.role is actually 'ADMIN'. Point admin_id at a real
--- ADMIN-role user for a meaningful admin test.
+-- Values below are pre-filled from the live D4-7 test run. NOTES:
+-- - admin_id and seller_id are the SAME user in that data — Block G below
+--   detects this and SKIPs (rather than falsely PASSes/FAILs) unless that
+--   user's public.users.role is actually 'ADMIN'. Point admin_id at a real
+--   ADMIN-role user for a meaningful admin test.
+-- - buyer_2_id and other_seller_id are also the SAME underlying user in
+--   this data. This does not invalidate F2 (it only requires
+--   other_seller_id != seller_id, which holds), but if you want a fully
+--   independent third identity, use a different other_seller_id.
 -- =============================================================
 drop table if exists _isolation_config;
 create temp table _isolation_config (
@@ -54,10 +58,10 @@ create temp table _isolation_config (
 insert into _isolation_config
   (buyer_1_id, buyer_2_id, seller_id, other_seller_id, admin_id, product_id)
 values (
-  'cf102006-f303-4afb-ba3d-1662e92ceeed', -- buyer_1_id
-  '585102c1-e55d-427d-b0be-de7e71134dc2', -- buyer_2_id
+  '585102c1-e55d-427d-b0be-de7e71134dc2', -- buyer_1_id
+  '39cb4363-8162-4069-8b6a-87dfb69c0afe', -- buyer_2_id
   '31e9e3aa-adbb-4063-9682-394f8d8807c1', -- seller_id
-  '39cb4363-8162-4069-8b6a-87dfb69c0afe', -- other_seller_id
+  '39cb4363-8162-4069-8b6a-87dfb69c0afe', -- other_seller_id (see note above)
   '31e9e3aa-adbb-4063-9682-394f8d8807c1', -- admin_id (see note above)
   '4d378027-572e-42b0-9357-225e34c043d0'  -- product_id (must belong to seller_id)
 );
