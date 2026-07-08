@@ -41,6 +41,7 @@ export function ProductCard({
         {showWishlistAction ? (
           <WishlistButton
             productId={product.id}
+            product={product}
             className="absolute right-3 top-3 h-8 w-8"
           />
         ) : null}
@@ -85,6 +86,7 @@ export function ProductCard({
           {showWishlistAction ? (
             <WishlistButton
               productId={product.id}
+              product={product}
               showLabel
               savedLabel="Saved"
               unsavedLabel="Save"

@@ -4,9 +4,14 @@ import { useState } from "react";
 
 import { useMarketplace } from "@/components/marketplace/marketplace-provider";
 import { cn } from "@/lib/cn";
+import type { Product } from "@/lib/data/products";
 
 type WishlistButtonProps = {
   productId: string;
+  /** Full product snapshot. REQUIRED for LIVE catalog products so they can be
+   * saved (they are not in the browser-local demo catalog). Optional for demo
+   * products, which the provider can resolve from the local catalog by id. */
+  product?: Product;
   className?: string;
   labelClassName?: string;
   showLabel?: boolean;
@@ -17,6 +22,7 @@ type WishlistButtonProps = {
 
 export function WishlistButton({
   productId,
+  product,
   className,
   labelClassName,
   showLabel = false,
@@ -36,7 +42,7 @@ export function WishlistButton({
       onClick={(event) => {
         event.preventDefault();
         event.stopPropagation();
-        toggleWishlist(productId);
+        toggleWishlist(productId, product);
         onToggle?.(!saved);
       }}
       onMouseDown={() => setIsPressed(true)}

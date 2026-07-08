@@ -23,6 +23,10 @@ import {
   type ProductSubmissionInput,
 } from "@/lib/data/products";
 import {
+  normalizeStoredWishlist,
+  type WishlistSnapshot,
+} from "@/lib/data/wishlist";
+import {
   demoBuyerName,
   orderStatusFlow,
   seedOrders,
@@ -424,9 +428,9 @@ type MarketplaceContextValue = {
     quantity: number,
   ) => void;
   clearCart: () => void;
-  addToWishlist: (productId: string) => void;
+  addToWishlist: (productId: string, product?: Product) => void;
   removeFromWishlist: (productId: string) => void;
-  toggleWishlist: (productId: string) => void;
+  toggleWishlist: (productId: string, product?: Product) => void;
   moveWishlistItemToCart: (productId: string) => { ok: boolean; message: string };
   isInWishlist: (productId: string) => boolean;
   createSupportTicket: (input: CreateSupportTicketInput) => SupportTicketRecord;
@@ -639,10 +643,6 @@ function normalizeStoredOrders(items: MarketplaceOrder[]) {
     ...item,
     productId: legacyProductIdAliases[item.productId] ?? item.productId,
   }));
-}
-
-function normalizeStoredWishlistIds(items: string[]) {
-  return items.map((item) => legacyProductIdAliases[item] ?? item);
 }
 
 function createSupportPriority(issueType: string) {
@@ -894,7 +894,7 @@ export function MarketplaceProvider({ children }: MarketplaceProviderProps) {
   const [returnRequests, setReturnRequests] =
     useState<ReturnRequestRecord[]>(seedReturnRequests);
   const [cartItems, setCartItems] = useState<CartPreviewItem[]>([]);
-  const [wishlistProductIds, setWishlistProductIds] = useState<string[]>([]);
+  const [wishlistItems, setWishlistItems] = useState<WishlistSnapshot[]>([]);
   const [supportTickets, setSupportTickets] =
     useState<SupportTicketRecord[]>(seedSupportTickets);
   const [sellerApplications, setSellerApplications] =
@@ -908,8 +908,8 @@ export function MarketplaceProvider({ children }: MarketplaceProviderProps) {
     setOrders(normalizeStoredOrders(readStoredValue(ordersStorageKey, seedOrders)));
     setReturnRequests(readStoredValue(returnsStorageKey, seedReturnRequests));
     setCartItems(normalizeStoredCartItems(readStoredValue(cartStorageKey, [])));
-    setWishlistProductIds(
-      normalizeStoredWishlistIds(readStoredValue(wishlistStorageKey, [])),
+    setWishlistItems(
+      normalizeStoredWishlist(readStoredValue<unknown>(wishlistStorageKey, [])),
     );
     setSupportTickets(readStoredValue(supportStorageKey, seedSupportTickets));
     setSellerApplications(
@@ -960,9 +960,9 @@ export function MarketplaceProvider({ children }: MarketplaceProviderProps) {
 
     window.localStorage.setItem(
       wishlistStorageKey,
-      JSON.stringify(wishlistProductIds),
+      JSON.stringify(wishlistItems),
     );
-  }, [isHydrated, wishlistProductIds]);
+  }, [isHydrated, wishlistItems]);
 
   useEffect(() => {
     if (!isHydrated) {
@@ -1008,10 +1008,15 @@ export function MarketplaceProvider({ children }: MarketplaceProviderProps) {
   );
   const wishlistProducts = useMemo(
     () =>
-      wishlistProductIds
-        .map((productId) => catalog.find((product) => product.id === productId))
-        .filter((product): product is Product => Boolean(product)),
-    [catalog, wishlistProductIds],
+      // Prefer the fresh demo-catalog product when the id is a demo product;
+      // fall back to the stored snapshot for LIVE products (not in `catalog`),
+      // so live saved products always render.
+      wishlistItems.map(
+        (item) =>
+          catalog.find((product) => product.id === item.productId) ??
+          item.product,
+      ),
+    [catalog, wishlistItems],
   );
   const buyerOrders = useMemo(
     () => orders.filter((order) => order.buyerName === demoBuyerName),
@@ -1308,45 +1313,84 @@ export function MarketplaceProvider({ children }: MarketplaceProviderProps) {
     setCartItems([]);
   }
 
-  function addToWishlist(productId: string) {
-    setWishlistProductIds((current) => {
-      const nextWishlistProductIds = current.includes(productId)
-        ? current
-        : [productId, ...current];
+  // Resolves the product snapshot to store: the caller-supplied snapshot (used
+  // by LIVE catalog products, which are not in the browser-local `catalog`)
+  // wins; otherwise the demo catalog is used. Returns null when neither exists.
+  function resolveWishlistSnapshot(
+    productId: string,
+    product?: Product,
+  ): WishlistSnapshot | null {
+    const resolved =
+      product ?? catalog.find((item) => item.id === productId);
 
-      writeStoredValue(wishlistStorageKey, nextWishlistProductIds);
-      return nextWishlistProductIds;
+    if (!resolved) {
+      return null;
+    }
+
+    return {
+      productId: resolved.id,
+      product: resolved,
+      addedAt: createIsoTimestamp(),
+    };
+  }
+
+  function addToWishlist(productId: string, product?: Product) {
+    const snapshot = resolveWishlistSnapshot(productId, product);
+    if (!snapshot) {
+      return;
+    }
+
+    setWishlistItems((current) => {
+      if (current.some((item) => item.productId === snapshot.productId)) {
+        return current;
+      }
+
+      const nextWishlistItems = [snapshot, ...current];
+      writeStoredValue(wishlistStorageKey, nextWishlistItems);
+      return nextWishlistItems;
     });
   }
 
   function removeFromWishlist(productId: string) {
-    setWishlistProductIds((current) => {
-      const nextWishlistProductIds = current.filter(
-        (currentId) => currentId !== productId,
+    setWishlistItems((current) => {
+      const nextWishlistItems = current.filter(
+        (item) => item.productId !== productId,
       );
 
-      writeStoredValue(wishlistStorageKey, nextWishlistProductIds);
-      return nextWishlistProductIds;
+      writeStoredValue(wishlistStorageKey, nextWishlistItems);
+      return nextWishlistItems;
     });
   }
 
-  function toggleWishlist(productId: string) {
-    setWishlistProductIds((current) => {
-      const nextWishlistProductIds = current.includes(productId)
-        ? current.filter((currentId) => currentId !== productId)
-        : [productId, ...current];
+  function toggleWishlist(productId: string, product?: Product) {
+    setWishlistItems((current) => {
+      if (current.some((item) => item.productId === productId)) {
+        const nextWishlistItems = current.filter(
+          (item) => item.productId !== productId,
+        );
+        writeStoredValue(wishlistStorageKey, nextWishlistItems);
+        return nextWishlistItems;
+      }
 
-      writeStoredValue(wishlistStorageKey, nextWishlistProductIds);
-      return nextWishlistProductIds;
+      const snapshot = resolveWishlistSnapshot(productId, product);
+      if (!snapshot) {
+        return current;
+      }
+
+      const nextWishlistItems = [snapshot, ...current];
+      writeStoredValue(wishlistStorageKey, nextWishlistItems);
+      return nextWishlistItems;
     });
   }
 
   function isInWishlist(productId: string) {
-    return wishlistProductIds.includes(productId);
+    return wishlistItems.some((item) => item.productId === productId);
   }
 
   function moveWishlistItemToCart(productId: string) {
-    const product = catalog.find((item) => item.id === productId);
+    const snapshot = wishlistItems.find((item) => item.productId === productId);
+    const product =
+      catalog.find((item) => item.id === productId) ?? snapshot?.product;
 
     if (!product) {
       return {
@@ -1360,6 +1404,8 @@ export function MarketplaceProvider({ children }: MarketplaceProviderProps) {
       size: product.sizes[0] ?? "",
       color: product.colors[0] ?? "",
       quantity: 1,
+      // Pass the snapshot so LIVE products (not in `catalog`) can reach the cart.
+      product,
     });
 
     if (result.ok) {

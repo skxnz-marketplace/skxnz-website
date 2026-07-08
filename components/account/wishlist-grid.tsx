@@ -21,7 +21,7 @@ export function WishlistGrid() {
     return (
       <EmptyState
         title="No saved products yet."
-        description="Save SKXNZ products from the shop or product detail page. Wishlist beta is saved locally for now."
+        description="Save SKXNZ products — live catalog or preview — from the shop or product detail page. Saved on this device for now."
         actionHref="/shop"
         actionLabel="Explore Shop"
       />
@@ -34,10 +34,11 @@ export function WishlistGrid() {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
             <p className="section-kicker text-[0.68rem] uppercase tracking-[0.24em] text-sangria">
-              Wishlist beta
+              Saved on this device
             </p>
             <p className="mt-2 text-sm leading-6 text-stone">
-              Saved locally for now. Persistent account sync coming later.
+              Live catalog and preview products save cleanly here on this
+              device. Account sync is shown separately above.
             </p>
           </div>
           <Badge>{wishlistProducts.length} saved</Badge>

@@ -8,7 +8,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { SafeImage } from "@/components/shared/safe-image";
 import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { formatProductPrice } from "@/lib/data/products";
+import { formatProductPrice, type Product } from "@/lib/data/products";
 import { cn } from "@/lib/cn";
 import { skxnzFallbackAssets } from "@/src/lib/assets";
 
@@ -42,10 +42,12 @@ export function CartPreviewTable() {
     );
   }
 
-  function saveForLater(productId: string, size: string, color: string, name: string) {
-    addToWishlist(productId);
-    updateCartQuantity(productId, size, color, 0);
-    setNotice(`${name} moved to wishlist in browser-local MVP state.`);
+  function saveForLater(product: Product, size: string, color: string) {
+    // Pass the full snapshot so LIVE catalog items (not in the demo catalog)
+    // can be saved and still render in the wishlist.
+    addToWishlist(product.id, product);
+    updateCartQuantity(product.id, size, color, 0);
+    setNotice(`${product.name} moved to your wishlist on this device.`);
   }
 
   return (
@@ -161,22 +163,15 @@ export function CartPreviewTable() {
                       </button>
                     </div>
 
-                    {item.product.dataSource !== "live" ? (
-                      <button
-                        type="button"
-                        onClick={() =>
-                          saveForLater(
-                            item.product.id,
-                            item.size,
-                            item.color,
-                            item.product.name,
-                          )
-                        }
-                        className="rounded-full border border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-bg-soft)] px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] text-sangria transition hover:border-[rgba(139,92,246,0.28)]"
-                      >
-                        Save For Later
-                      </button>
-                    ) : null}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        saveForLater(item.product, item.size, item.color)
+                      }
+                      className="rounded-full border border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-bg-soft)] px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] text-sangria transition hover:border-[rgba(139,92,246,0.28)]"
+                    >
+                      Save For Later
+                    </button>
                     <button
                       type="button"
                       onClick={() =>

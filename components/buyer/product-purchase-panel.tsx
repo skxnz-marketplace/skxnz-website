@@ -268,7 +268,7 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
         </Button>
         <button
           type="button"
-          onClick={() => toggleWishlist(product.id)}
+          onClick={() => toggleWishlist(product.id, product)}
           className={`${buttonVariants({ variant: "secondary", size: "lg" })} w-full sm:w-auto`}
         >
           {savedInWishlist ? "Saved" : "Save"}
