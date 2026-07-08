@@ -65,16 +65,29 @@ begin;
 --   detects this and SKIPs (rather than falsely PASSes/FAILs) unless that
 --   user's public.users.role is actually 'ADMIN'. Point admin_id at a real
 --   ADMIN-role user for a meaningful admin test.
--- - buyer_2_id and other_seller_id are also the SAME underlying user in
---   this data. This does not invalidate F2 (it only requires
---   other_seller_id != seller_id, which holds), but if you want a fully
---   independent third identity, use a different other_seller_id.
+-- SELLER-TEST NOTE (this fix): the live `seller_id` / product owner
+-- (31e9e3aa, info@skxnz.com) also has role ADMIN, so `public.is_admin()`
+-- is true for it. Running the seller checks as that user exercised the
+-- admin "manage all" policies, NOT the seller policy — which is why
+-- E-seller-no-order-access and F-seller-no-draft-access previously came
+-- back FAIL (an admin is SUPPOSED to see parent orders and draft lines).
+-- Those were false positives from a mis-configured identity, not an RLS
+-- bug. To test the seller policy for real, the seller blocks below use a
+-- NON-ADMIN `seller_probe_id` and, inside this rollback-only transaction,
+-- temporarily (a) set that user's role to SELLER and (b) reassign the test
+-- product's seller_id to the probe. The single final `rollback;` restores
+-- the real product owner and the probe's original role — nothing persists.
+--
+-- `other_seller_id` must be a THIRD identity that is neither the probe nor
+-- an admin (an admin would see everything and fail F2). It is set to
+-- buyer_1 here (a plain non-admin non-owner), which is what F2 needs.
 -- =============================================================
 create temp table _isolation_config (
   buyer_1_id      uuid not null,
   buyer_2_id      uuid not null,
-  seller_id       uuid not null,
-  other_seller_id uuid not null,
+  seller_id       uuid not null, -- the CURRENT (possibly admin) product owner; used only for overlap detection
+  seller_probe_id uuid not null, -- NON-ADMIN user the seller policy is actually tested against
+  other_seller_id uuid not null, -- a third non-admin, non-owner identity for F2
   admin_id        uuid not null,
   product_id      uuid not null
 ) on commit drop;
@@ -87,14 +100,15 @@ create temp table _isolation_results (
 ) on commit drop;
 
 insert into _isolation_config
-  (buyer_1_id, buyer_2_id, seller_id, other_seller_id, admin_id, product_id)
+  (buyer_1_id, buyer_2_id, seller_id, seller_probe_id, other_seller_id, admin_id, product_id)
 values (
   '585102c1-e55d-427d-b0be-de7e71134dc2', -- buyer_1_id
   '39cb4363-8162-4069-8b6a-87dfb69c0afe', -- buyer_2_id
-  '31e9e3aa-adbb-4063-9682-394f8d8807c1', -- seller_id
-  '39cb4363-8162-4069-8b6a-87dfb69c0afe', -- other_seller_id (see note above)
-  '31e9e3aa-adbb-4063-9682-394f8d8807c1', -- admin_id (see note above)
-  '4d378027-572e-42b0-9357-225e34c043d0'  -- product_id (must belong to seller_id)
+  '31e9e3aa-adbb-4063-9682-394f8d8807c1', -- seller_id (current owner; is ADMIN in live data)
+  '39cb4363-8162-4069-8b6a-87dfb69c0afe', -- seller_probe_id (NON-ADMIN; product temp-reassigned to this for E/F)
+  '585102c1-e55d-427d-b0be-de7e71134dc2', -- other_seller_id (buyer_1: distinct non-admin non-owner, for F2)
+  '31e9e3aa-adbb-4063-9682-394f8d8807c1', -- admin_id (real ADMIN, for Block G)
+  '4d378027-572e-42b0-9357-225e34c043d0'  -- product_id
 );
 
 -- =============================================================
@@ -185,14 +199,8 @@ begin
   end;
 
   select seller_id into v_product_seller from public.products where id = cfg.product_id;
-  if v_product_seller is distinct from cfg.seller_id then
-    raise notice 'ISOLATION_RESULT: CONFIG-product-ownership: WARN';
-    insert into _isolation_results (block_name, status, detail)
-    values ('CONFIG-product-ownership', 'WARN', format('product_id belongs to seller %s not configured seller %s; blocks E/F/F2 will SKIP', v_product_seller, cfg.seller_id));
-  else
-    insert into _isolation_results (block_name, status, detail)
-    values ('CONFIG-product-ownership', 'PASS', 'product belongs to configured seller_id');
-  end if;
+  insert into _isolation_results (block_name, status, detail)
+  values ('CONFIG-product-ownership', 'PASS', format('test product currently owned by %s (temp-reassigned to the probe below for seller tests)', v_product_seller));
 
   select role::text into v_admin_role from public.users where id = cfg.admin_id;
   if v_admin_role is distinct from 'ADMIN' then
@@ -202,6 +210,50 @@ begin
   else
     insert into _isolation_results (block_name, status, detail)
     values ('CONFIG-admin-role', 'PASS', 'admin_id has ADMIN role');
+  end if;
+end $$;
+
+
+-- =============================================================
+-- SELLER PROBE SETUP (rollback-safe). The live product owner is an ADMIN,
+-- so testing the seller policy as that user hits the admin "manage all"
+-- policy instead (the old false-FAIL). Here, inside the outer transaction
+-- only, we make the NON-ADMIN seller_probe_id a real seller and hand it
+-- the test product. The single final rollback undoes both changes — the
+-- real owner and the probe's real role are never actually altered.
+-- If seller_probe_id happens to be ADMIN, we do NOT downgrade it; instead
+-- an overlap is flagged and E/F/F2 will SKIP (a probe that is_admin can't
+-- prove seller-only isolation).
+-- =============================================================
+do $$
+declare
+  cfg record;
+  v_owner_role text;
+  v_probe_role text;
+begin
+  select * into cfg from _isolation_config limit 1;
+
+  select role::text into v_owner_role from public.users where id = cfg.seller_id;
+  if v_owner_role = 'ADMIN' then
+    insert into _isolation_results (block_name, status, detail)
+    values ('CONFIG-admin-seller-overlap-detected', 'WARN', format('current product owner %s has role ADMIN - seller checks would exercise admin policy; using seller_probe_id instead', cfg.seller_id));
+  else
+    insert into _isolation_results (block_name, status, detail)
+    values ('CONFIG-admin-seller-overlap-detected', 'PASS', 'current product owner is not an admin');
+  end if;
+
+  select role::text into v_probe_role from public.users where id = cfg.seller_probe_id;
+  if v_probe_role = 'ADMIN' then
+    -- Do not touch an admin's role; seller blocks will SKIP on this.
+    insert into _isolation_results (block_name, status, detail)
+    values ('CONFIG-seller-probe-role', 'WARN', 'seller_probe_id is ADMIN - cannot prove seller-only isolation; E/F/F2 will SKIP. Point seller_probe_id at a non-admin user.');
+  else
+    -- Temp: make the probe a real SELLER and the product's owner. Both
+    -- revert on the final rollback.
+    update public.users set role = 'SELLER' where id = cfg.seller_probe_id;
+    update public.products set seller_id = cfg.seller_probe_id where id = cfg.product_id;
+    insert into _isolation_results (block_name, status, detail)
+    values ('CONFIG-seller-probe-role', 'PASS', format('seller_probe_id %s temporarily set to SELLER and given the test product (reverts on rollback)', cfg.seller_probe_id));
   end if;
 end $$;
 
@@ -442,8 +494,10 @@ end $$;
 
 -- =============================================================
 -- E. SELLER sees only own product lines, and only on post-payment orders.
--- Seed PAID order 1111... + one line; checks filter on order id 1111...
--- SKIPs (not a false PASS/FAIL) if product_id does not belong to seller_id.
+-- Runs as the NON-ADMIN seller_probe_id, which the setup block above made
+-- the temporary owner of the test product. Seed PAID order 1111... + line;
+-- checks filter on order id 1111... SKIPs if the probe never became the
+-- owner (i.e. probe was ADMIN, so setup declined the reassignment).
 -- =============================================================
 savepoint sp_e;
 do $$
@@ -454,12 +508,12 @@ declare
 begin
   select * into cfg from _isolation_config limit 1;
 
-  select (seller_id = cfg.seller_id) into v_owns
+  select (seller_id = cfg.seller_probe_id) into v_owns
   from public.products where id = cfg.product_id;
 
   if v_owns is not true then
     insert into _isolation_results (block_name, status, detail)
-    values ('E-seller-sees-own-line', 'SKIP', 'configured product_id is not owned by configured seller_id'),
+    values ('E-seller-sees-own-line', 'SKIP', 'seller probe did not take ownership (seller_probe_id is ADMIN?) - point it at a non-admin user'),
            ('E-seller-no-order-access', 'SKIP', 'same reason');
   else
     insert into public.orders (id, buyer_id, status, subtotal_amount_paise,
@@ -475,7 +529,7 @@ begin
     perform set_config(
       'request.jwt.claims',
       jsonb_build_object(
-        'sub', cfg.seller_id::text,
+        'sub', cfg.seller_probe_id::text,
         'role', 'authenticated',
         'aud', 'authenticated'
       )::text,
@@ -526,12 +580,12 @@ declare
 begin
   select * into cfg from _isolation_config limit 1;
 
-  select (seller_id = cfg.seller_id) into v_owns
+  select (seller_id = cfg.seller_probe_id) into v_owns
   from public.products where id = cfg.product_id;
 
   if v_owns is not true then
     insert into _isolation_results (block_name, status, detail)
-    values ('F-seller-no-draft-access', 'SKIP', 'configured product_id is not owned by configured seller_id');
+    values ('F-seller-no-draft-access', 'SKIP', 'seller probe did not take ownership (seller_probe_id is ADMIN?) - point it at a non-admin user');
   else
     insert into public.orders (id, buyer_id, status, subtotal_amount_paise,
       contact_snapshot, shipping_address_snapshot)
@@ -546,7 +600,7 @@ begin
     perform set_config(
       'request.jwt.claims',
       jsonb_build_object(
-        'sub', cfg.seller_id::text,
+        'sub', cfg.seller_probe_id::text,
         'role', 'authenticated',
         'aud', 'authenticated'
       )::text,
@@ -579,20 +633,28 @@ do $$
 declare
   cfg record;
   v_owns boolean;
+  v_other_role text;
   v_count int;
 begin
   select * into cfg from _isolation_config limit 1;
 
-  select (seller_id = cfg.seller_id) into v_owns
+  select (seller_id = cfg.seller_probe_id) into v_owns
   from public.products where id = cfg.product_id;
+  select role::text into v_other_role from public.users where id = cfg.other_seller_id;
 
   if v_owns is not true then
     insert into _isolation_results (block_name, status, detail)
-    values ('F2-other-seller-sees-zero', 'SKIP', 'configured product_id is not owned by configured seller_id');
+    values ('F2-other-seller-sees-zero', 'SKIP', 'seller probe did not take ownership (seller_probe_id is ADMIN?) - point it at a non-admin user');
+  elsif v_other_role = 'ADMIN' or cfg.other_seller_id = cfg.seller_probe_id then
+    insert into _isolation_results (block_name, status, detail)
+    values ('F2-other-seller-sees-zero', 'SKIP', 'other_seller_id must be a non-admin identity different from seller_probe_id (an admin sees all; the owner sees its own line)');
   else
+    -- Order buyer is buyer_2 (NOT other_seller_id) so the other seller
+    -- cannot see this line via the buyer policy either — F2 must isolate on
+    -- the seller policy alone.
     insert into public.orders (id, buyer_id, status, subtotal_amount_paise,
       contact_snapshot, shipping_address_snapshot)
-    values ('55555555-5555-5555-5555-555555555555', cfg.buyer_1_id, 'PAID', 100000,
+    values ('55555555-5555-5555-5555-555555555555', cfg.buyer_2_id, 'PAID', 100000,
       '{}'::jsonb, '{}'::jsonb);
     insert into public.order_items (order_id, product_id, product_slug,
       title_snapshot, unit_price_paise, quantity, line_total_paise)
