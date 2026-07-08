@@ -11,3 +11,7 @@ dist
 tsconfig.tsbuildinfo
 scripts/__pycache__/
 *.pyc
+
+# Agent/Codex tooling scratch (not project source)
+.agents/
+.codex/

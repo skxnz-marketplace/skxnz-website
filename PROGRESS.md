@@ -285,6 +285,13 @@ Single source of truth for project status. Read this before starting work and up
   - Checks: `tsc --noEmit` EXIT 0; `eslint` on the 3 changed files EXIT 0; secret grep clean. No migration/RLS/schema change; no Razorpay/delivery/refund; no demo orders.
   - **Browser smoke blocked here** (this dev machine cannot reach live Supabase — standing `TypeError: fetch failed`; the checkout page's server-side `getBuyerAddresses()` can't run locally). **Operator smoke steps (Supabase-reachable machine):** (1) sign in as a buyer that has ≥1 saved address in `public.addresses`; (2) add one ACTIVE product (with an in-stock variant) to cart; (3) open `/checkout`, pick the address under "Create draft order", click **Create Draft Order**; (4) expect redirect to `/orders/<id>` showing status "Draft — not paid"; (5) confirm in Supabase: one `orders` row `status = 'DRAFT'`, matching `order_items` rows, prices in integer paise; (6) `/orders` lists the draft; cart still populated. If the buyer has no saved address, the panel shows the "add address in your account" state instead.
 
+- **Day 4 / D4-9 sprint closeout (this session, branch `day3-cart-order-flow`):**
+  - **Day 4 commerce backend sprint COMPLETE.** Full report written to `docs/SKXNZ_DAY4_COMMERCE_BACKEND_SPRINT_REPORT.md` (commit trail D4-1→D4-8, what applied live, what verified, warnings, operator smoke, Day 5 priority).
+  - Migrations present + confirmed: `0005_commerce_layer.sql`, `0006_fix_seller_order_item_rls.sql`; verification set: `0005_commerce_layer_preflight.sql`, `_verify.sql`, `_isolation.sql` (+ `0004` verify). Both migrations applied live and verified.
+  - **Cleanup:** added `.agents/` (2.5M tool skills cache) and `.codex/` (agent config) to `.gitignore` — tooling scratch, not project source. Left untracked for the operator to decide (not swept into this closeout): `AGENTS.md` (Codex project guide, mirror of CLAUDE.md) and three Day-2 docs (`SKXNZ_D2_5_CONTROL_PACK.md`, `SKXNZ_DAY2_LIVE_CATALOG_SPRINT_REPORT.md`, `SKXNZ_LIVE_CATALOG_RUNTIME_QA_PLAYBOOK.md`). Nothing deleted.
+  - Final checks: `tsc --noEmit` EXIT 0; secret grep over `lib/orders lib/returns lib/support components/checkout app/checkout supabase` — clean (no `service_role`/`sk_live_`/`rzp_live_`).
+  - **Not pushed** (standing rule: no push without operator approval). Branch is push-ready pending the operator's live browser smoke.
+
 ## Next up
 1. Wire wishlist to accept live product snapshots so Save For Later can return for live cart items.
 2. Real backend order path (orders table + server-side order creation) before any order confirmation UI; then Razorpay integration.
