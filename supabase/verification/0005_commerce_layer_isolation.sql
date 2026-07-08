@@ -498,6 +498,12 @@ end $$;
 -- the temporary owner of the test product. Seed PAID order 1111... + line;
 -- checks filter on order id 1111... SKIPs if the probe never became the
 -- owner (i.e. probe was ADMIN, so setup declined the reassignment).
+--
+-- REQUIRES 0006_fix_seller_order_item_rls.sql. Under 0005 alone this
+-- returned 0 (FAIL): the old seller policy's EXISTS subquery on
+-- public.orders was filtered by orders RLS (sellers have no orders SELECT
+-- policy), so it never matched. 0006 moves that check into a SECURITY
+-- DEFINER helper. Apply 0006 before expecting E-seller-sees-own-line PASS.
 -- =============================================================
 savepoint sp_e;
 do $$
