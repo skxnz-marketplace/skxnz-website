@@ -97,6 +97,47 @@ values (
   '4d378027-572e-42b0-9357-225e34c043d0'  -- product_id (must belong to seller_id)
 );
 
+-- =============================================================
+-- TEMP-ONLY HARNESS GRANTS. The blocks below run their commerce-table
+-- checks under `set local role anon|authenticated`, and still need to
+-- write their PASS/FAIL/SKIP verdicts into the bookkeeping tables while
+-- that role is active — otherwise the insert hits
+--   ERROR 42501: permission denied for table _isolation_results
+-- (which was exactly the failure this fix resolves). These grants apply
+-- ONLY to the two pg_temp harness tables (`_isolation_config`,
+-- `_isolation_results`) and the serial's sequence — session-local objects
+-- that never persist and are wiped by the final rollback. They touch NO
+-- real table: no grant is added to public.orders / order_items / etc, and
+-- nothing in supabase/migrations/0005_commerce_layer.sql changes. The
+-- point of the harness (real commerce tables stay locked to anon/
+-- authenticated) is unaffected — these are different, throwaway tables.
+-- =============================================================
+grant select on _isolation_config to anon, authenticated;
+grant select, insert on _isolation_results to anon, authenticated;
+grant usage, select on sequence _isolation_results_sort_order_seq to anon, authenticated;
+
+-- Prove the grant actually lets a role-switched block record a result,
+-- before any real test relies on it. Switches to authenticated, writes one
+-- row, resets. If the grant were missing this block would raise 42501 and
+-- the CONFIG-temp-result-write row would be absent from the grid.
+do $$
+begin
+  execute 'set local role authenticated';
+  perform set_config(
+    'request.jwt.claims',
+    jsonb_build_object('sub', gen_random_uuid()::text, 'role', 'authenticated', 'aud', 'authenticated')::text,
+    true
+  );
+  insert into _isolation_results (block_name, status, detail)
+  values ('CONFIG-temp-result-write', 'PASS', 'authenticated role can record harness results (temp-table grant works)');
+  execute 'reset role';
+exception
+  when insufficient_privilege then
+    execute 'reset role';
+    insert into _isolation_results (block_name, status, detail)
+    values ('CONFIG-temp-result-write', 'FAIL', 'authenticated role cannot write _isolation_results - temp grant missing');
+end $$;
+
 -- CONFIG sanity: exactly one config row, claims JSON round-trips, plus
 -- product-ownership and admin-role diagnostics.
 do $$
