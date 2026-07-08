@@ -1,53 +1,59 @@
 -- =============================================================
--- SKXNZ — Slice 5 ISOLATION test (D4-7), grid-visible results.
+-- SKXNZ — Slice 5 ISOLATION test (D4-7), safe-claims rewrite.
 -- Run AFTER 0005_commerce_layer.sql has been applied and
 -- 0005_commerce_layer_verify.sql has passed.
 --
--- WHAT THIS ADDS: prior versions only printed PASS/FAIL/SKIP via
--- RAISE NOTICE, which the Supabase SQL Editor's Results grid does not
--- surface clearly (only the Logs/Messages panel does, easy to miss and
--- awkward to copy). This version ALSO writes every check into a temp
--- table `_isolation_results` and ends with one plain
---   select * from _isolation_results order by sort_order;
--- so the last statement's output — the thing the Results grid actually
--- shows — is a clean, copyable PASS/FAIL/SKIP/WARN table. RAISE NOTICE
--- calls are kept too (harmless, useful if you also watch the log).
+-- BUG THIS FIXES (ERROR 22P02: invalid input syntax for type json /
+-- "The input string ended unexpectedly"): the previous version relayed
+-- each block's verdicts through a session GUC (`set_config('app.iso_relay',
+-- json, false)`) and read it back with `current_setting(...)::jsonb` AFTER
+-- a `rollback to savepoint`. That relied on a wrong assumption: in
+-- Postgres, GUC changes made by set_config are TRANSACTIONAL regardless of
+-- the is_local flag — ROLLBACK TO SAVEPOINT reverts them just like table
+-- rows. After the rollback the GUC was empty, and casting the empty
+-- string to jsonb raised 22P02. Harness bug only — migration/RLS/grants
+-- were never touched and stay untouched here.
 --
--- WHY A RELAY VARIABLE, NOT A DIRECT INSERT: sections B/C/D/E/F/F2/G each
--- seed rows in `public.orders`/`public.order_items` and then undo them
--- with `rollback to savepoint sp_x;` so later sections see a clean baseline
--- (see the D4-7 harness-lifecycle fix for why this matters). But
--- ROLLBACK TO SAVEPOINT undoes EVERY change made after that savepoint,
--- including a results-table insert if it happened inside that scope. So
--- each block instead stashes its verdicts as JSON into a SESSION-LEVEL
--- custom GUC via `set_config(name, value, false)` — the `false`
--- (is_local) means it is NOT transactional and survives
--- ROLLBACK TO SAVEPOINT. Immediately after each `rollback to savepoint`,
--- a plain top-level statement reads that GUC and inserts the real rows
--- into `_isolation_results`, which is never itself inside a savepoint
--- scope. The GUC values are transient session settings, not database
--- rows — nothing persists once this SQL Editor session ends.
+-- FIX (structural): per-section `rollback to savepoint` is gone entirely,
+-- and with it the fragile relay. Instead:
+--   - Each block seeds rows under its own UNIQUE order ids
+--     ('1111...', '2222...', '3333...', '4444...', '5555...', '6666...')
+--     and every check filters by those exact ids, so blocks cannot
+--     contaminate each other's counts even though seeds now accumulate
+--     for the life of the script.
+--   - Each block inserts its PASS/FAIL/SKIP rows STRAIGHT into the temp
+--     `_isolation_results` table — no GUC, no re-parse, nothing to break.
+--   - ONE outer transaction wraps the whole file: `begin;` at the top,
+--     single `rollback;` at the very bottom (after the results SELECT),
+--     which discards every seed row and both temp tables. Zero permanent
+--     data, same guarantee as before.
+--   - `savepoint sp_x;` markers are kept before each seeded block purely
+--     as manual-recovery anchors (if you run the file piecewise and a
+--     block dies, you can `rollback to savepoint sp_x;` by hand); the
+--     script itself never rolls back to them.
 --
--- BUG HISTORY THIS FILE ALSO CARRIES FORWARD (see earlier comments were
--- collapsed for brevity, unchanged from the prior fix):
--- 1) Every section was originally its own begin/rollback transaction;
---    Supabase's pooled connection could serve the next `begin;` on a
---    different backend, dropping the session-scoped `_isolation_config`
---    temp table (42P01). Fixed: the whole script now runs inside ONE
---    outer `begin; ... rollback;`, with SAVEPOINT/ROLLBACK TO SAVEPOINT
---    for per-section cleanup instead of separate transactions.
--- 2) Every query that can legitimately fail (anon selects, cross-buyer
---    insert, PAID/payment-field insert, buyer update) is wrapped in
---    `do $$ ... exception when insufficient_privilege then ... end $$;`
---    so a caught error never aborts the batch.
+-- ALSO HARDENED per review: every simulated JWT is now built with
+-- `jsonb_build_object('sub', <uuid>::text, 'role', 'authenticated',
+-- 'aud', 'authenticated')::text` — no hand-written JSON strings anywhere,
+-- and a CONFIG sanity row proves the claims JSON round-trips through
+-- ::jsonb before any test runs.
 --
--- This file does NOT touch supabase/migrations/0005_commerce_layer.sql,
--- and grants NOTHING to anon or extra grants to authenticated. Permission
--- denials it exercises are the intended, correct behaviour.
+-- Carried forward from earlier fixes (unchanged):
+--   - Whole file is ONE transaction because the Supabase SQL Editor's
+--     pooled connection can swap backend sessions between separate
+--     begin/rollback pairs, which previously dropped the session-scoped
+--     temp config table mid-script (42P01).
+--   - Every query that can legitimately fail (anon selects, cross-buyer
+--     insert, PAID/payment-field insert, buyer update) sits inside
+--     `do $$ ... exception when insufficient_privilege ... end $$;` so an
+--     EXPECTED denial is recorded as PASS instead of aborting the batch.
+--   - Final `select * from _isolation_results order by sort_order;` is the
+--     last SELECT in the script, so the Supabase Results grid shows a
+--     clean copyable PASS/FAIL/SKIP/WARN table. RAISE NOTICE lines kept
+--     for anyone watching the Messages/log panel.
 --
--- NO PERMANENT DATA IS LEFT BEHIND: the single outer `rollback;` at the
--- very end (after the results SELECT) discards everything — both temp
--- tables and every seed row. Run it, read/copy the grid, done.
+-- This file grants NOTHING to anon and no extra grants to authenticated.
+-- Permission denials it exercises are the intended, correct behaviour.
 -- =============================================================
 
 begin;
@@ -91,19 +97,20 @@ values (
   '4d378027-572e-42b0-9357-225e34c043d0'  -- product_id (must belong to seller_id)
 );
 
--- CONFIG sanity: exactly one config row, plus product/admin diagnostics.
--- No savepoint precedes this, so it can insert into _isolation_results
--- directly — nothing rolls it back before the final SELECT.
+-- CONFIG sanity: exactly one config row, claims JSON round-trips, plus
+-- product-ownership and admin-role diagnostics.
 do $$
 declare
   v_row_count int;
   cfg record;
   v_product_seller uuid;
   v_admin_role text;
+  v_claims text;
+  v_parsed jsonb;
 begin
   select count(*) into v_row_count from _isolation_config;
   if v_row_count <> 1 then
-    raise notice 'ISOLATION_RESULT: CONFIG: FAIL (_isolation_config has % rows, expected exactly 1)', v_row_count;
+    raise notice 'ISOLATION_RESULT: CONFIG: FAIL (% rows, expected 1)', v_row_count;
     insert into _isolation_results (block_name, status, detail)
     values ('CONFIG', 'FAIL', format('_isolation_config has %s rows, expected exactly 1 - fix the INSERT above', v_row_count));
     return;
@@ -114,24 +121,44 @@ begin
 
   select * into cfg from _isolation_config limit 1;
 
+  -- Claims JSON sanity: build exactly what every block below will pass to
+  -- set_config, parse it back, and verify the sub survives the round trip.
+  v_claims := jsonb_build_object(
+    'sub', cfg.buyer_1_id::text,
+    'role', 'authenticated',
+    'aud', 'authenticated'
+  )::text;
+  begin
+    v_parsed := v_claims::jsonb;
+    if (v_parsed->>'sub')::uuid = cfg.buyer_1_id then
+      insert into _isolation_results (block_name, status, detail)
+      values ('CONFIG-jwt-claims-json', 'PASS', 'claims JSON parses and sub round-trips: ' || v_claims);
+    else
+      insert into _isolation_results (block_name, status, detail)
+      values ('CONFIG-jwt-claims-json', 'FAIL', 'claims JSON parsed but sub mismatch: ' || v_claims);
+    end if;
+  exception
+    when others then
+      insert into _isolation_results (block_name, status, detail)
+      values ('CONFIG-jwt-claims-json', 'FAIL', 'claims JSON failed to parse: ' || coalesce(v_claims, 'NULL'));
+  end;
+
   select seller_id into v_product_seller from public.products where id = cfg.product_id;
   if v_product_seller is distinct from cfg.seller_id then
-    raise notice 'ISOLATION_RESULT: CONFIG-product-ownership: WARN (product_id belongs to seller % not configured seller %)', v_product_seller, cfg.seller_id;
+    raise notice 'ISOLATION_RESULT: CONFIG-product-ownership: WARN';
     insert into _isolation_results (block_name, status, detail)
     values ('CONFIG-product-ownership', 'WARN', format('product_id belongs to seller %s not configured seller %s; blocks E/F/F2 will SKIP', v_product_seller, cfg.seller_id));
   else
-    raise notice 'ISOLATION_RESULT: CONFIG-product-ownership: PASS (product belongs to configured seller_id)';
     insert into _isolation_results (block_name, status, detail)
     values ('CONFIG-product-ownership', 'PASS', 'product belongs to configured seller_id');
   end if;
 
   select role::text into v_admin_role from public.users where id = cfg.admin_id;
   if v_admin_role is distinct from 'ADMIN' then
-    raise notice 'ISOLATION_RESULT: CONFIG-admin-role: WARN (admin_id role is % not ADMIN)', coalesce(v_admin_role, 'NULL/not found');
+    raise notice 'ISOLATION_RESULT: CONFIG-admin-role: WARN';
     insert into _isolation_results (block_name, status, detail)
     values ('CONFIG-admin-role', 'WARN', format('admin_id role is %s not ADMIN; Block G will SKIP', coalesce(v_admin_role, 'NULL/not found')));
   else
-    raise notice 'ISOLATION_RESULT: CONFIG-admin-role: PASS (admin_id has ADMIN role)';
     insert into _isolation_results (block_name, status, detail)
     values ('CONFIG-admin-role', 'PASS', 'admin_id has ADMIN role');
   end if;
@@ -139,8 +166,9 @@ end $$;
 
 
 -- =============================================================
--- A. ANON cannot read commerce tables. No seed data -> no savepoint
--- needed; inserts into _isolation_results directly.
+-- A. ANON cannot read commerce tables. anon has no JWT claims at all, so
+-- none are simulated — just the role switch. PASS on permission denied OR
+-- an empty result; FAIL only if rows actually come back (data leak).
 -- =============================================================
 do $$
 declare
@@ -153,17 +181,17 @@ begin
       execute 'set local role anon';
       execute format('select count(*) from public.%I', v_table) into v_count;
       if v_count = 0 then
-        raise notice 'ISOLATION_RESULT: A-anon-select-%: PASS (0 rows visible to anon)', v_table;
+        raise notice 'ISOLATION_RESULT: A-anon-select-%: PASS', v_table;
         insert into _isolation_results (block_name, status, detail)
         values (format('A-anon-select-%s', v_table), 'PASS', '0 rows visible to anon');
       else
-        raise notice 'ISOLATION_RESULT: A-anon-select-%: FAIL (% rows visible to anon)', v_table, v_count;
+        raise notice 'ISOLATION_RESULT: A-anon-select-%: FAIL', v_table;
         insert into _isolation_results (block_name, status, detail)
         values (format('A-anon-select-%s', v_table), 'FAIL', format('%s rows visible to anon - DATA LEAK', v_count));
       end if;
     exception
       when insufficient_privilege then
-        raise notice 'ISOLATION_RESULT: A-anon-select-%: PASS (permission denied for anon)', v_table;
+        raise notice 'ISOLATION_RESULT: A-anon-select-%: PASS (denied)', v_table;
         insert into _isolation_results (block_name, status, detail)
         values (format('A-anon-select-%s', v_table), 'PASS', 'permission denied for anon, as expected');
     end;
@@ -174,51 +202,72 @@ end $$;
 
 -- =============================================================
 -- B. BUYER 1 sees only own orders. BUYER 2 cannot read or insert into it.
--- Seeds a row in public.orders, so it is wrapped in a savepoint. Verdicts
--- relay through a session-level GUC (see header) so they survive the
--- rollback to savepoint and get inserted into _isolation_results after.
+-- Seed order id 3333... — every check filters on that exact id, so later
+-- blocks' seeds cannot contaminate this one and vice versa. The seed stays
+-- until the single final rollback (per-section rollbacks are gone — see
+-- header). Savepoint kept as a manual-recovery anchor only.
 -- =============================================================
 savepoint sp_b;
 do $$
 declare
   cfg record;
   v_count int;
-  v_results jsonb := '[]'::jsonb;
 begin
   select * into cfg from _isolation_config limit 1;
 
+  -- Seed as table owner (bypasses RLS, matches how the migration itself
+  -- was applied) so this block does not depend on the buyer insert
+  -- policy succeeding.
   insert into public.orders (
     id, buyer_id, status, subtotal_amount_paise,
     contact_snapshot, shipping_address_snapshot
   ) values (
     '33333333-3333-3333-3333-333333333333', cfg.buyer_1_id, 'DRAFT', 100000,
-    '{"fullName":"A","phone":"0","email":"a@x.com"}'::jsonb,
-    '{"line1":"1","line2":"","city":"C","state":"S","pincode":"000000","country":"India"}'::jsonb
+    jsonb_build_object('fullName', 'A', 'phone', '0', 'email', 'a@x.com'),
+    jsonb_build_object('line1', '1', 'line2', '', 'city', 'C', 'state', 'S', 'pincode', '000000', 'country', 'India')
   );
 
   execute 'set local role authenticated';
-  perform set_config('request.jwt.claims',
-    json_build_object('sub', cfg.buyer_1_id, 'role', 'authenticated')::text, true);
+  perform set_config(
+    'request.jwt.claims',
+    jsonb_build_object(
+      'sub', cfg.buyer_1_id::text,
+      'role', 'authenticated',
+      'aud', 'authenticated'
+    )::text,
+    true
+  );
 
   select count(*) into v_count from public.orders where id = '33333333-3333-3333-3333-333333333333';
   if v_count = 1 then
     raise notice 'ISOLATION_RESULT: B-buyer1-sees-own: PASS';
-    v_results := v_results || jsonb_build_object('name','B-buyer1-sees-own','status','PASS','detail','1 row visible');
+    insert into _isolation_results (block_name, status, detail)
+    values ('B-buyer1-sees-own', 'PASS', '1 row visible');
   else
-    raise notice 'ISOLATION_RESULT: B-buyer1-sees-own: FAIL (got %)', v_count;
-    v_results := v_results || jsonb_build_object('name','B-buyer1-sees-own','status','FAIL','detail',format('expected 1, got %s', v_count));
+    raise notice 'ISOLATION_RESULT: B-buyer1-sees-own: FAIL';
+    insert into _isolation_results (block_name, status, detail)
+    values ('B-buyer1-sees-own', 'FAIL', format('expected 1, got %s', v_count));
   end if;
 
-  perform set_config('request.jwt.claims',
-    json_build_object('sub', cfg.buyer_2_id, 'role', 'authenticated')::text, true);
+  perform set_config(
+    'request.jwt.claims',
+    jsonb_build_object(
+      'sub', cfg.buyer_2_id::text,
+      'role', 'authenticated',
+      'aud', 'authenticated'
+    )::text,
+    true
+  );
 
   select count(*) into v_count from public.orders where id = '33333333-3333-3333-3333-333333333333';
   if v_count = 0 then
     raise notice 'ISOLATION_RESULT: B-buyer2-cross-read: PASS';
-    v_results := v_results || jsonb_build_object('name','B-buyer2-cross-read','status','PASS','detail','0 rows - cannot see buyer 1 order');
+    insert into _isolation_results (block_name, status, detail)
+    values ('B-buyer2-cross-read', 'PASS', '0 rows - cannot see buyer 1 order');
   else
-    raise notice 'ISOLATION_RESULT: B-buyer2-cross-read: FAIL (% rows)', v_count;
-    v_results := v_results || jsonb_build_object('name','B-buyer2-cross-read','status','FAIL','detail',format('%s rows visible - CROSS-BUYER LEAK', v_count));
+    raise notice 'ISOLATION_RESULT: B-buyer2-cross-read: FAIL';
+    insert into _isolation_results (block_name, status, detail)
+    values ('B-buyer2-cross-read', 'FAIL', format('%s rows visible - CROSS-BUYER LEAK', v_count));
   end if;
 
   begin
@@ -228,79 +277,82 @@ begin
     ) values (
       cfg.buyer_1_id, 'DRAFT', 1, '{}'::jsonb, '{}'::jsonb
     );
-    raise notice 'ISOLATION_RESULT: B-buyer2-insert-as-buyer1: FAIL (insert succeeded)';
-    v_results := v_results || jsonb_build_object('name','B-buyer2-insert-as-buyer1','status','FAIL','detail','insert succeeded - should have been blocked');
+    raise notice 'ISOLATION_RESULT: B-buyer2-insert-as-buyer1: FAIL';
+    insert into _isolation_results (block_name, status, detail)
+    values ('B-buyer2-insert-as-buyer1', 'FAIL', 'insert succeeded - should have been blocked');
   exception
     when insufficient_privilege then
       raise notice 'ISOLATION_RESULT: B-buyer2-insert-as-buyer1: PASS';
-      v_results := v_results || jsonb_build_object('name','B-buyer2-insert-as-buyer1','status','PASS','detail','RLS blocked cross-buyer insert');
+      insert into _isolation_results (block_name, status, detail)
+      values ('B-buyer2-insert-as-buyer1', 'PASS', 'RLS blocked cross-buyer insert');
   end;
 
   execute 'reset role';
-  perform set_config('app.iso_relay', v_results::text, false);
 end $$;
-rollback to savepoint sp_b;
-insert into _isolation_results (block_name, status, detail)
-select r->>'name', r->>'status', r->>'detail'
-from jsonb_array_elements(current_setting('app.iso_relay')::jsonb) as r;
 
 
 -- =============================================================
 -- C. BUYER cannot set PAID or a payment reference on insert.
+-- No surviving seed rows (both inserts are expected to be denied).
 -- =============================================================
 savepoint sp_c;
 do $$
 declare
   cfg record;
-  v_results jsonb := '[]'::jsonb;
 begin
   select * into cfg from _isolation_config limit 1;
   execute 'set local role authenticated';
-  perform set_config('request.jwt.claims',
-    json_build_object('sub', cfg.buyer_1_id, 'role', 'authenticated')::text, true);
+  perform set_config(
+    'request.jwt.claims',
+    jsonb_build_object(
+      'sub', cfg.buyer_1_id::text,
+      'role', 'authenticated',
+      'aud', 'authenticated'
+    )::text,
+    true
+  );
 
   begin
     insert into public.orders (buyer_id, status, subtotal_amount_paise,
       contact_snapshot, shipping_address_snapshot)
     values (cfg.buyer_1_id, 'PAID', 1, '{}'::jsonb, '{}'::jsonb);
-    raise notice 'ISOLATION_RESULT: C-buyer-insert-paid: FAIL (insert succeeded)';
-    v_results := v_results || jsonb_build_object('name','C-buyer-insert-paid','status','FAIL','detail','insert succeeded - should have been blocked');
+    raise notice 'ISOLATION_RESULT: C-buyer-insert-paid: FAIL';
+    insert into _isolation_results (block_name, status, detail)
+    values ('C-buyer-insert-paid', 'FAIL', 'insert succeeded - should have been blocked');
   exception
     when insufficient_privilege then
       raise notice 'ISOLATION_RESULT: C-buyer-insert-paid: PASS';
-      v_results := v_results || jsonb_build_object('name','C-buyer-insert-paid','status','PASS','detail','RLS blocked PAID on insert');
+      insert into _isolation_results (block_name, status, detail)
+      values ('C-buyer-insert-paid', 'PASS', 'RLS blocked PAID on insert');
   end;
 
   begin
     insert into public.orders (buyer_id, status, subtotal_amount_paise,
       payment_reference, contact_snapshot, shipping_address_snapshot)
     values (cfg.buyer_1_id, 'DRAFT', 1, 'fake_ref', '{}'::jsonb, '{}'::jsonb);
-    raise notice 'ISOLATION_RESULT: C-buyer-insert-payment-ref: FAIL (insert succeeded)';
-    v_results := v_results || jsonb_build_object('name','C-buyer-insert-payment-ref','status','FAIL','detail','insert succeeded - should have been blocked');
+    raise notice 'ISOLATION_RESULT: C-buyer-insert-payment-ref: FAIL';
+    insert into _isolation_results (block_name, status, detail)
+    values ('C-buyer-insert-payment-ref', 'FAIL', 'insert succeeded - should have been blocked');
   exception
     when insufficient_privilege then
       raise notice 'ISOLATION_RESULT: C-buyer-insert-payment-ref: PASS';
-      v_results := v_results || jsonb_build_object('name','C-buyer-insert-payment-ref','status','PASS','detail','RLS blocked pre-filled payment_reference');
+      insert into _isolation_results (block_name, status, detail)
+      values ('C-buyer-insert-payment-ref', 'PASS', 'RLS blocked pre-filled payment_reference');
   end;
 
   execute 'reset role';
-  perform set_config('app.iso_relay', v_results::text, false);
 end $$;
-rollback to savepoint sp_c;
-insert into _isolation_results (block_name, status, detail)
-select r->>'name', r->>'status', r->>'detail'
-from jsonb_array_elements(current_setting('app.iso_relay')::jsonb) as r;
 
 
 -- =============================================================
 -- D. BUYER has no UPDATE path on orders (server-only status transitions).
+-- Seed order id 4444...; checks filter on that id.
 -- =============================================================
 savepoint sp_d;
 do $$
 declare
   cfg record;
   v_status text;
-  v_results jsonb := '[]'::jsonb;
 begin
   select * into cfg from _isolation_config limit 1;
 
@@ -310,39 +362,46 @@ begin
     '{}'::jsonb, '{}'::jsonb);
 
   execute 'set local role authenticated';
-  perform set_config('request.jwt.claims',
-    json_build_object('sub', cfg.buyer_1_id, 'role', 'authenticated')::text, true);
+  perform set_config(
+    'request.jwt.claims',
+    jsonb_build_object(
+      'sub', cfg.buyer_1_id::text,
+      'role', 'authenticated',
+      'aud', 'authenticated'
+    )::text,
+    true
+  );
 
   begin
     update public.orders set status = 'PAID'
     where id = '44444444-4444-4444-4444-444444444444';
+    -- No error: check whether the row actually changed (grant may allow
+    -- the statement but RLS could still filter it to 0 affected rows).
     execute 'reset role';
     select status into v_status from public.orders
     where id = '44444444-4444-4444-4444-444444444444';
     if v_status = 'PAID' then
-      raise notice 'ISOLATION_RESULT: D-buyer-update-to-paid: FAIL (status became PAID)';
-      v_results := v_results || jsonb_build_object('name','D-buyer-update-to-paid','status','FAIL','detail','status became PAID - BUYER MUTATED PAYMENT STATE');
+      raise notice 'ISOLATION_RESULT: D-buyer-update-to-paid: FAIL';
+      insert into _isolation_results (block_name, status, detail)
+      values ('D-buyer-update-to-paid', 'FAIL', 'status became PAID - BUYER MUTATED PAYMENT STATE');
     else
-      raise notice 'ISOLATION_RESULT: D-buyer-update-to-paid: PASS (status still %)', v_status;
-      v_results := v_results || jsonb_build_object('name','D-buyer-update-to-paid','status','PASS','detail',format('update affected 0 rows; status still %s', v_status));
+      raise notice 'ISOLATION_RESULT: D-buyer-update-to-paid: PASS';
+      insert into _isolation_results (block_name, status, detail)
+      values ('D-buyer-update-to-paid', 'PASS', format('update affected 0 rows; status still %s', v_status));
     end if;
   exception
     when insufficient_privilege then
-      raise notice 'ISOLATION_RESULT: D-buyer-update-to-paid: PASS (permission denied)';
-      v_results := v_results || jsonb_build_object('name','D-buyer-update-to-paid','status','PASS','detail','permission denied - no UPDATE grant');
+      raise notice 'ISOLATION_RESULT: D-buyer-update-to-paid: PASS (denied)';
+      insert into _isolation_results (block_name, status, detail)
+      values ('D-buyer-update-to-paid', 'PASS', 'permission denied - no UPDATE grant');
       execute 'reset role';
   end;
-
-  perform set_config('app.iso_relay', v_results::text, false);
 end $$;
-rollback to savepoint sp_d;
-insert into _isolation_results (block_name, status, detail)
-select r->>'name', r->>'status', r->>'detail'
-from jsonb_array_elements(current_setting('app.iso_relay')::jsonb) as r;
 
 
 -- =============================================================
 -- E. SELLER sees only own product lines, and only on post-payment orders.
+-- Seed PAID order 1111... + one line; checks filter on order id 1111...
 -- SKIPs (not a false PASS/FAIL) if product_id does not belong to seller_id.
 -- =============================================================
 savepoint sp_e;
@@ -351,7 +410,6 @@ declare
   cfg record;
   v_owns boolean;
   v_count int;
-  v_results jsonb := '[]'::jsonb;
 begin
   select * into cfg from _isolation_config limit 1;
 
@@ -359,9 +417,9 @@ begin
   from public.products where id = cfg.product_id;
 
   if v_owns is not true then
-    raise notice 'ISOLATION_RESULT: E-seller-sees-own-line: SKIP (product/seller mismatch)';
-    v_results := v_results || jsonb_build_object('name','E-seller-sees-own-line','status','SKIP','detail','configured product_id is not owned by configured seller_id');
-    v_results := v_results || jsonb_build_object('name','E-seller-no-order-access','status','SKIP','detail','same reason');
+    insert into _isolation_results (block_name, status, detail)
+    values ('E-seller-sees-own-line', 'SKIP', 'configured product_id is not owned by configured seller_id'),
+           ('E-seller-no-order-access', 'SKIP', 'same reason');
   else
     insert into public.orders (id, buyer_id, status, subtotal_amount_paise,
       contact_snapshot, shipping_address_snapshot)
@@ -373,41 +431,50 @@ begin
       'seed-slug', 'Seed', 100000, 1, 100000);
 
     execute 'set local role authenticated';
-    perform set_config('request.jwt.claims',
-      json_build_object('sub', cfg.seller_id, 'role', 'authenticated')::text, true);
+    perform set_config(
+      'request.jwt.claims',
+      jsonb_build_object(
+        'sub', cfg.seller_id::text,
+        'role', 'authenticated',
+        'aud', 'authenticated'
+      )::text,
+      true
+    );
 
-    select count(*) into v_count from public.order_items where product_id = cfg.product_id;
+    select count(*) into v_count from public.order_items
+    where order_id = '11111111-1111-1111-1111-111111111111';
     if v_count = 1 then
       raise notice 'ISOLATION_RESULT: E-seller-sees-own-line: PASS';
-      v_results := v_results || jsonb_build_object('name','E-seller-sees-own-line','status','PASS','detail','1 row visible on PAID order');
+      insert into _isolation_results (block_name, status, detail)
+      values ('E-seller-sees-own-line', 'PASS', '1 row visible on PAID order');
     else
-      raise notice 'ISOLATION_RESULT: E-seller-sees-own-line: FAIL (got %)', v_count;
-      v_results := v_results || jsonb_build_object('name','E-seller-sees-own-line','status','FAIL','detail',format('expected 1, got %s', v_count));
+      raise notice 'ISOLATION_RESULT: E-seller-sees-own-line: FAIL';
+      insert into _isolation_results (block_name, status, detail)
+      values ('E-seller-sees-own-line', 'FAIL', format('expected 1, got %s', v_count));
     end if;
 
     select count(*) into v_count from public.orders
     where id = '11111111-1111-1111-1111-111111111111';
     if v_count = 0 then
       raise notice 'ISOLATION_RESULT: E-seller-no-order-access: PASS';
-      v_results := v_results || jsonb_build_object('name','E-seller-no-order-access','status','PASS','detail','0 rows - seller cannot read the orders table row');
+      insert into _isolation_results (block_name, status, detail)
+      values ('E-seller-no-order-access', 'PASS', '0 rows - seller cannot read the orders table row');
     else
-      raise notice 'ISOLATION_RESULT: E-seller-no-order-access: FAIL (% rows)', v_count;
-      v_results := v_results || jsonb_build_object('name','E-seller-no-order-access','status','FAIL','detail',format('%s rows - seller read the parent order', v_count));
+      raise notice 'ISOLATION_RESULT: E-seller-no-order-access: FAIL';
+      insert into _isolation_results (block_name, status, detail)
+      values ('E-seller-no-order-access', 'FAIL', format('%s rows - seller read the parent order', v_count));
     end if;
 
     execute 'reset role';
   end if;
-
-  perform set_config('app.iso_relay', v_results::text, false);
 end $$;
-rollback to savepoint sp_e;
-insert into _isolation_results (block_name, status, detail)
-select r->>'name', r->>'status', r->>'detail'
-from jsonb_array_elements(current_setting('app.iso_relay')::jsonb) as r;
 
 
 -- =============================================================
 -- F. SELLER sees NOTHING on a DRAFT/PAYMENT_PENDING order (open cart).
+-- Seed DRAFT order 2222... + one line; check filters on order id 2222...
+-- (the PAID line from Block E stays in the transaction but is excluded by
+-- the id filter, so it cannot fake a FAIL here).
 -- =============================================================
 savepoint sp_f;
 do $$
@@ -415,7 +482,6 @@ declare
   cfg record;
   v_owns boolean;
   v_count int;
-  v_results jsonb := '[]'::jsonb;
 begin
   select * into cfg from _isolation_config limit 1;
 
@@ -423,8 +489,8 @@ begin
   from public.products where id = cfg.product_id;
 
   if v_owns is not true then
-    raise notice 'ISOLATION_RESULT: F-seller-no-draft-access: SKIP (product/seller mismatch)';
-    v_results := v_results || jsonb_build_object('name','F-seller-no-draft-access','status','SKIP','detail','configured product_id is not owned by configured seller_id');
+    insert into _isolation_results (block_name, status, detail)
+    values ('F-seller-no-draft-access', 'SKIP', 'configured product_id is not owned by configured seller_id');
   else
     insert into public.orders (id, buyer_id, status, subtotal_amount_paise,
       contact_snapshot, shipping_address_snapshot)
@@ -436,31 +502,36 @@ begin
       'seed-slug', 'Seed', 100000, 1, 100000);
 
     execute 'set local role authenticated';
-    perform set_config('request.jwt.claims',
-      json_build_object('sub', cfg.seller_id, 'role', 'authenticated')::text, true);
+    perform set_config(
+      'request.jwt.claims',
+      jsonb_build_object(
+        'sub', cfg.seller_id::text,
+        'role', 'authenticated',
+        'aud', 'authenticated'
+      )::text,
+      true
+    );
 
-    select count(*) into v_count from public.order_items where product_id = cfg.product_id;
+    select count(*) into v_count from public.order_items
+    where order_id = '22222222-2222-2222-2222-222222222222';
     if v_count = 0 then
       raise notice 'ISOLATION_RESULT: F-seller-no-draft-access: PASS';
-      v_results := v_results || jsonb_build_object('name','F-seller-no-draft-access','status','PASS','detail','0 rows - draft-order line hidden from seller');
+      insert into _isolation_results (block_name, status, detail)
+      values ('F-seller-no-draft-access', 'PASS', '0 rows - draft-order line hidden from seller');
     else
-      raise notice 'ISOLATION_RESULT: F-seller-no-draft-access: FAIL (% rows)', v_count;
-      v_results := v_results || jsonb_build_object('name','F-seller-no-draft-access','status','FAIL','detail',format('%s rows - seller saw a DRAFT-order line', v_count));
+      raise notice 'ISOLATION_RESULT: F-seller-no-draft-access: FAIL';
+      insert into _isolation_results (block_name, status, detail)
+      values ('F-seller-no-draft-access', 'FAIL', format('%s rows - seller saw a DRAFT-order line', v_count));
     end if;
 
     execute 'reset role';
   end if;
-
-  perform set_config('app.iso_relay', v_results::text, false);
 end $$;
-rollback to savepoint sp_f;
-insert into _isolation_results (block_name, status, detail)
-select r->>'name', r->>'status', r->>'detail'
-from jsonb_array_elements(current_setting('app.iso_relay')::jsonb) as r;
 
 
 -- =============================================================
 -- F2. OTHER SELLER sees ZERO lines for a product they do not own.
+-- Seed PAID order 5555... + one line; check filters on order id 5555...
 -- =============================================================
 savepoint sp_f2;
 do $$
@@ -468,7 +539,6 @@ declare
   cfg record;
   v_owns boolean;
   v_count int;
-  v_results jsonb := '[]'::jsonb;
 begin
   select * into cfg from _isolation_config limit 1;
 
@@ -476,8 +546,8 @@ begin
   from public.products where id = cfg.product_id;
 
   if v_owns is not true then
-    raise notice 'ISOLATION_RESULT: F2-other-seller-sees-zero: SKIP (product/seller mismatch)';
-    v_results := v_results || jsonb_build_object('name','F2-other-seller-sees-zero','status','SKIP','detail','configured product_id is not owned by configured seller_id');
+    insert into _isolation_results (block_name, status, detail)
+    values ('F2-other-seller-sees-zero', 'SKIP', 'configured product_id is not owned by configured seller_id');
   else
     insert into public.orders (id, buyer_id, status, subtotal_amount_paise,
       contact_snapshot, shipping_address_snapshot)
@@ -489,32 +559,39 @@ begin
       'seed-slug', 'Seed', 100000, 1, 100000);
 
     execute 'set local role authenticated';
-    perform set_config('request.jwt.claims',
-      json_build_object('sub', cfg.other_seller_id, 'role', 'authenticated')::text, true);
+    perform set_config(
+      'request.jwt.claims',
+      jsonb_build_object(
+        'sub', cfg.other_seller_id::text,
+        'role', 'authenticated',
+        'aud', 'authenticated'
+      )::text,
+      true
+    );
 
-    select count(*) into v_count from public.order_items where product_id = cfg.product_id;
+    select count(*) into v_count from public.order_items
+    where order_id = '55555555-5555-5555-5555-555555555555';
     if v_count = 0 then
       raise notice 'ISOLATION_RESULT: F2-other-seller-sees-zero: PASS';
-      v_results := v_results || jsonb_build_object('name','F2-other-seller-sees-zero','status','PASS','detail','0 rows - unrelated seller sees nothing');
+      insert into _isolation_results (block_name, status, detail)
+      values ('F2-other-seller-sees-zero', 'PASS', '0 rows - unrelated seller sees nothing');
     else
-      raise notice 'ISOLATION_RESULT: F2-other-seller-sees-zero: FAIL (% rows)', v_count;
-      v_results := v_results || jsonb_build_object('name','F2-other-seller-sees-zero','status','FAIL','detail',format('%s rows - unrelated seller saw another sellers line', v_count));
+      raise notice 'ISOLATION_RESULT: F2-other-seller-sees-zero: FAIL';
+      insert into _isolation_results (block_name, status, detail)
+      values ('F2-other-seller-sees-zero', 'FAIL', format('%s rows - unrelated seller saw another sellers line', v_count));
     end if;
 
     execute 'reset role';
   end if;
-
-  perform set_config('app.iso_relay', v_results::text, false);
 end $$;
-rollback to savepoint sp_f2;
-insert into _isolation_results (block_name, status, detail)
-select r->>'name', r->>'status', r->>'detail'
-from jsonb_array_elements(current_setting('app.iso_relay')::jsonb) as r;
 
 
 -- =============================================================
 -- G. ADMIN sees all via public.is_admin(). SKIPs (not a false result) if
 -- the configured admin_id does not actually hold role = 'ADMIN'.
+-- Seeds order 6666...; compares owner-counted total vs admin-visible total
+-- (both counts run in this same block, so earlier seeds affect both sides
+-- equally and cancel out).
 -- =============================================================
 savepoint sp_g;
 do $$
@@ -523,49 +600,52 @@ declare
   v_admin_role text;
   v_total int;
   v_seen int;
-  v_results jsonb := '[]'::jsonb;
 begin
   select * into cfg from _isolation_config limit 1;
   select role::text into v_admin_role from public.users where id = cfg.admin_id;
 
   if v_admin_role is distinct from 'ADMIN' then
-    raise notice 'ISOLATION_RESULT: G-admin-sees-all: SKIP (admin_id role is %)', coalesce(v_admin_role, 'NULL/not found');
-    v_results := v_results || jsonb_build_object('name','G-admin-sees-all','status','SKIP','detail',format('admin_id role is %s not ADMIN - point admin_id at a real ADMIN user', coalesce(v_admin_role, 'NULL/not found')));
+    raise notice 'ISOLATION_RESULT: G-admin-sees-all: SKIP';
+    insert into _isolation_results (block_name, status, detail)
+    values ('G-admin-sees-all', 'SKIP', format('admin_id role is %s not ADMIN - point admin_id at a real ADMIN user', coalesce(v_admin_role, 'NULL/not found')));
   else
     insert into public.orders (id, buyer_id, status, subtotal_amount_paise,
       contact_snapshot, shipping_address_snapshot)
     values ('66666666-6666-6666-6666-666666666666', cfg.buyer_1_id, 'DRAFT', 1,
       '{}'::jsonb, '{}'::jsonb);
 
-    select count(*) into v_total from public.orders;
+    select count(*) into v_total from public.orders; -- as table owner: true total
 
     execute 'set local role authenticated';
-    perform set_config('request.jwt.claims',
-      json_build_object('sub', cfg.admin_id, 'role', 'authenticated')::text, true);
+    perform set_config(
+      'request.jwt.claims',
+      jsonb_build_object(
+        'sub', cfg.admin_id::text,
+        'role', 'authenticated',
+        'aud', 'authenticated'
+      )::text,
+      true
+    );
 
     select count(*) into v_seen from public.orders;
     if v_seen = v_total then
-      raise notice 'ISOLATION_RESULT: G-admin-sees-all: PASS (% rows)', v_total;
-      v_results := v_results || jsonb_build_object('name','G-admin-sees-all','status','PASS','detail',format('admin sees all %s rows', v_total));
+      raise notice 'ISOLATION_RESULT: G-admin-sees-all: PASS';
+      insert into _isolation_results (block_name, status, detail)
+      values ('G-admin-sees-all', 'PASS', format('admin sees all %s rows', v_total));
     else
-      raise notice 'ISOLATION_RESULT: G-admin-sees-all: FAIL (% of %)', v_seen, v_total;
-      v_results := v_results || jsonb_build_object('name','G-admin-sees-all','status','FAIL','detail',format('admin saw %s of %s rows', v_seen, v_total));
+      raise notice 'ISOLATION_RESULT: G-admin-sees-all: FAIL';
+      insert into _isolation_results (block_name, status, detail)
+      values ('G-admin-sees-all', 'FAIL', format('admin saw %s of %s rows', v_seen, v_total));
     end if;
 
     execute 'reset role';
   end if;
-
-  perform set_config('app.iso_relay', v_results::text, false);
 end $$;
-rollback to savepoint sp_g;
-insert into _isolation_results (block_name, status, detail)
-select r->>'name', r->>'status', r->>'detail'
-from jsonb_array_elements(current_setting('app.iso_relay')::jsonb) as r;
 
 
 -- =============================================================
--- RESULTS — this is the last SELECT in the script, so it's what the
--- Supabase SQL Editor Results grid shows. Copy straight from there.
+-- RESULTS — last SELECT in the script, so it's what the Supabase SQL
+-- Editor Results grid shows. Copy straight from there.
 -- =============================================================
 select sort_order, block_name, status, detail
 from _isolation_results
@@ -573,9 +653,10 @@ order by sort_order;
 
 -- =============================================================
 -- Final cleanup: this single rollback discards EVERYTHING in the whole
--- script — both temp tables, every seed row, all of it. Nothing persists.
--- The results SELECT above already ran and returned its output before
--- this executes, so the grid keeps showing it.
+-- script — both temp tables and every seed row (1111/2222/3333/4444/
+-- 5555/6666 orders and their lines). Nothing persists. The results
+-- SELECT above already returned its output before this executes, so the
+-- grid keeps showing it.
 -- =============================================================
 rollback;
 
