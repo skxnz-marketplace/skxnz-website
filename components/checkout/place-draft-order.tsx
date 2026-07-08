@@ -121,14 +121,14 @@ export function PlaceDraftOrder({ addresses, backendReady }: PlaceDraftOrderProp
       {!hasAddresses ? (
         <div className="mt-5 rounded-[22px] border border-[rgba(58,8,24,0.14)] bg-[var(--skxnz-bg-soft)] p-4">
           <p className="text-sm leading-6 text-midnightbrown">
-            You have no saved delivery address. Add one in your account, then
-            return here to create a draft order.
+            Add a delivery address to continue checkout. Your saved addresses
+            appear here for selection.
           </p>
           <Link
-            href="/account"
+            href="/account/addresses"
             className={cn(buttonVariants({ variant: "secondary", size: "sm" }), "mt-3")}
           >
-            Go To Account
+            Add Delivery Address
           </Link>
         </div>
       ) : (
@@ -169,6 +169,12 @@ export function PlaceDraftOrder({ addresses, backendReady }: PlaceDraftOrderProp
               </label>
             ))}
           </div>
+          <Link
+            href="/account/addresses"
+            className="mt-3 inline-block text-xs font-bold uppercase tracking-[0.16em] text-sangria underline-offset-4 hover:underline"
+          >
+            Add or manage addresses
+          </Link>
         </fieldset>
       )}
 
