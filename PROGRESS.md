@@ -326,9 +326,23 @@ Single source of truth for project status. Read this before starting work and up
   - Report: `docs/SKXNZ_DAY5_SUPPORT_RETURNS_UI_REPORT.md`.
   - **Known limitations:** no buyer reply UI (`addSupportTicketMessage` server action exists but unrouted); no ticket thread page; no return request list page; `OrderReturnPanel` always shows disabled state until a real DELIVERED order exists (requires Razorpay + fulfilment); Supabase unreachable from dev machine — compile-level verification only.
 
+- **Day 5 / D5-3B–D5-4A buyer support thread + return list (this session, branch `day3-cart-order-flow`):**
+  - Completed the buyer support/returns surfaces: buyer can now view a support ticket thread, reply, and view submitted return requests. No new migrations — all read/insert paths come from `0005_commerce_layer.sql` (applied+verified D4-7). RLS confirmed: buyer selects own tickets / messages (via ticket) / return_requests (buyer_id) / return_request_items (via request); grants select+insert only.
+  - **`lib/support/read-support-tickets.ts`** (extended): added `getBuyerSupportTicketThread(ticketId)` → one buyer-owned ticket + ordered messages; junk uuid rejected via `isOrderIdShape`; missing/not-owned → `found:false` (no existence leak); 42P01-safe. New thread/message types.
+  - **New `app/account/support/[id]/page.tsx`**: `requireUser`-gated server component, `force-dynamic`. Reads thread; `notFound()` on missing/not-owned. Header (short id, status badge, category, linked-order + "View Linked Order"); message thread styled per `sender_role` (You vs SKXNZ Support/System); reply form only on active tickets (OPEN/WAITING_FOR_CUSTOMER/IN_REVIEW), honest closed notice otherwise.
+  - **New `components/support/ticket-reply-form.tsx`**: `"use client"` calling real `addSupportTicketMessage` (D4-5). Success → "Message added. SKXNZ support will review this — there is no automated resolution." + `router.refresh()`. No fake staff reply/resolution.
+  - **New `lib/returns/read-return-requests.ts`**: `getBuyerReturnRequests()` → own returns newest-first + per-request item count (second RLS-scoped query, degrades to 0 on error), 42P01-safe.
+  - **New `app/account/returns/page.tsx`**: `requireUser`-gated server list. Order ref, status, reason, return id, item count, date, "View Order" link. Honest status labels (`REQUESTED` → "Submitted for review"); approved/pickup/refund states only ever set server-side by real ops, never faked; description states nothing confirmed until SKXNZ updates status. Empty + not-connected states.
+  - **`app/account/support/page.tsx`**: ticket rows now `<Link>` → `/account/support/[id]` (hover state).
+  - **`components/account/account-shell.tsx`**: account nav gained "Returns" + "Support" tabs. **`app/account/page.tsx`**: added "My Returns" button.
+  - Buyer identity from `supabase.auth.getUser()` only; no `user_id`/`buyer_id` from client; no `service_role` in any touched file; RLS is the real gate.
+  - Checks: `tsc --noEmit` EXIT 0; secret grep clean over `app/account components/support lib/support lib/returns`; dev route probe — `/account/returns`, `/account/support/[uuid]`, `/account/support` compile+serve (200 after `/login` redirect), logs show only the standing `fetch failed` (Supabase unreachable), no compile errors. No SQL applied, no push.
+  - Report: `docs/SKXNZ_DAY5_SUPPORT_RETURNS_THREAD_REPORT.md`.
+  - **Known limitations:** no delivered orders live → returns not creatable end-to-end yet; logged-in render not browser-verified (Supabase unreachable); no admin/support console to create SUPPORT/ADMIN replies yet; no dedicated return-detail page (list links to order).
+
 ## Next up
-1. D5-4: buyer ticket thread (`/account/support/[id]`), buyer reply form wired to `addSupportTicketMessage`, return request list (`/account/returns`), `getBuyerReturnRequests()` read helper.
+1. D5-4B: admin/support console — `/admin/support` (list/reply as SUPPORT via new admin-verified `addStaffTicketMessage` + ticket status action) and `/admin/returns` (review lifecycle REQUESTED→IN_REVIEW→APPROVED/REJECTED, audit trail; NO refund execution until real provider path). Reuse D4-6 admin-order pattern.
 2. D5-1 follow-up: wire `WishlistButton` to `saveProduct`/`removeSavedProduct` when signed in, merge device-local snapshots on login (requires 0007 applied first).
-3. Razorpay payment integration — next step after fulfilment + delivery flow is decided.
+3. Razorpay payment integration — after fulfilment + delivery flow is decided.
 4. Browser-QA all D5 surfaces once Supabase is reachable from the dev machine.
 5. No push or deploy without user approval.

@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { AccountShell } from "@/components/account/account-shell";
 import { BuyerSupportForm } from "@/components/support/buyer-support-form";
 import { Card } from "@/components/ui/card";
@@ -62,12 +64,13 @@ export default async function AccountSupportPage({
           ) : (
             <div className="mt-5 grid gap-3">
               {tickets.map((ticket) => (
-                <article
+                <Link
                   key={ticket.id}
-                  className="min-w-0 rounded-[24px] border border-[rgba(58,8,24,0.10)] bg-[var(--skxnz-bg-soft)] p-4"
+                  href={`/account/support/${ticket.id}`}
+                  className="group min-w-0 rounded-[24px] border border-[rgba(58,8,24,0.10)] bg-[var(--skxnz-bg-soft)] p-4 transition hover:border-[rgba(34,211,238,0.34)]"
                 >
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <p className="line-clamp-1 text-sm font-black text-midnightbrown">
+                    <p className="line-clamp-1 text-sm font-black text-midnightbrown group-hover:text-sangria">
                       {ticket.subject}
                     </p>
                     <span className="rounded-full border border-[rgba(34,211,238,0.24)] bg-[rgba(34,211,238,0.08)] px-3 py-1 text-[0.62rem] font-bold uppercase tracking-[0.16em] text-sangria">
@@ -82,7 +85,7 @@ export default async function AccountSupportPage({
                     {" · "}
                     {formatDate(ticket.createdAt)}
                   </p>
-                </article>
+                </Link>
               ))}
             </div>
           )}

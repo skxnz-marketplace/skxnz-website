@@ -14,6 +14,8 @@ const accountNav = [
   { href: "/account/addresses", label: "Addresses" },
   { href: "/account/wishlist", label: "Wishlist" },
   { href: "/account/orders", label: "Orders" },
+  { href: "/account/returns", label: "Returns" },
+  { href: "/account/support", label: "Support" },
   { href: "/account/cart-sync", label: "Cart Sync" },
   { href: "/cart", label: "Cart" },
 ];
