@@ -313,12 +313,22 @@ Single source of truth for project status. Read this before starting work and up
   - Checks: `tsc --noEmit` EXIT 0; secret grep clean (one NO-service_role comment). Preview: `/checkout` compiled clean (no console errors); `/account/addresses` compiled + correctly redirected unauthenticated → `/login?next=%2Faccount%2Faddresses`. Logged-in CRUD NOT browser-tested (Supabase unreachable + auth-gated — standing blocker). No SQL, no push.
   - Report: `docs/SKXNZ_DAY5_ADDRESS_CHECKOUT_READINESS_REPORT.md`.
 
+- **Day 5 / D5-3 buyer support + returns UI surfaces (this session, branch `day3-cart-order-flow`):**
+  - Wired buyer-facing support ticket creation and return request surfaces to the existing D4-5 backend actions (`createSupportTicket`, `createReturnRequest`). No new migrations needed — `0005_commerce_layer.sql` (applied D4-7) provides `support_tickets`, `support_ticket_messages`, `return_requests`, `return_request_items`.
+  - **New `lib/support/read-support-tickets.ts`**: `getBuyerSupportTickets()` — session client, `.eq("buyer_id", user.id)`, `backendReady`/`authenticated` gating, 42P01-safe.
+  - **New `components/support/buyer-support-form.tsx`**: `"use client"` form calling real `createSupportTicket`; category select (ORDER/RETURN/PAYMENT/DELIVERY/PRODUCT/ACCOUNT/OTHER), subject (maxLength 160), message (maxLength 4000), `defaultOrderId` prop for pre-linking from order detail. Success state: ticket reference + "SKXNZ support will review this" — no fake resolution. `useTransition` + `router.refresh()` on success.
+  - **New `app/account/support/page.tsx`**: `requireUser`-gated server component, `force-dynamic`. Validates `searchParams.order` via `isOrderIdShape` before passing to form. Renders `BuyerSupportForm` + ticket list (subject, status badge, category, order ref, date). Honest `!backendReady` state.
+  - **New `components/orders/order-return-panel.tsx`**: `"use client"` DELIVERED-gated panel. Non-DELIVERED orders get an honest disabled card with status-specific copy ("not paid yet" / "cancelled" / "already refunded" / "not delivered yet"). DELIVERED state: per-item checkboxes, quantity selector for qty > 1, reason input, optional note textarea; calls real `createReturnRequest`; success: "Return request submitted for review. No refund has been approved and no pickup has been scheduled." No fake refund/pickup/courier claim.
+  - **`app/orders/[id]/page.tsx`**: added `<OrderReturnPanel orderId status items />` after shipping address card; added "Contact Support About This Order" → `/account/support?order=${order.id}` link card.
+  - **`app/account/page.tsx`**: added "Contact Support" button → `/account/support`.
+  - Buyer identity: always from `supabase.auth.getUser()` server-side; `buyer_id`/`user_id` never from client. RLS enforces ownership on all tables. No `service_role` in any buyer-facing file.
+  - Checks: `tsc --noEmit` EXIT 0; secret grep (service_role|sk_live_|rzp_live_) on `**/*.{ts,tsx}` — two comment-only hits, no real usage. No SQL applied, no push.
+  - Report: `docs/SKXNZ_DAY5_SUPPORT_RETURNS_UI_REPORT.md`.
+  - **Known limitations:** no buyer reply UI (`addSupportTicketMessage` server action exists but unrouted); no ticket thread page; no return request list page; `OrderReturnPanel` always shows disabled state until a real DELIVERED order exists (requires Razorpay + fulfilment); Supabase unreachable from dev machine — compile-level verification only.
+
 ## Next up
-1. D5-3: wire `/account/profile` + checkout contact fields to real `public.user_profiles` (0001) via server actions (name/phone/city) so checkout contact and account profile agree — same pattern addresses now use. Nothing new to apply.
-2. D5-1 follow-up: wire `WishlistButton` to `saveProduct`/`removeSavedProduct` when signed in, and merge device-local snapshots into `saved_items` on login (requires 0007 applied first).
-2. Real backend order path (orders table + server-side order creation) before any order confirmation UI; then Razorpay integration.
-3. Manually QA the product approval flow with one seller-created PENDING_REVIEW product and one ADMIN account.
-4. Regenerate/fix Prisma client so `lib/prisma.ts` typecheck can pass again (`PrismaClient` is currently not exported from generated `@prisma/client`).
-5. Browser-QA one live ACTIVE product slug end-to-end into the cart once Supabase is reachable from the dev machine.
-6. Review remaining pre-existing ReactBits lint warnings.
-7. No push or deploy without user approval.
+1. D5-4: buyer ticket thread (`/account/support/[id]`), buyer reply form wired to `addSupportTicketMessage`, return request list (`/account/returns`), `getBuyerReturnRequests()` read helper.
+2. D5-1 follow-up: wire `WishlistButton` to `saveProduct`/`removeSavedProduct` when signed in, merge device-local snapshots on login (requires 0007 applied first).
+3. Razorpay payment integration — next step after fulfilment + delivery flow is decided.
+4. Browser-QA all D5 surfaces once Supabase is reachable from the dev machine.
+5. No push or deploy without user approval.

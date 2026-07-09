@@ -120,6 +120,12 @@ export default async function AccountPage() {
             >
               Browse Shop
             </Link>
+            <Link
+              href="/account/support"
+              className={buttonVariants({ variant: "secondary", size: "lg" })}
+            >
+              Contact Support
+            </Link>
             <form action={signOut}>
               <button
                 type="submit"

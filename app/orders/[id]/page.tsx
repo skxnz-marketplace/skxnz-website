@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { OrderReturnPanel } from "@/components/orders/order-return-panel";
 import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { formatInrFromPaise } from "@/lib/money";
@@ -246,6 +247,27 @@ export default async function OrderDetailPage({
             ) : null}
           </Card>
         ) : null}
+
+        <OrderReturnPanel
+          orderId={order.id}
+          status={order.status}
+          items={order.items}
+        />
+
+        <Card className="section-border rounded-[36px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-6 sm:p-8">
+          <p className="section-kicker text-[0.68rem] uppercase tracking-[0.24em] text-sangria">
+            Need help with this order?
+          </p>
+          <p className="mt-3 text-sm leading-7 text-stone">
+            Open a support ticket about this order. A human reviews every ticket.
+          </p>
+          <Link
+            href={`/account/support?order=${order.id}`}
+            className={`${buttonVariants({ variant: "secondary", size: "sm" })} mt-4`}
+          >
+            Contact Support About This Order
+          </Link>
+        </Card>
       </div>
     </div>
   );
