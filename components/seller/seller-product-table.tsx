@@ -98,7 +98,7 @@ export function SellerProductTable({ liveProducts }: SellerProductTableProps) {
           </h2>
           <p className="mt-2 text-sm leading-6 text-stone">
             {isLiveMode
-              ? "Products here are read from Supabase for the current seller. Status changes and creation are not connected here yet."
+              ? "Products here are read from Supabase and owned by the current seller account. Create products on the Add Product page; approval status is set through admin review."
               : "Products here are beta records. Seller uploads stay pending until internal review."}
           </p>
         </div>
