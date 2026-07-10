@@ -1,0 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { requireRole } from "@/lib/auth/roles";
+import { getAdminReturnRequest } from "@/lib/returns/read-admin-return-requests";
+export default async function AdminReturnDetail({params}:{params:Promise<{id:string}>}){await requireRole(["ADMIN"],"/admin/returns");const {id}=await params;const result=await getAdminReturnRequest(id);if(!result.found)notFound();return <main className="mx-auto max-w-4xl space-y-6 p-8"><Link href="/admin/returns">← Returns queue</Link><h1 className="font-display text-3xl uppercase">Return {result.request.id.slice(0,8)}</h1><p className="text-silver">Order {result.request.order_id} · {result.request.status}</p><p>{result.request.reason}</p>{result.request.note&&<p className="text-silver">{result.request.note}</p>}<section className="space-y-3">{result.items.map((i:any)=><article className="rounded-xl border border-white/10 p-4" key={i.id}>Item {i.order_item_id} · quantity {i.quantity}{i.reason?" · "+i.reason:""}</article>)}</section><p className="text-sm text-silver">Allowed transitions are enforced by admin-update-return-status.ts. No refund state can be set here.</p></main>;}

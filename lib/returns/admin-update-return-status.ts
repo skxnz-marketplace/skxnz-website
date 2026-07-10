@@ -1,0 +1,7 @@
+"use server";
+import { revalidatePath } from "next/cache";
+import { createClient } from "@/lib/supabase/server";
+import { supabaseAdmin } from "@/lib/supabase/admin";
+import { getCurrentUserRole } from "@/lib/auth/roles";
+const transitions:Record<string,string[]>={REQUESTED:["IN_REVIEW","REJECTED"],IN_REVIEW:["APPROVED","REJECTED"]};
+export async function adminUpdateReturnStatus(input:{requestId:string;nextStatus:string}){if(!input||typeof input.requestId!=="string"||typeof input.nextStatus!=="string")return {ok:false,code:"VALIDATION_FAILED" as const};if(await getCurrentUserRole()!=="ADMIN")return {ok:false,code:"FORBIDDEN" as const};const db=await createClient();const {data:current}=await db.from("return_requests").select("id,order_id,status").eq("id",input.requestId).maybeSingle();if(!current||!transitions[current.status]?.includes(input.nextStatus))return {ok:false,code:"INVALID_TRANSITION" as const};const {data:user}=await db.auth.getUser();const {error}=await supabaseAdmin.from("return_requests").update({status:input.nextStatus}).eq("id",input.requestId).eq("status",current.status);if(error)return {ok:false,code:"DB_ERROR" as const};await supabaseAdmin.from("order_events").insert({order_id:current.order_id,event_type:"RETURN_STATUS_UPDATED",message:"Return request status updated by admin.",metadata:{return_request_id:current.id,from_status:current.status,to_status:input.nextStatus,actor_user_id:user.user?.id}});revalidatePath("/admin/returns");revalidatePath("/admin/returns/"+input.requestId);return {ok:true as const};}

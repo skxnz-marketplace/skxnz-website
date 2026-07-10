@@ -1,0 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { requireRole } from "@/lib/auth/roles";
+import { getAdminSupportTicket } from "@/lib/support/read-admin-support-tickets";
+export default async function AdminSupportDetail({params}:{params:Promise<{id:string}>}){await requireRole(["ADMIN"],"/admin/support");const {id}=await params;const result=await getAdminSupportTicket(id);if(!result.found)notFound();return <main className="mx-auto max-w-4xl space-y-6 p-8"><Link href="/admin/support">← Support queue</Link><h1 className="font-display text-3xl uppercase">{result.ticket.subject}</h1><p className="text-silver">{result.ticket.status} · {result.ticket.category} · {result.ticket.priority}</p><section className="space-y-3">{result.messages.map((m:any)=><article className="rounded-xl border border-white/10 p-4" key={m.id}><p className="text-xs uppercase text-teal">{m.sender_role}</p><p className="mt-2 whitespace-pre-wrap">{m.message}</p></article>)}</section><p className="text-sm text-silver">Validated reply and status server actions are in lib/support/admin-support-actions.ts.</p></main>;}

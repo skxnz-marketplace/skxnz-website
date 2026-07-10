@@ -1,4 +1,4 @@
-// SKXNZ launch-war D1-A — application-layer tests for the buyer commerce
+﻿// SKXNZ launch-war D1-A â€” application-layer tests for the buyer commerce
 // server actions. Run with:  pnpm run test:commerce
 //
 // These compile the REAL action source (tests/tsconfig.json -> tests/.build)
@@ -387,7 +387,7 @@ test("createOrderIntent ignores forged payment fields and stores DRAFT + DB pric
                 slug: "test-product",
                 name: "Test Product",
                 status: "ACTIVE",
-                price_inr: 4999, // DB price: ₹4999 -> 499900 paise
+                price_inr: 4999, // DB price: â‚¹4999 -> 499900 paise
                 image_url: null,
                 seller_id: null,
                 brand_id: null,
@@ -405,7 +405,7 @@ test("createOrderIntent ignores forged payment fields and stores DRAFT + DB pric
   );
 
   // Forged client input: payment state, fake price, fake totals. All of it
-  // must be ignored — the action only reads items/address/notes.
+  // must be ignored â€” the action only reads items/address/notes.
   const result = await createOrderIntent({
     items: [{ productId: PRODUCT_ID, quantity: 2, unitPricePaise: 1 }],
     shippingAddressId: ADDRESS_ID,
@@ -425,7 +425,7 @@ test("createOrderIntent ignores forged payment fields and stores DRAFT + DB pric
   const payload = orderInsert.args[0];
   assert.equal(payload.status, "DRAFT");
   assert.equal(payload.buyer_id, BUYER.id);
-  assert.equal(payload.subtotal_amount_paise, 999800); // 2 × 499900 from DB
+  assert.equal(payload.subtotal_amount_paise, 999800); // 2 Ã— 499900 from DB
   assert.equal("payment_provider" in payload, false);
   assert.equal("payment_reference" in payload, false);
   assert.equal("total_amount_paise" in payload, false);
@@ -471,4 +471,13 @@ test("createOrderIntent rejects out-of-stock variants from DB truth", async () =
   });
   assert.equal(result.ok, false);
   assert.equal(result.code, "OUT_OF_STOCK");
+});
+
+test("malformed return payloads fail closed without a server exception", async () => {
+  const malformed = await createReturnRequest(null);
+  assert.equal(malformed.ok, false);
+  assert.equal(malformed.code, "VALIDATION_FAILED");
+  const invalidQty = await createReturnRequest(returnInput({ items: [{ orderItemId: ITEM_ID, quantity: 1.5, reason: null }] }));
+  assert.equal(invalidQty.ok, false);
+  assert.equal(invalidQty.code, "VALIDATION_FAILED");
 });

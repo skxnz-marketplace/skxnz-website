@@ -1,0 +1,5 @@
+﻿/* eslint-disable @typescript-eslint/no-explicit-any */
+import { createClient } from "@/lib/supabase/server";
+export async function getAdminSupportTickets(){const db=await createClient();const {data,error}=await db.from("support_tickets").select("id,order_id,buyer_id,category,status,priority,subject,created_at,updated_at").order("updated_at",{ascending:false});if(error)return {backendReady:!String(error.code).includes("42P01"),tickets:[] as any[]};return {backendReady:true,tickets:data??[]};}
+export async function getAdminSupportTicket(id:string){const db=await createClient();const {data:ticket}=await db.from("support_tickets").select("id,order_id,buyer_id,category,status,priority,subject,created_at,updated_at").eq("id",id).maybeSingle();if(!ticket)return {found:false as const,ticket:null,messages:[] as any[]};const {data:messages}=await db.from("support_ticket_messages").select("id,sender_role,message,created_at").eq("ticket_id",id).order("created_at");return {found:true as const,ticket,messages:messages??[]};}
+

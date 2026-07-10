@@ -1,44 +1,5 @@
+﻿/* eslint-disable @typescript-eslint/no-explicit-any */
 import Link from "next/link";
-
-import { AdminReturnsPanel } from "@/components/admin/admin-returns-panel";
-import { DemoRoleGate } from "@/components/auth/demo-role-gate";
-import { DashboardShell } from "@/components/shared/dashboard-shell";
-import { buttonVariants } from "@/components/ui/button";
-import { adminSidebarLinks } from "@/lib/data/site-content";
-
-export default function AdminReturnsPage() {
-  return (
-    <DemoRoleGate
-      allowedRoles={["admin"]}
-      areaLabel="Admin returns"
-      helperText="Return management is protected in demo mode so ops language can be reviewed before live reverse-logistics and refund systems exist."
-    >
-      <DashboardShell
-        eyebrow="Returns Management"
-        title="Review return cases without pretending refunds are live."
-        description="This admin route keeps return status, refund placeholders, and review detail visible in one place while all reverse-logistics systems remain offline."
-        actions={
-          <>
-            <Link
-              href="/admin/orders"
-              className={buttonVariants({ variant: "secondary", size: "lg" })}
-            >
-              Admin Orders
-            </Link>
-            <Link
-              href="/admin/support"
-              className={buttonVariants({ variant: "ghost", size: "lg" })}
-            >
-              Support
-            </Link>
-          </>
-        }
-        sidebarTitle="Admin Workspace"
-        sidebarLinks={adminSidebarLinks}
-        activeHref="/admin/returns"
-      >
-        <AdminReturnsPanel />
-      </DashboardShell>
-    </DemoRoleGate>
-  );
-}
+import { requireRole } from "@/lib/auth/roles";
+import { getAdminReturnRequests } from "@/lib/returns/read-admin-return-requests";
+export default async function AdminReturnsPage(){await requireRole(["ADMIN"],"/admin/returns");const result=await getAdminReturnRequests();return <main className="mx-auto max-w-6xl space-y-6 p-8"><h1 className="font-display text-3xl uppercase">Returns operations</h1><p className="text-silver">Review requests and status only. Refunds and pickup systems are not connected.</p>{!result.backendReady?<p>Returns database is not connected.</p>:result.requests.length===0?<p>No return requests.</p>:<div className="space-y-3">{result.requests.map((r:any)=><Link className="block rounded-xl border border-white/10 p-4" href={"/admin/returns/"+r.id} key={r.id}><div className="flex justify-between"><span>{r.id.slice(0,8)} Â· order {r.order_id.slice(0,8)}</span><span>{r.status}</span></div><p className="text-sm text-silver">{r.reason} Â· {new Date(r.created_at).toLocaleString()}</p></Link>)}</div>}</main>;}

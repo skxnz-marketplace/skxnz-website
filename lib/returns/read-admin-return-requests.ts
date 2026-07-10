@@ -1,0 +1,4 @@
+﻿/* eslint-disable @typescript-eslint/no-explicit-any */
+import { createClient } from "@/lib/supabase/server";
+export async function getAdminReturnRequests(){const db=await createClient();const {data,error}=await db.from("return_requests").select("id,order_id,buyer_id,status,reason,note,created_at,updated_at").order("created_at",{ascending:false});if(error)return {backendReady:!String(error.code).includes("42P01"),requests:[] as any[]};return {backendReady:true,requests:data??[]};}
+export async function getAdminReturnRequest(id:string){const db=await createClient();const {data:request}=await db.from("return_requests").select("id,order_id,buyer_id,status,reason,note,created_at,updated_at").eq("id",id).maybeSingle();if(!request)return {found:false as const,request:null,items:[] as any[]};const {data:items}=await db.from("return_request_items").select("id,order_item_id,quantity,reason").eq("return_request_id",id);return {found:true as const,request,items:items??[]};}

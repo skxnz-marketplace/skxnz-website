@@ -4,4 +4,5 @@ Source: Claude commit 5cc722905e3ba095e0ab762af7e3515c08eb2e3b. Prep commit c0cb
 
 Confirmed hardening: return input validation is now unknown-safe, rejects malformed shapes without throwing, bounds per-item reasons, and preserves positive-integer quantity checks. A draft 0008 migration documents the required database boundary: revoke direct buyer inserts and add length constraints. No live SQL was executed.
 
-Known blocker: the atomic SECURITY DEFINER RPC and admin returns/support operations console remain follow-up work; this commit does not claim refunds, pickups, payment capture, or live fulfilment.
+Completed in the final D1-B slice: admin returns/support server reads, routes, and role-checked actions; the atomic SECURITY DEFINER RPC draft with privilege boundary; malformed-payload regression coverage. The migration remains unapplied by instruction, so live database verification is an operator prerequisite. This commit does not claim refunds, pickups, payment capture, or live fulfilment.
+
