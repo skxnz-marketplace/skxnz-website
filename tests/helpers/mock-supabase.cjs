@@ -18,7 +18,20 @@ function createBuilder(table, resolve, log) {
       return builder;
     };
 
-  for (const method of ["select", "insert", "update", "eq", "neq", "in", "order", "limit"]) {
+  for (const method of [
+    "select",
+    "insert",
+    "update",
+    "eq",
+    "neq",
+    "in",
+    "gte",
+    "lte",
+    "gt",
+    "lt",
+    "order",
+    "limit",
+  ]) {
     builder[method] = record(method);
   }
 

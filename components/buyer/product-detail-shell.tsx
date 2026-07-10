@@ -104,11 +104,10 @@ export function ProductDetailShell({
             Product Route
           </p>
           <h1 className="mt-4 break-words text-[1.6rem] font-semibold leading-tight text-[var(--skxnz-text-dark)] sm:text-3xl">
-            Loading local marketplace state.
+            Loading product.
           </h1>
           <p className="mx-auto mt-4 max-w-2xl break-words text-sm leading-7 text-[var(--skxnz-text-muted)]">
-            SKXNZ is checking the browser-local catalog so approved and seller-submitted
-            products can open on the same route.
+            One moment while SKXNZ loads this product.
           </p>
         </Card>
       </div>
@@ -119,8 +118,8 @@ export function ProductDetailShell({
     return (
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
         <EmptyState
-          title="Product not found in this MVP state."
-          description="This product may not exist in the seed catalog or the current browser-local marketplace preview."
+          title="Product not found."
+          description="This product is not available. It may have been removed or is no longer in the catalog."
           actionHref="/shop"
           actionLabel="Back To Shop"
         />
@@ -255,8 +254,8 @@ export function ProductDetailShell({
                 </p>
               ) : (
                 <p>
-                  Available MVP sizes: {product.sizes.join(", ")}. Select the size you want
-                  to test in cart state. SKXNZ does not guarantee perfect fit in MVP mode.
+                  Available sizes: {product.sizes.join(", ")}. Select your size before adding
+                  to cart. Detailed fit guidance is still being prepared.
                 </p>
               )}
             </ProductAccordion>
@@ -282,7 +281,7 @@ export function ProductDetailShell({
               <p className="mt-4 text-sm leading-7 text-[rgba(255,254,250,0.76)]">
                 {product.dataSource === "live"
                   ? "Get styling guidance using SKXNZ catalog context only. AI try-on is not live yet."
-                  : "Get MVP styling guidance using SKXNZ catalog context only. AI try-on coming soon."}
+                  : "Get styling guidance using SKXNZ catalog context only. AI try-on is not live yet."}
               </p>
               <Link
                 href={`/ai-stylist?q=${encodeURIComponent(product.name)}`}

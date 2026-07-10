@@ -21,6 +21,9 @@ const eslintConfig = [
       "next-env.d.ts",
       "prisma/seed.mjs",
       "screenshots/**",
+      // Node CJS test harness (node:test) — not Next app source. Compiled +
+      // run via `pnpm run test:commerce`; typechecked by tests/tsconfig.json.
+      "tests/**",
     ],
   },
 ];

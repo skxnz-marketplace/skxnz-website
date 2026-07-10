@@ -396,7 +396,14 @@ test("createOrderIntent ignores forged payment fields and stores DRAFT + DB pric
             error: null,
           };
         }
-        if (query.table === "orders") return { data: { id: NEW_ROW_ID }, error: null };
+        // Product has no active variants (fetched by product_id now).
+        if (query.table === "product_variants") return { data: [], error: null };
+        if (query.table === "orders") {
+          // insert -> new row; dedupe SELECT -> no recent drafts.
+          return findCall(query, "insert")
+            ? { data: { id: NEW_ROW_ID }, error: null }
+            : { data: [], error: null };
+        }
         if (query.table === "order_items") return { data: null, error: null };
         if (query.table === "order_events") return { data: null, error: null };
         throw new Error(`Unexpected table: ${query.table}`);
@@ -419,7 +426,7 @@ test("createOrderIntent ignores forged payment fields and stores DRAFT + DB pric
   assert.equal(result.status, "DRAFT");
 
   const orderInsert = findCall(
-    log.find((query) => query.table === "orders"),
+    log.find((query) => query.table === "orders" && findCall(query, "insert")),
     "insert",
   );
   const payload = orderInsert.args[0];
@@ -480,4 +487,265 @@ test("malformed return payloads fail closed without a server exception", async (
   const invalidQty = await createReturnRequest(returnInput({ items: [{ orderItemId: ITEM_ID, quantity: 1.5, reason: null }] }));
   assert.equal(invalidQty.ok, false);
   assert.equal(invalidQty.code, "VALIDATION_FAILED");
+});
+
+// ===========================================================================
+// D2-A — full buyer purchase journey: createOrderIntent hardening
+// ===========================================================================
+
+const VARIANT_ID = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
+const OTHER_ORDER_ID = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
+
+const ownedAddress = {
+  id: ADDRESS_ID,
+  user_id: BUYER.id,
+  full_name: "Test Buyer",
+  phone_number: "9999999999",
+  line1: "1 Test Lane",
+  line2: null,
+  city: "Mumbai",
+  state: "MH",
+  postal_code: "400001",
+  country: "India",
+};
+
+// Factory: a createOrderIntent flow resolver. `product` ACTIVE by default;
+// `variants` are the ACTIVE variant rows returned for the product; dedupe
+// SELECT on orders returns `recentDrafts` and order_items SELECT returns
+// `recentItems`.
+function orderResolver({
+  product = {
+    id: PRODUCT_ID,
+    slug: "p",
+    name: "P",
+    status: "ACTIVE",
+    price_inr: 100,
+    image_url: null,
+    seller_id: null,
+    brand_id: null,
+  },
+  variants = [],
+  address = ownedAddress,
+  recentDrafts = [],
+  recentItems = [],
+} = {}) {
+  return (query) => {
+    if (query.table === "addresses") return { data: address, error: null };
+    if (query.table === "products") return { data: [product], error: null };
+    if (query.table === "product_variants") return { data: variants, error: null };
+    if (query.table === "brands") return { data: [], error: null };
+    if (query.table === "orders") {
+      return findCall(query, "insert")
+        ? { data: { id: NEW_ROW_ID }, error: null }
+        : { data: recentDrafts, error: null };
+    }
+    if (query.table === "order_items") {
+      return findCall(query, "insert")
+        ? { data: null, error: null }
+        : { data: recentItems, error: null };
+    }
+    if (query.table === "order_events") return { data: null, error: null };
+    throw new Error(`Unexpected table: ${query.table}`);
+  };
+}
+
+const baseOrderInput = (overrides = {}) => ({
+  items: [{ productId: PRODUCT_ID, quantity: 1 }],
+  shippingAddressId: ADDRESS_ID,
+  ...overrides,
+});
+
+// ---- Inactive product -----------------------------------------------------
+
+test("order for an inactive product is rejected", async () => {
+  __setMockClient(
+    createMockSupabase({
+      user: BUYER,
+      resolve: orderResolver({
+        product: {
+          id: PRODUCT_ID,
+          slug: "p",
+          name: "P",
+          status: "PENDING_REVIEW",
+          price_inr: 100,
+          image_url: null,
+          seller_id: null,
+          brand_id: null,
+        },
+      }),
+    }),
+  );
+  const result = await createOrderIntent(baseOrderInput());
+  assert.equal(result.ok, false);
+  assert.equal(result.code, "PRODUCT_UNAVAILABLE");
+});
+
+// ---- Variant-backed product, no variant chosen ----------------------------
+
+test("variant-backed product with no variant selected is rejected", async () => {
+  __setMockClient(
+    createMockSupabase({
+      user: BUYER,
+      resolve: orderResolver({
+        variants: [
+          { id: VARIANT_ID, product_id: PRODUCT_ID, size: "M", color: null, price_inr: null, stock_quantity: 5, is_active: true },
+        ],
+      }),
+    }),
+  );
+  const result = await createOrderIntent(baseOrderInput());
+  assert.equal(result.ok, false);
+  assert.equal(result.code, "PRODUCT_UNAVAILABLE");
+});
+
+// ---- Invalid / foreign variant id -----------------------------------------
+
+test("order naming a variant id not in the product's active set is rejected", async () => {
+  __setMockClient(
+    createMockSupabase({
+      user: BUYER,
+      resolve: orderResolver({
+        variants: [
+          { id: VARIANT_ID, product_id: PRODUCT_ID, size: "M", color: null, price_inr: null, stock_quantity: 5, is_active: true },
+        ],
+      }),
+    }),
+  );
+  const result = await createOrderIntent(
+    baseOrderInput({
+      items: [{ productId: PRODUCT_ID, variantId: "cccccccc-cccc-4ccc-8ccc-cccccccccccc", quantity: 1 }],
+    }),
+  );
+  assert.equal(result.ok, false);
+  assert.equal(result.code, "PRODUCT_UNAVAILABLE");
+});
+
+// ---- Quantity validation (zero/negative/decimal/excessive/malformed) ------
+
+for (const [label, quantity] of [
+  ["zero", 0],
+  ["negative", -1],
+  ["decimal", 1.5],
+  ["excessive", 11],
+  ["string-malformed", "2"],
+  ["NaN-malformed", Number.NaN],
+]) {
+  test(`order with ${label} quantity is rejected`, async () => {
+    __setMockClient(createMockSupabase({ user: BUYER, resolve: orderResolver() }));
+    const result = await createOrderIntent(
+      baseOrderInput({ items: [{ productId: PRODUCT_ID, quantity }] }),
+    );
+    assert.equal(result.ok, false);
+    assert.equal(result.code, "VALIDATION_FAILED");
+  });
+}
+
+// ---- Missing / unowned address --------------------------------------------
+
+test("order with no shipping address is rejected", async () => {
+  __setMockClient(createMockSupabase({ user: BUYER, resolve: orderResolver() }));
+  const result = await createOrderIntent(baseOrderInput({ shippingAddressId: null }));
+  assert.equal(result.ok, false);
+  assert.equal(result.code, "ADDRESS_REQUIRED");
+});
+
+test("order with an address the buyer does not own is rejected", async () => {
+  __setMockClient(
+    createMockSupabase({
+      user: BUYER,
+      resolve: orderResolver({ address: { ...ownedAddress, user_id: "someone-else" } }),
+    }),
+  );
+  const result = await createOrderIntent(baseOrderInput());
+  assert.equal(result.ok, false);
+  assert.equal(result.code, "ADDRESS_REQUIRED");
+});
+
+// ---- Client price forgery: DB variant price wins --------------------------
+
+test("order uses the DB variant price, never a client-supplied price", async () => {
+  const log = [];
+  __setMockClient(
+    createMockSupabase({
+      user: BUYER,
+      log,
+      resolve: orderResolver({
+        product: {
+          id: PRODUCT_ID,
+          slug: "p",
+          name: "P",
+          status: "ACTIVE",
+          price_inr: 100, // product base price
+          image_url: null,
+          seller_id: null,
+          brand_id: null,
+        },
+        variants: [
+          { id: VARIANT_ID, product_id: PRODUCT_ID, size: "M", color: null, price_inr: 250, stock_quantity: 5, is_active: true },
+        ],
+      }),
+    }),
+  );
+  const result = await createOrderIntent(
+    baseOrderInput({
+      items: [
+        // Forged unit price + line total — must be ignored.
+        { productId: PRODUCT_ID, variantId: VARIANT_ID, quantity: 2, unitPricePaise: 1, lineTotalPaise: 2 },
+      ],
+    }),
+  );
+  assert.equal(result.ok, true);
+  const itemInsert = findCall(
+    log.find((query) => query.table === "order_items"),
+    "insert",
+  );
+  // Variant price ₹250 -> 25000 paise; qty 2 -> 50000 line total. Client's 1/2 ignored.
+  assert.equal(itemInsert.args[0][0].unit_price_paise, 25000);
+  assert.equal(itemInsert.args[0][0].line_total_paise, 50000);
+  const orderInsert = findCall(
+    log.find((query) => query.table === "orders" && findCall(query, "insert")),
+    "insert",
+  );
+  assert.equal(orderInsert.args[0].subtotal_amount_paise, 50000);
+});
+
+// ---- Accidental duplicate submission --------------------------------------
+
+test("a duplicate submission within the window returns the existing order", async () => {
+  const log = [];
+  __setMockClient(
+    createMockSupabase({
+      user: BUYER,
+      log,
+      resolve: orderResolver({
+        // A recent DRAFT with the same subtotal (1 item x ₹100 = 10000 paise)
+        // and the same line count (1) already exists.
+        recentDrafts: [{ id: OTHER_ORDER_ID, subtotal_amount_paise: 10000 }],
+        recentItems: [{ order_id: OTHER_ORDER_ID }],
+      }),
+    }),
+  );
+  const result = await createOrderIntent(baseOrderInput());
+  assert.equal(result.ok, true);
+  assert.equal(result.orderId, OTHER_ORDER_ID);
+  assert.equal(result.redirectTo, `/orders/${OTHER_ORDER_ID}`);
+  // No new order row was inserted.
+  const insertedOrder = log.find(
+    (query) => query.table === "orders" && findCall(query, "insert"),
+  );
+  assert.equal(insertedOrder, undefined);
+});
+
+// ---- Safe order-success routing -------------------------------------------
+
+test("a valid order routes to /orders/<new id> matching the inserted row", async () => {
+  const log = [];
+  __setMockClient(
+    createMockSupabase({ user: BUYER, log, resolve: orderResolver() }),
+  );
+  const result = await createOrderIntent(baseOrderInput());
+  assert.equal(result.ok, true);
+  assert.equal(result.orderId, NEW_ROW_ID);
+  assert.equal(result.redirectTo, `/orders/${NEW_ROW_ID}`);
+  assert.equal(result.status, "DRAFT");
 });

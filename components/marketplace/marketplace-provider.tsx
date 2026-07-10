@@ -118,6 +118,10 @@ type AddToCartInput = {
   size: string;
   color: string;
   quantity?: number;
+  /** Real product_variants.id for the chosen size/color of a LIVE product.
+   * Carried through the cart so checkout can validate variant availability +
+   * stock server-side. Null for demo products (no DB variant). */
+  variantId?: string | null;
   /** Full product snapshot for live catalog products that are not part of the
    * browser-local demo catalog. The snapshot keeps cart rendering stable even
    * if the live catalog changes later. */
@@ -1194,6 +1198,7 @@ export function MarketplaceProvider({ children }: MarketplaceProviderProps) {
     size,
     color,
     quantity = 1,
+    variantId = null,
     product: productSnapshot,
   }: AddToCartInput) {
     const isLiveSnapshot = productSnapshot?.dataSource === "live";
@@ -1216,6 +1221,40 @@ export function MarketplaceProvider({ children }: MarketplaceProviderProps) {
       };
     }
 
+    // Reject a malformed quantity before it reaches the cart. Whole numbers
+    // 1..9 only (the checkout server caps at 10; the UI stepper caps at 9).
+    if (!Number.isInteger(quantity) || quantity < 1 || quantity > 9) {
+      return {
+        ok: false,
+        message: "Choose a whole quantity between 1 and 9.",
+      };
+    }
+
+    // For a live product backed by real variants, a valid variant id for the
+    // chosen size/color is required and must be in stock. Demo products (no
+    // DB variants) keep a null variant id.
+    if (isLiveSnapshot && (product.variants?.length ?? 0) > 0) {
+      const variant = variantId
+        ? product.variants?.find((option) => option.id === variantId)
+        : undefined;
+
+      if (!variant || !variant.isActive) {
+        return {
+          ok: false,
+          message: "That size or option is no longer available. Pick another.",
+        };
+      }
+      if (variant.stock < quantity) {
+        return {
+          ok: false,
+          message:
+            variant.stock <= 0
+              ? "That option is out of stock."
+              : `Only ${variant.stock} left for that option.`,
+        };
+      }
+    }
+
     setCartItems((current) => {
       const existingItem = current.find(
         (item) =>
@@ -1235,7 +1274,7 @@ export function MarketplaceProvider({ children }: MarketplaceProviderProps) {
             product,
             productId,
             image: product.image,
-            productVariantId: null,
+            productVariantId: variantId,
             quantity,
             size,
             color,
@@ -1256,6 +1295,8 @@ export function MarketplaceProvider({ children }: MarketplaceProviderProps) {
         item.color === color
           ? {
               ...item,
+              // Keep the freshest resolved variant id for this size/color.
+              productVariantId: variantId ?? item.productVariantId,
               quantity: item.quantity + quantity,
               updatedAt: createIsoTimestamp(),
             }
@@ -1268,9 +1309,7 @@ export function MarketplaceProvider({ children }: MarketplaceProviderProps) {
 
     return {
       ok: true,
-      message: isLiveSnapshot
-        ? `${product.name} was added to your cart.`
-        : `${product.name} was added to the cart in browser-local MVP state.`,
+      message: `${product.name} was added to your cart.`,
     };
   }
 
@@ -1399,11 +1438,19 @@ export function MarketplaceProvider({ children }: MarketplaceProviderProps) {
       };
     }
 
+    // For a live variant-backed product, resolve the first in-stock active
+    // variant and use its size/color so the cart carries a real variant id.
+    const firstVariant =
+      product.dataSource === "live"
+        ? product.variants?.find((option) => option.isActive && option.stock > 0)
+        : undefined;
+
     const result = addToCart({
       productId,
-      size: product.sizes[0] ?? "",
-      color: product.colors[0] ?? "",
+      size: firstVariant?.size ?? product.sizes[0] ?? "",
+      color: firstVariant?.color ?? product.colors[0] ?? "",
       quantity: 1,
+      variantId: firstVariant?.id ?? null,
       // Pass the snapshot so LIVE products (not in `catalog`) can reach the cart.
       product,
     });

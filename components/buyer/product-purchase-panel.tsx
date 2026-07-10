@@ -65,27 +65,62 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
   const isApproved = product.status === "Approved Preview" || isLiveProduct;
   const savedInWishlist = isInWishlist(product.id);
   // Live products only carry real stock when variant rows exist behind them.
+  const isVariantBacked = isLiveProduct && (product.variants?.length ?? 0) > 0;
   const hasRealStockData = !isLiveProduct || (product.variantCount ?? 0) > 0;
-  const isOutOfStock = hasRealStockData && product.stock <= 0;
+
+  // Resolve the real variant row for the current size/color selection so the
+  // cart can carry a product_variants.id and the server can validate stock.
+  const selectedVariant = useMemo(() => {
+    if (!isVariantBacked || !selectedSize) return undefined;
+    const options = product.variants ?? [];
+    const size = selectedSize ?? "";
+    const color = selectedColor ?? "";
+    return (
+      options.find(
+        (option) => (option.size ?? "") === size && (option.color ?? "") === color,
+      ) ??
+      options.find((option) => (option.size ?? "") === size && !option.color) ??
+      options.find((option) => (option.color ?? "") === color && !option.size)
+    );
+  }, [isVariantBacked, product.variants, selectedSize, selectedColor]);
+
+  // Available stock for the current selection: the resolved variant's stock
+  // when variant-backed, else the product-level summed stock.
+  const availableStock = isVariantBacked
+    ? selectedVariant?.stock ?? 0
+    : product.stock;
+  // For variant-backed products a selection with no resolvable/active variant
+  // is treated as unavailable.
+  const selectionUnavailable =
+    isVariantBacked && Boolean(selectedSize) && (!selectedVariant || !selectedVariant.isActive);
+  const isOutOfStock = hasRealStockData && (availableStock <= 0 || selectionUnavailable);
+
   const stockLabel = useMemo(() => {
     if (!hasRealStockData) {
       return "Stock data being connected";
     }
-
-    if (product.stock <= 0) {
-      return isLiveProduct ? "Currently unavailable" : "Currently unavailable in MVP stock";
+    if (selectionUnavailable) {
+      return "Selected option unavailable";
     }
-
-    if (product.stock <= 5) {
-      return isLiveProduct ? "Low stock" : "Low MVP stock preview";
+    if (availableStock <= 0) {
+      return "Currently unavailable";
     }
-
-    return isLiveProduct ? "In stock" : "In MVP stock preview";
-  }, [hasRealStockData, isLiveProduct, product.stock]);
+    if (availableStock <= 5) {
+      return "Low stock";
+    }
+    return "In stock";
+  }, [hasRealStockData, isLiveProduct, availableStock, selectionUnavailable]);
 
   function handleAddToCart() {
     if (!selectedSize) {
       setFeedback({ ok: false, message: "Select a size to add this piece to your cart." });
+      return;
+    }
+    if (isVariantBacked && (!selectedVariant || !selectedVariant.isActive)) {
+      setFeedback({
+        ok: false,
+        message: "That size or option is no longer available. Pick another.",
+      });
       return;
     }
 
@@ -94,6 +129,7 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
       size: selectedSize,
       color: selectedColor,
       quantity,
+      variantId: selectedVariant?.id ?? null,
       product,
     });
 
@@ -344,7 +380,7 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
       <p className="mt-5 rounded-[22px] border border-[var(--skxnz-border)] bg-[var(--skxnz-bg-soft)] p-4 text-sm leading-6 text-[var(--skxnz-text-muted)]">
         {isLiveProduct
           ? "This product is loaded from the active catalog. Live payment, delivery, and refund processing are not connected yet."
-          : "Demo checkout for internal testing. Live payment, delivery, and refund processing are not connected yet."}
+          : "Live payment, delivery, and refund processing are not connected yet."}
       </p>
     </Card>
   );

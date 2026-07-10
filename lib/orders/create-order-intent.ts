@@ -43,6 +43,8 @@ import { createClient } from "@/lib/supabase/server";
 
 const MAX_LINE_ITEMS = 50;
 const MAX_QUANTITY_PER_LINE = 10;
+/** Window for the accidental-duplicate-order guard (see section 6b). */
+const DEDUPE_WINDOW_MS = 60_000;
 
 /** One requested cart line. Only identity + quantity is trusted from client. */
 export type CreateOrderItemInput = {
@@ -245,17 +247,20 @@ export async function createOrderIntent(
   const productById = new Map(products.map((product) => [product.id, product]));
   const productBySlug = new Map(products.map((product) => [product.slug, product]));
 
-  // ---- 5. Re-fetch requested variants (price override + stock + active) ---
-  const variantIds = input.items
-    .map((item) => item.variantId)
-    .filter((value): value is string => Boolean(value));
-
+  // ---- 5. Re-fetch ALL active variants for the ordered products -----------
+  // Fetching by product_id (not just the client-supplied variant ids) lets us
+  // enforce: if a product has active variants, the buyer MUST select a valid,
+  // in-stock one. A stale/forged client that omits the variant id can no
+  // longer slip a variant-backed product through without a stock check.
+  const orderedProductIds = [...new Set(products.map((product) => product.id))];
   let variantById = new Map<string, VariantRow>();
-  if (variantIds.length) {
+  const activeVariantCountByProduct = new Map<string, number>();
+  if (orderedProductIds.length) {
     const { data: variants, error: variantError } = await supabase
       .from("product_variants")
       .select("id, product_id, size, color, price_inr, stock_quantity, is_active")
-      .in("id", variantIds);
+      .in("product_id", orderedProductIds)
+      .eq("is_active", true);
 
     if (variantError) {
       if (isMissingTableError(variantError)) {
@@ -265,6 +270,12 @@ export async function createOrderIntent(
       return dbError();
     }
     variantById = new Map((variants ?? []).map((variant) => [variant.id, variant as VariantRow]));
+    for (const variant of variants ?? []) {
+      activeVariantCountByProduct.set(
+        variant.product_id,
+        (activeVariantCountByProduct.get(variant.product_id) ?? 0) + 1,
+      );
+    }
   }
 
   // Brand names (one lookup for all products) for the item snapshot.
@@ -316,10 +327,15 @@ export async function createOrderIntent(
       };
     }
 
+    const productHasActiveVariants =
+      (activeVariantCountByProduct.get(product.id) ?? 0) > 0;
+
     let variant: VariantRow | undefined;
     if (item.variantId) {
       variant = variantById.get(item.variantId);
-      // Variant must exist, belong to this product, and be active.
+      // Variant must exist (in the active set), belong to this product, and be
+      // active. variantById holds only active variants, so an inactive/foreign
+      // id is absent here.
       if (!variant || variant.product_id !== product.id || !variant.is_active) {
         return {
           ok: false,
@@ -327,7 +343,7 @@ export async function createOrderIntent(
           message: "A selected size/colour is no longer available.",
         };
       }
-      // Stock check only when a variant (the stock-bearing row) is selected.
+      // Stock check against the real variant row (the stock-bearing record).
       if (variant.stock_quantity < item.quantity) {
         return {
           ok: false,
@@ -335,6 +351,14 @@ export async function createOrderIntent(
           message: "One of your items does not have enough stock.",
         };
       }
+    } else if (productHasActiveVariants) {
+      // Product is variant-backed but no variant was chosen — reject rather
+      // than silently create a variant-less, stock-unchecked line.
+      return {
+        ok: false,
+        code: "PRODUCT_UNAVAILABLE",
+        message: "Please choose an available size or option for one of your items.",
+      };
     }
 
     // price_inr is whole rupees in the catalog; store integer paise (× 100).
@@ -359,6 +383,59 @@ export async function createOrderIntent(
   }
 
   const subtotalPaise = resolvedLines.reduce((total, line) => total + line.lineTotalPaise, 0);
+
+  // ---- 6b. Accidental-duplicate guard (best-effort, no schema change) -----
+  // supabase-js has no transaction / DB unique key we can lean on here, so
+  // this is a short-window heuristic against double-click / double-navigation:
+  // if this buyer already created a DRAFT with the same subtotal AND the same
+  // number of lines in the last 60s, return THAT order instead of inserting a
+  // near-identical twin. It is NOT a cryptographic idempotency key — a genuine
+  // identical re-order within 60s is treated as the same submission, which is
+  // acceptable because nothing is paid and the buyer can re-order after the
+  // window. A dedicated idempotency key is a documented later hardening step.
+  const dedupeSinceIso = new Date(Date.now() - DEDUPE_WINDOW_MS).toISOString();
+  const { data: recentDrafts, error: recentError } = await supabase
+    .from("orders")
+    .select("id, subtotal_amount_paise")
+    .eq("buyer_id", buyerId)
+    .eq("status", "DRAFT")
+    .eq("subtotal_amount_paise", subtotalPaise)
+    .gte("created_at", dedupeSinceIso)
+    .order("created_at", { ascending: false })
+    .limit(5);
+
+  if (recentError && isMissingTableError(recentError)) {
+    return notWired();
+  }
+  if (recentDrafts && recentDrafts.length > 0) {
+    const candidateIds = recentDrafts.map((draft) => draft.id as string);
+    const { data: candidateItems, error: candidateItemsError } = await supabase
+      .from("order_items")
+      .select("order_id")
+      .in("order_id", candidateIds);
+
+    if (candidateItemsError && isMissingTableError(candidateItemsError)) {
+      return notWired();
+    }
+    const lineCountByOrder = new Map<string, number>();
+    for (const row of candidateItems ?? []) {
+      const key = row.order_id as string;
+      lineCountByOrder.set(key, (lineCountByOrder.get(key) ?? 0) + 1);
+    }
+    const duplicateId = candidateIds.find(
+      (id) => (lineCountByOrder.get(id) ?? 0) === resolvedLines.length,
+    );
+    if (duplicateId) {
+      // Same buyer, same subtotal, same line count, within the window: treat
+      // as the same submission and route to the existing order.
+      return {
+        ok: true,
+        orderId: duplicateId,
+        status: "DRAFT",
+        redirectTo: `/orders/${duplicateId}`,
+      };
+    }
+  }
 
   // ---- 7. Insert order (DRAFT) ------------------------------------------
   // shipping/tax/total left NULL (no engine yet). payment fields NULL.

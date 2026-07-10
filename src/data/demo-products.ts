@@ -49,6 +49,11 @@ export type Product = {
   /** Number of real variant rows behind a live catalog product. When 0 or
    * undefined, stock/size data is not backed by real variant records. */
   variantCount?: number;
+  /** Real variant rows behind a live catalog product (id/size/color/stock).
+   * Lets the buyer UI resolve a chosen size+color to a product_variants.id so
+   * the server can validate variant availability + stock. Undefined for demo
+   * products, which carry no DB variants. */
+  variants?: ProductVariantOption[];
   status: ProductStatus;
   launchNote: string;
   fabric: string;
@@ -62,6 +67,19 @@ export type Product = {
   submittedAt: string;
   createdAt: string;
   updatedAt: string;
+};
+
+/** One real variant row behind a live catalog product, surfaced to the buyer
+ * UI so a chosen size/color resolves to a real product_variants.id. Demo
+ * products leave Product.variants undefined and keep working with a null
+ * variant id. Prices are whole rupees (matching Product.price). */
+export type ProductVariantOption = {
+  id: string;
+  size: string | null;
+  color: string | null;
+  priceInr: number | null;
+  stock: number;
+  isActive: boolean;
 };
 
 export type ProductSubmissionInput = {
