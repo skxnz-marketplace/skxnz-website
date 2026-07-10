@@ -9,7 +9,7 @@ const nextSteps = [
     step: "01",
     title: "Secure payment connection",
     description:
-      "Razorpay is connected server-side so amounts come from the database and are verified before anything is charged. Not active yet.",
+      "Payment provider integration is planned server-side. It is not connected or charge-capable yet.",
   },
   {
     step: "02",

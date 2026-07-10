@@ -75,14 +75,21 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
     const options = product.variants ?? [];
     const size = selectedSize ?? "";
     const color = selectedColor ?? "";
+    const supportsCombinedPair = options.some(
+      (option) => Boolean(option.size) && Boolean(option.color),
+    );
+    if (supportsCombinedPair) {
+      return options.find(
+        (option) => (option.size ?? "") === size && (option.color ?? "") === color,
+      );
+    }
     return (
       options.find(
         (option) => (option.size ?? "") === size && (option.color ?? "") === color,
       ) ??
       options.find((option) => (option.size ?? "") === size && !option.color) ??
       options.find((option) => (option.color ?? "") === color && !option.size)
-    );
-  }, [isVariantBacked, product.variants, selectedSize, selectedColor]);
+    );  }, [isVariantBacked, product.variants, selectedSize, selectedColor]);
 
   // Available stock for the current selection: the resolved variant's stock
   // when variant-backed, else the product-level summed stock.

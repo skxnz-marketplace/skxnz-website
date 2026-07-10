@@ -1,4 +1,4 @@
-﻿// SKXNZ launch-war D1-A â€” application-layer tests for the buyer commerce
+// SKXNZ launch-war D1-A â€” application-layer tests for the buyer commerce
 // server actions. Run with:  pnpm run test:commerce
 //
 // These compile the REAL action source (tests/tsconfig.json -> tests/.build)
@@ -25,6 +25,7 @@ const {
   addSupportTicketMessage,
 } = require("@/lib/support/add-support-ticket-message");
 const { createOrderIntent } = require("@/lib/orders/create-order-intent");
+const { getBuyerOrderById } = require("@/lib/orders/read-buyer-orders");
 
 const BUYER = { id: "11111111-1111-4111-8111-111111111111", email: "buyer@test.local" };
 const ORDER_ID = "22222222-2222-4222-8222-222222222222";
@@ -711,7 +712,7 @@ test("order uses the DB variant price, never a client-supplied price", async () 
 
 // ---- Accidental duplicate submission --------------------------------------
 
-test("a duplicate submission within the window returns the existing order", async () => {
+test("a duplicate submission returns the existing order by stable line fingerprint", async () => {
   const log = [];
   __setMockClient(
     createMockSupabase({
@@ -721,7 +722,7 @@ test("a duplicate submission within the window returns the existing order", asyn
         // A recent DRAFT with the same subtotal (1 item x ₹100 = 10000 paise)
         // and the same line count (1) already exists.
         recentDrafts: [{ id: OTHER_ORDER_ID, subtotal_amount_paise: 10000 }],
-        recentItems: [{ order_id: OTHER_ORDER_ID }],
+        recentItems: [{ order_id: OTHER_ORDER_ID, product_id: PRODUCT_ID, variant_id: null, quantity: 1 }],
       }),
     }),
   );
@@ -749,3 +750,5 @@ test("a valid order routes to /orders/<new id> matching the inserted row", async
   assert.equal(result.redirectTo, `/orders/${NEW_ROW_ID}`);
   assert.equal(result.status, "DRAFT");
 });
+
+test("buyer cannot read another buyer order by id", async () => { __setMockClient(createMockSupabase({ user: BUYER, resolve: (query) => { if (query.table === "orders") return { data: null, error: null }; throw new Error("Unexpected table: " + query.table); } })); const result = await getBuyerOrderById("bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb"); assert.equal(result.order, null); });

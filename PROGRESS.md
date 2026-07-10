@@ -1,4 +1,4 @@
-﻿# SKXNZ - Progress Tracker
+# SKXNZ - Progress Tracker
 
 Single source of truth for project status. Read this before starting work and update it before finishing.
 
@@ -387,3 +387,8 @@ Single source of truth for project status. Read this before starting work and up
 - Added draft 0008 database boundary migration; not applied live.
 - Next: atomic RPC verification and admin returns/support console.
 
+
+## Codex D2-B (2026-07-10)
+- Hardened stable buyer order dedupe, stale cart price notices, exact combined variants, unauthorized order access tests, and removed unused commerce demos.
+- Commerce tests: 35/35; TypeScript pending final lint/commit.
+- Next: disposable Supabase idempotency/RPC concurrency proof.

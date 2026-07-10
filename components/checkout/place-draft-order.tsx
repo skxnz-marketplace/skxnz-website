@@ -80,6 +80,7 @@ export function PlaceDraftOrder({ addresses, backendReady }: PlaceDraftOrderProp
       productSlug: item.product.slug,
       variantId: item.productVariantId ?? null,
       quantity: item.quantity,
+      clientUnitPricePaise: item.unitPriceCents,
     }));
     // Delivery note comes from the device-local checkout draft (optional).
     const notes = readCheckoutDraft().deliveryNote?.trim() || null;
@@ -94,6 +95,7 @@ export function PlaceDraftOrder({ addresses, backendReady }: PlaceDraftOrderProp
       if (result.ok) {
         // Cart is intentionally left as-is: the order is an UNPAID draft, so
         // clearing the cart would hide the items before anything is paid.
+        if (result.notices?.length) setError(result.notices.join(" "));
         router.push(result.redirectTo);
         return;
       }
