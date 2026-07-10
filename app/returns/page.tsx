@@ -1,61 +1,82 @@
 import Link from "next/link";
 
-import { DemoRoleGate } from "@/components/auth/demo-role-gate";
 import { LegalPageShell } from "@/components/legal/legal-page-shell";
-import { PolicyNotice } from "@/components/legal/policy-notice";
 import { PolicySection } from "@/components/legal/policy-section";
-import { ReturnRequestWorkspace } from "@/components/returns/return-request-workspace";
 import { buttonVariants } from "@/components/ui/button";
+
+// Public returns page (launch-war D1-A). Server component, no demo state.
+//
+// The real return workflow lives on the buyer's own order detail page
+// (DELIVERED orders only) and in /account/returns — both wired to the 0005
+// return_requests backend. This page explains the process truthfully and
+// routes into that workflow. The old demo-role-gated ReturnRequestWorkspace
+// (browser-local request state) was removed from this route.
+
+export const metadata = {
+  title: "Returns — SKXNZ",
+  description: "How returns work at SKXNZ and where to request one.",
+};
 
 export default function ReturnsPage() {
   return (
     <LegalPageShell
-      eyebrow="Returns Draft"
-      title="Returns policy being prepared."
-      description="This draft returns page explains the current MVP state. Real return windows, product conditions, pickup workflows, refund timing, and support ownership must be finalized before public launch."
-      notice="Draft returns language for internal review. Do not treat this as a final public return policy."
+      eyebrow="Returns"
+      title="Returns, reviewed by people."
+      description="Returns at SKXNZ are requested from the order itself after delivery. Every request is reviewed individually — nothing is auto-approved and nothing is promised that operations cannot keep."
+      notice="The complete published return policy — windows, conditions, and charges — is being finalized ahead of public launch. Until then, every return is handled case by case through review."
     >
-      <PolicySection title="Current MVP status">
-        <p>
-          SKXNZ has demo return-request screens for internal QA only. Real pickup,
-          inspection, refund, and exchange operations are not live yet.
-        </p>
-        <p>
-          Return eligibility, timelines, conditions, exceptions, and charges must be
-          reviewed legally and operationally before SKXNZ accepts public orders.
-        </p>
+      <PolicySection title="How a return works today">
+        <ol className="list-decimal space-y-2 pl-5">
+          <li>Open the delivered order in Your Orders.</li>
+          <li>
+            Select the items and quantities you want to return, add your
+            reason, and submit the request.
+          </li>
+          <li>
+            SKXNZ reviews the request. You can follow its status any time in
+            My Returns in your account.
+          </li>
+          <li>
+            If a return is approved, pickup and refund steps are arranged and
+            confirmed to you — they are never scheduled automatically at
+            submission.
+          </li>
+        </ol>
       </PolicySection>
 
-      <PolicySection title="What is not promised yet">
+      <PolicySection title="What you can expect">
         <ul className="list-disc space-y-2 pl-5">
-          <li>No free returns promise is made in this draft.</li>
-          <li>No instant refund promise is made in this draft.</li>
-          <li>No courier pickup timeline is final in this draft.</li>
-          <li>No product authenticity or brand authorization claim is implied.</li>
+          <li>Returns can be requested only for orders that have been delivered.</li>
+          <li>Each item can be returned up to the quantity you purchased, once.</li>
+          <li>A submitted request means a review — not an approved refund.</li>
+          <li>
+            Refunds are only issued after a return is approved and processed;
+            no refund timing is promised before that confirmation.
+          </li>
         </ul>
       </PolicySection>
 
-      <PolicyNotice tone="warning">
-        Demo checkout orders are internal test records only. They do not create real
-        payment, delivery, return, or refund obligations.
-      </PolicyNotice>
-
-      <div className="flex flex-wrap gap-3">
-        <Link href="/support" className={buttonVariants({ variant: "secondary", size: "lg" })}>
-          Contact Support
-        </Link>
-        <Link href="/shipping" className={buttonVariants({ variant: "ghost", size: "lg" })}>
-          Shipping Draft
-        </Link>
-      </div>
-
-      <DemoRoleGate
-        allowedRoles={["buyer"]}
-        areaLabel="Buyer returns"
-        helperText="The workspace below stays in buyer demo mode so request language can be reviewed before real pickup and refund systems are connected."
-      >
-        <ReturnRequestWorkspace />
-      </DemoRoleGate>
+      <PolicySection title="Where to go">
+        <p>
+          Request a return from the order itself, or check the status of one
+          you already submitted. Both need you to be signed in to the account
+          that placed the order.
+        </p>
+        <div className="mt-4 flex flex-wrap gap-3">
+          <Link href="/orders" className={buttonVariants({ variant: "primary", size: "lg" })}>
+            Your Orders
+          </Link>
+          <Link
+            href="/account/returns"
+            className={buttonVariants({ variant: "secondary", size: "lg" })}
+          >
+            My Returns
+          </Link>
+          <Link href="/support" className={buttonVariants({ variant: "ghost", size: "lg" })}>
+            Contact Support
+          </Link>
+        </div>
+      </PolicySection>
     </LegalPageShell>
   );
 }

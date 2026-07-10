@@ -40,7 +40,8 @@ export async function middleware(request: NextRequest) {
   const needsUser =
     path.startsWith('/account') ||
     path.startsWith('/orders') ||
-    path.startsWith('/returns') ||
+    // /returns is a public policy page (D1-A); the buyer return workspace
+    // lives under /account/returns and /orders/[id], both gated above.
     path.startsWith('/wishlist') ||
     path.startsWith('/admin') ||
     path.startsWith('/seller')

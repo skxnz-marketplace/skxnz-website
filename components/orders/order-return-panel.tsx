@@ -10,14 +10,41 @@ import type {
   BuyerOrderItem,
   BuyerOrderStatus,
 } from "@/lib/orders/read-buyer-orders";
+import type {
+  OrderReturnRequestSummary,
+} from "@/lib/returns/read-return-requests";
+import type { ReturnRequestStatus } from "@/lib/returns/return-requests";
 
-// Buyer return-request surface on order detail (D5-3). Wired to the REAL D4-5
-// action createReturnRequest (session-auth, RLS, DELIVERED-only eligibility).
-// The action itself re-verifies ownership + eligibility server-side; this UI
-// only enables the form when the order is DELIVERED and otherwise shows an
-// honest disabled state. No fake refund/pickup/courier claim anywhere.
+// Buyer return-request surface on order detail (D5-3, hardened D1-A). Wired to
+// the REAL D4-5 action createReturnRequest (session-auth, RLS, DELIVERED-only
+// eligibility). The action re-verifies ownership, eligibility, and
+// already-claimed quantities server-side; this UI only enables the form when
+// the order is DELIVERED, caps quantities at what is still claimable, and
+// shows any existing request's status. No fake refund/pickup/courier claim.
 
 type SelectedState = Record<string, { checked: boolean; quantity: number }>;
+
+const returnStatusLabels: Record<ReturnRequestStatus, string> = {
+  REQUESTED: "Submitted for review",
+  IN_REVIEW: "In review",
+  APPROVED: "Approved",
+  REJECTED: "Not approved",
+  PICKUP_PENDING: "Pickup being arranged",
+  RECEIVED: "Item received",
+  REFUND_PENDING: "Refund in progress",
+  REFUNDED: "Refunded",
+  CLOSED: "Closed",
+};
+
+function formatReturnDate(iso: string): string {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
 
 const fieldClassName =
   "mt-2 w-full min-w-0 rounded-[20px] border border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-bg-soft)] px-4 py-3 text-sm text-midnightbrown outline-none transition focus:border-[rgba(34,211,238,0.34)] focus:ring-4 focus:ring-[rgba(34,211,238,0.08)]";
@@ -40,10 +67,14 @@ export function OrderReturnPanel({
   orderId,
   status,
   items,
+  existingReturns = [],
+  claimedQuantities = {},
 }: {
   orderId: string;
   status: BuyerOrderStatus;
   items: BuyerOrderItem[];
+  existingReturns?: OrderReturnRequestSummary[];
+  claimedQuantities?: Record<string, number>;
 }) {
   const router = useRouter();
   const eligible = status === "DELIVERED";
@@ -59,9 +90,25 @@ export function OrderReturnPanel({
   const [submittedId, setSubmittedId] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
+  // Quantity still claimable per line, after earlier non-rejected requests.
+  // The server action re-checks this on submit; here it only shapes the UI.
+  const remainingByItemId = useMemo(() => {
+    const remaining = new Map<string, number>();
+    for (const item of items) {
+      const claimed = claimedQuantities[item.id] ?? 0;
+      remaining.set(item.id, Math.max(0, item.quantity - claimed));
+    }
+    return remaining;
+  }, [items, claimedQuantities]);
+
+  const returnableItems = useMemo(
+    () => items.filter((item) => (remainingByItemId.get(item.id) ?? 0) > 0),
+    [items, remainingByItemId],
+  );
+
   const chosen = useMemo(
-    () => items.filter((item) => selected[item.id]?.checked),
-    [items, selected],
+    () => returnableItems.filter((item) => selected[item.id]?.checked),
+    [returnableItems, selected],
   );
 
   if (!eligible) {
@@ -93,6 +140,44 @@ export function OrderReturnPanel({
     );
   }
 
+  const existingReturnsBlock =
+    existingReturns.length > 0 ? (
+      <div className="mt-5 rounded-[20px] border border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-bg-soft)] p-4">
+        <p className="text-[0.68rem] font-bold uppercase tracking-[0.18em] text-stone">
+          Returns already requested for this order
+        </p>
+        <ul className="mt-2 space-y-1">
+          {existingReturns.map((request) => (
+            <li key={request.id} className="text-xs leading-6 text-midnightbrown">
+              {returnStatusLabels[request.status] ?? request.status} — reference{" "}
+              {request.id.slice(0, 8).toUpperCase()}
+              {formatReturnDate(request.createdAt)
+                ? `, ${formatReturnDate(request.createdAt)}`
+                : ""}
+            </li>
+          ))}
+        </ul>
+      </div>
+    ) : null;
+
+  if (returnableItems.length === 0) {
+    return (
+      <Card className="section-border rounded-[36px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-6 sm:p-8">
+        <p className="section-kicker text-[0.68rem] uppercase tracking-[0.24em] text-sangria">
+          Returns
+        </p>
+        <h2 className="mt-3 font-display text-2xl uppercase leading-tight tracking-[0.04em] text-midnightbrown">
+          A return is already in progress.
+        </h2>
+        <p className="mt-3 text-sm leading-7 text-stone">
+          Every item in this order is covered by an existing return request.
+          You can follow its status in My Returns.
+        </p>
+        {existingReturnsBlock}
+      </Card>
+    );
+  }
+
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (isPending) return;
@@ -114,7 +199,10 @@ export function OrderReturnPanel({
         note: note.trim() || null,
         items: chosen.map((item) => ({
           orderItemId: item.id,
-          quantity: selected[item.id]?.quantity ?? 1,
+          quantity: Math.min(
+            selected[item.id]?.quantity ?? 1,
+            remainingByItemId.get(item.id) ?? 1,
+          ),
           reason: null,
         })),
       });
@@ -141,10 +229,13 @@ export function OrderReturnPanel({
         review request only — no refund or pickup is scheduled automatically.
       </p>
 
+      {existingReturnsBlock}
+
       <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
         <div className="grid gap-3">
-          {items.map((item) => {
+          {returnableItems.map((item) => {
             const state = selected[item.id] ?? { checked: false, quantity: 1 };
+            const remaining = remainingByItemId.get(item.id) ?? item.quantity;
             return (
               <label
                 key={item.id}
@@ -166,15 +257,21 @@ export function OrderReturnPanel({
                     {item.titleSnapshot}
                   </span>
                   <span className="mt-1 block text-xs text-stone">
-                    {[item.selectedSize ? `Size ${item.selectedSize}` : null, `Qty ${item.quantity}`]
+                    {[
+                      item.selectedSize ? `Size ${item.selectedSize}` : null,
+                      `Qty ${item.quantity}`,
+                      remaining < item.quantity
+                        ? `${remaining} still returnable`
+                        : null,
+                    ]
                       .filter(Boolean)
                       .join(" · ")}
                   </span>
-                  {state.checked && item.quantity > 1 ? (
+                  {state.checked && remaining > 1 ? (
                     <span className="mt-2 flex items-center gap-2 text-xs text-stone">
                       Return qty
                       <select
-                        value={state.quantity}
+                        value={Math.min(state.quantity, remaining)}
                         onChange={(event) =>
                           setSelected((current) => ({
                             ...current,
@@ -186,7 +283,7 @@ export function OrderReturnPanel({
                         }
                         className="rounded-[12px] border border-[rgba(58,8,24,0.12)] bg-white px-2 py-1"
                       >
-                        {Array.from({ length: item.quantity }, (_, index) => index + 1).map(
+                        {Array.from({ length: remaining }, (_, index) => index + 1).map(
                           (value) => (
                             <option key={value} value={value}>
                               {value}

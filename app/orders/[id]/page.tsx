@@ -9,6 +9,7 @@ import {
   describeOrderStatus,
   getBuyerOrderById,
 } from "@/lib/orders/read-buyer-orders";
+import { getOrderReturnSummary } from "@/lib/returns/read-return-requests";
 
 // Buyer order detail (D4-4). Server component: reads ONE buyer-owned order
 // via the session-scoped Supabase client. RLS + the explicit buyer_id filter
@@ -77,6 +78,12 @@ export default async function OrderDetailPage({
   const order = result.order;
   const status = describeOrderStatus(order.status);
   const isUnpaid = order.status === "DRAFT" || order.status === "PAYMENT_PENDING";
+  // Existing return requests for this order (only matters once DELIVERED;
+  // cheap no-op reads otherwise since none can exist).
+  const returnSummary =
+    order.status === "DELIVERED"
+      ? await getOrderReturnSummary(order.id)
+      : { requests: [], claimedQuantities: {} };
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
@@ -252,6 +259,8 @@ export default async function OrderDetailPage({
           orderId={order.id}
           status={order.status}
           items={order.items}
+          existingReturns={returnSummary.requests}
+          claimedQuantities={returnSummary.claimedQuantities}
         />
 
         <Card className="section-border rounded-[36px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-6 sm:p-8">

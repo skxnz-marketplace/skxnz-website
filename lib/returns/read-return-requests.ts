@@ -10,6 +10,7 @@
 // refund — those are server-only statuses set after real provider/ops action.
 
 import { createClient } from "@/lib/supabase/server";
+import { isOrderIdShape } from "@/lib/orders/read-buyer-orders";
 import type { ReturnRequestStatus } from "@/lib/returns/return-requests";
 
 export type BuyerReturnRequest = {
@@ -94,5 +95,95 @@ export async function getBuyerReturnRequests(): Promise<BuyerReturnRequestsResul
       itemCount: counts.get(row.id) ?? 0,
       createdAt: row.created_at,
     })),
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Per-order return summary (launch-war D1-A).
+//
+// Used by the buyer order-detail page so the return panel can (a) show any
+// return request already submitted for the order and (b) cap the quantity
+// selector at what is still claimable per line. Mirrors the server action's
+// netting rule: every non-REJECTED request keeps its claim. Read-only; the
+// server action re-checks everything on submit — this summary is UX truth,
+// not the security boundary.
+// ---------------------------------------------------------------------------
+
+export type OrderReturnRequestSummary = {
+  id: string;
+  status: ReturnRequestStatus;
+  reason: string;
+  createdAt: string;
+};
+
+export type OrderReturnSummary = {
+  /** Existing non-REJECTED return requests for this order, newest first. */
+  requests: OrderReturnRequestSummary[];
+  /** order_item_id -> quantity already claimed by those requests. */
+  claimedQuantities: Record<string, number>;
+};
+
+const emptyOrderReturnSummary: OrderReturnSummary = {
+  requests: [],
+  claimedQuantities: {},
+};
+
+export async function getOrderReturnSummary(
+  orderId: string,
+): Promise<OrderReturnSummary> {
+  if (!isOrderIdShape(orderId)) return emptyOrderReturnSummary;
+
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+  if (userError || !user) return emptyOrderReturnSummary;
+
+  const { data: requests, error } = await supabase
+    .from("return_requests")
+    .select("id, status, reason, created_at")
+    .eq("order_id", orderId)
+    .eq("buyer_id", user.id)
+    .neq("status", "REJECTED")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    if (!isMissingTableError(error)) {
+      console.warn("[returns] order return summary failed:", error.message);
+    }
+    return emptyOrderReturnSummary;
+  }
+  const rows = requests ?? [];
+  if (rows.length === 0) return emptyOrderReturnSummary;
+
+  const claimedQuantities: Record<string, number> = {};
+  const { data: itemRows, error: itemError } = await supabase
+    .from("return_request_items")
+    .select("order_item_id, quantity")
+    .in(
+      "return_request_id",
+      rows.map((row) => row.id),
+    );
+
+  if (itemError) {
+    console.warn("[returns] order return item summary failed:", itemError.message);
+  } else {
+    for (const item of itemRows ?? []) {
+      const key = item.order_item_id as string;
+      claimedQuantities[key] =
+        (claimedQuantities[key] ?? 0) + ((item.quantity as number) ?? 0);
+    }
+  }
+
+  return {
+    requests: rows.map((row) => ({
+      id: row.id,
+      status: row.status as ReturnRequestStatus,
+      reason: row.reason,
+      createdAt: row.created_at,
+    })),
+    claimedQuantities,
   };
 }

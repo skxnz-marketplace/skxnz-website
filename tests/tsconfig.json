@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "target": "ES2019",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": false,
+    "outDir": "./.build",
+    "rootDir": "..",
+    "baseUrl": "..",
+    "paths": {
+      "@/*": ["./*"]
+    },
+    "types": ["node"]
+  },
+  "include": [
+    "../lib/returns/create-return-request.ts",
+    "../lib/support/create-support-ticket.ts",
+    "../lib/support/add-support-ticket-message.ts",
+    "../lib/orders/create-order-intent.ts"
+  ]
+}

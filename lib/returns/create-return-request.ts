@@ -29,11 +29,17 @@
 // item-less REQUESTED return the buyer can see and admin can close — never a
 // refund or approval. Single-RPC atomicity is a future hardening step.
 //
-// V1 limitation (documented, not silent): quantity is validated against the
-// purchased quantity of each line, but NOT against quantities already claimed
-// by earlier return requests for the same line. Cross-request over-return is
-// blocked operationally at admin review; DB/RPC-level enforcement is part of
-// the same future RPC hardening step.
+// Cross-request over-return guard (launch-war D1-A hardening): before insert,
+// the buyer's earlier return requests for the SAME order are re-read and every
+// non-REJECTED request's item quantities are subtracted from what can still be
+// claimed per line. A line whose remaining claimable quantity is zero rejects
+// with ALREADY_REQUESTED; a request exceeding the remainder rejects with
+// QUANTITY_EXCEEDED. REJECTED requests free their quantity; every other status
+// (REQUESTED/IN_REVIEW/APPROVED/PICKUP_PENDING/RECEIVED/REFUND_PENDING/
+// REFUNDED/CLOSED) keeps its claim — conservative on purpose. This is an
+// app-level check (reads are the buyer's own rows via RLS); a concurrent
+// double-submit race is still theoretically possible until the future
+// single-RPC hardening step, and admin review remains the operational backstop.
 
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -60,6 +66,7 @@ export type CreateReturnRequestResult =
         | "NOT_ELIGIBLE"
         | "ITEM_MISMATCH"
         | "QUANTITY_EXCEEDED"
+        | "ALREADY_REQUESTED"
         | "NOT_WIRED"
         | "DB_ERROR";
       message: string;
@@ -203,6 +210,73 @@ export async function createReturnRequest(
         code: "QUANTITY_EXCEEDED",
         message:
           "A return quantity is higher than the quantity that was ordered.",
+      };
+    }
+  }
+
+  // ---- 4b. Net out quantities already claimed by earlier return requests ----
+  // Every non-REJECTED request keeps its claim (see header note). Reads are
+  // the buyer's own rows via RLS; buyer_id filter is defensive.
+  const { data: priorRequests, error: priorError } = await supabase
+    .from("return_requests")
+    .select("id, status")
+    .eq("order_id", order.id)
+    .eq("buyer_id", user.id)
+    .neq("status", "REJECTED");
+
+  if (priorError) {
+    if (isMissingTableError(priorError)) return notWired();
+    console.warn("[returns] prior request lookup failed:", priorError.message);
+    return dbError();
+  }
+
+  const claimedByItemId = new Map<string, number>();
+  if (priorRequests && priorRequests.length > 0) {
+    const { data: priorItems, error: priorItemsError } = await supabase
+      .from("return_request_items")
+      .select("order_item_id, quantity")
+      .in(
+        "return_request_id",
+        priorRequests.map((request) => request.id),
+      );
+
+    if (priorItemsError) {
+      if (isMissingTableError(priorItemsError)) return notWired();
+      console.warn(
+        "[returns] prior request items lookup failed:",
+        priorItemsError.message,
+      );
+      return dbError();
+    }
+
+    for (const priorItem of priorItems ?? []) {
+      const key = priorItem.order_item_id as string;
+      claimedByItemId.set(
+        key,
+        (claimedByItemId.get(key) ?? 0) + ((priorItem.quantity as number) ?? 0),
+      );
+    }
+  }
+
+  for (const item of input.items) {
+    const purchasedQuantity = purchasedById.get(item.orderItemId) ?? 0;
+    const alreadyClaimed = claimedByItemId.get(item.orderItemId) ?? 0;
+    const remaining = Math.max(0, purchasedQuantity - alreadyClaimed);
+
+    if (remaining === 0 && alreadyClaimed > 0) {
+      return {
+        ok: false,
+        code: "ALREADY_REQUESTED",
+        message:
+          "A return has already been requested for one of these items. You can see its status in My Returns.",
+      };
+    }
+    if (item.quantity > remaining) {
+      return {
+        ok: false,
+        code: "QUANTITY_EXCEEDED",
+        message:
+          "A return quantity is higher than what is still available to return for this order, counting earlier return requests.",
       };
     }
   }

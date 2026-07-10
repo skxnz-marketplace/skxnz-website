@@ -10,6 +10,7 @@
     "lint": "eslint .",
     "check:colors": "node scripts/check-colors.mjs",
     "typecheck": "next typegen && tsc --noEmit --incremental false",
+    "test:commerce": "tsc -p tests/tsconfig.json && node --test tests/commerce-actions.test.cjs",
     "postinstall": "prisma generate",
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push",

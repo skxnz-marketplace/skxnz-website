@@ -182,6 +182,7 @@ export async function createSupportTicket(
     ok: true,
     ticketId,
     status: "OPEN",
-    redirectTo: "/support",
+    // The authenticated ticket workspace — /support is the public info page.
+    redirectTo: `/account/support/${ticketId}`,
   };
 }
