@@ -1,23 +1,28 @@
+import Link from "next/link";
+
 import { SellerDashboardShell } from "@/components/seller/seller-dashboard-shell";
 import { Card } from "@/components/ui/card";
 import { requireRole } from "@/lib/auth/roles";
 import { formatInrFromPaise } from "@/lib/money";
-import { getSellerOrderLines } from "@/lib/orders/read-seller-orders";
+import {
+  describeSellerFulfilment,
+  getSellerOrders,
+} from "@/lib/orders/read-seller-orders";
 
-// Seller order queue (D4-6). Server component: reads ONLY order lines whose
-// product belongs to the authenticated seller, and only on post-payment
-// orders (D4-2 RLS). Sellers cannot read the orders table, so no buyer
-// name, contact, address, or order totals appear here — line snapshots only.
-// No courier, ETA, pickup, or tracking copy: none of that exists.
+// D3-A seller order queue. Server component. Reads ONLY orders the
+// authenticated seller has lines in (post-payment only via RLS). The
+// list is grouped one-row-per-order so the seller can open the detail
+// and fulfil their own lines; the parent order row itself is not
+// readable by sellers (no buyer identity leak).
 
 export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Seller Orders — SKXNZ",
-  description: "Order lines for your SKXNZ products.",
+  description: "Orders containing your SKXNZ products.",
 };
 
-function formatLineDate(iso: string): string {
+function formatOrderDate(iso: string): string {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return "";
   return date.toLocaleDateString("en-IN", {
@@ -29,13 +34,13 @@ function formatLineDate(iso: string): string {
 
 export default async function SellerOrdersPage() {
   await requireRole(["SELLER", "ADMIN"], "/seller/orders");
-  const result = await getSellerOrderLines();
+  const result = await getSellerOrders();
 
   return (
     <SellerDashboardShell
       eyebrow="Seller orders"
-      title="Order lines for your products."
-      description="Only real order lines for your own products appear here, and only after an order is past payment. Draft carts are never shown. Payment capture, dispatch automation, and delivery tracking are not connected yet."
+      title="Orders containing your products."
+      description="Only paid orders with your own product lines appear here. Draft carts and other sellers' lines are never shown. Payment capture, refunds, courier assignment, and delivery tracking are not connected yet — you fulfil the lines you own; the marketplace runs the rest."
     >
       {!result.backendReady ? (
         <Card className="section-border rounded-[28px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-6">
@@ -44,63 +49,91 @@ export default async function SellerOrdersPage() {
           </p>
           <p className="mt-2 text-sm leading-7 text-stone">
             The order database has not been switched on for this environment,
-            so there are no order lines to read. Nothing has been lost — no
-            orders exist yet.
+            so there are no orders to show. Nothing has been lost — no orders
+            exist yet.
           </p>
         </Card>
-      ) : result.lines.length === 0 ? (
+      ) : result.orders.length === 0 ? (
         <Card className="section-border rounded-[28px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-6">
           <p className="text-sm font-semibold text-midnightbrown">
             No seller orders yet.
           </p>
           <p className="mt-2 text-sm leading-7 text-stone">
-            Order lines appear here once buyers place real paid orders for
+            Orders appear here once buyers place real paid orders containing
             your products. SKXNZ does not show demo or placeholder orders.
           </p>
         </Card>
       ) : (
-        <div className="space-y-3">
-          {result.lines.map((line) => (
-            <Card
-              key={line.id}
-              className="section-border rounded-[24px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-5"
-            >
-              <div className="flex flex-wrap items-start justify-between gap-4">
-                <div>
-                  <p className="text-[0.64rem] font-bold uppercase tracking-[0.2em] text-sangria">
-                    Order {line.orderId.slice(0, 8).toUpperCase()} · Post-payment
-                  </p>
-                  {line.brandSnapshot ? (
-                    <p className="mt-2 text-[0.64rem] uppercase tracking-[0.16em] text-stone">
-                      {line.brandSnapshot}
-                    </p>
-                  ) : null}
-                  <p className="mt-1 text-sm font-semibold text-midnightbrown">
-                    {line.titleSnapshot}
-                  </p>
-                  <p className="mt-1 text-xs text-stone">
-                    {[
-                      line.selectedSize ? `Size ${line.selectedSize}` : null,
-                      line.selectedColor ?? null,
-                      `Qty ${line.quantity}`,
-                      formatLineDate(line.createdAt),
-                    ]
-                      .filter(Boolean)
-                      .join(" · ")}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm font-semibold text-midnightbrown">
-                    {formatInrFromPaise(line.lineTotalPaise)}
-                  </p>
-                  <p className="mt-1 text-xs text-stone">
-                    {formatInrFromPaise(line.unitPricePaise)} each
-                  </p>
-                </div>
-              </div>
+        <>
+          {!result.fulfilmentReady ? (
+            <Card className="section-border mb-4 rounded-[22px] border-[rgba(58,8,24,0.14)] bg-[var(--skxnz-surface)] p-4">
+              <p className="text-[0.68rem] font-bold uppercase tracking-[0.18em] text-sangria">
+                Read-only view
+              </p>
+              <p className="mt-2 text-sm leading-6 text-stone">
+                Line-level fulfilment actions are not enabled in this
+                environment yet. You can review your orders here; accept /
+                pack / hand-to-delivery buttons will appear after the seller
+                fulfilment database migration is applied.
+              </p>
             </Card>
-          ))}
-        </div>
+          ) : null}
+
+          <div className="space-y-3">
+            {result.orders.map((order) => {
+              const status = describeSellerFulfilment(
+                order.aggregateFulfilmentStatus,
+              );
+              return (
+                <Card
+                  key={order.orderId}
+                  className="section-border rounded-[24px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-5"
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-4">
+                    <div className="min-w-0">
+                      <p className="text-[0.64rem] font-bold uppercase tracking-[0.2em] text-sangria">
+                        Order {order.orderId.slice(0, 8).toUpperCase()} · Paid
+                      </p>
+                      <p className="mt-2 text-sm font-semibold text-midnightbrown">
+                        {order.lineCount === 1
+                          ? "1 line"
+                          : `${order.lineCount} lines`}{" "}
+                        · {order.quantityTotal} unit
+                        {order.quantityTotal === 1 ? "" : "s"}
+                      </p>
+                      <p className="mt-1 text-xs text-stone">
+                        {formatOrderDate(order.earliestCreatedAt)}
+                        {order.earliestCreatedAt !== order.latestCreatedAt
+                          ? ` · updated ${formatOrderDate(order.latestCreatedAt)}`
+                          : null}
+                      </p>
+                      <p className="mt-3 text-[0.62rem] font-bold uppercase tracking-[0.18em] text-midnightbrown">
+                        {status.label}
+                      </p>
+                      <p className="mt-1 text-xs leading-5 text-stone">
+                        {status.note}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-semibold text-midnightbrown">
+                        {formatInrFromPaise(order.sellerSubtotalPaise)}
+                      </p>
+                      <p className="mt-1 text-[0.62rem] uppercase tracking-[0.16em] text-stone">
+                        Your lines only
+                      </p>
+                      <Link
+                        href={`/seller/orders/${order.orderId}`}
+                        className="mt-3 inline-block rounded-full border border-[rgba(58,8,24,0.16)] bg-[var(--skxnz-bg)] px-4 py-2 text-[0.6rem] font-bold uppercase tracking-[0.18em] text-midnightbrown transition hover:border-sangria hover:text-sangria"
+                      >
+                        Open order
+                      </Link>
+                    </div>
+                  </div>
+                </Card>
+              );
+            })}
+          </div>
+        </>
       )}
     </SellerDashboardShell>
   );

@@ -752,3 +752,459 @@ test("a valid order routes to /orders/<new id> matching the inserted row", async
 });
 
 test("buyer cannot read another buyer order by id", async () => { __setMockClient(createMockSupabase({ user: BUYER, resolve: (query) => { if (query.table === "orders") return { data: null, error: null }; throw new Error("Unexpected table: " + query.table); } })); const result = await getBuyerOrderById("bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb"); assert.equal(result.order, null); });
+
+// ===========================================================================
+// D3-A — seller order operations
+// ===========================================================================
+
+const { __setAdminMockClient } = require("./mocks/supabase-admin.cjs");
+const {
+  updateSellerLineFulfilment,
+} = require("@/lib/orders/seller-update-line-fulfilment");
+const {
+  getSellerOrders,
+  getSellerOrderById,
+} = require("@/lib/orders/read-seller-orders");
+
+const SELLER = { id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa", email: "seller@test.local" };
+const OTHER_SELLER = { id: "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb", email: "b@test.local" };
+const SELLER_PRODUCT_ID = "cccccccc-cccc-4ccc-8ccc-cccccccccccc";
+const SELLER_LINE_ID = "dddddddd-dddd-4ddd-8ddd-dddddddddddd";
+const SELLER_ORDER_ID = "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee";
+
+function sellerReadResolver({
+  products = [{ id: SELLER_PRODUCT_ID }],
+  lines = [],
+} = {}) {
+  return (query) => {
+    if (query.table === "products") return { data: products, error: null };
+    if (query.table === "order_items") return { data: lines, error: null };
+    throw new Error(`Unexpected table: ${query.table}`);
+  };
+}
+
+// ---- Unauthenticated + role gating ----------------------------------------
+
+test("unauthenticated visitor cannot list seller orders", async () => {
+  __setMockClient(createMockSupabase({ user: null }));
+  const result = await getSellerOrders();
+  assert.equal(result.backendReady, true);
+  assert.deepEqual(result.orders, []);
+});
+
+test("unauthenticated updateSellerLineFulfilment is rejected", async () => {
+  __setMockClient(createMockSupabase({ user: null }));
+  const result = await updateSellerLineFulfilment({
+    orderItemId: SELLER_LINE_ID,
+    action: "ADVANCE",
+    nextStatus: "ACCEPTED",
+  });
+  assert.equal(result.ok, false);
+  assert.equal(result.code, "UNAUTHENTICATED");
+});
+
+test("buyer role is forbidden from seller fulfilment action", async () => {
+  __setMockClient(
+    createMockSupabase({
+      user: BUYER,
+      resolve: (query) => {
+        if (query.table === "users") return { data: { role: "BUYER" }, error: null };
+        throw new Error(`Unexpected table: ${query.table}`);
+      },
+    }),
+  );
+  const result = await updateSellerLineFulfilment({
+    orderItemId: SELLER_LINE_ID,
+    action: "ADVANCE",
+    nextStatus: "ACCEPTED",
+  });
+  assert.equal(result.ok, false);
+  assert.equal(result.code, "FORBIDDEN");
+});
+
+// ---- Cross-seller isolation ------------------------------------------------
+
+test("seller A cannot see seller B lines in the queue", async () => {
+  // The seller has zero products of their own; product-id filter is empty
+  // so no lines are returned even if RLS were less strict.
+  __setMockClient(
+    createMockSupabase({
+      user: SELLER,
+      resolve: sellerReadResolver({ products: [] }),
+    }),
+  );
+  const result = await getSellerOrders();
+  assert.equal(result.backendReady, true);
+  assert.deepEqual(result.orders, []);
+});
+
+test("seller A cannot mutate seller B line (line invisible via RLS)", async () => {
+  __setMockClient(
+    createMockSupabase({
+      user: SELLER,
+      resolve: (query) => {
+        if (query.table === "users") return { data: { role: "SELLER" }, error: null };
+        // Seller RLS returns zero rows for another seller's line.
+        if (query.table === "order_items") return { data: null, error: null };
+        throw new Error(`Unexpected table: ${query.table}`);
+      },
+    }),
+  );
+  const result = await updateSellerLineFulfilment({
+    orderItemId: SELLER_LINE_ID,
+    action: "ADVANCE",
+    nextStatus: "ACCEPTED",
+  });
+  assert.equal(result.ok, false);
+  assert.equal(result.code, "LINE_NOT_FOUND");
+});
+
+test("seller A cannot mutate a line whose product belongs to seller B", async () => {
+  // Line is technically visible (test-mock returns it), but the defensive
+  // product-ownership recheck rejects because the product belongs to OTHER.
+  __setMockClient(
+    createMockSupabase({
+      user: SELLER,
+      resolve: (query) => {
+        if (query.table === "users") return { data: { role: "SELLER" }, error: null };
+        if (query.table === "order_items") {
+          return {
+            data: {
+              id: SELLER_LINE_ID,
+              order_id: SELLER_ORDER_ID,
+              product_id: SELLER_PRODUCT_ID,
+              seller_fulfilment_status: "PENDING",
+              seller_fulfilment_note: null,
+            },
+            error: null,
+          };
+        }
+        if (query.table === "products") {
+          return { data: { id: SELLER_PRODUCT_ID, seller_id: OTHER_SELLER.id }, error: null };
+        }
+        throw new Error(`Unexpected table: ${query.table}`);
+      },
+    }),
+  );
+  const result = await updateSellerLineFulfilment({
+    orderItemId: SELLER_LINE_ID,
+    action: "ADVANCE",
+    nextStatus: "ACCEPTED",
+  });
+  assert.equal(result.ok, false);
+  assert.equal(result.code, "LINE_NOT_FOUND");
+});
+
+// ---- Payment / refund / buyer identity guardrails --------------------------
+
+test("seller action refuses any status that is not on the seller ladder (e.g. PAID)", async () => {
+  __setMockClient(
+    createMockSupabase({
+      user: SELLER,
+      resolve: (query) => {
+        if (query.table === "users") return { data: { role: "SELLER" }, error: null };
+        if (query.table === "order_items") {
+          return {
+            data: {
+              id: SELLER_LINE_ID,
+              order_id: SELLER_ORDER_ID,
+              product_id: SELLER_PRODUCT_ID,
+              seller_fulfilment_status: "PENDING",
+              seller_fulfilment_note: null,
+            },
+            error: null,
+          };
+        }
+        if (query.table === "products") {
+          return { data: { id: SELLER_PRODUCT_ID, seller_id: SELLER.id }, error: null };
+        }
+        throw new Error(`Unexpected table: ${query.table}`);
+      },
+    }),
+  );
+  const paid = await updateSellerLineFulfilment({
+    orderItemId: SELLER_LINE_ID,
+    action: "ADVANCE",
+    nextStatus: "PAID",
+  });
+  assert.equal(paid.ok, false);
+  assert.equal(paid.code, "VALIDATION_FAILED");
+  const refunded = await updateSellerLineFulfilment({
+    orderItemId: SELLER_LINE_ID,
+    action: "ADVANCE",
+    nextStatus: "REFUNDED",
+  });
+  assert.equal(refunded.ok, false);
+  assert.equal(refunded.code, "VALIDATION_FAILED");
+});
+
+// ---- Invalid + repeated transitions ---------------------------------------
+
+test("seller action rejects a skipped step (PENDING -> PACKED)", async () => {
+  __setMockClient(
+    createMockSupabase({
+      user: SELLER,
+      resolve: (query) => {
+        if (query.table === "users") return { data: { role: "SELLER" }, error: null };
+        if (query.table === "order_items") {
+          return {
+            data: {
+              id: SELLER_LINE_ID,
+              order_id: SELLER_ORDER_ID,
+              product_id: SELLER_PRODUCT_ID,
+              seller_fulfilment_status: "PENDING",
+              seller_fulfilment_note: null,
+            },
+            error: null,
+          };
+        }
+        if (query.table === "products") {
+          return { data: { id: SELLER_PRODUCT_ID, seller_id: SELLER.id }, error: null };
+        }
+        throw new Error(`Unexpected table: ${query.table}`);
+      },
+    }),
+  );
+  const result = await updateSellerLineFulfilment({
+    orderItemId: SELLER_LINE_ID,
+    action: "ADVANCE",
+    nextStatus: "PACKED",
+  });
+  assert.equal(result.ok, false);
+  assert.equal(result.code, "INVALID_TRANSITION");
+});
+
+test("seller action rejects backwards transition (PACKED -> ACCEPTED)", async () => {
+  __setMockClient(
+    createMockSupabase({
+      user: SELLER,
+      resolve: (query) => {
+        if (query.table === "users") return { data: { role: "SELLER" }, error: null };
+        if (query.table === "order_items") {
+          return {
+            data: {
+              id: SELLER_LINE_ID,
+              order_id: SELLER_ORDER_ID,
+              product_id: SELLER_PRODUCT_ID,
+              seller_fulfilment_status: "PACKED",
+              seller_fulfilment_note: null,
+            },
+            error: null,
+          };
+        }
+        if (query.table === "products") {
+          return { data: { id: SELLER_PRODUCT_ID, seller_id: SELLER.id }, error: null };
+        }
+        throw new Error(`Unexpected table: ${query.table}`);
+      },
+    }),
+  );
+  const result = await updateSellerLineFulfilment({
+    orderItemId: SELLER_LINE_ID,
+    action: "ADVANCE",
+    nextStatus: "ACCEPTED",
+  });
+  assert.equal(result.ok, false);
+  assert.equal(result.code, "INVALID_TRANSITION");
+});
+
+test("seller action rejects repeat of the same status", async () => {
+  __setMockClient(
+    createMockSupabase({
+      user: SELLER,
+      resolve: (query) => {
+        if (query.table === "users") return { data: { role: "SELLER" }, error: null };
+        if (query.table === "order_items") {
+          return {
+            data: {
+              id: SELLER_LINE_ID,
+              order_id: SELLER_ORDER_ID,
+              product_id: SELLER_PRODUCT_ID,
+              seller_fulfilment_status: "ACCEPTED",
+              seller_fulfilment_note: null,
+            },
+            error: null,
+          };
+        }
+        if (query.table === "products") {
+          return { data: { id: SELLER_PRODUCT_ID, seller_id: SELLER.id }, error: null };
+        }
+        throw new Error(`Unexpected table: ${query.table}`);
+      },
+    }),
+  );
+  const result = await updateSellerLineFulfilment({
+    orderItemId: SELLER_LINE_ID,
+    action: "ADVANCE",
+    nextStatus: "ACCEPTED",
+  });
+  assert.equal(result.ok, false);
+  assert.equal(result.code, "INVALID_TRANSITION");
+});
+
+// ---- Junk / missing line id ------------------------------------------------
+
+test("seller action treats junk order item id as LINE_NOT_FOUND without DB call", async () => {
+  const log = [];
+  __setMockClient(createMockSupabase({ user: SELLER, log }));
+  const result = await updateSellerLineFulfilment({
+    orderItemId: "not-a-uuid",
+    action: "ADVANCE",
+    nextStatus: "ACCEPTED",
+  });
+  assert.equal(result.ok, false);
+  assert.equal(result.code, "LINE_NOT_FOUND");
+  assert.equal(log.length, 0);
+});
+
+// ---- Successful transition writes conditional UPDATE + audit event ---------
+
+test("valid PENDING -> ACCEPTED writes conditional UPDATE + audit event", async () => {
+  const sessionLog = [];
+  const adminLog = [];
+  __setMockClient(
+    createMockSupabase({
+      user: SELLER,
+      log: sessionLog,
+      resolve: (query) => {
+        if (query.table === "users") return { data: { role: "SELLER" }, error: null };
+        if (query.table === "order_items") {
+          return {
+            data: {
+              id: SELLER_LINE_ID,
+              order_id: SELLER_ORDER_ID,
+              product_id: SELLER_PRODUCT_ID,
+              seller_fulfilment_status: "PENDING",
+              seller_fulfilment_note: null,
+            },
+            error: null,
+          };
+        }
+        if (query.table === "products") {
+          return { data: { id: SELLER_PRODUCT_ID, seller_id: SELLER.id }, error: null };
+        }
+        throw new Error(`Unexpected table: ${query.table}`);
+      },
+    }),
+  );
+  __setAdminMockClient(
+    createMockSupabase({
+      user: SELLER,
+      log: adminLog,
+      resolve: (query) => {
+        if (query.table === "order_items") {
+          return {
+            data: [{ id: SELLER_LINE_ID, seller_fulfilment_status: "ACCEPTED" }],
+            error: null,
+          };
+        }
+        if (query.table === "order_item_events") return { data: null, error: null };
+        throw new Error(`Unexpected admin table: ${query.table}`);
+      },
+    }),
+  );
+  const result = await updateSellerLineFulfilment({
+    orderItemId: SELLER_LINE_ID,
+    action: "ADVANCE",
+    nextStatus: "ACCEPTED",
+    note: "Packed with the correct size",
+  });
+  assert.equal(result.ok, true);
+  assert.equal(result.status, "ACCEPTED");
+  assert.equal(result.orderId, SELLER_ORDER_ID);
+
+  const updateQuery = adminLog.find(
+    (q) => q.table === "order_items" && findCall(q, "update"),
+  );
+  assert.ok(updateQuery, "expected an admin UPDATE on order_items");
+  const updatePayload = findCall(updateQuery, "update").args[0];
+  assert.equal(updatePayload.seller_fulfilment_status, "ACCEPTED");
+  assert.equal(updatePayload.seller_fulfilment_note, "Packed with the correct size");
+  // Conditional guard: .eq("seller_fulfilment_status", "PENDING") ensures a
+  // racing update cannot silently overwrite a newer state.
+  const eqCalls = updateQuery.calls.filter(
+    (c) => c.method === "eq" && c.args[0] === "seller_fulfilment_status",
+  );
+  assert.ok(eqCalls.length >= 1);
+
+  const eventQuery = adminLog.find((q) => q.table === "order_item_events");
+  assert.ok(eventQuery, "expected an audit event insert");
+  const eventPayload = findCall(eventQuery, "insert").args[0];
+  assert.equal(eventPayload.from_status, "PENDING");
+  assert.equal(eventPayload.to_status, "ACCEPTED");
+  assert.equal(eventPayload.actor_user_id, SELLER.id);
+});
+
+// ---- Grouped list preserves seller-only totals and quantity ---------------
+
+test("seller queue groups lines by order and sums only seller-owned totals", async () => {
+  const now = new Date().toISOString();
+  __setMockClient(
+    createMockSupabase({
+      user: SELLER,
+      resolve: sellerReadResolver({
+        products: [{ id: SELLER_PRODUCT_ID }],
+        lines: [
+          {
+            id: SELLER_LINE_ID,
+            order_id: SELLER_ORDER_ID,
+            product_id: SELLER_PRODUCT_ID,
+            product_slug: "p1",
+            title_snapshot: "T1",
+            brand_snapshot: "B",
+            image_snapshot: null,
+            selected_size: "M",
+            selected_color: null,
+            unit_price_paise: 25000,
+            quantity: 2,
+            line_total_paise: 50000,
+            created_at: now,
+            seller_fulfilment_status: "PENDING",
+            seller_fulfilment_note: null,
+            seller_fulfilment_updated_at: null,
+          },
+          {
+            id: "dddddddd-dddd-4ddd-8ddd-dddddddddde1",
+            order_id: SELLER_ORDER_ID,
+            product_id: SELLER_PRODUCT_ID,
+            product_slug: "p1",
+            title_snapshot: "T1",
+            brand_snapshot: "B",
+            image_snapshot: null,
+            selected_size: "L",
+            selected_color: null,
+            unit_price_paise: 25000,
+            quantity: 1,
+            line_total_paise: 25000,
+            created_at: now,
+            seller_fulfilment_status: "ACCEPTED",
+            seller_fulfilment_note: null,
+            seller_fulfilment_updated_at: null,
+          },
+        ],
+      }),
+    }),
+  );
+  const result = await getSellerOrders();
+  assert.equal(result.backendReady, true);
+  assert.equal(result.fulfilmentReady, true);
+  assert.equal(result.orders.length, 1);
+  assert.equal(result.orders[0].orderId, SELLER_ORDER_ID);
+  assert.equal(result.orders[0].lineCount, 2);
+  assert.equal(result.orders[0].quantityTotal, 3);
+  assert.equal(result.orders[0].sellerSubtotalPaise, 75000);
+  // Aggregate = earliest step across the seller's own lines.
+  assert.equal(result.orders[0].aggregateFulfilmentStatus, "PENDING");
+});
+
+test("seller detail lookup returns null for an unrelated order id (no existence leak)", async () => {
+  __setMockClient(
+    createMockSupabase({
+      user: SELLER,
+      resolve: sellerReadResolver({ products: [{ id: SELLER_PRODUCT_ID }], lines: [] }),
+    }),
+  );
+  const result = await getSellerOrderById(SELLER_ORDER_ID);
+  assert.equal(result.backendReady, true);
+  assert.equal(result.order, null);
+});

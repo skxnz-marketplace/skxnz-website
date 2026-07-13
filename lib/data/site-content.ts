@@ -19,14 +19,14 @@ export const sellerSidebarLinks = [
     description: "Upload placeholder products and review the catalog.",
   },
   {
-    href: "/seller/inventory",
-    label: "Inventory Demo",
-    description: "Variant-level stock and review-state visibility.",
-  },
-  {
     href: "/seller/orders",
     label: "Orders",
-    description: "Track seeded order states and dispatch placeholders.",
+    description: "Paid orders containing your products — accept, pack, hand to delivery.",
+  },
+  {
+    href: "/seller/inventory",
+    label: "Inventory",
+    description: "Variant-level stock and review-state visibility.",
   },
   {
     href: "/seller/analytics",

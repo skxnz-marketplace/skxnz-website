@@ -13,11 +13,15 @@ const path = require("path");
 
 const buildRoot = path.join(__dirname, ".build");
 const supabaseMockPath = path.join(__dirname, "mocks", "supabase-server.cjs");
+const supabaseAdminMockPath = path.join(__dirname, "mocks", "supabase-admin.cjs");
 
 const originalResolve = Module._resolveFilename;
 Module._resolveFilename = function (request, ...rest) {
   if (request === "@/lib/supabase/server") {
     return originalResolve.call(this, supabaseMockPath, ...rest);
+  }
+  if (request === "@/lib/supabase/admin") {
+    return originalResolve.call(this, supabaseAdminMockPath, ...rest);
   }
   if (request.startsWith("@/")) {
     return originalResolve.call(this, path.join(buildRoot, request.slice(2)), ...rest);

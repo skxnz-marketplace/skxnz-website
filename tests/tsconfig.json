@@ -19,6 +19,8 @@
     "../lib/returns/create-return-request.ts",
     "../lib/support/create-support-ticket.ts",
     "../lib/support/add-support-ticket-message.ts",
-    "../lib/orders/create-order-intent.ts"
+    "../lib/orders/create-order-intent.ts",
+    "../lib/orders/read-seller-orders.ts",
+    "../lib/orders/seller-update-line-fulfilment.ts"
   ]
 }
