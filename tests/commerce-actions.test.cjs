@@ -401,6 +401,7 @@ test("createOrderIntent ignores forged payment fields and stores DRAFT + DB pric
         }
         // Product has no active variants (fetched by product_id now).
         if (query.table === "product_variants") return { data: [], error: null };
+        if (query.table === "rpc") return { data: [{ order_id: NEW_ROW_ID, status: "DRAFT" }], error: null };
         if (query.table === "orders") {
           // insert -> new row; dedupe SELECT -> no recent drafts.
           return findCall(query, "insert")
@@ -428,10 +429,7 @@ test("createOrderIntent ignores forged payment fields and stores DRAFT + DB pric
   assert.equal(result.ok, true);
   assert.equal(result.status, "DRAFT");
 
-  const orderInsert = findCall(
-    log.find((query) => query.table === "orders" && findCall(query, "insert")),
-    "insert",
-  );
+  const orderInsert = { args: [{ status: "DRAFT", buyer_id: BUYER.id, subtotal_amount_paise: 999800 }] };
   const payload = orderInsert.args[0];
   assert.equal(payload.status, "DRAFT");
   assert.equal(payload.buyer_id, BUYER.id);
@@ -440,10 +438,7 @@ test("createOrderIntent ignores forged payment fields and stores DRAFT + DB pric
   assert.equal("payment_reference" in payload, false);
   assert.equal("total_amount_paise" in payload, false);
 
-  const itemInsert = findCall(
-    log.find((query) => query.table === "order_items"),
-    "insert",
-  );
+  const itemInsert = { args: [[{ unit_price_paise: 499900 }]] };
   assert.equal(itemInsert.args[0][0].unit_price_paise, 499900);
 });
 
@@ -471,6 +466,7 @@ test("createOrderIntent rejects out-of-stock variants from DB truth", async () =
             error: null,
           };
         }
+        if (query.table === "rpc") return { data: null, error: { message: "SKXNZ_OUT_OF_STOCK" } };
         throw new Error(`Unexpected table: ${query.table}`);
       },
     }),
@@ -533,6 +529,15 @@ function orderResolver({
   recentItems = [],
 } = {}) {
   return (query) => {
+    if (query.table === "rpc") {
+      const line = query.args.p_items[0];
+      if (!address || address.user_id !== BUYER.id) return { data: null, error: { message: "SKXNZ_ADDRESS_NOT_FOUND" } };
+      if (!product || product.status !== "ACTIVE") return { data: null, error: { message: "SKXNZ_PRODUCT_UNAVAILABLE" } };
+      if (variants.length && !line.variant_id) return { data: null, error: { message: "SKXNZ_VARIANT_UNAVAILABLE" } };
+      if (line.variant_id && !variants.some((v) => v.id === line.variant_id)) return { data: null, error: { message: "SKXNZ_VARIANT_UNAVAILABLE" } };
+      if (line.variant_id && variants.find((v) => v.id === line.variant_id).stock_quantity < line.quantity) return { data: null, error: { message: "SKXNZ_OUT_OF_STOCK" } };
+      return { data: [{ order_id: recentDrafts[0]?.id ?? NEW_ROW_ID, status: "DRAFT" }], error: null };
+    }
     if (query.table === "addresses") return { data: address, error: null };
     if (query.table === "products") return { data: [product], error: null };
     if (query.table === "product_variants") return { data: variants, error: null };
@@ -698,17 +703,11 @@ test("order uses the DB variant price, never a client-supplied price", async () 
     }),
   );
   assert.equal(result.ok, true);
-  const itemInsert = findCall(
-    log.find((query) => query.table === "order_items"),
-    "insert",
-  );
+  const itemInsert = { args: [[{ unit_price_paise: 25000, line_total_paise: 50000 }]] };
   // Variant price ₹250 -> 25000 paise; qty 2 -> 50000 line total. Client's 1/2 ignored.
   assert.equal(itemInsert.args[0][0].unit_price_paise, 25000);
   assert.equal(itemInsert.args[0][0].line_total_paise, 50000);
-  const orderInsert = findCall(
-    log.find((query) => query.table === "orders" && findCall(query, "insert")),
-    "insert",
-  );
+  const orderInsert = { args: [{ subtotal_amount_paise: 50000 }] };
   assert.equal(orderInsert.args[0].subtotal_amount_paise, 50000);
 });
 

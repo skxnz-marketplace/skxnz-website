@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 
 import { useMarketplace } from "@/components/marketplace/marketplace-provider";
 import { buttonVariants } from "@/components/ui/button";
@@ -47,6 +47,9 @@ export function PlaceDraftOrder({ addresses, backendReady }: PlaceDraftOrderProp
   );
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  // One key survives retries in this mounted checkout view. A new view gets a
+  // new request key; the database rejects reuse with a different payload.
+  const idempotencyKey = useRef<string>(crypto.randomUUID());
 
   // Cart empty state is already handled by CheckoutDraftFlow above; render
   // nothing here so the page does not show two empty states.
@@ -90,6 +93,7 @@ export function PlaceDraftOrder({ addresses, backendReady }: PlaceDraftOrderProp
         items,
         shippingAddressId: selectedAddressId,
         notes,
+        idempotencyKey: idempotencyKey.current,
       });
 
       if (result.ok) {
