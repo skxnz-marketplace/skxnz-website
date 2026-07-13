@@ -50,6 +50,8 @@ export type SellerOrderLine = {
   fulfilmentStatus: SellerLineFulfilmentStatus;
   fulfilmentNote: string | null;
   fulfilmentUpdatedAt: string | null;
+  /** Only populated when the scoped 0009 return-indicator RPC is available. */
+  activeReturn: { status: string; quantity: number } | null;
 };
 
 export type SellerOrderSummary = {
@@ -64,17 +66,20 @@ export type SellerOrderSummary = {
   /** Aggregate seller-line fulfilment state — the earliest step across the
    * seller's lines on this order (so "PENDING" wins over "PACKED"). */
   aggregateFulfilmentStatus: SellerLineFulfilmentStatus;
+  activeReturnLineCount: number;
 };
 
 export type SellerOrdersResult =
   | {
       backendReady: true;
       fulfilmentReady: boolean;
+      returnVisibilityReady: boolean;
       orders: SellerOrderSummary[];
     }
   | {
       backendReady: false;
       fulfilmentReady: false;
+      returnVisibilityReady: false;
       orders: [];
     };
 
@@ -90,11 +95,13 @@ export type SellerOrderDetailResult =
   | {
       backendReady: true;
       fulfilmentReady: boolean;
+      returnVisibilityReady: boolean;
       order: SellerOrderDetail | null;
     }
   | {
       backendReady: false;
       fulfilmentReady: false;
+      returnVisibilityReady: false;
       order: null;
     };
 
@@ -199,7 +206,25 @@ function mapRawLine(
         ? row.seller_fulfilment_updated_at
         : null
       : null,
+    activeReturn: null,
   };
+}
+
+type ReturnIndicator = { order_item_id: string; return_status: string; requested_quantity: number };
+
+async function attachReturnIndicators(supabase: Awaited<ReturnType<typeof createClient>>, lines: SellerOrderLine[]): Promise<boolean> {
+  if (lines.length === 0) return true;
+  const { data, error } = await supabase.rpc("seller_active_return_indicators", { p_order_item_ids: lines.map((line) => line.id) });
+  if (error) {
+    if (error.code !== "42883" && error.code !== "PGRST202") console.warn("[seller-orders] return indicator lookup failed:", error.message);
+    return false;
+  }
+  const byLine = new Map<string, { status: string; quantity: number }>();
+  for (const row of (data ?? []) as ReturnIndicator[]) {
+    if (typeof row.order_item_id === "string" && typeof row.return_status === "string" && Number.isInteger(row.requested_quantity) && row.requested_quantity > 0) byLine.set(row.order_item_id, { status: row.return_status, quantity: row.requested_quantity });
+  }
+  for (const line of lines) line.activeReturn = byLine.get(line.id) ?? null;
+  return true;
 }
 
 /** Resolve the authenticated seller's product ids via the products RLS
@@ -299,35 +324,37 @@ export async function getSellerOrders(): Promise<SellerOrdersResult> {
   } = await supabase.auth.getUser();
 
   if (userError || !user) {
-    return { backendReady: true, fulfilmentReady: false, orders: [] };
+    return { backendReady: true, fulfilmentReady: false, returnVisibilityReady: false, orders: [] };
   }
 
   const productResult = await sellerProductIds(supabase, user.id);
   if (!productResult) {
-    return { backendReady: true, fulfilmentReady: false, orders: [] };
+    return { backendReady: true, fulfilmentReady: false, returnVisibilityReady: false, orders: [] };
   }
   if (!productResult.backendReady) {
-    return { backendReady: false, fulfilmentReady: false, orders: [] };
+    return { backendReady: false, fulfilmentReady: false, returnVisibilityReady: false, orders: [] };
   }
   if (productResult.ids.length === 0) {
-    return { backendReady: true, fulfilmentReady: true, orders: [] };
+    return { backendReady: true, fulfilmentReady: true, returnVisibilityReady: true, orders: [] };
   }
 
   const lineResult = await selectSellerLines(supabase, productResult.ids);
   if (lineResult.kind === "missing_table") {
-    return { backendReady: false, fulfilmentReady: false, orders: [] };
+    return { backendReady: false, fulfilmentReady: false, returnVisibilityReady: false, orders: [] };
   }
   if (lineResult.kind === "error") {
     return {
       backendReady: true,
       fulfilmentReady: false,
+      returnVisibilityReady: false,
       orders: [],
     };
   }
 
+  const mappedLines = lineResult.lines.map((raw) => mapRawLine(raw, lineResult.fulfilmentReady));
+  const returnVisibilityReady = await attachReturnIndicators(supabase, mappedLines);
   const grouped = new Map<string, SellerOrderLine[]>();
-  for (const raw of lineResult.lines) {
-    const line = mapRawLine(raw, lineResult.fulfilmentReady);
+  for (const line of mappedLines) {
     const bucket = grouped.get(line.orderId);
     if (bucket) {
       bucket.push(line);
@@ -355,6 +382,7 @@ export async function getSellerOrders(): Promise<SellerOrdersResult> {
         (acc, line) => earliestFulfilment(acc, line.fulfilmentStatus),
         "HANDED_TO_DELIVERY",
       );
+      const activeReturnLineCount = lines.filter((line) => line.activeReturn !== null).length;
       return {
         orderId,
         earliestCreatedAt: earliest,
@@ -363,6 +391,7 @@ export async function getSellerOrders(): Promise<SellerOrdersResult> {
         quantityTotal,
         sellerSubtotalPaise,
         aggregateFulfilmentStatus: aggregate,
+        activeReturnLineCount,
       };
     },
   );
@@ -370,9 +399,10 @@ export async function getSellerOrders(): Promise<SellerOrdersResult> {
   orders.sort((a, b) => (a.latestCreatedAt < b.latestCreatedAt ? 1 : -1));
 
   return {
-    backendReady: true,
-    fulfilmentReady: lineResult.fulfilmentReady,
-    orders,
+      backendReady: true,
+      fulfilmentReady: lineResult.fulfilmentReady,
+      returnVisibilityReady,
+      orders,
   };
 }
 
@@ -383,7 +413,7 @@ export async function getSellerOrderById(
   orderId: string,
 ): Promise<SellerOrderDetailResult> {
   if (!isSellerOrderIdShape(orderId)) {
-    return { backendReady: true, fulfilmentReady: false, order: null };
+    return { backendReady: true, fulfilmentReady: false, returnVisibilityReady: false, order: null };
   }
 
   const supabase = await createClient();
@@ -394,31 +424,32 @@ export async function getSellerOrderById(
   } = await supabase.auth.getUser();
 
   if (userError || !user) {
-    return { backendReady: true, fulfilmentReady: false, order: null };
+    return { backendReady: true, fulfilmentReady: false, returnVisibilityReady: false, order: null };
   }
 
   const productResult = await sellerProductIds(supabase, user.id);
   if (!productResult) {
-    return { backendReady: true, fulfilmentReady: false, order: null };
+    return { backendReady: true, fulfilmentReady: false, returnVisibilityReady: false, order: null };
   }
   if (!productResult.backendReady) {
-    return { backendReady: false, fulfilmentReady: false, order: null };
+    return { backendReady: false, fulfilmentReady: false, returnVisibilityReady: false, order: null };
   }
   if (productResult.ids.length === 0) {
-    return { backendReady: true, fulfilmentReady: true, order: null };
+    return { backendReady: true, fulfilmentReady: true, returnVisibilityReady: true, order: null };
   }
 
   const lineResult = await selectSellerLines(supabase, productResult.ids, orderId);
   if (lineResult.kind === "missing_table") {
-    return { backendReady: false, fulfilmentReady: false, order: null };
+    return { backendReady: false, fulfilmentReady: false, returnVisibilityReady: false, order: null };
   }
   if (lineResult.kind === "error") {
-    return { backendReady: true, fulfilmentReady: false, order: null };
+    return { backendReady: true, fulfilmentReady: false, returnVisibilityReady: false, order: null };
   }
   if (lineResult.lines.length === 0) {
     return {
       backendReady: true,
       fulfilmentReady: lineResult.fulfilmentReady,
+      returnVisibilityReady: true,
       order: null,
     };
   }
@@ -426,6 +457,8 @@ export async function getSellerOrderById(
   const lines = lineResult.lines
     .map((raw) => mapRawLine(raw, lineResult.fulfilmentReady))
     .sort((a, b) => (a.createdAt < b.createdAt ? -1 : 1));
+
+  const returnVisibilityReady = await attachReturnIndicators(supabase, lines);
 
   const quantityTotal = lines.reduce((acc, line) => acc + line.quantity, 0);
   const sellerSubtotalPaise = lines.reduce(
@@ -436,6 +469,7 @@ export async function getSellerOrderById(
   return {
     backendReady: true,
     fulfilmentReady: lineResult.fulfilmentReady,
+    returnVisibilityReady,
     order: {
       orderId,
       createdAt: lines[0].createdAt,

@@ -113,6 +113,11 @@ export default async function SellerOrdersPage() {
                       <p className="mt-1 text-xs leading-5 text-stone">
                         {status.note}
                       </p>
+                      {result.returnVisibilityReady && order.activeReturnLineCount > 0 ? (
+                        <p className="mt-3 text-[0.62rem] font-bold uppercase tracking-[0.16em] text-sangria">
+                          Active return on {order.activeReturnLineCount} of your line{order.activeReturnLineCount === 1 ? "" : "s"}
+                        </p>
+                      ) : null}
                     </div>
                     <div className="text-right">
                       <p className="text-sm font-semibold text-midnightbrown">

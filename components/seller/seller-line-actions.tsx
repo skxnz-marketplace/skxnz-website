@@ -99,9 +99,14 @@ export function SellerLineActions({
           onChange={(event) => setNote(event.target.value.slice(0, 500))}
           rows={2}
           placeholder="E.g. Packed with size M as ordered."
+          maxLength={500}
+          aria-describedby={`${orderItemId}-note-help`}
           className="mt-1 w-full rounded-lg border border-[rgba(58,8,24,0.16)] bg-[var(--skxnz-bg)] p-2 text-sm text-midnightbrown outline-none transition focus:border-sangria"
           disabled={isPending}
         />
+        <span id={`${orderItemId}-note-help`} className="mt-1 block text-xs text-stone">
+          Notes are visible to SKXNZ operations, not a buyer support thread.
+        </span>
       </label>
 
       {message ? (
