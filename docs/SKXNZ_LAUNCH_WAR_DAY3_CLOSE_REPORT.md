@@ -21,7 +21,7 @@ Seller pages remain line-derived and seller-scoped. The new atomic mutation deri
 
 - Critical: no live migration/RLS proof exists yet.
 - High: run the two-seller concurrency/isolation harness and authenticated browser smoke after migration application.
-- Medium: restore the D3-B worktree dependency/build setup and run the full local test/type/lint matrix.
+- Medium: live authenticated browser smoke remains pending after migration application; the local 54-test, TypeScript, and ESLint gates now pass.
 
 ## Day 4 first task
 

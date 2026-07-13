@@ -754,10 +754,8 @@ test("a valid order routes to /orders/<new id> matching the inserted row", async
 test("buyer cannot read another buyer order by id", async () => { __setMockClient(createMockSupabase({ user: BUYER, resolve: (query) => { if (query.table === "orders") return { data: null, error: null }; throw new Error("Unexpected table: " + query.table); } })); const result = await getBuyerOrderById("bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb"); assert.equal(result.order, null); });
 
 // ===========================================================================
-// D3-A — seller order operations
+// D3-B — seller atomic fulfilment + scoped returns (application mocks only)
 // ===========================================================================
-
-const { __setAdminMockClient } = require("./mocks/supabase-admin.cjs");
 const {
   updateSellerLineFulfilment,
 } = require("@/lib/orders/seller-update-line-fulfilment");
@@ -772,13 +770,11 @@ const SELLER_PRODUCT_ID = "cccccccc-cccc-4ccc-8ccc-cccccccccccc";
 const SELLER_LINE_ID = "dddddddd-dddd-4ddd-8ddd-dddddddddddd";
 const SELLER_ORDER_ID = "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee";
 
-function sellerReadResolver({
-  products = [{ id: SELLER_PRODUCT_ID }],
-  lines = [],
-} = {}) {
+function sellerReadResolver({ products = [{ id: SELLER_PRODUCT_ID }], lines = [], indicators = [], indicatorError = null } = {}) {
   return (query) => {
     if (query.table === "products") return { data: products, error: null };
     if (query.table === "order_items") return { data: lines, error: null };
+    if (query.table === "rpc" && query.fn === "seller_active_return_indicators") return { data: indicators, error: indicatorError };
     throw new Error(`Unexpected table: ${query.table}`);
   };
 }
@@ -838,14 +834,32 @@ test("seller A cannot see seller B lines in the queue", async () => {
   assert.deepEqual(result.orders, []);
 });
 
-test("seller A cannot mutate seller B line (line invisible via RLS)", async () => {
+test("unapproved seller is forbidden from seller fulfilment", async () => {
+  __setMockClient(
+    createMockSupabase({
+      user: SELLER,
+      resolve: (query) => {
+        if (query.table === "users") return { data: { role: "PENDING" }, error: null };
+        throw new Error(`Unexpected table: ${query.table}`);
+      },
+    }),
+  );
+  const result = await updateSellerLineFulfilment({
+    orderItemId: SELLER_LINE_ID,
+    action: "ADVANCE",
+    nextStatus: "ACCEPTED",
+  });
+  assert.equal(result.ok, false);
+  assert.equal(result.code, "FORBIDDEN");
+});
+
+test("seller A cannot mutate seller B line at the atomic RPC boundary", async () => {
   __setMockClient(
     createMockSupabase({
       user: SELLER,
       resolve: (query) => {
         if (query.table === "users") return { data: { role: "SELLER" }, error: null };
-        // Seller RLS returns zero rows for another seller's line.
-        if (query.table === "order_items") return { data: null, error: null };
+        if (query.table === "rpc") return { data: null, error: { message: "SKXNZ_LINE_NOT_FOUND" } };
         throw new Error(`Unexpected table: ${query.table}`);
       },
     }),
@@ -859,65 +873,17 @@ test("seller A cannot mutate seller B line (line invisible via RLS)", async () =
   assert.equal(result.code, "LINE_NOT_FOUND");
 });
 
-test("seller A cannot mutate a line whose product belongs to seller B", async () => {
-  // Line is technically visible (test-mock returns it), but the defensive
-  // product-ownership recheck rejects because the product belongs to OTHER.
+// ---- RPC boundary guardrails ------------------------------------------------
+
+test("seller cannot set payment, refund, buyer, seller id, or order-wide status", async () => {
+  const log = [];
   __setMockClient(
     createMockSupabase({
       user: SELLER,
+      log,
       resolve: (query) => {
         if (query.table === "users") return { data: { role: "SELLER" }, error: null };
-        if (query.table === "order_items") {
-          return {
-            data: {
-              id: SELLER_LINE_ID,
-              order_id: SELLER_ORDER_ID,
-              product_id: SELLER_PRODUCT_ID,
-              seller_fulfilment_status: "PENDING",
-              seller_fulfilment_note: null,
-            },
-            error: null,
-          };
-        }
-        if (query.table === "products") {
-          return { data: { id: SELLER_PRODUCT_ID, seller_id: OTHER_SELLER.id }, error: null };
-        }
-        throw new Error(`Unexpected table: ${query.table}`);
-      },
-    }),
-  );
-  const result = await updateSellerLineFulfilment({
-    orderItemId: SELLER_LINE_ID,
-    action: "ADVANCE",
-    nextStatus: "ACCEPTED",
-  });
-  assert.equal(result.ok, false);
-  assert.equal(result.code, "LINE_NOT_FOUND");
-});
-
-// ---- Payment / refund / buyer identity guardrails --------------------------
-
-test("seller action refuses any status that is not on the seller ladder (e.g. PAID)", async () => {
-  __setMockClient(
-    createMockSupabase({
-      user: SELLER,
-      resolve: (query) => {
-        if (query.table === "users") return { data: { role: "SELLER" }, error: null };
-        if (query.table === "order_items") {
-          return {
-            data: {
-              id: SELLER_LINE_ID,
-              order_id: SELLER_ORDER_ID,
-              product_id: SELLER_PRODUCT_ID,
-              seller_fulfilment_status: "PENDING",
-              seller_fulfilment_note: null,
-            },
-            error: null,
-          };
-        }
-        if (query.table === "products") {
-          return { data: { id: SELLER_PRODUCT_ID, seller_id: SELLER.id }, error: null };
-        }
+        if (query.table === "rpc") return { data: null, error: { message: "SKXNZ_INVALID_TRANSITION" } };
         throw new Error(`Unexpected table: ${query.table}`);
       },
     }),
@@ -928,39 +894,30 @@ test("seller action refuses any status that is not on the seller ladder (e.g. PA
     nextStatus: "PAID",
   });
   assert.equal(paid.ok, false);
-  assert.equal(paid.code, "VALIDATION_FAILED");
+  assert.equal(paid.code, "INVALID_TRANSITION");
   const refunded = await updateSellerLineFulfilment({
     orderItemId: SELLER_LINE_ID,
     action: "ADVANCE",
     nextStatus: "REFUNDED",
   });
   assert.equal(refunded.ok, false);
-  assert.equal(refunded.code, "VALIDATION_FAILED");
+  assert.equal(refunded.code, "INVALID_TRANSITION");
+  const forged = await updateSellerLineFulfilment({ orderItemId: SELLER_LINE_ID, action: "ADVANCE", nextStatus: "PAID", buyerId: BUYER.id, sellerId: OTHER_SELLER.id, orderStatus: "PAID", paymentStatus: "PAID", refundStatus: "REFUNDED" });
+  assert.equal(forged.ok, false);
+  assert.equal(forged.code, "INVALID_TRANSITION");
+  const rpc = log.find((query) => query.table === "rpc" && query.fn === "seller_update_line_fulfilment");
+  assert.deepEqual(Object.keys(rpc.args).sort(), ["p_action", "p_next_status", "p_note", "p_order_item_id"]);
 });
 
 // ---- Invalid + repeated transitions ---------------------------------------
 
-test("seller action rejects a skipped step (PENDING -> PACKED)", async () => {
+test("atomic RPC rejects skipped transition", async () => {
   __setMockClient(
     createMockSupabase({
       user: SELLER,
       resolve: (query) => {
         if (query.table === "users") return { data: { role: "SELLER" }, error: null };
-        if (query.table === "order_items") {
-          return {
-            data: {
-              id: SELLER_LINE_ID,
-              order_id: SELLER_ORDER_ID,
-              product_id: SELLER_PRODUCT_ID,
-              seller_fulfilment_status: "PENDING",
-              seller_fulfilment_note: null,
-            },
-            error: null,
-          };
-        }
-        if (query.table === "products") {
-          return { data: { id: SELLER_PRODUCT_ID, seller_id: SELLER.id }, error: null };
-        }
+        if (query.table === "rpc") return { data: null, error: { message: "SKXNZ_INVALID_TRANSITION" } };
         throw new Error(`Unexpected table: ${query.table}`);
       },
     }),
@@ -974,27 +931,13 @@ test("seller action rejects a skipped step (PENDING -> PACKED)", async () => {
   assert.equal(result.code, "INVALID_TRANSITION");
 });
 
-test("seller action rejects backwards transition (PACKED -> ACCEPTED)", async () => {
+test("atomic RPC rejects repeated transition", async () => {
   __setMockClient(
     createMockSupabase({
       user: SELLER,
       resolve: (query) => {
         if (query.table === "users") return { data: { role: "SELLER" }, error: null };
-        if (query.table === "order_items") {
-          return {
-            data: {
-              id: SELLER_LINE_ID,
-              order_id: SELLER_ORDER_ID,
-              product_id: SELLER_PRODUCT_ID,
-              seller_fulfilment_status: "PACKED",
-              seller_fulfilment_note: null,
-            },
-            error: null,
-          };
-        }
-        if (query.table === "products") {
-          return { data: { id: SELLER_PRODUCT_ID, seller_id: SELLER.id }, error: null };
-        }
+        if (query.table === "rpc") return { data: null, error: { message: "SKXNZ_INVALID_TRANSITION" } };
         throw new Error(`Unexpected table: ${query.table}`);
       },
     }),
@@ -1008,38 +951,24 @@ test("seller action rejects backwards transition (PACKED -> ACCEPTED)", async ()
   assert.equal(result.code, "INVALID_TRANSITION");
 });
 
-test("seller action rejects repeat of the same status", async () => {
+test("seller action rejects malformed and oversized notes before the RPC", async () => {
   __setMockClient(
     createMockSupabase({
       user: SELLER,
       resolve: (query) => {
         if (query.table === "users") return { data: { role: "SELLER" }, error: null };
-        if (query.table === "order_items") {
-          return {
-            data: {
-              id: SELLER_LINE_ID,
-              order_id: SELLER_ORDER_ID,
-              product_id: SELLER_PRODUCT_ID,
-              seller_fulfilment_status: "ACCEPTED",
-              seller_fulfilment_note: null,
-            },
-            error: null,
-          };
-        }
-        if (query.table === "products") {
-          return { data: { id: SELLER_PRODUCT_ID, seller_id: SELLER.id }, error: null };
-        }
+        if (query.table === "rpc") throw new Error("RPC must not run for invalid note");
         throw new Error(`Unexpected table: ${query.table}`);
       },
     }),
   );
   const result = await updateSellerLineFulfilment({
     orderItemId: SELLER_LINE_ID,
-    action: "ADVANCE",
-    nextStatus: "ACCEPTED",
+    action: "ADD_NOTE",
+    note: "x".repeat(501),
   });
   assert.equal(result.ok, false);
-  assert.equal(result.code, "INVALID_TRANSITION");
+  assert.equal(result.code, "VALIDATION_FAILED");
 });
 
 // ---- Junk / missing line id ------------------------------------------------
@@ -1057,49 +986,18 @@ test("seller action treats junk order item id as LINE_NOT_FOUND without DB call"
   assert.equal(log.length, 0);
 });
 
-// ---- Successful transition writes conditional UPDATE + audit event ---------
+// ---- Successful transition invokes the single atomic RPC -------------------
 
-test("valid PENDING -> ACCEPTED writes conditional UPDATE + audit event", async () => {
+test("valid transition calls only the atomic RPC boundary", async () => {
   const sessionLog = [];
-  const adminLog = [];
   __setMockClient(
     createMockSupabase({
       user: SELLER,
       log: sessionLog,
       resolve: (query) => {
         if (query.table === "users") return { data: { role: "SELLER" }, error: null };
-        if (query.table === "order_items") {
-          return {
-            data: {
-              id: SELLER_LINE_ID,
-              order_id: SELLER_ORDER_ID,
-              product_id: SELLER_PRODUCT_ID,
-              seller_fulfilment_status: "PENDING",
-              seller_fulfilment_note: null,
-            },
-            error: null,
-          };
-        }
-        if (query.table === "products") {
-          return { data: { id: SELLER_PRODUCT_ID, seller_id: SELLER.id }, error: null };
-        }
+        if (query.table === "rpc" && query.fn === "seller_update_line_fulfilment") return { data: [{ order_item_id: SELLER_LINE_ID, order_id: SELLER_ORDER_ID, seller_fulfilment_status: "ACCEPTED" }], error: null };
         throw new Error(`Unexpected table: ${query.table}`);
-      },
-    }),
-  );
-  __setAdminMockClient(
-    createMockSupabase({
-      user: SELLER,
-      log: adminLog,
-      resolve: (query) => {
-        if (query.table === "order_items") {
-          return {
-            data: [{ id: SELLER_LINE_ID, seller_fulfilment_status: "ACCEPTED" }],
-            error: null,
-          };
-        }
-        if (query.table === "order_item_events") return { data: null, error: null };
-        throw new Error(`Unexpected admin table: ${query.table}`);
       },
     }),
   );
@@ -1113,26 +1011,28 @@ test("valid PENDING -> ACCEPTED writes conditional UPDATE + audit event", async 
   assert.equal(result.status, "ACCEPTED");
   assert.equal(result.orderId, SELLER_ORDER_ID);
 
-  const updateQuery = adminLog.find(
-    (q) => q.table === "order_items" && findCall(q, "update"),
-  );
-  assert.ok(updateQuery, "expected an admin UPDATE on order_items");
-  const updatePayload = findCall(updateQuery, "update").args[0];
-  assert.equal(updatePayload.seller_fulfilment_status, "ACCEPTED");
-  assert.equal(updatePayload.seller_fulfilment_note, "Packed with the correct size");
-  // Conditional guard: .eq("seller_fulfilment_status", "PENDING") ensures a
-  // racing update cannot silently overwrite a newer state.
-  const eqCalls = updateQuery.calls.filter(
-    (c) => c.method === "eq" && c.args[0] === "seller_fulfilment_status",
-  );
-  assert.ok(eqCalls.length >= 1);
+  const rpc = sessionLog.find((query) => query.table === "rpc");
+  assert.equal(rpc.fn, "seller_update_line_fulfilment");
+  assert.deepEqual(rpc.args, { p_order_item_id: SELLER_LINE_ID, p_action: "ADVANCE", p_next_status: "ACCEPTED", p_note: "Packed with the correct size" });
+  assert.equal(sessionLog.filter((query) => query.table === "order_items" || query.table === "order_item_events").length, 0);
+});
 
-  const eventQuery = adminLog.find((q) => q.table === "order_item_events");
-  assert.ok(eventQuery, "expected an audit event insert");
-  const eventPayload = findCall(eventQuery, "insert").args[0];
-  assert.equal(eventPayload.from_status, "PENDING");
-  assert.equal(eventPayload.to_status, "ACCEPTED");
-  assert.equal(eventPayload.actor_user_id, SELLER.id);
+test("missing 0009 RPC returns truthful NOT_WIRED behavior", async () => {
+  __setMockClient(createMockSupabase({ user: SELLER, resolve: (query) => {
+    if (query.table === "users") return { data: { role: "SELLER" }, error: null };
+    if (query.table === "rpc") return { data: null, error: { code: "PGRST202", message: "function does not exist" } };
+    throw new Error(`Unexpected table: ${query.table}`);
+  }}));
+  const result = await updateSellerLineFulfilment({ orderItemId: SELLER_LINE_ID, action: "ADVANCE", nextStatus: "ACCEPTED" });
+  assert.equal(result.ok, false);
+  assert.equal(result.code, "NOT_WIRED");
+});
+
+test("seller action contains no non-atomic privileged fallback", () => {
+  const source = require("node:fs").readFileSync(require("node:path").join(__dirname, "..", "lib", "orders", "seller-update-line-fulfilment.ts"), "utf8");
+  assert.equal(source.includes("supabaseAdmin"), false);
+  assert.equal(source.includes(".from(\"order_item_events\")"), false);
+  assert.equal(source.includes("seller_update_line_fulfilment"), true);
 });
 
 // ---- Grouped list preserves seller-only totals and quantity ---------------
@@ -1207,4 +1107,37 @@ test("seller detail lookup returns null for an unrelated order id (no existence 
   const result = await getSellerOrderById(SELLER_ORDER_ID);
   assert.equal(result.backendReady, true);
   assert.equal(result.order, null);
+});
+
+test("seller return indicator includes only seller-owned active return items", async () => {
+  const now = new Date().toISOString();
+  __setMockClient(createMockSupabase({ user: SELLER, resolve: sellerReadResolver({
+    lines: [{ id: SELLER_LINE_ID, order_id: SELLER_ORDER_ID, product_id: SELLER_PRODUCT_ID, product_slug: "p", title_snapshot: "T", brand_snapshot: null, image_snapshot: null, selected_size: null, selected_color: null, unit_price_paise: 100, quantity: 2, line_total_paise: 200, created_at: now, seller_fulfilment_status: "PENDING" }],
+    indicators: [{ order_item_id: SELLER_LINE_ID, return_status: "REQUESTED", requested_quantity: 1 }],
+  }) }));
+  const result = await getSellerOrderById(SELLER_ORDER_ID);
+  assert.equal(result.returnVisibilityReady, true);
+  assert.deepEqual(result.order.lines[0].activeReturn, { status: "REQUESTED", quantity: 1 });
+});
+
+test("seller A cannot read seller B return indicator", async () => {
+  const now = new Date().toISOString();
+  __setMockClient(createMockSupabase({ user: SELLER, resolve: sellerReadResolver({
+    lines: [{ id: SELLER_LINE_ID, order_id: SELLER_ORDER_ID, product_id: SELLER_PRODUCT_ID, product_slug: "p", title_snapshot: "T", brand_snapshot: null, image_snapshot: null, selected_size: null, selected_color: null, unit_price_paise: 100, quantity: 1, line_total_paise: 100, created_at: now, seller_fulfilment_status: "PENDING" }],
+    // The scoped RPC mock represents database filtering: B's row is absent.
+    indicators: [],
+  }) }));
+  const result = await getSellerOrderById(SELLER_ORDER_ID);
+  assert.equal(result.order.lines[0].activeReturn, null);
+});
+
+test("rejected and inactive return rows do not create seller indicators", async () => {
+  const now = new Date().toISOString();
+  __setMockClient(createMockSupabase({ user: SELLER, resolve: sellerReadResolver({
+    lines: [{ id: SELLER_LINE_ID, order_id: SELLER_ORDER_ID, product_id: SELLER_PRODUCT_ID, product_slug: "p", title_snapshot: "T", brand_snapshot: null, image_snapshot: null, selected_size: null, selected_color: null, unit_price_paise: 100, quantity: 1, line_total_paise: 100, created_at: now, seller_fulfilment_status: "PENDING" }],
+    // SQL RPC excludes REJECTED/CLOSED/REFUNDED; empty result is intentional.
+    indicators: [],
+  }) }));
+  const result = await getSellerOrders();
+  assert.equal(result.orders[0].activeReturnLineCount, 0);
 });

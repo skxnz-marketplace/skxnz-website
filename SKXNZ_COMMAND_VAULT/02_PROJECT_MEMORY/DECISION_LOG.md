@@ -13,6 +13,3 @@ Append-only. Newest on top. One line per decision + date + why.
 - **OPEN** — Prisma vs Supabase single source of truth. Decide before catalog wiring.
 
 Related: [[TECH_MEMORY]] · [[UI_UX_MEMORY]] · [[BRAND_MEMORY]]
-# D3-B atomic seller fulfilment
-
-- Decision: replace the split service-role UPDATE/audit calls with an authenticated `SECURITY DEFINER` RPC that locks the seller-owned line and writes the audit event atomically. Seller returns use a separate minimal status/quantity RPC; no seller support-thread access. [[SKXNZ_LAUNCH_WAR_D3_B_SELLER_HARDENING]]

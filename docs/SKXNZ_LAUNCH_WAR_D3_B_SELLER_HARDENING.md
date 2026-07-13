@@ -33,14 +33,17 @@ Verified D3-A claims: session-derived seller reads; seller-owned-line filtering;
 
 ## Validation
 
-- `pnpm run test:commerce`: not runnable in this worktree — PowerShell blocks `pnpm.ps1`; `pnpm.cmd` then reports no local `node_modules`.
-- Direct test compiler attempt: blocked because this sandbox denies writes to `tests/.build` in the dedicated worktree and cannot resolve the worktree dependency tree. No test result is claimed.
+- Dependency access restored without install/network through a Windows junction to the existing clean-worktree `node_modules`.
+- `pnpm.cmd run test:commerce`: **54/54 pass**. These are application-level mocked-boundary tests; they do not claim live RLS proof.
+- TypeScript: `tsc --noEmit --incremental false` **exit 0**.
+- ESLint: `eslint app/seller components/seller lib/orders` **exit 0**.
+- `git diff f8c05dc..HEAD --check`: clean. Targeted secret scan and removed-demo reference search: clean. Seller honesty scan found only truthful no-demo wording and a textarea placeholder.
 - Live authenticated smoke: not run; Supabase must be reachable and the draft migration must first be applied by an operator.
 
 ## Remaining launch blockers
 
 - Critical: apply/verify the existing commerce, 0006, and extended 0009 migrations in the intended Supabase project before enabling seller actions.
 - High: run the two-seller isolation/concurrency harness with distinct non-admin seller QA accounts; then run authenticated seller browser QA.
-- High: restore a writable dependency/build setup in the D3-B worktree and run the commerce suite plus TypeScript/ESLint before merge.
+- High: run the two-seller isolation/concurrency harness with distinct non-admin seller QA accounts after migration application.
 
 No push, merge, deploy, live SQL, or secret handling occurred.
