@@ -33,3 +33,6 @@ Exact order. No app code until step 8.
 23. Master Planner reviews before any commit. Full 4-agent code parallelism only after dirty tree cleaned into worktrees.
 
 Related: [[CURRENT_STATUS]] · [[DAILY_COMMAND]] · [[AGENT_TASK_BOARD]] · [[MULTI_AGENT_SKXNZ_WORK_PLAN]] · [[PARALLEL_AGENT_RULES]] · [[COWORK_COORDINATION_PLAN]]
+# Day 4 first action
+
+- Apply the reviewed 0009 draft only to disposable Supabase QA, run two-seller isolation/concurrency proof, then authenticated seller browser QA. [[SKXNZ_LAUNCH_WAR_DAY3_CLOSE_REPORT]]

@@ -164,6 +164,11 @@ export default async function SellerOrderDetailPage({ params }: PageProps) {
                   <p className="mt-1 text-xs leading-5 text-stone">
                     {status.note}
                   </p>
+                  {result.returnVisibilityReady && line.activeReturn ? (
+                    <p className="mt-3 rounded-lg border border-[rgba(58,8,24,0.14)] bg-[var(--skxnz-bg)] p-2 text-xs font-semibold leading-5 text-midnightbrown">
+                      Active return: {line.activeReturn.status.replaceAll("_", " ").toLowerCase()} · requested quantity {line.activeReturn.quantity}
+                    </p>
+                  ) : null}
                   {line.fulfilmentNote ? (
                     <p className="mt-2 rounded-lg border border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-bg)] p-2 text-xs leading-5 text-stone">
                       Note: {line.fulfilmentNote}

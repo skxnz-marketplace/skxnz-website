@@ -72,6 +72,11 @@ function createMockSupabase({ user, resolve = () => ({ data: null, error: null }
     from(table) {
       return createBuilder(table, resolve, log);
     },
+    rpc(fn, args) {
+      const entry = { table: "rpc", fn, args, calls: [] };
+      if (log) log.push(entry);
+      return Promise.resolve(resolve(entry));
+    },
   };
 }
 

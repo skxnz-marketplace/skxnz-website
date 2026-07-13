@@ -403,3 +403,11 @@ Single source of truth for project status. Read this before starting work and up
   - Checks: `tsc --noEmit` EXIT 0; `eslint app/seller components/seller lib/orders/**` EXIT 0; `git diff --check` clean; secret scan clean; honesty scan on seller surfaces clean. Dev server exercised `/seller/orders` → 200 login redirect for unauth (route wiring proven). Authenticated live smoke still blocked by standing Supabase-unreachable-from-dev-machine limitation.
   - No SQL applied, no push, no deploy, no secrets added. Four pre-existing unrelated untracked files preserved.
   - Report: `docs/SKXNZ_LAUNCH_WAR_D3_A_SELLER_ORDER_OPERATIONS.md`. D3-B handoff: apply 0009 live + isolation-harness two-seller extension; seller-visible active-return indicator (needs scoped return_requests read policy); atomic RPC for UPDATE+audit; delete unrouted demo seller components.
+
+- **Launch War Day 3 / D3-B seller hardening and close (draft migration only):**
+  - Independently reviewed Claude D3-A source commit `f8c05dc`; confirmed the seller line read/privacy boundary, then fixed the High split-write audit gap.
+  - Extended draft `0009_seller_line_fulfilment.sql` with locked, `SECURITY DEFINER`, authenticated seller RPC `seller_update_line_fulfilment`: exact forward transition + bounded note + line update + audit event in one transaction. Server action has no non-atomic service-role fallback and reports truthful read-only setup state when unavailable.
+  - Added scoped seller-owned active-return RPC and seller queue/detail indicators (status + quantity only); no buyer/support/payment/refund/other-seller details are exposed. Rejected/closed/refunded returns are not shown as active.
+  - Removed unused seller-order demo table/panel/data files, added 0009 RPC verification and two-seller/concurrency operator harness, and added Day 3 close docs.
+  - No SQL applied, no push, merge, or deployment, and no secrets added. Local test/type execution remains blocked because this dedicated worktree has no writable dependency/build directory; no passing result is claimed.
+  - **Day 4 first priority:** apply reviewed migrations only to disposable QA, run the two-seller 0009 isolation/concurrency harness with distinct non-admin sellers, then perform authenticated seller browser QA.

@@ -2,7 +2,6 @@ import Link from "next/link";
 
 import { SellerAiToolsPreview } from "@/components/seller/seller-ai-tools-preview";
 import { SellerDashboardShell } from "@/components/seller/seller-dashboard-shell";
-import { SellerOrderTable } from "@/components/seller/seller-order-table";
 import { SellerProductTable } from "@/components/seller/seller-product-table";
 import { SellerStatsCards } from "@/components/seller/seller-stats-cards";
 import { buttonVariants } from "@/components/ui/button";
@@ -88,7 +87,6 @@ export default function SellerDashboardPage() {
         </Card>
 
         <SellerProductTable />
-        <SellerOrderTable />
         <SellerAiToolsPreview />
       </div>
     </SellerDashboardShell>

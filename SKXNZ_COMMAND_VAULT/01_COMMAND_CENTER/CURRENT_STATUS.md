@@ -66,3 +66,6 @@ _Date: 2026-07-02_
 - Tomorrow: startup git check → push-strategy decision → H2b draft plan → catalog `0002` apply plan. ReactBits stays locked.
 
 See [[NEXT_ACTIONS]] - [[MASTER_INDEX]].
+# Day 3 D3-B status
+
+- Draft-only seller hardening extends 0009 with atomic fulfilment and scoped seller-return visibility. Operator QA and migration application remain pending. See [[SKXNZ_LAUNCH_WAR_D3_B_SELLER_HARDENING]].

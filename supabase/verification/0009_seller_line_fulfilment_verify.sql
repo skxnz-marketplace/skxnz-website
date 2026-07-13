@@ -69,6 +69,23 @@ where table_schema = 'public'
   and grantee in ('anon', 'authenticated')
   and privilege_type in ('UPDATE', 'DELETE');
 
+-- 6. Atomic RPC + scoped-return RPC: EXPECT two SECURITY DEFINER functions,
+-- with an explicit search_path and EXECUTE granted only to authenticated.
+select p.oid::regprocedure as function_name, p.prosecdef as security_definer, p.proconfig
+from pg_proc p
+where p.oid in (
+  'public.seller_update_line_fulfilment(uuid,text,text,text)'::regprocedure,
+  'public.seller_active_return_indicators(uuid[])'::regprocedure
+)
+order by function_name::text;
+
+select routine_name, grantee, privilege_type
+from information_schema.routine_privileges
+where routine_schema = 'public'
+  and routine_name in ('seller_update_line_fulfilment', 'seller_active_return_indicators')
+  and grantee in ('anon', 'authenticated', 'public')
+order by routine_name, grantee;
+
 -- =============================================================
 -- 6. MANUAL ISOLATION HINTS (not runnable inline — use the
 --    0005 isolation harness pattern to prove these once seeded):
