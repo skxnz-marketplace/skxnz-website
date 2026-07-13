@@ -422,3 +422,10 @@ Single source of truth for project status. Read this before starting work and up
   - Validation fixup: restored local dependency access through a junction to the existing clean-worktree dependencies; added atomic-RPC and scoped-return application mock coverage. `pnpm run test:commerce` **54/54 PASS**; TypeScript and targeted ESLint EXIT 0; diff/secret/removed-demo checks clean. These mocks do not claim live RLS proof.
   - No SQL applied, no push, merge, or deployment, and no secrets added.
   - **Day 4 first priority:** apply reviewed migrations only to disposable QA, run the two-seller 0009 isolation/concurrency harness with distinct non-admin sellers, then perform authenticated seller browser QA.
+
+- **Launch War Day 4 / D4-B atomic admin hardening (this session, branch `codex/d4b-admin-hardening`):**
+  - D3-B and D4-A were retained together through merge commit `ae34a08`.
+  - Added draft-only `0010_admin_commerce_atomic_actions.sql`: `admin_update_order_status_atomic` and `admin_update_return_status_atomic` derive actor identity from `auth.uid()`, verify ADMIN server-side, lock/recheck the target row, validate forward-only state changes, bound notes, update plus append `order_events` atomically, and grant execute only to `authenticated` (anon/PUBLIC revoked).
+  - Rewired both admin server actions to RPC-only paths with truthful `NOT_WIRED` behavior when 0010 is absent; removed their privileged update-plus-audit fallback. Support reply/status actions were reviewed and unchanged because they do not have this split boundary.
+  - Added 0010 post-apply verification and disposable-QA multi-role/concurrency scripts. `pnpm.cmd run test:commerce` **73/73 PASS**; TypeScript no-emit and targeted ESLint passed. Mock tests do not claim live RLS or PostgreSQL concurrency proof. No SQL applied, no push, launch-branch merge, deployment, or secrets.
+  - **Next:** operator applies 0010 only in disposable Supabase QA, runs 0010 verification/isolation with distinct anon/BUYER/SELLER/ADMIN JWTs and two concurrent ADMIN sessions, then performs authenticated browser QA.

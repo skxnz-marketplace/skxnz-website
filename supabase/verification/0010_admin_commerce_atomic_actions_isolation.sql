@@ -1,0 +1,35 @@
+-- D4-B 0010 multi-role isolation / concurrency operator harness (DRAFT).
+-- Run ONLY in disposable Supabase QA after 0010; set the variables below in
+-- psql, or replace their values in a temporary copy for SQL Editor. Never run
+-- against production data. It is rollback-only and performs no setup itself.
+begin;
+
+-- Required seed: an ADMIN, BUYER, SELLER; a DRAFT order and REQUESTED return
+-- request owned by BUYER; capture their UUIDs as :admin_id, :buyer_id,
+-- :seller_id, :order_id, :return_id. JWT claim switching must use the same
+-- pattern as the project's 0005 isolation harness.
+--
+-- A. anon: both SELECT public.admin_*_atomic(...) calls must fail 42501.
+-- B. set request.jwt.claim.sub = BUYER then SELLER: each call must fail 42501
+--    (ADMIN-only; neither sees a resource existence distinction).
+-- C. set request.jwt.claim.sub = ADMIN:
+--    select * from public.admin_update_order_status_atomic(:'order_id'::uuid,
+--      'CANCELLED', 'QA order transition');
+--    select * from public.admin_update_return_status_atomic(:'return_id'::uuid,
+--      'IN_REVIEW', 'QA return transition');
+--    EXPECT one row each, then exactly one matching order_events record each
+--    with metadata->>'actor_user_id' = current_setting('request.jwt.claim.sub',true).
+-- D. Under ADMIN, request skipped/repeated states plus PAID, REFUNDED,
+--    PICKUP_PENDING, and invalid/missing UUIDs. EXPECT stable SKXNZ_INVALID_
+--    TRANSITION / SKXNZ_*_NOT_FOUND errors and no extra audit row.
+-- E. From two separate ADMIN sessions, start the same transition concurrently.
+--    The first holds/commits the row lock; the second must recheck state and
+--    fail SKXNZ_INVALID_TRANSITION. Confirm only one update + event occurred.
+-- F. Attempt to pass a fourth actor/payment/refund/buyer/seller/status field.
+--    PostgreSQL must reject it: the RPC signatures accept only id, next status,
+--    bounded note; inspect orders/returns afterwards to confirm no unrelated
+--    field changed. A >500-character note must fail SKXNZ_NOTE_TOO_LONG.
+--
+-- Record PASS/FAIL outside this file. This is live database proof; mocked
+-- Node tests cover only the application call boundary.
+rollback;

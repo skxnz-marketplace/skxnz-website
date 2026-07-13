@@ -15,6 +15,8 @@ require("./bootstrap.cjs");
 
 const { test } = require("node:test");
 const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
 
 const { __setMockClient } = require("./mocks/supabase-server.cjs");
 const { createMockSupabase, findCall } = require("./helpers/mock-supabase.cjs");
@@ -763,6 +765,7 @@ const {
   getSellerOrders,
   getSellerOrderById,
 } = require("@/lib/orders/read-seller-orders");
+const { __setAdminMockClient } = require("./mocks/supabase-admin.cjs");
 
 const SELLER = { id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa", email: "seller@test.local" };
 const OTHER_SELLER = { id: "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb", email: "b@test.local" };
@@ -1163,220 +1166,94 @@ test("seller cannot call adminUpdateOrderStatus", async () => {
   assert.equal(result.code, "FORBIDDEN");
 });
 
-// ---- Payment / refund forgery is impossible from the admin action ---------
+// ---- Atomic admin order and return mutations --------------------------------
 
-test("adminUpdateOrderStatus can never set PAID", async () => {
-  __setMockClient(
-    createMockSupabase({
-      user: ADMIN,
-      resolve: roleResolver("ADMIN", (query) =>
-        query.table === "orders"
-          ? { data: { id: ADMIN_ORDER, status: "PAYMENT_PENDING" }, error: null }
-          : null,
-      ),
-    }),
-  );
-  const result = await adminUpdateOrderStatus({ orderId: ADMIN_ORDER, nextStatus: "PAID" });
-  assert.equal(result.ok, false);
-  assert.equal(result.code, "INVALID_TRANSITION");
+function rpcError(message, code) { return { data: null, error: { message, ...(code ? { code } : {}) } }; }
+
+test("payment, refund, skipped, repeated, and stale order transitions are rejected by the RPC", async () => {
+  for (const nextStatus of ["PAID", "REFUNDED", "DELIVERED", "FULFILLING"]) {
+    __setMockClient(createMockSupabase({ user: ADMIN, resolve: roleResolver("ADMIN", (query) =>
+      query.table === "rpc" ? rpcError("SKXNZ_INVALID_TRANSITION") : null,
+    ) }));
+    const result = await adminUpdateOrderStatus({ orderId: ADMIN_ORDER, nextStatus });
+    assert.equal(result.code, "INVALID_TRANSITION");
+  }
 });
 
-test("adminUpdateOrderStatus can never set REFUNDED", async () => {
-  __setMockClient(
-    createMockSupabase({
-      user: ADMIN,
-      resolve: roleResolver("ADMIN", (query) =>
-        query.table === "orders"
-          ? { data: { id: ADMIN_ORDER, status: "DELIVERED" }, error: null }
-          : null,
-      ),
-    }),
-  );
-  const result = await adminUpdateOrderStatus({ orderId: ADMIN_ORDER, nextStatus: "REFUNDED" });
-  assert.equal(result.ok, false);
-  assert.equal(result.code, "INVALID_TRANSITION");
-});
-
-// ---- Invalid / repeated transitions ----------------------------------------
-
-test("skipped order transition (DRAFT -> DELIVERED) is rejected", async () => {
-  __setMockClient(
-    createMockSupabase({
-      user: ADMIN,
-      resolve: roleResolver("ADMIN", (query) =>
-        query.table === "orders"
-          ? { data: { id: ADMIN_ORDER, status: "DRAFT" }, error: null }
-          : null,
-      ),
-    }),
-  );
-  const result = await adminUpdateOrderStatus({ orderId: ADMIN_ORDER, nextStatus: "DELIVERED" });
-  assert.equal(result.ok, false);
-  assert.equal(result.code, "INVALID_TRANSITION");
-});
-
-test("concurrent/repeated order transition conflicts instead of overwriting", async () => {
-  __setMockClient(
-    createMockSupabase({
-      user: ADMIN,
-      resolve: roleResolver("ADMIN", (query) =>
-        query.table === "orders"
-          ? { data: { id: ADMIN_ORDER, status: "PAID" }, error: null }
-          : null,
-      ),
-    }),
-  );
-  // Conditional UPDATE matches zero rows (someone else already moved it).
-  __setAdminMockClient(
-    createMockSupabase({
-      user: ADMIN,
-      resolve: (query) => {
-        if (query.table === "orders") return { data: [], error: null };
-        throw new Error(`Unexpected admin table: ${query.table}`);
-      },
-    }),
-  );
-  const result = await adminUpdateOrderStatus({ orderId: ADMIN_ORDER, nextStatus: "FULFILLING" });
-  assert.equal(result.ok, false);
-  assert.equal(result.code, "INVALID_TRANSITION");
-});
-
-test("valid PAID -> FULFILLING writes conditional update + audit event", async () => {
-  const adminLog = [];
-  __setMockClient(
-    createMockSupabase({
-      user: ADMIN,
-      resolve: roleResolver("ADMIN", (query) =>
-        query.table === "orders"
-          ? { data: { id: ADMIN_ORDER, status: "PAID" }, error: null }
-          : null,
-      ),
-    }),
-  );
-  __setAdminMockClient(
-    createMockSupabase({
-      user: ADMIN,
-      log: adminLog,
-      resolve: (query) => {
-        if (query.table === "orders")
-          return { data: [{ id: ADMIN_ORDER, status: "FULFILLING" }], error: null };
-        if (query.table === "order_events") return { data: null, error: null };
-        throw new Error(`Unexpected admin table: ${query.table}`);
-      },
-    }),
-  );
-  const result = await adminUpdateOrderStatus({
-    orderId: ADMIN_ORDER,
-    nextStatus: "FULFILLING",
-    note: "Ops confirmed stock",
-  });
+test("valid PAID -> FULFILLING calls only the atomic order RPC", async () => {
+  const log = [];
+  __setMockClient(createMockSupabase({ user: ADMIN, log, resolve: roleResolver("ADMIN", (query) =>
+    query.table === "rpc" ? { data: [{ order_id: ADMIN_ORDER, status: "FULFILLING" }], error: null } : null,
+  ) }));
+  const result = await adminUpdateOrderStatus({ orderId: ADMIN_ORDER, nextStatus: "FULFILLING", note: "Ops confirmed stock" });
   assert.equal(result.ok, true);
-  assert.equal(result.status, "FULFILLING");
-
-  const updateQuery = adminLog.find(
-    (q) => q.table === "orders" && findCall(q, "update"),
-  );
-  assert.ok(updateQuery, "expected an admin UPDATE on orders");
-  assert.equal(findCall(updateQuery, "update").args[0].status, "FULFILLING");
-  const statusGuard = updateQuery.calls.find(
-    (c) => c.method === "eq" && c.args[0] === "status",
-  );
-  assert.deepEqual(statusGuard.args, ["status", "PAID"]);
-
-  const eventQuery = adminLog.find((q) => q.table === "order_events");
-  assert.ok(eventQuery, "expected an audit event insert");
-  const payload = findCall(eventQuery, "insert").args[0];
-  assert.equal(payload.metadata.from_status, "PAID");
-  assert.equal(payload.metadata.to_status, "FULFILLING");
-  assert.equal(payload.metadata.actor_user_id, ADMIN.id);
+  const rpc = log.find((q) => q.table === "rpc");
+  assert.equal(rpc.fn, "admin_update_order_status_atomic");
+  assert.deepEqual(rpc.args, { p_order_id: ADMIN_ORDER, p_next_status: "FULFILLING", p_note: "Ops confirmed stock" });
+  assert.equal(log.some((q) => q.table === "orders" && findCall(q, "update")), false);
 });
 
-// ---- Admin return mutations -------------------------------------------------
-
-test("buyer cannot call adminUpdateReturnStatus", async () => {
-  __setMockClient(createMockSupabase({ user: BUYER, resolve: roleResolver("BUYER") }));
-  const result = await adminUpdateReturnStatus({ requestId: RETURN_ID, nextStatus: "IN_REVIEW" });
-  assert.equal(result.ok, false);
-  assert.equal(result.code, "FORBIDDEN");
+test("missing order RPC returns truthful NOT_WIRED without fallback", async () => {
+  __setMockClient(createMockSupabase({ user: ADMIN, resolve: roleResolver("ADMIN", (query) =>
+    query.table === "rpc" ? rpcError("function does not exist", "42883") : null,
+  ) }));
+  assert.equal((await adminUpdateOrderStatus({ orderId: ADMIN_ORDER, nextStatus: "CANCELLED" })).code, "NOT_WIRED");
 });
 
-test("adminUpdateReturnStatus can never set REFUNDED", async () => {
-  __setMockClient(
-    createMockSupabase({
-      user: ADMIN,
-      resolve: roleResolver("ADMIN", (query) =>
-        query.table === "return_requests"
-          ? { data: { id: RETURN_ID, order_id: ADMIN_ORDER, status: "APPROVED" }, error: null }
-          : null,
-      ),
-    }),
-  );
-  const result = await adminUpdateReturnStatus({ requestId: RETURN_ID, nextStatus: "REFUNDED" });
-  assert.equal(result.ok, false);
-  assert.equal(result.code, "INVALID_TRANSITION");
+test("admin return action rejects unauthenticated, buyer, and seller callers", async () => {
+  __setMockClient(createMockSupabase({ user: null }));
+  assert.equal((await adminUpdateReturnStatus({ requestId: RETURN_ID, nextStatus: "IN_REVIEW" })).code, "UNAUTHENTICATED");
+  for (const user of [BUYER, SELLER]) {
+    __setMockClient(createMockSupabase({ user, resolve: roleResolver(user === BUYER ? "BUYER" : "SELLER") }));
+    assert.equal((await adminUpdateReturnStatus({ requestId: RETURN_ID, nextStatus: "IN_REVIEW" })).code, "FORBIDDEN");
+  }
 });
 
-test("invalid return transition (REQUESTED -> APPROVED skip) is rejected", async () => {
-  __setMockClient(
-    createMockSupabase({
-      user: ADMIN,
-      resolve: roleResolver("ADMIN", (query) =>
-        query.table === "return_requests"
-          ? { data: { id: RETURN_ID, order_id: ADMIN_ORDER, status: "REQUESTED" }, error: null }
-          : null,
-      ),
-    }),
-  );
-  const result = await adminUpdateReturnStatus({ requestId: RETURN_ID, nextStatus: "APPROVED" });
-  assert.equal(result.ok, false);
-  assert.equal(result.code, "INVALID_TRANSITION");
+test("refund, skipped, repeated, and stale return transitions are rejected by the RPC", async () => {
+  for (const nextStatus of ["REFUNDED", "APPROVED", "IN_REVIEW"]) {
+    __setMockClient(createMockSupabase({ user: ADMIN, resolve: roleResolver("ADMIN", (query) =>
+      query.table === "rpc" ? rpcError("SKXNZ_INVALID_TRANSITION") : null,
+    ) }));
+    assert.equal((await adminUpdateReturnStatus({ requestId: RETURN_ID, nextStatus })).code, "INVALID_TRANSITION");
+  }
 });
 
 test("junk return id is rejected without any DB call", async () => {
   const log = [];
   __setMockClient(createMockSupabase({ user: ADMIN, log }));
-  const result = await adminUpdateReturnStatus({ requestId: "junk", nextStatus: "IN_REVIEW" });
-  assert.equal(result.ok, false);
-  assert.equal(result.code, "REQUEST_NOT_FOUND");
+  assert.equal((await adminUpdateReturnStatus({ requestId: "junk", nextStatus: "IN_REVIEW" })).code, "REQUEST_NOT_FOUND");
   assert.equal(log.length, 0);
 });
 
-test("valid REQUESTED -> IN_REVIEW writes audit event with note", async () => {
-  const adminLog = [];
-  __setMockClient(
-    createMockSupabase({
-      user: ADMIN,
-      resolve: roleResolver("ADMIN", (query) =>
-        query.table === "return_requests"
-          ? { data: { id: RETURN_ID, order_id: ADMIN_ORDER, status: "REQUESTED" }, error: null }
-          : null,
-      ),
-    }),
-  );
-  __setAdminMockClient(
-    createMockSupabase({
-      user: ADMIN,
-      log: adminLog,
-      resolve: (query) => {
-        if (query.table === "return_requests")
-          return { data: [{ id: RETURN_ID, status: "IN_REVIEW" }], error: null };
-        if (query.table === "order_events") return { data: null, error: null };
-        throw new Error(`Unexpected admin table: ${query.table}`);
-      },
-    }),
-  );
-  const result = await adminUpdateReturnStatus({
-    requestId: RETURN_ID,
-    nextStatus: "IN_REVIEW",
-    note: "Photos requested",
-  });
+test("valid REQUESTED -> IN_REVIEW calls only the atomic return RPC", async () => {
+  const log = [];
+  __setMockClient(createMockSupabase({ user: ADMIN, log, resolve: roleResolver("ADMIN", (query) =>
+    query.table === "rpc" ? { data: [{ request_id: RETURN_ID, status: "IN_REVIEW" }], error: null } : null,
+  ) }));
+  const result = await adminUpdateReturnStatus({ requestId: RETURN_ID, nextStatus: "IN_REVIEW", note: "Photos requested" });
   assert.equal(result.ok, true);
-  const eventQuery = adminLog.find((q) => q.table === "order_events");
-  assert.ok(eventQuery, "expected an audit event insert");
-  const payload = findCall(eventQuery, "insert").args[0];
-  assert.equal(payload.metadata.return_request_id, RETURN_ID);
-  assert.equal(payload.metadata.to_status, "IN_REVIEW");
-  assert.ok(payload.message.includes("Photos requested"));
+  const rpc = log.find((q) => q.table === "rpc");
+  assert.equal(rpc.fn, "admin_update_return_status_atomic");
+  assert.deepEqual(rpc.args, { p_request_id: RETURN_ID, p_next_status: "IN_REVIEW", p_note: "Photos requested" });
+  assert.equal(log.some((q) => q.table === "return_requests" && findCall(q, "update")), false);
+});
+
+test("missing return RPC returns truthful NOT_WIRED without fallback", async () => {
+  __setMockClient(createMockSupabase({ user: ADMIN, resolve: roleResolver("ADMIN", (query) =>
+    query.table === "rpc" ? rpcError("function missing", "PGRST202") : null,
+  ) }));
+  assert.equal((await adminUpdateReturnStatus({ requestId: RETURN_ID, nextStatus: "IN_REVIEW" })).code, "NOT_WIRED");
+});
+
+test("admin action sources contain no privileged update fallback or forged fields", () => {
+  for (const file of ["lib/orders/admin-update-order-status.ts", "lib/returns/admin-update-return-status.ts"]) {
+    const source = fs.readFileSync(path.join(process.cwd(), file), "utf8");
+    assert.equal(source.includes("supabaseAdmin"), false);
+    assert.equal(source.includes(".update("), false);
+    assert.equal(source.includes("payment_status"), false);
+    assert.equal(source.includes("refund"), false);
+    assert.equal(source.includes("admin_id"), false);
+  }
 });
 
 // ---- Admin support mutations ------------------------------------------------
