@@ -33,26 +33,21 @@
 //
 // Migration status: 0005 finalized, NOT applied live. 42P01 -> NOT_WIRED.
 
+import { revalidatePath } from "next/cache";
+
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import {
   isOrderIdShape,
   type BuyerOrderStatus,
 } from "@/lib/orders/read-buyer-orders";
+import { ADMIN_ORDER_TRANSITIONS } from "@/lib/orders/admin-order-transitions";
 
 const MAX_NOTE_LENGTH = 500;
 
-/** Transitions this internal action may perform. Everything else rejects. */
-const ALLOWED_TRANSITIONS: Record<BuyerOrderStatus, BuyerOrderStatus[]> = {
-  DRAFT: ["CANCELLED"],
-  PAYMENT_PENDING: ["CANCELLED"],
-  PAID: ["FULFILLING", "CANCELLED"],
-  FULFILLING: ["SHIPPED", "CANCELLED"],
-  SHIPPED: ["DELIVERED"],
-  DELIVERED: [],
-  CANCELLED: [],
-  REFUNDED: [],
-};
+/** Transitions this internal action may perform. Everything else rejects.
+ * Shared with the admin UI via lib/orders/admin-order-transitions.ts. */
+const ALLOWED_TRANSITIONS = ADMIN_ORDER_TRANSITIONS;
 
 export type AdminUpdateOrderStatusInput = {
   orderId: string;
@@ -236,5 +231,7 @@ export async function adminUpdateOrderStatus(
     console.warn("[admin-orders] audit event insert failed:", eventError.message);
   }
 
+  revalidatePath("/admin/orders");
+  revalidatePath(`/admin/orders/${order.id}`);
   return { ok: true, orderId: order.id, status: nextStatus };
 }

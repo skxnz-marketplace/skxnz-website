@@ -21,6 +21,10 @@
     "../lib/support/add-support-ticket-message.ts",
     "../lib/orders/create-order-intent.ts",
     "../lib/orders/read-seller-orders.ts",
-    "../lib/orders/seller-update-line-fulfilment.ts"
+    "../lib/orders/seller-update-line-fulfilment.ts",
+    "../lib/orders/admin-update-order-status.ts",
+    "../lib/orders/read-admin-orders.ts",
+    "../lib/returns/admin-update-return-status.ts",
+    "../lib/support/admin-support-actions.ts"
   ]
 }

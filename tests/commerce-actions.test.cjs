@@ -1208,3 +1208,414 @@ test("seller detail lookup returns null for an unrelated order id (no existence 
   assert.equal(result.backendReady, true);
   assert.equal(result.order, null);
 });
+
+// ===========================================================================
+// D4-A — admin commerce operations
+// ===========================================================================
+
+const {
+  adminUpdateOrderStatus,
+} = require("@/lib/orders/admin-update-order-status");
+const {
+  adminUpdateReturnStatus,
+} = require("@/lib/returns/admin-update-return-status");
+const {
+  adminAddSupportReply,
+  adminUpdateSupportTicketStatus,
+} = require("@/lib/support/admin-support-actions");
+const { getAdminOrderById } = require("@/lib/orders/read-admin-orders");
+
+const ADMIN = { id: "12121212-1212-4121-8121-121212121212", email: "admin@test.local" };
+const ADMIN_ORDER = "34343434-3434-4343-8343-343434343434";
+const RETURN_ID = "45454545-4545-4545-8545-454545454545";
+const SUPPORT_ID = "56565656-5656-4565-8565-565656565656";
+
+// Session resolver factory: `role` drives the users-table role lookup.
+function roleResolver(role, extra = () => null) {
+  return (query) => {
+    if (query.table === "users") return { data: role ? { role } : null, error: null };
+    const handled = extra(query);
+    if (handled) return handled;
+    throw new Error(`Unexpected table: ${query.table}`);
+  };
+}
+
+// ---- 1/2/3. Role gating on admin order mutations ---------------------------
+
+test("unauthenticated adminUpdateOrderStatus is rejected", async () => {
+  __setMockClient(createMockSupabase({ user: null }));
+  const result = await adminUpdateOrderStatus({ orderId: ADMIN_ORDER, nextStatus: "CANCELLED" });
+  assert.equal(result.ok, false);
+  assert.equal(result.code, "UNAUTHENTICATED");
+});
+
+test("buyer cannot call adminUpdateOrderStatus", async () => {
+  __setMockClient(createMockSupabase({ user: BUYER, resolve: roleResolver("BUYER") }));
+  const result = await adminUpdateOrderStatus({ orderId: ADMIN_ORDER, nextStatus: "CANCELLED" });
+  assert.equal(result.ok, false);
+  assert.equal(result.code, "FORBIDDEN");
+});
+
+test("seller cannot call adminUpdateOrderStatus", async () => {
+  __setMockClient(createMockSupabase({ user: SELLER, resolve: roleResolver("SELLER") }));
+  const result = await adminUpdateOrderStatus({ orderId: ADMIN_ORDER, nextStatus: "CANCELLED" });
+  assert.equal(result.ok, false);
+  assert.equal(result.code, "FORBIDDEN");
+});
+
+// ---- Payment / refund forgery is impossible from the admin action ---------
+
+test("adminUpdateOrderStatus can never set PAID", async () => {
+  __setMockClient(
+    createMockSupabase({
+      user: ADMIN,
+      resolve: roleResolver("ADMIN", (query) =>
+        query.table === "orders"
+          ? { data: { id: ADMIN_ORDER, status: "PAYMENT_PENDING" }, error: null }
+          : null,
+      ),
+    }),
+  );
+  const result = await adminUpdateOrderStatus({ orderId: ADMIN_ORDER, nextStatus: "PAID" });
+  assert.equal(result.ok, false);
+  assert.equal(result.code, "INVALID_TRANSITION");
+});
+
+test("adminUpdateOrderStatus can never set REFUNDED", async () => {
+  __setMockClient(
+    createMockSupabase({
+      user: ADMIN,
+      resolve: roleResolver("ADMIN", (query) =>
+        query.table === "orders"
+          ? { data: { id: ADMIN_ORDER, status: "DELIVERED" }, error: null }
+          : null,
+      ),
+    }),
+  );
+  const result = await adminUpdateOrderStatus({ orderId: ADMIN_ORDER, nextStatus: "REFUNDED" });
+  assert.equal(result.ok, false);
+  assert.equal(result.code, "INVALID_TRANSITION");
+});
+
+// ---- Invalid / repeated transitions ----------------------------------------
+
+test("skipped order transition (DRAFT -> DELIVERED) is rejected", async () => {
+  __setMockClient(
+    createMockSupabase({
+      user: ADMIN,
+      resolve: roleResolver("ADMIN", (query) =>
+        query.table === "orders"
+          ? { data: { id: ADMIN_ORDER, status: "DRAFT" }, error: null }
+          : null,
+      ),
+    }),
+  );
+  const result = await adminUpdateOrderStatus({ orderId: ADMIN_ORDER, nextStatus: "DELIVERED" });
+  assert.equal(result.ok, false);
+  assert.equal(result.code, "INVALID_TRANSITION");
+});
+
+test("concurrent/repeated order transition conflicts instead of overwriting", async () => {
+  __setMockClient(
+    createMockSupabase({
+      user: ADMIN,
+      resolve: roleResolver("ADMIN", (query) =>
+        query.table === "orders"
+          ? { data: { id: ADMIN_ORDER, status: "PAID" }, error: null }
+          : null,
+      ),
+    }),
+  );
+  // Conditional UPDATE matches zero rows (someone else already moved it).
+  __setAdminMockClient(
+    createMockSupabase({
+      user: ADMIN,
+      resolve: (query) => {
+        if (query.table === "orders") return { data: [], error: null };
+        throw new Error(`Unexpected admin table: ${query.table}`);
+      },
+    }),
+  );
+  const result = await adminUpdateOrderStatus({ orderId: ADMIN_ORDER, nextStatus: "FULFILLING" });
+  assert.equal(result.ok, false);
+  assert.equal(result.code, "INVALID_TRANSITION");
+});
+
+test("valid PAID -> FULFILLING writes conditional update + audit event", async () => {
+  const adminLog = [];
+  __setMockClient(
+    createMockSupabase({
+      user: ADMIN,
+      resolve: roleResolver("ADMIN", (query) =>
+        query.table === "orders"
+          ? { data: { id: ADMIN_ORDER, status: "PAID" }, error: null }
+          : null,
+      ),
+    }),
+  );
+  __setAdminMockClient(
+    createMockSupabase({
+      user: ADMIN,
+      log: adminLog,
+      resolve: (query) => {
+        if (query.table === "orders")
+          return { data: [{ id: ADMIN_ORDER, status: "FULFILLING" }], error: null };
+        if (query.table === "order_events") return { data: null, error: null };
+        throw new Error(`Unexpected admin table: ${query.table}`);
+      },
+    }),
+  );
+  const result = await adminUpdateOrderStatus({
+    orderId: ADMIN_ORDER,
+    nextStatus: "FULFILLING",
+    note: "Ops confirmed stock",
+  });
+  assert.equal(result.ok, true);
+  assert.equal(result.status, "FULFILLING");
+
+  const updateQuery = adminLog.find(
+    (q) => q.table === "orders" && findCall(q, "update"),
+  );
+  assert.ok(updateQuery, "expected an admin UPDATE on orders");
+  assert.equal(findCall(updateQuery, "update").args[0].status, "FULFILLING");
+  const statusGuard = updateQuery.calls.find(
+    (c) => c.method === "eq" && c.args[0] === "status",
+  );
+  assert.deepEqual(statusGuard.args, ["status", "PAID"]);
+
+  const eventQuery = adminLog.find((q) => q.table === "order_events");
+  assert.ok(eventQuery, "expected an audit event insert");
+  const payload = findCall(eventQuery, "insert").args[0];
+  assert.equal(payload.metadata.from_status, "PAID");
+  assert.equal(payload.metadata.to_status, "FULFILLING");
+  assert.equal(payload.metadata.actor_user_id, ADMIN.id);
+});
+
+// ---- Admin return mutations -------------------------------------------------
+
+test("buyer cannot call adminUpdateReturnStatus", async () => {
+  __setMockClient(createMockSupabase({ user: BUYER, resolve: roleResolver("BUYER") }));
+  const result = await adminUpdateReturnStatus({ requestId: RETURN_ID, nextStatus: "IN_REVIEW" });
+  assert.equal(result.ok, false);
+  assert.equal(result.code, "FORBIDDEN");
+});
+
+test("adminUpdateReturnStatus can never set REFUNDED", async () => {
+  __setMockClient(
+    createMockSupabase({
+      user: ADMIN,
+      resolve: roleResolver("ADMIN", (query) =>
+        query.table === "return_requests"
+          ? { data: { id: RETURN_ID, order_id: ADMIN_ORDER, status: "APPROVED" }, error: null }
+          : null,
+      ),
+    }),
+  );
+  const result = await adminUpdateReturnStatus({ requestId: RETURN_ID, nextStatus: "REFUNDED" });
+  assert.equal(result.ok, false);
+  assert.equal(result.code, "INVALID_TRANSITION");
+});
+
+test("invalid return transition (REQUESTED -> APPROVED skip) is rejected", async () => {
+  __setMockClient(
+    createMockSupabase({
+      user: ADMIN,
+      resolve: roleResolver("ADMIN", (query) =>
+        query.table === "return_requests"
+          ? { data: { id: RETURN_ID, order_id: ADMIN_ORDER, status: "REQUESTED" }, error: null }
+          : null,
+      ),
+    }),
+  );
+  const result = await adminUpdateReturnStatus({ requestId: RETURN_ID, nextStatus: "APPROVED" });
+  assert.equal(result.ok, false);
+  assert.equal(result.code, "INVALID_TRANSITION");
+});
+
+test("junk return id is rejected without any DB call", async () => {
+  const log = [];
+  __setMockClient(createMockSupabase({ user: ADMIN, log }));
+  const result = await adminUpdateReturnStatus({ requestId: "junk", nextStatus: "IN_REVIEW" });
+  assert.equal(result.ok, false);
+  assert.equal(result.code, "REQUEST_NOT_FOUND");
+  assert.equal(log.length, 0);
+});
+
+test("valid REQUESTED -> IN_REVIEW writes audit event with note", async () => {
+  const adminLog = [];
+  __setMockClient(
+    createMockSupabase({
+      user: ADMIN,
+      resolve: roleResolver("ADMIN", (query) =>
+        query.table === "return_requests"
+          ? { data: { id: RETURN_ID, order_id: ADMIN_ORDER, status: "REQUESTED" }, error: null }
+          : null,
+      ),
+    }),
+  );
+  __setAdminMockClient(
+    createMockSupabase({
+      user: ADMIN,
+      log: adminLog,
+      resolve: (query) => {
+        if (query.table === "return_requests")
+          return { data: [{ id: RETURN_ID, status: "IN_REVIEW" }], error: null };
+        if (query.table === "order_events") return { data: null, error: null };
+        throw new Error(`Unexpected admin table: ${query.table}`);
+      },
+    }),
+  );
+  const result = await adminUpdateReturnStatus({
+    requestId: RETURN_ID,
+    nextStatus: "IN_REVIEW",
+    note: "Photos requested",
+  });
+  assert.equal(result.ok, true);
+  const eventQuery = adminLog.find((q) => q.table === "order_events");
+  assert.ok(eventQuery, "expected an audit event insert");
+  const payload = findCall(eventQuery, "insert").args[0];
+  assert.equal(payload.metadata.return_request_id, RETURN_ID);
+  assert.equal(payload.metadata.to_status, "IN_REVIEW");
+  assert.ok(payload.message.includes("Photos requested"));
+});
+
+// ---- Admin support mutations ------------------------------------------------
+
+test("buyer cannot forge an admin support reply", async () => {
+  __setMockClient(createMockSupabase({ user: BUYER, resolve: roleResolver("BUYER") }));
+  const result = await adminAddSupportReply({ ticketId: SUPPORT_ID, message: "fake admin" });
+  assert.equal(result.ok, false);
+  assert.equal(result.code, "FORBIDDEN");
+});
+
+test("admin reply attribution is server-controlled", async () => {
+  const adminLog = [];
+  __setMockClient(
+    createMockSupabase({
+      user: ADMIN,
+      resolve: roleResolver("ADMIN", (query) =>
+        query.table === "support_tickets"
+          ? { data: { id: SUPPORT_ID, status: "OPEN" }, error: null }
+          : null,
+      ),
+    }),
+  );
+  __setAdminMockClient(
+    createMockSupabase({
+      user: ADMIN,
+      log: adminLog,
+      resolve: (query) => {
+        if (query.table === "support_ticket_messages") return { data: null, error: null };
+        throw new Error(`Unexpected admin table: ${query.table}`);
+      },
+    }),
+  );
+  const result = await adminAddSupportReply({ ticketId: SUPPORT_ID, message: "We are looking into this." });
+  assert.equal(result.ok, true);
+  const insert = findCall(
+    adminLog.find((q) => q.table === "support_ticket_messages"),
+    "insert",
+  );
+  assert.equal(insert.args[0].sender_role, "ADMIN");
+  assert.equal(insert.args[0].sender_id, ADMIN.id);
+});
+
+test("admin reply to a CLOSED ticket is rejected", async () => {
+  __setMockClient(
+    createMockSupabase({
+      user: ADMIN,
+      resolve: roleResolver("ADMIN", (query) =>
+        query.table === "support_tickets"
+          ? { data: { id: SUPPORT_ID, status: "CLOSED" }, error: null }
+          : null,
+      ),
+    }),
+  );
+  const result = await adminAddSupportReply({ ticketId: SUPPORT_ID, message: "hello" });
+  assert.equal(result.ok, false);
+  assert.equal(result.code, "NOT_ALLOWED");
+});
+
+test("invalid support status transition (CLOSED -> OPEN) is rejected", async () => {
+  __setMockClient(
+    createMockSupabase({
+      user: ADMIN,
+      resolve: roleResolver("ADMIN", (query) =>
+        query.table === "support_tickets"
+          ? { data: { id: SUPPORT_ID, status: "CLOSED" }, error: null }
+          : null,
+      ),
+    }),
+  );
+  const result = await adminUpdateSupportTicketStatus({ ticketId: SUPPORT_ID, nextStatus: "OPEN" });
+  assert.equal(result.ok, false);
+  assert.equal(result.code, "INVALID_TRANSITION");
+});
+
+test("seller cannot call adminUpdateSupportTicketStatus", async () => {
+  __setMockClient(createMockSupabase({ user: SELLER, resolve: roleResolver("SELLER") }));
+  const result = await adminUpdateSupportTicketStatus({ ticketId: SUPPORT_ID, nextStatus: "RESOLVED" });
+  assert.equal(result.ok, false);
+  assert.equal(result.code, "FORBIDDEN");
+});
+
+// ---- Admin reads: existence + not-wired truthfulness ------------------------
+
+test("getAdminOrderById junk id returns null without DB call", async () => {
+  const log = [];
+  __setMockClient(createMockSupabase({ user: ADMIN, log }));
+  const result = await getAdminOrderById("not-a-uuid");
+  assert.equal(result.order, null);
+  assert.equal(log.length, 0);
+});
+
+test("getAdminOrderById reports fulfilmentReady=false when 0009 columns missing", async () => {
+  __setMockClient(
+    createMockSupabase({
+      user: ADMIN,
+      resolve: (query) => {
+        if (query.table === "orders") {
+          return {
+            data: {
+              id: ADMIN_ORDER,
+              buyer_id: BUYER.id,
+              status: "PAID",
+              created_at: new Date().toISOString(),
+              subtotal_amount_paise: 10000,
+              shipping_amount_paise: null,
+              tax_amount_paise: null,
+              total_amount_paise: null,
+              payment_provider: null,
+              payment_reference: null,
+              delivery_note: null,
+            },
+            error: null,
+          };
+        }
+        if (query.table === "order_items") {
+          const wantsFulfilment = query.calls.some(
+            (c) =>
+              c.method === "select" &&
+              String(c.args[0]).includes("seller_fulfilment_status"),
+          );
+          if (wantsFulfilment) {
+            return {
+              data: null,
+              error: { code: "42703", message: "column order_items.seller_fulfilment_status does not exist" },
+            };
+          }
+          return { data: [], error: null };
+        }
+        if (query.table === "order_events") return { data: [], error: null };
+        if (query.table === "return_requests") return { data: [], error: null };
+        if (query.table === "products") return { data: [], error: null };
+        throw new Error(`Unexpected table: ${query.table}`);
+      },
+    }),
+  );
+  const result = await getAdminOrderById(ADMIN_ORDER);
+  assert.equal(result.backendReady, true);
+  assert.ok(result.order);
+  assert.equal(result.order.fulfilmentReady, false);
+  assert.equal(result.order.lineEvents.length, 0);
+});

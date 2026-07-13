@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { AdminOrderStatusPanel } from "@/components/admin/admin-order-status-panel";
 import { DemoRoleGate } from "@/components/auth/demo-role-gate";
 import { DashboardShell } from "@/components/shared/dashboard-shell";
 import { buttonVariants } from "@/components/ui/button";
@@ -11,9 +12,25 @@ import { formatInrFromPaise } from "@/lib/money";
 import { describeOrderStatus } from "@/lib/orders/read-buyer-orders";
 import { getAdminOrderById } from "@/lib/orders/read-admin-orders";
 
-// Admin order detail (D4-6). requireRole(["ADMIN"]) + admin RLS. Shows the
-// real order, its items, and the order_events audit trail — only events that
-// actually exist. No fake payment, courier, or tracking data.
+// Admin order detail (D4-6, extended D4-A). requireRole(["ADMIN"]) + admin
+// RLS. Shows the real order, its items with seller ownership + line-level
+// fulfilment state (0009 when applied), return requests, the order_events
+// audit trail, and validated status transitions. No fake payment, courier,
+// or tracking data; -> PAID / -> REFUNDED unreachable from the UI.
+
+const FULFILMENT_LABEL: Record<string, string> = {
+  PENDING: "Awaiting seller action",
+  ACCEPTED: "Accepted — preparing",
+  PACKED: "Packed",
+  HANDED_TO_DELIVERY: "Handed to delivery",
+};
+
+function formatEnum(value: string): string {
+  return value
+    .toLowerCase()
+    .replaceAll("_", " ")
+    .replace(/^\w/, (c) => c.toUpperCase());
+}
 
 export const dynamic = "force-dynamic";
 
@@ -107,6 +124,23 @@ export default async function AdminOrderDetailPage({
 
             <Card className="section-border rounded-[28px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-6">
               <p className="text-[0.64rem] font-bold uppercase tracking-[0.2em] text-sangria">
+                Order status actions
+              </p>
+              <p className="mt-2 text-xs leading-6 text-stone">
+                Paid and Refunded can never be set here — they come only from
+                a signature-verified payment webhook or a provider-confirmed
+                refund. Every transition writes an audit event.
+              </p>
+              <div className="mt-3">
+                <AdminOrderStatusPanel
+                  orderId={result.order.id}
+                  currentStatus={result.order.status}
+                />
+              </div>
+            </Card>
+
+            <Card className="section-border rounded-[28px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-6">
+              <p className="text-[0.64rem] font-bold uppercase tracking-[0.2em] text-sangria">
                 Items
               </p>
               <div className="mt-2 divide-y divide-[rgba(58,8,24,0.08)]">
@@ -120,7 +154,7 @@ export default async function AdminOrderDetailPage({
                       key={item.id}
                       className="flex flex-wrap items-start justify-between gap-3 py-3"
                     >
-                      <div>
+                      <div className="min-w-0">
                         <p className="text-sm font-semibold text-midnightbrown">
                           {item.titleSnapshot}
                         </p>
@@ -134,6 +168,20 @@ export default async function AdminOrderDetailPage({
                             .filter(Boolean)
                             .join(" · ")}
                         </p>
+                        <p className="mt-1 text-xs text-stone">
+                          Seller{" "}
+                          {item.sellerId
+                            ? item.sellerId.slice(0, 8).toUpperCase()
+                            : "unassigned"}
+                          {item.fulfilmentStatus
+                            ? ` · ${FULFILMENT_LABEL[item.fulfilmentStatus] ?? formatEnum(item.fulfilmentStatus)}`
+                            : " · Line fulfilment tracking not enabled in this environment"}
+                        </p>
+                        {item.fulfilmentNote ? (
+                          <p className="mt-1 text-xs leading-5 text-stone">
+                            Seller note: {item.fulfilmentNote}
+                          </p>
+                        ) : null}
                       </div>
                       <div className="text-right">
                         <p className="text-sm font-semibold text-midnightbrown">
@@ -164,6 +212,67 @@ export default async function AdminOrderDetailPage({
                 </div>
               </div>
             </Card>
+
+            {result.order.returnRequests.length > 0 ? (
+              <Card className="section-border rounded-[28px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-6">
+                <p className="text-[0.64rem] font-bold uppercase tracking-[0.2em] text-sangria">
+                  Return requests on this order
+                </p>
+                <div className="mt-2 divide-y divide-[rgba(58,8,24,0.08)]">
+                  {result.order.returnRequests.map((request) => (
+                    <div
+                      key={request.id}
+                      className="flex flex-wrap items-center justify-between gap-3 py-3"
+                    >
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-midnightbrown">
+                          {formatEnum(request.status)} ·{" "}
+                          {request.id.slice(0, 8).toUpperCase()}
+                        </p>
+                        <p className="mt-1 text-xs text-stone">
+                          {request.reason} · {formatDateTime(request.createdAt)}
+                        </p>
+                      </div>
+                      <Link
+                        href={`/admin/returns/${request.id}`}
+                        className="text-[0.62rem] font-bold uppercase tracking-[0.18em] text-sangria underline-offset-2 hover:underline"
+                      >
+                        Open return
+                      </Link>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            ) : null}
+
+            {result.order.lineEvents.length > 0 ? (
+              <Card className="section-border rounded-[28px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-6">
+                <p className="text-[0.64rem] font-bold uppercase tracking-[0.2em] text-sangria">
+                  Seller fulfilment history (order_item_events)
+                </p>
+                <div className="mt-2 divide-y divide-[rgba(58,8,24,0.08)]">
+                  {result.order.lineEvents.map((event) => (
+                    <div key={event.id} className="py-3">
+                      <p className="text-[0.64rem] font-bold uppercase tracking-[0.16em] text-stone">
+                        {formatEnum(event.eventType)} ·{" "}
+                        {formatDateTime(event.createdAt)}
+                        {event.fromStatus && event.toStatus
+                          ? ` · ${formatEnum(event.fromStatus)} → ${formatEnum(event.toStatus)}`
+                          : null}
+                      </p>
+                      <p className="mt-1 text-sm leading-6 text-midnightbrown">
+                        {event.message}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+                <p className="mt-3 text-xs leading-5 text-stone">
+                  Seller line state is owned by the seller workflow — admin
+                  visibility is read-only here. No silent admin override
+                  exists.
+                </p>
+              </Card>
+            ) : null}
 
             <Card className="section-border rounded-[28px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-6">
               <p className="text-[0.64rem] font-bold uppercase tracking-[0.2em] text-sangria">

@@ -57,9 +57,14 @@ export const adminSidebarLinks = [
     description: "Catalog moderation for submitted products.",
   },
   {
+    href: "/admin/operations",
+    label: "Operations",
+    description: "Live queues: orders, returns, support, seller lines.",
+  },
+  {
     href: "/admin/orders",
     label: "Orders",
-    description: "Order management placeholder for ops review.",
+    description: "Real orders, items, audit history, and status actions.",
   },
   {
     href: "/admin/users",
@@ -74,12 +79,12 @@ export const adminSidebarLinks = [
   {
     href: "/admin/returns",
     label: "Returns",
-    description: "Return review and refund placeholder visibility.",
+    description: "Return request review — refunds are not connected.",
   },
   {
     href: "/admin/support",
     label: "Support",
-    description: "Support tickets and follow-up visibility.",
+    description: "Buyer support tickets, threads, and replies.",
   },
   {
     href: "/admin/content",

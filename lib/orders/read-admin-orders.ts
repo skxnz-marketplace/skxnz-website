@@ -40,6 +40,35 @@ export type AdminOrderEvent = {
   createdAt: string;
 };
 
+/** Per-line seller fulfilment view (D3-A / migration 0009). All values come
+ * from real columns; when 0009 is not applied, `fulfilmentReady` on the
+ * detail is false and these stay at their defaults. */
+export type AdminOrderItemOps = BuyerOrderItem & {
+  productId: string | null;
+  /** Owning seller uuid from public.products — masked to short code in UI. */
+  sellerId: string | null;
+  fulfilmentStatus: string | null;
+  fulfilmentNote: string | null;
+  fulfilmentUpdatedAt: string | null;
+};
+
+export type AdminOrderLineEvent = {
+  id: string;
+  orderItemId: string;
+  eventType: string;
+  fromStatus: string | null;
+  toStatus: string | null;
+  message: string;
+  createdAt: string;
+};
+
+export type AdminOrderReturnSummary = {
+  id: string;
+  status: string;
+  reason: string;
+  createdAt: string;
+};
+
 export type AdminOrderDetail = {
   id: string;
   buyerId: string;
@@ -52,8 +81,14 @@ export type AdminOrderDetail = {
   paymentProvider: string | null;
   paymentReference: string | null;
   deliveryNote: string | null;
-  items: BuyerOrderItem[];
+  items: AdminOrderItemOps[];
   events: AdminOrderEvent[];
+  /** True when the 0009 seller-line fulfilment columns exist live. */
+  fulfilmentReady: boolean;
+  /** Per-line audit events (0009 order_item_events); empty pre-0009. */
+  lineEvents: AdminOrderLineEvent[];
+  /** Return requests attached to this order (admin RLS read). */
+  returnRequests: AdminOrderReturnSummary[];
 };
 
 export type AdminOrdersResult =
@@ -68,6 +103,15 @@ export type AdminOrderDetailResult =
 function isMissingTableError(error: { code?: string; message?: string } | null) {
   if (!error) return false;
   return error.code === "42P01" || Boolean(error.message?.includes("does not exist"));
+}
+
+// Postgres 42703 = undefined_column -> 0009 fulfilment columns not applied.
+function isMissingColumnError(error: { code?: string; message?: string } | null) {
+  if (!error) return false;
+  return (
+    error.code === "42703" ||
+    Boolean(error.message?.match(/column .* does not exist/i))
+  );
 }
 
 /** All orders, newest first. Non-admin sessions see zero rows (RLS). */
@@ -154,20 +198,36 @@ export async function getAdminOrderById(
     return { backendReady: true, order: null };
   }
 
-  const [itemsResult, eventsResult] = await Promise.all([
-    supabase
+  // Items: try the 0009 fulfilment column set first; on 42703 fall back to
+  // the legacy set so the page keeps rendering truthfully pre-migration.
+  const ITEM_COLUMNS_BASE =
+    "id, product_id, product_slug, title_snapshot, brand_snapshot, image_snapshot, selected_size, selected_color, unit_price_paise, quantity, line_total_paise";
+  const ITEM_COLUMNS_0009 = `${ITEM_COLUMNS_BASE}, seller_fulfilment_status, seller_fulfilment_note, seller_fulfilment_updated_at`;
+
+  let fulfilmentReady = true;
+  let itemsResult: {
+    data: unknown[] | null;
+    error: { code?: string; message?: string } | null;
+  } = await supabase
+    .from("order_items")
+    .select(ITEM_COLUMNS_0009)
+    .eq("order_id", order.id)
+    .order("created_at", { ascending: true });
+
+  if (itemsResult.error && isMissingColumnError(itemsResult.error)) {
+    fulfilmentReady = false;
+    itemsResult = await supabase
       .from("order_items")
-      .select(
-        "id, product_slug, title_snapshot, brand_snapshot, image_snapshot, selected_size, selected_color, unit_price_paise, quantity, line_total_paise",
-      )
+      .select(ITEM_COLUMNS_BASE)
       .eq("order_id", order.id)
-      .order("created_at", { ascending: true }),
-    supabase
-      .from("order_events")
-      .select("id, event_type, message, metadata, created_at")
-      .eq("order_id", order.id)
-      .order("created_at", { ascending: true }),
-  ]);
+      .order("created_at", { ascending: true });
+  }
+
+  const eventsResult = await supabase
+    .from("order_events")
+    .select("id, event_type, message, metadata, created_at")
+    .eq("order_id", order.id)
+    .order("created_at", { ascending: true });
 
   const relationError = itemsResult.error ?? eventsResult.error;
   if (relationError) {
@@ -176,6 +236,91 @@ export async function getAdminOrderById(
     }
     console.warn("[admin-orders] relations query failed:", relationError.message);
     return { backendReady: true, order: null };
+  }
+
+  type ItemRow = {
+    id: string;
+    product_id: string | null;
+    product_slug: string;
+    title_snapshot: string;
+    brand_snapshot: string | null;
+    image_snapshot: string | null;
+    selected_size: string | null;
+    selected_color: string | null;
+    unit_price_paise: number;
+    quantity: number;
+    line_total_paise: number;
+    seller_fulfilment_status?: string | null;
+    seller_fulfilment_note?: string | null;
+    seller_fulfilment_updated_at?: string | null;
+  };
+  const itemRows = (itemsResult.data ?? []) as unknown as ItemRow[];
+
+  // Seller ownership per line via products (admin RLS: full read).
+  const productIds = Array.from(
+    new Set(itemRows.map((row) => row.product_id).filter(Boolean)),
+  ) as string[];
+  const sellerByProductId = new Map<string, string | null>();
+  if (productIds.length > 0) {
+    const { data: productRows, error: productError } = await supabase
+      .from("products")
+      .select("id, seller_id")
+      .in("id", productIds);
+    if (productError) {
+      console.warn("[admin-orders] product owner query failed:", productError.message);
+    }
+    for (const row of productRows ?? []) {
+      sellerByProductId.set(row.id, row.seller_id ?? null);
+    }
+  }
+
+  // Per-line audit events (0009 order_item_events). Missing table -> empty.
+  let lineEvents: AdminOrderLineEvent[] = [];
+  const itemIds = itemRows.map((row) => row.id);
+  if (fulfilmentReady && itemIds.length > 0) {
+    const { data: lineEventRows, error: lineEventsError } = await supabase
+      .from("order_item_events")
+      .select("id, order_item_id, event_type, from_status, to_status, message, created_at")
+      .in("order_item_id", itemIds)
+      .order("created_at", { ascending: true });
+    if (lineEventsError) {
+      if (!isMissingTableError(lineEventsError)) {
+        console.warn(
+          "[admin-orders] line events query failed:",
+          lineEventsError.message,
+        );
+      }
+    } else {
+      lineEvents = (lineEventRows ?? []).map((event) => ({
+        id: event.id,
+        orderItemId: event.order_item_id,
+        eventType: event.event_type,
+        fromStatus: event.from_status,
+        toStatus: event.to_status,
+        message: event.message,
+        createdAt: event.created_at,
+      }));
+    }
+  }
+
+  // Return requests attached to this order (admin RLS read). 42P01-safe.
+  let returnRequests: AdminOrderReturnSummary[] = [];
+  const { data: returnRows, error: returnsError } = await supabase
+    .from("return_requests")
+    .select("id, status, reason, created_at")
+    .eq("order_id", order.id)
+    .order("created_at", { ascending: false });
+  if (returnsError) {
+    if (!isMissingTableError(returnsError)) {
+      console.warn("[admin-orders] returns query failed:", returnsError.message);
+    }
+  } else {
+    returnRequests = (returnRows ?? []).map((row) => ({
+      id: row.id,
+      status: row.status,
+      reason: row.reason,
+      createdAt: row.created_at,
+    }));
   }
 
   return {
@@ -192,8 +337,12 @@ export async function getAdminOrderById(
       paymentProvider: order.payment_provider,
       paymentReference: order.payment_reference,
       deliveryNote: order.delivery_note,
-      items: (itemsResult.data ?? []).map((item) => ({
+      items: itemRows.map((item) => ({
         id: item.id,
+        productId: item.product_id,
+        sellerId: item.product_id
+          ? (sellerByProductId.get(item.product_id) ?? null)
+          : null,
         productSlug: item.product_slug,
         titleSnapshot: item.title_snapshot,
         brandSnapshot: item.brand_snapshot,
@@ -203,6 +352,15 @@ export async function getAdminOrderById(
         unitPricePaise: item.unit_price_paise,
         quantity: item.quantity,
         lineTotalPaise: item.line_total_paise,
+        fulfilmentStatus: fulfilmentReady
+          ? (item.seller_fulfilment_status ?? "PENDING")
+          : null,
+        fulfilmentNote: fulfilmentReady
+          ? (item.seller_fulfilment_note ?? null)
+          : null,
+        fulfilmentUpdatedAt: fulfilmentReady
+          ? (item.seller_fulfilment_updated_at ?? null)
+          : null,
       })),
       events: (eventsResult.data ?? []).map((event) => ({
         id: event.id,
@@ -211,6 +369,9 @@ export async function getAdminOrderById(
         metadata: (event.metadata ?? {}) as Record<string, unknown>,
         createdAt: event.created_at,
       })),
+      fulfilmentReady,
+      lineEvents,
+      returnRequests,
     },
   };
 }
