@@ -1170,14 +1170,22 @@ test("seller cannot call adminUpdateOrderStatus", async () => {
 
 function rpcError(message, code) { return { data: null, error: { message, ...(code ? { code } : {}) } }; }
 
-test("payment, refund, skipped, repeated, and stale order transitions are rejected by the RPC", async () => {
-  for (const nextStatus of ["PAID", "REFUNDED", "DELIVERED", "FULFILLING"]) {
+test("payment, refund, skipped, and repeated order transitions are rejected by the RPC", async () => {
+  for (const nextStatus of ["PAID", "REFUNDED", "DELIVERED"]) {
     __setMockClient(createMockSupabase({ user: ADMIN, resolve: roleResolver("ADMIN", (query) =>
       query.table === "rpc" ? rpcError("SKXNZ_INVALID_TRANSITION") : null,
     ) }));
     const result = await adminUpdateOrderStatus({ orderId: ADMIN_ORDER, nextStatus });
     assert.equal(result.code, "INVALID_TRANSITION");
   }
+});
+
+test("stale/current-state order transition conflict is rejected by the RPC", async () => {
+  __setMockClient(createMockSupabase({ user: ADMIN, resolve: roleResolver("ADMIN", (query) =>
+    query.table === "rpc" ? rpcError("SKXNZ_INVALID_TRANSITION") : null,
+  ) }));
+  const result = await adminUpdateOrderStatus({ orderId: ADMIN_ORDER, nextStatus: "FULFILLING" });
+  assert.equal(result.code, "INVALID_TRANSITION");
 });
 
 test("valid PAID -> FULFILLING calls only the atomic order RPC", async () => {
