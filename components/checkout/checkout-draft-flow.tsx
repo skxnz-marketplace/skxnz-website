@@ -143,8 +143,8 @@ export function CheckoutDraftFlow() {
               Live payment is not connected yet.
             </h2>
             <p className="mt-4 text-sm leading-7 text-[rgba(255,254,250,0.82)]">
-              This step prepares a checkout draft only. No payment is collected
-              and no order is placed.
+              You can create a real unpaid draft after this review. Payment is
+              unavailable, so nothing is charged or confirmed here.
             </p>
           </div>
         </div>
@@ -283,8 +283,8 @@ export function CheckoutDraftFlow() {
               Payment
             </h2>
             <p className="mt-3 max-w-2xl text-sm leading-7 text-stone">
-              Secure payment is the next step being connected. Nothing is
-              charged, and no order exists until live payment goes live.
+              Secure payment is the next step being connected. This area stays
+              disabled; creating an unpaid draft below never charges you.
             </p>
             <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
               <button
@@ -299,7 +299,7 @@ export function CheckoutDraftFlow() {
                 Continue To Secure Payment
               </button>
               <p className="text-xs leading-5 text-stone">
-                Live payment connection is next. No order is placed yet.
+                Payment is unavailable. An unpaid draft can still be created below.
               </p>
             </div>
           </Card>
@@ -387,8 +387,8 @@ export function CheckoutDraftFlow() {
                 <span className="mr-2 text-[0.66rem] font-bold uppercase tracking-[0.2em] text-sangria">
                   Checkout draft ready
                 </span>
-                Your details are saved on this device for the live payment step.
-                No order is placed and no payment is taken yet.
+                Your details are saved on this device for review. This local save
+                is not an order and no payment is taken.
                 <Link
                   href="/orders"
                   className={cn(

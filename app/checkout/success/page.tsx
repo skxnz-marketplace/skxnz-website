@@ -12,7 +12,7 @@ import { Card } from "@/components/ui/card";
 export const metadata: Metadata = {
   title: "Checkout Status | SKXNZ",
   description:
-    "SKXNZ checkout status. Live payment is not connected yet, so no order has been placed.",
+    "SKXNZ checkout status. Payment is unavailable and this route is not an order confirmation.",
 };
 
 export default function CheckoutSuccessPage() {
@@ -23,12 +23,12 @@ export default function CheckoutSuccessPage() {
           Checkout status
         </p>
         <h1 className="mx-auto mt-4 max-w-[16ch] break-words font-display text-4xl uppercase leading-tight tracking-[0.04em] text-midnightbrown sm:text-5xl">
-          No order has been placed.
+          No paid order is confirmed.
         </h1>
         <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-stone">
-          Live payment is not connected yet. Nothing was charged, no order was
-          created, and there is no order confirmation to show. Your checkout
-          details stay saved as a draft on this device.
+          This route is not used for unpaid draft success. Nothing was charged
+          and there is no paid confirmation to show. Return to checkout to review
+          your cart or create an unpaid draft safely.
         </p>
         <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
           <Link

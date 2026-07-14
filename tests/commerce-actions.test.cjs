@@ -27,6 +27,10 @@ const {
   addSupportTicketMessage,
 } = require("@/lib/support/add-support-ticket-message");
 const { createOrderIntent } = require("@/lib/orders/create-order-intent");
+const {
+  checkoutAttemptKey,
+  resolveCheckoutAttempt,
+} = require("@/lib/checkout/order-attempt");
 const { getBuyerOrderById } = require("@/lib/orders/read-buyer-orders");
 
 const BUYER = { id: "11111111-1111-4111-8111-111111111111", email: "buyer@test.local" };
@@ -788,6 +792,110 @@ test("atomic order action has no sequential fallback or trusted forged fields", 
   assert.equal(source.includes("supabaseAdmin"), false);
   assert.equal(source.includes("payment_provider"), false);
   assert.equal(source.includes("buyer_id:"), false);
+});
+
+// ===========================================================================
+// D5-B — checkout payment-readiness UX (application mocks/source checks only)
+// ===========================================================================
+
+test("checkout distinguishes newly created and recovered unpaid drafts", () => {
+  const created = resolveCheckoutAttempt({ ok: true, orderId: NEW_ROW_ID, status: "DRAFT", redirectTo: `/orders/${NEW_ROW_ID}`, reused: false });
+  const recovered = resolveCheckoutAttempt({ ok: true, orderId: OTHER_ORDER_ID, status: "DRAFT", redirectTo: `/orders/${OTHER_ORDER_ID}`, reused: true });
+  assert.equal(created.kind, "created");
+  assert.equal(recovered.kind, "recovered");
+  assert.match(recovered.message, /unpaid draft/i);
+});
+
+test("retryable checkout failure keeps the same idempotency key", () => {
+  const key = "99999999-9999-4999-8999-999999999999";
+  let factoryCalls = 0;
+  const retried = checkoutAttemptKey(key, "retry", () => {
+    factoryCalls += 1;
+    return "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
+  });
+  assert.equal(retried, key);
+  assert.equal(factoryCalls, 0);
+  assert.equal(resolveCheckoutAttempt({ ok: false, code: "DB_ERROR", message: "raw" }).retryable, true);
+});
+
+test("idempotency conflict rotates only after explicit new checkout attempt", () => {
+  const key = "99999999-9999-4999-8999-999999999999";
+  const next = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
+  const conflict = resolveCheckoutAttempt({ ok: false, code: "IDEMPOTENCY_CONFLICT", message: "raw" });
+  assert.equal(conflict.kind, "conflict");
+  assert.equal(conflict.retryable, false);
+  assert.equal(checkoutAttemptKey(key, "retry", () => next), key);
+  assert.equal(checkoutAttemptKey(key, "new-attempt", () => next), next);
+});
+
+test("checkout maps auth, address, stock, item, validation, and unavailable-service failures safely", () => {
+  const cases = [
+    ["UNAUTHENTICATED", "auth"],
+    ["ADDRESS_REQUIRED", "address"],
+    ["OUT_OF_STOCK", "stock"],
+    ["PRODUCT_UNAVAILABLE", "unavailable"],
+    ["VALIDATION_FAILED", "invalid"],
+    ["NOT_WIRED", "not-wired"],
+  ];
+  for (const [code, kind] of cases) {
+    const view = resolveCheckoutAttempt({ ok: false, code, message: "sensitive raw database error" });
+    assert.equal(view.kind, kind);
+    assert.equal(view.message.includes("database"), false);
+  }
+});
+
+test("checkout blocks double submit and uses history-safe draft navigation", () => {
+  const source = fs.readFileSync(path.join(process.cwd(), "components/checkout/place-draft-order.tsx"), "utf8");
+  assert.equal(source.includes("if (isPending || submitLock.current) return"), true);
+  assert.equal(source.includes("submitLock.current = true"), true);
+  assert.equal(source.includes("submitLock.current = false"), true);
+  assert.equal(source.includes("disabled={isPending"), true);
+  assert.equal(source.includes("router.replace(result.redirectTo)"), true);
+  assert.equal(source.includes("router.push(result.redirectTo)"), false);
+});
+
+test("checkout conflict UI requires the explicit new-attempt control", () => {
+  const source = fs.readFileSync(path.join(process.cwd(), "components/checkout/place-draft-order.tsx"), "utf8");
+  assert.equal(source.includes('attempt.kind === "conflict"'), true);
+  assert.equal(source.includes("Start a new checkout attempt"), true);
+  assert.equal(source.includes('"new-attempt"'), true);
+});
+
+test("buyer checkout copy hides implementation errors and keeps payment disabled", () => {
+  const actionSource = fs.readFileSync(path.join(process.cwd(), "components/checkout/place-draft-order.tsx"), "utf8");
+  const reviewSource = fs.readFileSync(path.join(process.cwd(), "components/checkout/checkout-draft-flow.tsx"), "utf8");
+  for (const term of ["PGRST202", "42883", "migration", "database function", "raw database"] ) {
+    assert.equal(actionSource.includes(term), false);
+    assert.equal(reviewSource.includes(term), false);
+  }
+  assert.equal(/>\s*NOT_WIRED\s*</.test(actionSource), false);
+  assert.match(reviewSource, /<button\s+[\s\S]*?disabled[\s\S]*?>\s*Continue To Secure Payment/);
+  assert.match(actionSource, /No payment is taken/);
+});
+
+test("checkout action sends one stable key and no payment, total, buyer, or seller identity fields", () => {
+  const source = fs.readFileSync(path.join(process.cwd(), "components/checkout/place-draft-order.tsx"), "utf8");
+  assert.equal((source.match(/idempotencyKey:/g) ?? []).length, 1);
+  for (const field of ["paymentStatus", "payment_status", "totalAmount", "buyerId", "sellerId", "adminId"]) {
+    assert.equal(source.includes(field), false);
+  }
+});
+
+test("checkout status and address controls expose accessible responsive structure", () => {
+  const source = fs.readFileSync(path.join(process.cwd(), "components/checkout/place-draft-order.tsx"), "utf8");
+  assert.equal(source.includes('type="radio"'), true);
+  assert.equal(source.includes('aria-live='), true);
+  assert.equal(source.includes('role={isFailure ? "alert" : "status"}'), true);
+  assert.equal(source.includes("min-w-0"), true);
+  assert.equal(source.includes("lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.68fr)]"), true);
+  assert.equal(source.includes("w-screen"), false);
+});
+
+test("legacy checkout success route cannot imply paid confirmation", () => {
+  const source = fs.readFileSync(path.join(process.cwd(), "app/checkout/success/page.tsx"), "utf8");
+  assert.match(source, /No paid order is confirmed/);
+  assert.match(source, /Nothing was charged/);
+  assert.equal(source.includes("Payment successful"), false);
 });
 
 const {

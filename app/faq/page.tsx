@@ -6,7 +6,7 @@ const faqItems = [
   {
     question: "What is SKXNZ?",
     answer:
-      "SKXNZ is an AI-powered futurewear marketplace by Vivaan Poddar Companies. The current website is an MVP foundation for catalog discovery, demo checkout, seller review workflows, admin operations, and AI Assistant Beta.",
+      "SKXNZ is an AI-powered futurewear marketplace by Vivaan Poddar Companies. The current website supports catalog discovery, cart review, unpaid order drafts, seller review workflows, admin operations, and AI Assistant Beta.",
   },
   {
     question: "Is SKXNZ live yet?",
@@ -16,7 +16,7 @@ const faqItems = [
   {
     question: "How do I buy?",
     answer:
-      "You can test product browsing, cart, and demo checkout flows. Live payment processing, real order fulfillment, and delivery tracking are not connected yet.",
+      "You can browse products, review a cart, and create a real unpaid draft order. Live payment processing, fulfilment, and delivery tracking are not connected yet.",
   },
   {
     question: "How do I sell?",

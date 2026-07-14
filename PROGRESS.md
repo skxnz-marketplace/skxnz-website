@@ -3,6 +3,7 @@
 Single source of truth for project status. Read this before starting work and update it before finishing.
 
 ## Current state
+- **D5-B checkout payment readiness (2026-07-14, `codex/d5b-checkout-readiness`):** checkout now has explicit ready/validating/submitting/recovered/created and safe failure states around the unchanged D5-A atomic draft-order boundary. Retryable failures retain one idempotency key; conflict rotation requires the buyer's explicit new-attempt action; payment stays disabled and all success copy remains DRAFT/unpaid. Commerce tests: 88/88; TypeScript and targeted ESLint pass. Runtime route smoke is environment-blocked by absent Supabase public configuration in the isolated worktree. No push, merge, deployment, or SQL.
 - Frontend exists locally in the checkpoint repo.
 - Current branch: `local-polish-auth-ui`.
 - Supabase Auth Slice 1b is working locally.
@@ -16,6 +17,13 @@ Single source of truth for project status. Read this before starting work and up
 - Catalog DB Slice 2A schema/seed/types/query-layer prepared locally (not yet applied in Supabase â€” see Next up).
 
 ## Done
+- **D5-B checkout payment-readiness frontend (this session):**
+  - Added a deterministic checkout attempt model for safe buyer copy, recovered-versus-created drafts, distinct auth/address/stock/item/conflict/not-ready/validation/temporary failures, and explicit idempotency-key lifecycle.
+  - Preserved the atomic-only `createOrderIntent` boundary; exposed only its existing `reused` result flag as a minimal frontend contract addition. No migration, RPC, RLS, or fallback write change.
+  - Added double-submit blocking, validating/submitting progress, same-key retry, explicit conflict reset, history-safe order routing, disabled payment readiness, checkout support, accessible live regions, and responsive wrapping.
+  - Corrected checkout-success, future-step, and payment FAQ copy so a real unpaid draft is never described as paid, confirmed, shipped, or provider-protected.
+  - Added 10 registered D5-B regressions. Final commerce suite: 88/88; full TypeScript and targeted ESLint pass. Mock/source tests do not prove live RLS, PostgreSQL concurrency, or browser rendering.
+  - Next up: recover canonical 0002; apply draft migrations only in disposable Supabase QA; run verification/isolation/concurrency SQL including 0011; then repeat authenticated route smoke with QA public configuration. Payment/provider work remains blocked until those operator gates pass.
 - Built the local frontend foundation.
 - Added Supabase auth layer.
 - Ran/applied `0001_user_layer.sql` locally.

@@ -1,9 +1,8 @@
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/cn";
 
-// Honest "what happens next" panel. Every step is framed as UPCOMING and is
-// not active yet. No step here places an order, takes payment, or promises a
-// delivery date.
+// Honest future-capability panel. Draft creation is handled separately; these
+// entries never imply payment, fulfilment, or a delivery date.
 const nextSteps = [
   {
     step: "01",
@@ -13,15 +12,15 @@ const nextSteps = [
   },
   {
     step: "02",
-    title: "Live order creation",
+    title: "Paid order confirmation",
     description:
-      "A real order is created only after a verified payment. Order IDs are issued by the backend — never made up in the browser. Not active yet.",
+      "An unpaid draft is available today. A paid confirmation will appear only after a future server-verified payment. Not active yet.",
   },
   {
     step: "03",
     title: "Delivery partner assignment",
     description:
-      "A shipping partner is assigned after an order exists, with tracking shared once it is real. No delivery date is shown until then. Not active yet.",
+      "A shipping partner can be assigned only after a paid order enters fulfilment. No tracking or delivery date is promised today.",
   },
 ] as const;
 
@@ -37,11 +36,11 @@ export function CheckoutNextSteps({ className }: { className?: string }) {
         What happens next
       </p>
       <h2 className="mt-3 font-display text-3xl uppercase leading-tight tracking-[0.04em] text-midnightbrown">
-        The road to a real order.
+        After the unpaid draft.
       </h2>
       <p className="mt-3 max-w-2xl text-sm leading-7 text-stone">
-        These are the steps SKXNZ is building next. None are live today — your
-        checkout details stay a device-local draft until they are.
+        These capabilities are still upcoming. Creating a draft today does not
+        activate payment, shipping, tracking, or delivery.
       </p>
 
       <ol className="mt-6 space-y-4">

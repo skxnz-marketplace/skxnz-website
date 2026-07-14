@@ -12,7 +12,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-
 export type CreateOrderItemInput = { productId?: string | null; productSlug?: string | null; variantId?: string | null; quantity: number; clientUnitPricePaise?: number };
 export type CreateOrderIntentInput = { items: CreateOrderItemInput[]; shippingAddressId?: string | null; notes?: string | null; idempotencyKey?: string | null };
 export type CreateOrderIntentResult =
-  | { ok: true; orderId: string; status: "DRAFT"; redirectTo: string; notices?: string[] }
+  | { ok: true; orderId: string; status: "DRAFT"; redirectTo: string; reused: boolean; notices?: string[] }
   | { ok: false; code: "UNAUTHENTICATED"|"FORBIDDEN"|"VALIDATION_FAILED"|"ADDRESS_REQUIRED"|"PRODUCT_UNAVAILABLE"|"OUT_OF_STOCK"|"IDEMPOTENCY_CONFLICT"|"NOT_WIRED"|"DB_ERROR"; message: string };
 
 const notWired = (): CreateOrderIntentResult => ({ ok:false, code:"NOT_WIRED", message:"Order creation is not connected yet. The atomic order database migration has not been applied, so no order was created and nothing was charged." });
@@ -51,5 +51,5 @@ export async function createOrderIntent(input: CreateOrderIntentInput): Promise<
   if (error) return mapRpcError(error);
   const row = Array.isArray(data) ? data[0] : data;
   if (!row || typeof row.order_id !== "string" || row.status !== "DRAFT") return dbError();
-  return { ok:true, orderId:row.order_id, status:"DRAFT", redirectTo:`/orders/${row.order_id}` };
+  return { ok:true, orderId:row.order_id, status:"DRAFT", redirectTo:`/orders/${row.order_id}`, reused:row.reused === true };
 }

@@ -20,6 +20,7 @@
     "../lib/support/create-support-ticket.ts",
     "../lib/support/add-support-ticket-message.ts",
     "../lib/orders/create-order-intent.ts",
+    "../lib/checkout/order-attempt.ts",
     "../lib/orders/read-seller-orders.ts",
     "../lib/orders/seller-update-line-fulfilment.ts",
     "../lib/orders/admin-update-order-status.ts",
