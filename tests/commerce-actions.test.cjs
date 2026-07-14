@@ -757,6 +757,39 @@ test("buyer cannot read another buyer order by id", async () => { __setMockClien
 // ===========================================================================
 // D3-B — seller atomic fulfilment + scoped returns (application mocks only)
 // ===========================================================================
+test("valid order input calls only create_order_intent_atomic", async () => {
+  const log = [];
+  __setMockClient(createMockSupabase({ user: BUYER, log, resolve: orderResolver() }));
+  const result = await createOrderIntent(baseOrderInput({ idempotencyKey: "99999999-9999-4999-8999-999999999999" }));
+  assert.equal(result.ok, true);
+  const rpc = log.find((q) => q.table === "rpc");
+  assert.equal(rpc.fn, "create_order_intent_atomic");
+  assert.equal(log.some((q) => q.table === "orders" && findCall(q, "insert")), false);
+  assert.deepEqual(Object.keys(rpc.args).sort(), ["p_idempotency_key", "p_items", "p_note", "p_shipping_address_id"]);
+});
+
+test("missing atomic order RPC is truthful NOT_WIRED", async () => {
+  __setMockClient(createMockSupabase({ user: BUYER, resolve: (q) => q.table === "rpc" ? { data: null, error: { code: "PGRST202", message: "function missing" } } : { data: null, error: null } }));
+  assert.equal((await createOrderIntent(baseOrderInput())).code, "NOT_WIRED");
+});
+
+test("atomic order retry and conflicting key responses retain safe contracts", async () => {
+  const key = "99999999-9999-4999-8999-999999999999";
+  __setMockClient(createMockSupabase({ user: BUYER, resolve: (q) => q.table === "rpc" ? { data: [{ order_id: OTHER_ORDER_ID, status: "DRAFT", reused: true }], error: null } : { data: null, error: null } }));
+  assert.equal((await createOrderIntent(baseOrderInput({ idempotencyKey: key }))).orderId, OTHER_ORDER_ID);
+  __setMockClient(createMockSupabase({ user: BUYER, resolve: (q) => q.table === "rpc" ? { data: null, error: { message: "SKXNZ_IDEMPOTENCY_CONFLICT" } } : { data: null, error: null } }));
+  assert.equal((await createOrderIntent(baseOrderInput({ idempotencyKey: key, notes: "different" }))).code, "IDEMPOTENCY_CONFLICT");
+});
+
+test("atomic order action has no sequential fallback or trusted forged fields", () => {
+  const source = fs.readFileSync(path.join(process.cwd(), "lib/orders/create-order-intent.ts"), "utf8");
+  assert.equal(source.includes('from("orders").insert'), false);
+  assert.equal(source.includes('from("order_items").insert'), false);
+  assert.equal(source.includes("supabaseAdmin"), false);
+  assert.equal(source.includes("payment_provider"), false);
+  assert.equal(source.includes("buyer_id:"), false);
+});
+
 const {
   updateSellerLineFulfilment,
 } = require("@/lib/orders/seller-update-line-fulfilment");
