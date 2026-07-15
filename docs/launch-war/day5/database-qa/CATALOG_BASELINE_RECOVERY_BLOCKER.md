@@ -1,10 +1,13 @@
 # Critical: canonical catalog migration 0002 not recoverable locally
 
-Searched all local branches/tags, reflogs, registered worktrees, reachable
-objects, dangling-object inventory, historical Day-2 refs, and
-`day2-live-data-clean`. Historical commit `78431bf` documents live 0002
-verification but does not contain the migration file. No authoritative blob
-was found, so no reconstruction was attempted.
+Day 6 repeated and expanded the local-only audit: branches/tags, reflogs,
+registered worktrees, reachable path history, object inventory, unreachable
+objects, historical Day-2 refs, and `day2-live-data-clean`. Historical commit
+`78431bf` documents live 0002 verification but does not contain the migration
+file. One unrelated dirty checkpoint worktree has an untracked local copy, but
+it has no Git source commit and is not authoritative. No canonical blob was
+found, so no reconstruction was attempted. See
+`docs/launch-war/day6/catalog-recovery/CATALOG_BASELINE_SEARCH_EVIDENCE.md`.
 
 Downstream migrations require the catalog baseline to provide `public.products`
 (id, slug, name, status, price_inr, image_url, seller_id, brand_id),
