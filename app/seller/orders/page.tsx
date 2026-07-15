@@ -62,6 +62,12 @@ export default async function SellerOrdersPage() {
             Orders appear here once buyers place real paid orders containing
             your products. SKXNZ does not show demo or placeholder orders.
           </p>
+          <Link
+            href="/seller/products"
+            className="mt-4 inline-block rounded-full border border-[rgba(58,8,24,0.16)] bg-[var(--skxnz-bg)] px-4 py-2 text-[0.62rem] font-bold uppercase tracking-[0.18em] text-midnightbrown transition hover:border-sangria hover:text-sangria"
+          >
+            Open product workspace
+          </Link>
         </Card>
       ) : (
         <>
@@ -72,9 +78,9 @@ export default async function SellerOrdersPage() {
               </p>
               <p className="mt-2 text-sm leading-6 text-stone">
                 Line-level fulfilment actions are not enabled in this
-                environment yet. You can review your orders here; accept /
-                pack / hand-to-delivery buttons will appear after the seller
-                fulfilment database migration is applied.
+                environment yet. You can review your orders here; accept,
+                pack, and hand-to-delivery buttons appear once SKXNZ enables
+                fulfilment updates for this environment.
               </p>
             </Card>
           ) : null}
@@ -128,6 +134,7 @@ export default async function SellerOrdersPage() {
                       </p>
                       <Link
                         href={`/seller/orders/${order.orderId}`}
+                        aria-label={`Open order ${order.orderId.slice(0, 8).toUpperCase()}`}
                         className="mt-3 inline-block rounded-full border border-[rgba(58,8,24,0.16)] bg-[var(--skxnz-bg)] px-4 py-2 text-[0.6rem] font-bold uppercase tracking-[0.18em] text-midnightbrown transition hover:border-sangria hover:text-sangria"
                       >
                         Open order

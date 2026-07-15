@@ -16,7 +16,7 @@ export default function AdminDashboardPage() {
       <DashboardShell
         eyebrow="Admin Beta"
         title="Internal back office foundation for SKXNZ operations."
-        description="Manage demo products, seller applications, orders, users, community reports, support tickets, content controls, and analytics placeholders without connecting production systems."
+        description="Review seller product submissions, real orders, returns, and support tickets, plus seller applications, community reports, and content controls. Payments, payouts, and delivery systems are not connected yet."
         actions={
           <>
             <Link

@@ -86,6 +86,12 @@ export default async function AdminOrdersPage() {
               Orders appear here once buyers create them. SKXNZ does not show
               demo or placeholder orders.
             </p>
+            <Link
+              href="/admin/operations"
+              className={`${buttonVariants({ variant: "secondary", size: "sm" })} mt-4 inline-flex`}
+            >
+              Open Operations Overview
+            </Link>
           </Card>
         ) : (
           <div className="space-y-3">
@@ -124,6 +130,7 @@ export default async function AdminOrdersPage() {
                       </p>
                       <Link
                         href={`/admin/orders/${order.id}`}
+                        aria-label={`View order ${order.id.slice(0, 8).toUpperCase()}`}
                         className={`${buttonVariants({ variant: "secondary", size: "sm" })} mt-3 inline-flex`}
                       >
                         View

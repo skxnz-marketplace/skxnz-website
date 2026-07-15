@@ -10,6 +10,7 @@ import {
   describeSellerFulfilment,
   getSellerOrderById,
 } from "@/lib/orders/read-seller-orders";
+import { returnRequestStatusLabels } from "@/lib/returns/return-requests";
 
 // D3-A seller order detail. Server component. Shows ONLY the seller's
 // own lines on this order — cross-seller lines and buyer identity /
@@ -124,9 +125,9 @@ export default async function SellerOrderDetailPage({ params }: PageProps) {
           </p>
           <p className="mt-2 text-sm leading-6 text-stone">
             Line-level fulfilment actions are not enabled in this environment
-            yet. You can review your lines below; accept / pack / hand-to-
-            delivery buttons appear after the seller fulfilment database
-            migration is applied.
+            yet. You can review your lines below; accept, pack, and
+            hand-to-delivery buttons appear once SKXNZ enables fulfilment
+            updates for this environment.
           </p>
         </Card>
       ) : null}
@@ -166,7 +167,7 @@ export default async function SellerOrderDetailPage({ params }: PageProps) {
                   </p>
                   {result.returnVisibilityReady && line.activeReturn ? (
                     <p className="mt-3 rounded-lg border border-[rgba(58,8,24,0.14)] bg-[var(--skxnz-bg)] p-2 text-xs font-semibold leading-5 text-midnightbrown">
-                      Active return: {line.activeReturn.status.replaceAll("_", " ").toLowerCase()} · requested quantity {line.activeReturn.quantity}
+                      Active return: {returnRequestStatusLabels[line.activeReturn.status as keyof typeof returnRequestStatusLabels] ?? "Under review"} · requested quantity {line.activeReturn.quantity}
                     </p>
                   ) : null}
                   {line.fulfilmentNote ? (

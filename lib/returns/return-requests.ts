@@ -19,6 +19,19 @@ export const returnRequestStatuses = [
 
 export type ReturnRequestStatus = (typeof returnRequestStatuses)[number];
 
+/** Human-readable labels — raw enum values must never render in the UI. */
+export const returnRequestStatusLabels: Record<ReturnRequestStatus, string> = {
+  REQUESTED: "Submitted for review",
+  IN_REVIEW: "In review",
+  APPROVED: "Approved — awaiting next step",
+  REJECTED: "Not approved",
+  PICKUP_PENDING: "Pickup being arranged",
+  RECEIVED: "Item received",
+  REFUND_PENDING: "Refund being processed",
+  REFUNDED: "Refunded",
+  CLOSED: "Closed",
+};
+
 export type ReturnRequestItemInput = {
   /** Real order_items.id from the DB â€” never invented client-side. */
   orderItemId: string;
@@ -49,9 +62,9 @@ export function validateReturnRequestInput(input: unknown): Record<string, strin
   else if (typeof value.note === "string" && value.note.length > maxNoteLength) errors.note = "Note is too long.";
   if (!Array.isArray(value.items) || value.items.length === 0) { errors.items = "Select at least one item to return."; return errors; }
   value.items.forEach((item, index) => {
-    if (!item || typeof item.orderItemId !== "string" || !item.orderItemId.trim()) errors[`items.\${index}.orderItemId`] = "Return item must reference a real order item.";
-    if (!item || typeof item.quantity !== "number" || !Number.isInteger(item.quantity) || item.quantity <= 0) errors[`items.\${index}.quantity`] = "Return quantity must be a positive integer.";
-    if (item && typeof item.reason === "string" && item.reason.length > maxReasonLength) errors[`items.\${index}.reason`] = "Item reason is too long.";
+    if (!item || typeof item.orderItemId !== "string" || !item.orderItemId.trim()) errors[`items.${index}.orderItemId`] = "Return item must reference a real order item.";
+    if (!item || typeof item.quantity !== "number" || !Number.isInteger(item.quantity) || item.quantity <= 0) errors[`items.${index}.quantity`] = "Return quantity must be a positive integer.";
+    if (item && typeof item.reason === "string" && item.reason.length > maxReasonLength) errors[`items.${index}.reason`] = "Item reason is too long.";
   });
   return errors;
 }

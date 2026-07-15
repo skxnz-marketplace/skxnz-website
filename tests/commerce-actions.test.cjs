@@ -1798,3 +1798,74 @@ test("FAQ and public support/returns pages carry no internal or false claims", (
   const faqSource = fs.readFileSync(path.join(process.cwd(), "app/faq/page.tsx"), "utf8");
   assert.match(faqSource, /live payment, delivery, and refunds/i);
 });
+
+// ---- D7-C: seller/admin operations UI readiness ----------------------------
+
+const {
+  returnRequestStatuses,
+  returnRequestStatusLabels,
+} = require("@/lib/returns/return-requests");
+
+test("seller order pages never reference buyer identity, address, or payment fields", () => {
+  for (const file of ["app/seller/orders/page.tsx", "app/seller/orders/[id]/page.tsx"]) {
+    const source = fs.readFileSync(path.join(process.cwd(), file), "utf8");
+    for (const term of ["buyerId", "buyer_id", "shippingAddress", "shipping_address", "paymentProvider", "paymentReference", ".email", ".phone"]) {
+      assert.equal(source.includes(term), false, `${file} references "${term}"`);
+    }
+  }
+});
+
+test("seller read-only fulfilment state is truthful without database jargon", () => {
+  for (const file of ["app/seller/orders/page.tsx", "app/seller/orders/[id]/page.tsx"]) {
+    const source = fs.readFileSync(path.join(process.cwd(), file), "utf8");
+    assert.match(source, /Read-only view/);
+    assert.match(source, /fulfilmentReady/);
+    // Rendered copy must not lean on migration/database wording.
+    assert.equal(source.includes("database migration is applied"), false, file);
+  }
+});
+
+test("admin order detail hides raw table names and formats event types", () => {
+  const source = fs.readFileSync(path.join(process.cwd(), "app/admin/orders/[id]/page.tsx"), "utf8");
+  assert.equal(source.includes("(order_item_events)"), false);
+  assert.equal(source.includes("(order_events)"), false);
+  assert.match(source, /formatEnum\(event\.eventType\)/);
+});
+
+test("admin order and return UI never claims live payment or refund capability", () => {
+  const orderDetail = fs.readFileSync(path.join(process.cwd(), "app/admin/orders/[id]/page.tsx"), "utf8");
+  const returnsQueue = fs.readFileSync(path.join(process.cwd(), "app/admin/returns/page.tsx"), "utf8");
+  assert.match(orderDetail, /Paid and Refunded can never be set here/);
+  assert.match(returnsQueue, /approving a return here does not move money/);
+  for (const source of [orderDetail, returnsQueue]) {
+    assert.equal(/Razorpay/i.test(source), false);
+    assert.equal(/payment received|automatic refund/i.test(source), false);
+  }
+});
+
+test("return request status labels are human-readable for every status", () => {
+  for (const status of returnRequestStatuses) {
+    const label = returnRequestStatusLabels[status];
+    assert.equal(typeof label, "string");
+    assert.notEqual(label, status);
+    assert.equal(label.includes("_"), false);
+  }
+  const sellerDetail = fs.readFileSync(path.join(process.cwd(), "app/seller/orders/[id]/page.tsx"), "utf8");
+  assert.match(sellerDetail, /returnRequestStatusLabels/);
+  assert.equal(sellerDetail.includes('replaceAll("_", " ")'), false);
+});
+
+test("seller and admin empty order queues include useful next actions", () => {
+  const sellerOrders = fs.readFileSync(path.join(process.cwd(), "app/seller/orders/page.tsx"), "utf8");
+  const adminOrders = fs.readFileSync(path.join(process.cwd(), "app/admin/orders/page.tsx"), "utf8");
+  assert.match(sellerOrders, /href="\/seller\/products"/);
+  assert.match(adminOrders, /href="\/admin\/operations"/);
+});
+
+test("seller dashboard copy reflects real orders without demo-seller framing", () => {
+  const source = fs.readFileSync(path.join(process.cwd(), "app/seller/page.tsx"), "utf8");
+  assert.equal(source.includes("Demo Seller"), false);
+  assert.equal(source.includes("Add Product Demo"), false);
+  assert.match(source, /href="\/seller\/orders"/);
+  assert.match(source, /not connected yet/);
+});

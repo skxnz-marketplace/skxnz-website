@@ -248,7 +248,7 @@ export default async function AdminOrderDetailPage({
             {result.order.lineEvents.length > 0 ? (
               <Card className="section-border rounded-[28px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-6">
                 <p className="text-[0.64rem] font-bold uppercase tracking-[0.2em] text-sangria">
-                  Seller fulfilment history (order_item_events)
+                  Seller fulfilment history
                 </p>
                 <div className="mt-2 divide-y divide-[rgba(58,8,24,0.08)]">
                   {result.order.lineEvents.map((event) => (
@@ -276,7 +276,7 @@ export default async function AdminOrderDetailPage({
 
             <Card className="section-border rounded-[28px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-6">
               <p className="text-[0.64rem] font-bold uppercase tracking-[0.2em] text-sangria">
-                Audit history (order_events)
+                Audit history
               </p>
               {result.order.events.length === 0 ? (
                 <p className="mt-2 text-sm leading-7 text-stone">
@@ -287,7 +287,7 @@ export default async function AdminOrderDetailPage({
                   {result.order.events.map((event) => (
                     <div key={event.id} className="py-3">
                       <p className="text-[0.64rem] font-bold uppercase tracking-[0.16em] text-stone">
-                        {event.eventType} · {formatDateTime(event.createdAt)}
+                        {formatEnum(event.eventType)} · {formatDateTime(event.createdAt)}
                       </p>
                       <p className="mt-1 text-sm leading-6 text-midnightbrown">
                         {event.message}

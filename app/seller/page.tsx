@@ -11,18 +11,24 @@ export default function SellerDashboardPage() {
   return (
     <SellerDashboardShell
       title="Seller control center"
-      description="A beta workspace for demo listings, order visibility, analytics previews, and future seller tools."
+      description="A beta workspace for preview listings, real order fulfilment, analytics previews, and upcoming seller tools."
       actions={
         <>
           <Link
-            href="/seller/products"
+            href="/seller/orders"
             className={buttonVariants({ variant: "primary", size: "lg" })}
           >
-            Add Product Demo
+            Your Orders
+          </Link>
+          <Link
+            href="/seller/products"
+            className={buttonVariants({ variant: "secondary", size: "lg" })}
+          >
+            Product Workspace
           </Link>
           <Link
             href="/sell"
-            className={buttonVariants({ variant: "secondary", size: "lg" })}
+            className={buttonVariants({ variant: "ghost", size: "lg" })}
           >
             Seller Application
           </Link>
@@ -39,7 +45,7 @@ export default function SellerDashboardPage() {
                 Seller status
               </p>
               <h2 className="mt-3 font-display text-3xl uppercase tracking-[0.08em] text-midnightbrown">
-                Demo Seller
+                Seller Preview
               </h2>
               <p className="mt-3 text-sm leading-7 text-stone">
                 Seller Dashboard Beta is available for internal workflow testing.
