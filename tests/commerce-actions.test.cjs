@@ -1577,3 +1577,121 @@ test("rejected and inactive return rows do not create seller indicators", async 
   const result = await getSellerOrders();
   assert.equal(result.orders[0].activeReturnLineCount, 0);
 });
+
+// ---- D6-B: buyer commerce UI readiness ------------------------------------
+
+const { getProductHref } = require("@/lib/catalog/product-links");
+
+test("product hrefs use the canonical slug with id fallback and encoding", () => {
+  assert.equal(getProductHref({ slug: "chrome-hoodie", id: "abc" }), "/product/chrome-hoodie");
+  assert.equal(getProductHref({ slug: "", id: "abc-123" }), "/product/abc-123");
+  assert.equal(getProductHref({ slug: null, id: "abc-123" }), "/product/abc-123");
+  assert.equal(getProductHref({ slug: "  ", id: "abc-123" }), "/product/abc-123");
+  assert.equal(getProductHref({ slug: "a b/c", id: "x" }), "/product/a%20b%2Fc");
+});
+
+test("product card and cart rows link through the shared product href helper", () => {
+  const cardSource = fs.readFileSync(path.join(process.cwd(), "components/sections/product-card.tsx"), "utf8");
+  const cartSource = fs.readFileSync(path.join(process.cwd(), "components/buyer/cart-preview-table.tsx"), "utf8");
+  assert.equal(cardSource.includes("getProductHref(product)"), true);
+  assert.equal(cardSource.includes("`/product/${product.slug}`"), false);
+  assert.equal(cartSource.includes("getProductHref(item.product)"), true);
+  assert.equal(cartSource.includes("`/product/${item.product.id}`"), false);
+});
+
+test("unavailable variant keeps add-to-cart disabled with truthful label", () => {
+  const source = fs.readFileSync(path.join(process.cwd(), "components/buyer/product-purchase-panel.tsx"), "utf8");
+  assert.equal(source.includes("disabled={!isApproved || isOutOfStock || !selectedSize}"), true);
+  assert.match(source, /Currently Unavailable/);
+  assert.match(source, /Selected option unavailable/);
+  assert.equal(source.includes('aria-pressed={isSelected}'), true);
+  // No reservation claims anywhere in the purchase panel.
+  assert.equal(/reserved/i.test(source), false);
+});
+
+test("cart summary keeps the server-verification and no-payment notices visible", () => {
+  const source = fs.readFileSync(path.join(process.cwd(), "components/buyer/cart-preview-table.tsx"), "utf8");
+  assert.match(source, /Live payment is not connected yet/);
+  assert.match(source, /re-checked on the server/);
+  assert.match(source, /Continue To Checkout Review/);
+});
+
+test("buyer commerce empty states carry useful next actions", () => {
+  const emptyStateSource = fs.readFileSync(path.join(process.cwd(), "components/shared/empty-state.tsx"), "utf8");
+  const gridSource = fs.readFileSync(path.join(process.cwd(), "components/shared/product-grid.tsx"), "utf8");
+  const browserSource = fs.readFileSync(path.join(process.cwd(), "components/buyer/shop-browser.tsx"), "utf8");
+  const cartSource = fs.readFileSync(path.join(process.cwd(), "components/buyer/cart-preview-table.tsx"), "utf8");
+  assert.equal(emptyStateSource.includes("MVP Placeholder"), false);
+  assert.equal(gridSource.includes("placeholder products"), false);
+  assert.equal(browserSource.includes("emptyActionHref"), true);
+  assert.match(cartSource, /actionHref="\/shop"/);
+});
+
+test("buyer commerce rendered copy has no demo, mock, or MVP leakage", () => {
+  const buyerCommerceFiles = [
+    "app/shop/page.tsx",
+    "app/cart/page.tsx",
+    "app/checkout/page.tsx",
+    "app/checkout/success/page.tsx",
+    "components/sections/product-card.tsx",
+    "components/shared/product-grid.tsx",
+    "components/shared/empty-state.tsx",
+    "components/buyer/shop-browser.tsx",
+    "components/buyer/cart-preview-table.tsx",
+    "components/buyer/product-purchase-panel.tsx",
+    "components/checkout/place-draft-order.tsx",
+  ];
+  // Strip comments and import lines: the sweep targets rendered copy only.
+  const stripNonRendered = (source) =>
+    source
+      .replace(/\/\/[^\n]*/g, "")
+      .replace(/\/\*[\s\S]*?\*\//g, "")
+      .replace(/^import[^\n]*$/gm, "");
+  for (const file of buyerCommerceFiles) {
+    const source = stripNonRendered(
+      fs.readFileSync(path.join(process.cwd(), file), "utf8"),
+    );
+    for (const term of [
+      "MVP",
+      "demo",
+      "mock",
+      "fake",
+      "placeholder",
+      "test payment",
+      "payment received",
+      "guaranteed delivery",
+      "instant refund",
+      "Razorpay active",
+      "real-time delivery",
+      "launch-ready",
+    ]) {
+      assert.equal(source.includes(term), false, `${file} leaks "${term}"`);
+    }
+  }
+});
+
+test("draft checkout copy never claims a paid or confirmed order", () => {
+  const created = resolveCheckoutAttempt({ ok: true, orderId: NEW_ROW_ID, status: "DRAFT", redirectTo: `/orders/${NEW_ROW_ID}`, reused: false });
+  const recovered = resolveCheckoutAttempt({ ok: true, orderId: NEW_ROW_ID, status: "DRAFT", redirectTo: `/orders/${NEW_ROW_ID}`, reused: true });
+  for (const view of [created, recovered]) {
+    assert.match(view.message, /unpaid draft/);
+    assert.doesNotMatch(`${view.title} ${view.message}`, /\b(paid|confirmed)\b/i);
+  }
+  const failureCodes = [
+    "UNAUTHENTICATED",
+    "ADDRESS_REQUIRED",
+    "OUT_OF_STOCK",
+    "PRODUCT_UNAVAILABLE",
+    "IDEMPOTENCY_CONFLICT",
+    "NOT_WIRED",
+    "VALIDATION_FAILED",
+    "FORBIDDEN",
+    "DB_ERROR",
+  ];
+  for (const code of failureCodes) {
+    const view = resolveCheckoutAttempt({ ok: false, code, message: "raw backend detail" });
+    // Buyer-facing copy never echoes the raw backend code or message.
+    assert.equal(`${view.title} ${view.message}`.includes(code), false);
+    assert.equal(`${view.title} ${view.message}`.includes("raw backend detail"), false);
+  }
+});

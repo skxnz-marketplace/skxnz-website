@@ -101,6 +101,9 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
   const selectionUnavailable =
     isVariantBacked && Boolean(selectedSize) && (!selectedVariant || !selectedVariant.isActive);
   const isOutOfStock = hasRealStockData && (availableStock <= 0 || selectionUnavailable);
+  // Cap the quantity stepper at the known available stock (still server-validated).
+  const maxQuantity =
+    hasRealStockData && availableStock > 0 ? Math.min(9, availableStock) : 9;
 
   const stockLabel = useMemo(() => {
     if (!hasRealStockData) {
@@ -116,7 +119,7 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
       return "Low stock";
     }
     return "In stock";
-  }, [hasRealStockData, isLiveProduct, availableStock, selectionUnavailable]);
+  }, [hasRealStockData, availableStock, selectionUnavailable]);
 
   function handleAddToCart() {
     if (!selectedSize) {
@@ -194,7 +197,9 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
           </div>
           {hasRealStockData ? (
             <span className="shrink-0 rounded-full border border-[rgba(47,111,115,0.22)] bg-[rgba(34,211,238,0.08)] px-3 py-1 text-[0.66rem] font-bold uppercase tracking-[0.14em] text-[var(--skxnz-maroon)]">
-              {product.stock} units
+              {isVariantBacked && selectedSize
+                ? `${Math.max(availableStock, 0)} units for this option`
+                : `${product.stock} units`}
             </span>
           ) : null}
         </div>
@@ -218,6 +223,7 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
                 <button
                   key={size}
                   type="button"
+                  aria-pressed={isSelected}
                   onClick={() => setSelectedSize(size)}
                   className={
                     isSelected
@@ -249,6 +255,7 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
                 <button
                   key={color}
                   type="button"
+                  aria-pressed={isSelected}
                   onClick={() => setSelectedColor(color)}
                   className={
                     isSelected
@@ -280,12 +287,15 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
             >
               -
             </button>
-            <span className="min-w-10 text-center text-sm font-bold text-[var(--skxnz-text-dark)]">
+            <span
+              aria-live="polite"
+              className="min-w-10 text-center text-sm font-bold text-[var(--skxnz-text-dark)]"
+            >
               {quantity}
             </span>
             <button
               type="button"
-              onClick={() => setQuantity((current) => Math.min(9, current + 1))}
+              onClick={() => setQuantity((current) => Math.min(maxQuantity, current + 1))}
               className="h-11 w-12 text-lg font-semibold text-[var(--skxnz-maroon)] transition hover:bg-[var(--skxnz-bg-soft)]"
               aria-label="Increase quantity"
             >

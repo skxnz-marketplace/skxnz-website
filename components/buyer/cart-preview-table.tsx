@@ -8,6 +8,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { SafeImage } from "@/components/shared/safe-image";
 import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { getProductHref } from "@/lib/catalog/product-links";
 import { formatProductPrice, type Product } from "@/lib/data/products";
 import { cn } from "@/lib/cn";
 import { skxnzFallbackAssets } from "@/src/lib/assets";
@@ -85,7 +86,7 @@ export function CartPreviewTable() {
                 className="grid min-w-0 gap-5 p-5 sm:grid-cols-[7.5rem_minmax(0,1fr)] sm:p-7 lg:grid-cols-[8.5rem_minmax(0,1fr)_10rem]"
               >
                 <Link
-                  href={`/product/${item.product.id}`}
+                  href={getProductHref(item.product)}
                   className="relative block aspect-square min-w-0 overflow-hidden rounded-[26px] border border-[rgba(58,8,24,0.10)] bg-[var(--skxnz-card)]"
                   aria-label={`View ${item.product.name}`}
                 >
@@ -105,7 +106,7 @@ export function CartPreviewTable() {
                       {item.product.brandName}
                     </p>
                     <Link
-                      href={`/product/${item.product.id}`}
+                      href={getProductHref(item.product)}
                       className="mt-2 block min-w-0"
                     >
                       <h3 className="product-title line-clamp-2 break-words text-lg font-bold leading-tight text-midnightbrown">
@@ -268,7 +269,9 @@ function CartSummary({
 
       <div className="mt-5 rounded-[24px] border border-[rgba(34,211,238,0.22)] bg-[rgba(34,211,238,0.06)] p-4 text-sm leading-6 text-midnightbrown">
         Live payment is not connected yet. The next step is a checkout review
-        only.
+        only. Prices and stock shown here are re-checked on the server before
+        any draft order is saved, so this total may change if the catalogue
+        updates.
       </div>
 
       <div className="mt-6 flex flex-col gap-3">

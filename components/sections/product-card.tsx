@@ -7,6 +7,7 @@ import { SafeImage } from "@/components/shared/safe-image";
 import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { WishlistButton } from "@/components/wishlist/wishlist-button";
+import { getProductHref } from "@/lib/catalog/product-links";
 import { formatProductPrice, type Product } from "@/lib/data/products";
 import { skxnzFallbackAssets } from "@/src/lib/assets";
 
@@ -54,9 +55,12 @@ export function ProductCard({
           >
             {product.brandName}
           </Link>
-          <p className="product-title mt-1 line-clamp-2 min-w-0 break-words text-sm font-semibold leading-snug text-midnightbrown">
+          <Link
+            href={getProductHref(product)}
+            className="product-title mt-1 block line-clamp-2 min-w-0 break-words text-sm font-semibold leading-snug text-midnightbrown transition hover:text-sangria"
+          >
             {product.name}
-          </p>
+          </Link>
           <p className="mt-1 line-clamp-1 min-w-0 text-[0.68rem] text-silver">
             {product.subtitle}
           </p>
@@ -75,7 +79,8 @@ export function ProductCard({
           </div>
 
           <Link
-            href={`/product/${product.slug}`}
+            href={getProductHref(product)}
+            aria-label={`View ${product.name}`}
             className={`${buttonVariants({ variant: "secondary", size: "sm" })} shrink-0`}
           >
             View
