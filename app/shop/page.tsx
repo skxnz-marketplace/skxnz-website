@@ -155,7 +155,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
               </div>
               <div className="rounded-[22px] border border-sandstone bg-white/80 p-4">
                 Catalogue filters use live products when available and fall back to
-                local MVP preview data if the database query returns empty.
+                local preview data if the database query returns empty.
               </div>
             </div>
           </Card>

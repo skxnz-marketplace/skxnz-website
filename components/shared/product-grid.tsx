@@ -6,17 +6,28 @@ type ProductGridProps = {
   products: Product[];
   emptyTitle?: string;
   emptyDescription?: string;
+  emptyActionHref?: string;
+  emptyActionLabel?: string;
   showWishlistAction?: boolean;
 };
 
 export function ProductGrid({
   products,
   emptyTitle = "No products yet.",
-  emptyDescription = "Add placeholder products to start testing the catalog layout.",
+  emptyDescription = "New pieces are on the way. Check back soon or browse the full catalogue.",
+  emptyActionHref,
+  emptyActionLabel,
   showWishlistAction = false,
 }: ProductGridProps) {
   if (products.length === 0) {
-    return <EmptyState title={emptyTitle} description={emptyDescription} />;
+    return (
+      <EmptyState
+        title={emptyTitle}
+        description={emptyDescription}
+        actionHref={emptyActionHref}
+        actionLabel={emptyActionLabel}
+      />
+    );
   }
 
   return (

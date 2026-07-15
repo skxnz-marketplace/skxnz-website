@@ -117,7 +117,7 @@ export function ShopBrowser({
               Filters
             </p>
             <p className="mt-2 text-wrap-safe break-words text-sm leading-6 text-silver">
-              Filter the local demo catalog by category, brand, size, color, and price.
+              Filter the catalogue by category, brand, size, color, and price.
             </p>
           </div>
 
@@ -233,6 +233,8 @@ export function ShopBrowser({
             ? "Try another brand, category, or product."
             : "Try a broader size, color, or price range."
         }
+        emptyActionHref="/shop"
+        emptyActionLabel="Browse Full Catalogue"
         showWishlistAction
       />
     </div>
