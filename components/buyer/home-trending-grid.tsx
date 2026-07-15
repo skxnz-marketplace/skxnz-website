@@ -3,6 +3,7 @@ import Link from "next/link";
 import { SafeImage } from "@/components/shared/safe-image";
 import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { getProductHref } from "@/lib/catalog/product-links";
 import { featuredProducts, formatProductPrice } from "@/lib/data/products";
 import { skxnzFallbackAssets } from "@/src/lib/assets";
 
@@ -47,7 +48,8 @@ export function HomeTrendingGrid() {
                 </p>
                 <div className="mt-auto pt-2">
                   <Link
-                    href={`/product/${product.id}`}
+                    href={getProductHref(product)}
+                    aria-label={`View ${product.name}`}
                     className={buttonVariants({
                       variant: "secondary",
                       size: "md",

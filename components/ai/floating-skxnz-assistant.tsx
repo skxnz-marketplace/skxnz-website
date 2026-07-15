@@ -13,6 +13,7 @@ import {
 import { useMarketplace } from "@/components/marketplace/marketplace-provider";
 import { SafeImage } from "@/components/shared/safe-image";
 import { buttonVariants } from "@/components/ui/button";
+import { getProductHref } from "@/lib/catalog/product-links";
 import { cn } from "@/lib/cn";
 import {
   featuredProducts,
@@ -93,7 +94,7 @@ const assistantPreviewProducts = (featuredProducts.length ? featuredProducts : d
     name: product.name,
     price: formatProductPrice(product.salePrice ?? product.price),
     image: product.image,
-    href: `/product/${product.id}`,
+    href: getProductHref(product),
   }));
 
 function SparkleIcon({ className }: { className?: string }) {

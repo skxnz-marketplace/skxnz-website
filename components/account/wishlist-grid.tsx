@@ -9,6 +9,7 @@ import { SafeImage } from "@/components/shared/safe-image";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { getProductHref } from "@/lib/catalog/product-links";
 import { formatProductPrice } from "@/lib/data/products";
 import { skxnzFallbackAssets } from "@/src/lib/assets";
 
@@ -57,7 +58,7 @@ export function WishlistGrid() {
             className="section-border flex h-full min-w-0 flex-col rounded-[32px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-4"
           >
             <Link
-              href={`/product/${product.id}`}
+              href={getProductHref(product)}
               className="relative aspect-[4/3] overflow-hidden rounded-[24px] border border-[rgba(58,8,24,0.10)] bg-[var(--skxnz-card)]"
             >
               <SafeImage
@@ -74,7 +75,7 @@ export function WishlistGrid() {
               <p className="mt-2 line-clamp-1 text-[0.68rem] font-black uppercase tracking-[0.18em] text-sangria">
                 {product.brandName}
               </p>
-              <Link href={`/product/${product.id}`}>
+              <Link href={getProductHref(product)}>
                 <h3 className="mt-2 line-clamp-2 break-words text-lg font-black leading-tight text-midnightbrown">
                   {product.name}
                 </h3>
@@ -113,7 +114,7 @@ export function WishlistGrid() {
                 </button>
                 <div className="grid gap-3 sm:grid-cols-2">
                   <Link
-                    href={`/product/${product.id}`}
+                    href={getProductHref(product)}
                     className={buttonVariants({
                       variant: "secondary",
                       size: "md",

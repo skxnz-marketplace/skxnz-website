@@ -8,6 +8,7 @@ import { AIDisclaimer } from "@/components/ai/ai-disclaimer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { getProductHref } from "@/lib/catalog/product-links";
 import {
   generateStylistRecommendations,
   stylistCatalog,
@@ -149,7 +150,7 @@ export function AIStylistDemo() {
                     return (
                       <Link
                         key={product.id}
-                        href={`/product/${product.id}`}
+                        href={getProductHref(product)}
                         className="rounded-full border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-xs uppercase tracking-[0.18em] text-pearl transition hover:border-teal/35"
                       >
                         {product.name}

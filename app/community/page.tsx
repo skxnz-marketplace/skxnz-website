@@ -4,6 +4,7 @@ import Link from "next/link";
 import { SafeImage } from "@/components/shared/safe-image";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
+import { getProductHref } from "@/lib/catalog/product-links";
 import { formatProductPrice, products } from "@/lib/data/products";
 import { skxnzFallbackAssets } from "@/src/lib/assets";
 
@@ -72,7 +73,7 @@ function ProductTag({
 }) {
   return (
     <Link
-      href={`/product/${product.id}`}
+      href={getProductHref(product)}
       className="group inline-flex min-w-0 items-center gap-3 rounded-full border border-[rgba(255,254,250,0.14)] bg-white/[0.08] px-3 py-2 text-left text-[var(--skxnz-text-light)] transition hover:border-[rgba(34,211,238,0.44)] hover:bg-white/[0.12]"
     >
       <span
@@ -202,7 +203,7 @@ export default function CommunityPage() {
             {styledLooks.map(({ product, label }) => (
               <Link
                 key={product.id}
-                href={`/product/${product.id}`}
+                href={getProductHref(product)}
                 className="group min-w-0 overflow-hidden rounded-[28px] border border-[var(--skxnz-border)] bg-[var(--skxnz-card)] p-3 shadow-[0_18px_54px_rgba(58,8,24,0.06)] transition hover:border-[rgba(34,211,238,0.42)]"
               >
                 <div className="relative min-h-[18rem] overflow-hidden rounded-[22px] bg-[var(--skxnz-bg-soft)]">

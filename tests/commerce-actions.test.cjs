@@ -1902,3 +1902,62 @@ test("middleware preserves server-side protection for seller and admin routes", 
   assert.match(source, /role === 'ADMIN'/);
   assert.match(source, /role === 'SELLER' \|\| role === 'ADMIN'/);
 });
+
+// ---- D8-B: premium visual polish readiness ---------------------------------
+
+test("global stylesheet keeps keyboard focus visible", () => {
+  const css = fs.readFileSync(path.join(process.cwd(), "app/globals.css"), "utf8");
+  assert.match(css, /:focus-visible/);
+  assert.match(css, /outline: 2px solid/);
+});
+
+test("buyer-facing product links route through the shared href helper", () => {
+  const files = [
+    "app/community/page.tsx",
+    "components/account/wishlist-grid.tsx",
+    "components/buyer/home-trending-grid.tsx",
+    "components/categories/category-page-shell.tsx",
+    "components/community/community-feed.tsx",
+    "components/community/tagged-products-strip.tsx",
+    "components/ai/ai-stylist-demo.tsx",
+    "components/ai/floating-skxnz-assistant.tsx",
+  ];
+  for (const file of files) {
+    const source = fs.readFileSync(path.join(process.cwd(), file), "utf8");
+    assert.equal(source.includes("getProductHref"), true, `${file} missing helper`);
+    assert.equal(source.includes("`/product/${product.id}`"), false, `${file} keeps raw id href`);
+  }
+});
+
+test("home and community rendered copy makes no unavailable-capability claims", () => {
+  const files = [
+    "app/page.tsx",
+    "app/community/page.tsx",
+    "components/home/trust-bar.tsx",
+    "components/home/ai-stylist-banner.tsx",
+  ];
+  for (const file of files) {
+    const source = fs
+      .readFileSync(path.join(process.cwd(), file), "utf8")
+      .replace(/\/\/[^\n]*/g, "")
+      .replace(/\/\*[\s\S]*?\*\//g, "")
+      .replace(/^import[^\n]*$/gm, "");
+    for (const term of [
+      "payment received",
+      "guaranteed delivery",
+      "instant refund",
+      "real-time delivery",
+      "launch-ready",
+      "Razorpay",
+      "test payment",
+    ]) {
+      assert.equal(source.includes(term), false, `${file} leaks "${term}"`);
+    }
+  }
+});
+
+test("community page stays future-truthful with no live-room claims", () => {
+  const source = fs.readFileSync(path.join(process.cwd(), "app/community/page.tsx"), "utf8");
+  assert.match(source, /when the room opens|after the room opens/i);
+  assert.equal(/members online|active members|\d+ members/i.test(source), false);
+});

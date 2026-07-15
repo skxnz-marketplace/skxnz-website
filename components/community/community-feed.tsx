@@ -13,6 +13,7 @@ import { TaggedProductsStrip } from "@/components/community/tagged-products-stri
 import { TrendingSignals } from "@/components/community/trending-signals";
 import { SafeImage } from "@/components/shared/safe-image";
 import { Badge } from "@/components/ui/badge";
+import { getProductHref } from "@/lib/catalog/product-links";
 import {
   createDemoCommunityPost,
   getAllCommunityPosts,
@@ -178,7 +179,7 @@ export function CommunityFeed({
               {taggedProductPreview.map((product) => (
                 <Link
                   key={product.id}
-                  href={`/product/${product.id}`}
+                  href={getProductHref(product)}
                   className="group min-w-0 overflow-hidden rounded-[24px] border border-[var(--skxnz-border)] bg-[var(--skxnz-card)] p-3 transition hover:border-[rgba(34,211,238,0.4)]"
                 >
                   <div className="relative min-h-32 overflow-hidden rounded-[18px] bg-[var(--skxnz-bg-soft)]">

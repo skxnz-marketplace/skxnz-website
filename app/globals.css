@@ -357,4 +357,17 @@ body[data-skxnz-intro-seen="true"] [data-skxnz-opening-loader] {
       0 0 0 3px rgba(139, 92, 246, 0.12);
     outline: none;
   }
+
+  /* Keyboard focus must stay visible on every interactive element. */
+  a:focus-visible,
+  button:focus-visible,
+  [role="button"]:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  summary:focus-visible {
+    outline: 2px solid rgba(34, 211, 238, 0.75);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
 }

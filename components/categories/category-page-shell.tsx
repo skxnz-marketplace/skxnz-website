@@ -10,6 +10,7 @@ import { SafeImage } from "@/components/shared/safe-image";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { getProductHref } from "@/lib/catalog/product-links";
 import { cn } from "@/lib/cn";
 import { formatProductPrice, type Product } from "@/lib/data/products";
 import { structuredCategories, type StructuredCategory } from "@/src/data/categories";
@@ -220,7 +221,7 @@ function FeaturedProductStrip({ products }: { products: Product[] }) {
           {products.map((product) => (
             <Link
               key={product.id}
-              href={`/product/${product.id}`}
+              href={getProductHref(product)}
               className="group w-[13.5rem] overflow-hidden rounded-[22px] border border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-card)] shadow-[0_12px_30px_rgba(58,8,24,0.06)]"
             >
               <div className="relative h-36 overflow-hidden bg-[var(--skxnz-bg-soft)]">

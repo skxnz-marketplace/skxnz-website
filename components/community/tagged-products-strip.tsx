@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { SafeImage } from "@/components/shared/safe-image";
+import { getProductHref } from "@/lib/catalog/product-links";
 import { formatProductPrice, type Product } from "@/lib/data/products";
 import { skxnzFallbackAssets } from "@/src/lib/assets";
 
@@ -26,7 +27,7 @@ export function TaggedProductsStrip({
       {products.map((product) => (
         <Link
           key={product.id}
-          href={`/product/${product.id}`}
+          href={getProductHref(product)}
           className="group flex min-w-0 items-center gap-3 rounded-[18px] border border-[var(--skxnz-border)] bg-[var(--skxnz-surface)] p-2 transition hover:border-[rgba(34,211,238,0.38)]"
         >
           <div
