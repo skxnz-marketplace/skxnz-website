@@ -1,9 +1,11 @@
 # Supabase catalog recovery blocked
 
-## Safe command attempted
+## Safe commands attempted
 
 ```text
 supabase --version
+npx supabase --version
+npx --no-install supabase --version
 ```
 
 ## Redacted result
@@ -12,13 +14,20 @@ PowerShell reported that `supabase` is not recognized as a command. A follow-up
 `Get-Command supabase` / `where.exe supabase` check found no CLI on PATH.
 `supabase/config.toml` is also absent from this worktree.
 
+After the project was resumed, the requested `npx supabase` command group
+timed out after 124 seconds without producing a result or authentication
+prompt. A follow-up `npx --no-install supabase --version` timed out after 34
+seconds, also with no output. This does not prove authentication or linking;
+it only proves that the available npx path cannot currently provide a usable
+CLI result in this environment.
+
 ## Why the recovery stopped
 
-Without an installed Supabase CLI, this worktree cannot establish whether an
-existing authenticated and linked local CLI state is available. Installing a
-CLI, logging in, supplying an access token, entering an OTP, adding a project
-link, or using a database connection string would exceed this task's safe
-boundary. No dump command was attempted.
+Without a usable installed or npx-resolved Supabase CLI, this worktree cannot
+establish whether an existing authenticated and linked local CLI state is
+available. Installing a CLI, logging in, supplying an access token, entering
+an OTP, adding a project link, or using a database connection string would
+exceed this task's safe boundary. No dump command was attempted.
 
 ## Required manual operator action
 

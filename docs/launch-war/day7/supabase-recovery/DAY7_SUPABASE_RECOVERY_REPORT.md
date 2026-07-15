@@ -3,8 +3,9 @@
 ## Result
 
 The controlled schema-only recovery attempt is blocked before authentication
-or database access. The Supabase CLI is not available on PATH, and this
-worktree has no `supabase/config.toml` link metadata. No candidate artifact was
+or database access. The Supabase CLI is not available on PATH, this worktree
+has no `supabase/config.toml` link metadata, and the requested npx retry timed
+out without output or an authentication prompt. No candidate artifact was
 created and canonical `0002_catalog_layer.sql` remains unrecovered.
 
 ## What was safely verified
