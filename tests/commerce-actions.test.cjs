@@ -1903,6 +1903,34 @@ test("middleware preserves server-side protection for seller and admin routes", 
   assert.match(source, /role === 'SELLER' \|\| role === 'ADMIN'/);
 });
 
+// ---- D9-A: build proof and launch gate honesty ----------------------------
+
+test("day 9 build proof records the local SWC blocker without claiming a production pass", () => {
+  const proof = fs.readFileSync(
+    path.join(process.cwd(), "docs/launch-war/day9/build-proof/BUILD_PROOF_RESULT.md"),
+    "utf8",
+  );
+  assert.match(proof, /@next\/swc-wasm-nodejs/);
+  assert.match(proof, /BLOCKED locally/);
+  assert.doesNotMatch(proof, /Vercel build passed|production build passed/i);
+});
+
+test("day 9 launch gate retains catalog, QA, integration, and buyer UI blockers", () => {
+  const gate = fs.readFileSync(
+    path.join(process.cwd(), "docs/launch-war/day9/build-proof/LAUNCH_GATE_MATRIX.md"),
+    "utf8",
+  );
+  for (const expected of [
+    "0002_catalog_layer.sql",
+    "Disposable Supabase QA",
+    "No live payment integration",
+    "No delivery-provider integration",
+    "buyer experience regressed",
+  ]) {
+    assert.equal(gate.includes(expected), true, `launch gate omits ${expected}`);
+  }
+});
+
 // ---- D8-B: premium visual polish readiness ---------------------------------
 
 test("global stylesheet keeps keyboard focus visible", () => {
