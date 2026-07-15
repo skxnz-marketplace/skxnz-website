@@ -1869,3 +1869,36 @@ test("seller dashboard copy reflects real orders without demo-seller framing", (
   assert.match(source, /href="\/seller\/orders"/);
   assert.match(source, /not connected yet/);
 });
+
+// ---- D8-A: build, route, and public metadata readiness --------------------
+
+test("public route metadata routes exclude protected buyer, seller, and admin paths", () => {
+  const sitemap = fs.readFileSync(path.join(process.cwd(), "app/sitemap.ts"), "utf8");
+  const robots = fs.readFileSync(path.join(process.cwd(), "app/robots.ts"), "utf8");
+  const manifest = fs.readFileSync(path.join(process.cwd(), "app/manifest.ts"), "utf8");
+  for (const protectedPath of ["/account", "/admin", "/orders", "/seller"]) {
+    assert.equal(sitemap.includes(`"${protectedPath}"`), false, `sitemap exposes ${protectedPath}`);
+    assert.equal(robots.includes(`"${protectedPath}"`), true, `robots omits ${protectedPath}`);
+  }
+  assert.match(sitemap, /"\/shop"/);
+  assert.match(robots, /sitemap: "\/sitemap\.xml"/);
+  assert.match(manifest, /name: "SKXNZ"/);
+});
+
+test("root metadata and checkout copy do not claim unavailable commerce is live", () => {
+  const layout = fs.readFileSync(path.join(process.cwd(), "app/layout.tsx"), "utf8");
+  const checkout = fs.readFileSync(path.join(process.cwd(), "app/checkout/page.tsx"), "utf8");
+  assert.match(layout, /SKXNZ \| WEAR THE SIGNAL/);
+  assert.match(layout, /payments, delivery, and refunds remain unavailable/);
+  assert.equal(/payment received|refund complete|guaranteed delivery|Razorpay live/i.test(layout), false);
+  assert.equal(/payment received|refund complete|guaranteed delivery|Razorpay live/i.test(checkout), false);
+});
+
+test("middleware preserves server-side protection for seller and admin routes", () => {
+  const source = fs.readFileSync(path.join(process.cwd(), "middleware.ts"), "utf8");
+  for (const prefix of ["'/account'", "'/orders'", "'/admin'", "'/seller'"]) {
+    assert.match(source, new RegExp(prefix.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  }
+  assert.match(source, /role === 'ADMIN'/);
+  assert.match(source, /role === 'SELLER' \|\| role === 'ADMIN'/);
+});

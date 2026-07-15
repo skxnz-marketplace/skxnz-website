@@ -1,13 +1,9 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { Space_Grotesk } from "next/font/google";
-
-const spaceGrotesk = Space_Grotesk({
-  subsets: ["latin"],
-  variable: "--font-grotesk",
-  weight: ["400", "500", "600", "700"],
-  display: "swap",
-});
+import "@fontsource/syne/400.css";
+import "@fontsource/syne/500.css";
+import "@fontsource/syne/600.css";
+import "@fontsource/syne/700.css";
 
 import { DemoRoleProvider } from "@/components/auth/demo-role-provider";
 import { MarketplaceProvider } from "@/components/marketplace/marketplace-provider";
@@ -23,11 +19,28 @@ const siteUrl =
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "SKXNZ | Private MVP Foundation",
+    default: "SKXNZ | WEAR THE SIGNAL",
     template: "%s | SKXNZ",
   },
   description:
-    "Private web MVP foundation for SKXNZ, the AI-powered futurewear marketplace by Vivaan Poddar Companies.",
+    "Private-preview futurewear marketplace by Vivaan Poddar Companies. Explore curated discovery while payments, delivery, and refunds remain unavailable.",
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    siteName: "SKXNZ",
+    title: "SKXNZ | WEAR THE SIGNAL",
+    description:
+      "Private-preview futurewear discovery by Vivaan Poddar Companies.",
+    url: "/",
+  },
+  twitter: {
+    card: "summary",
+    title: "SKXNZ | WEAR THE SIGNAL",
+    description:
+      "Private-preview futurewear discovery by Vivaan Poddar Companies.",
+  },
   icons: {
     icon: "/assets/brand/marks/skxnz-mark-transparent.png",
     shortcut: "/assets/brand/marks/skxnz-mark-transparent.png",
@@ -43,7 +56,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${spaceGrotesk.variable} bg-warmivory font-sans text-midnightbrown antialiased`}
+        className="bg-warmivory font-sans text-midnightbrown antialiased"
         suppressHydrationWarning
       >
         <script

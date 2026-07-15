@@ -5,7 +5,7 @@
   "packageManager": "pnpm@10.33.0",
   "scripts": {
     "dev": "NEXT_TEST_WASM=1 NEXT_TEST_WASM_DIR=./node_modules/@next/swc-wasm-nodejs next dev",
-    "build": "NEXT_TEST_WASM=1 NEXT_TEST_WASM_DIR=./node_modules/@next/swc-wasm-nodejs next build && node scripts/fix-next-vendor-chunks.mjs",
+    "build": "node scripts/build-next.mjs && node scripts/fix-next-vendor-chunks.mjs",
     "start": "next start",
     "lint": "eslint .",
     "check:colors": "node scripts/check-colors.mjs",

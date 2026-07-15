@@ -48,6 +48,7 @@
 }
 
 :root {
+  --font-grotesk: "Syne", system-ui, sans-serif;
   --skxnz-header-offset: 5.5rem;
   --background: #fffefa;
   --foreground: #120b0d;

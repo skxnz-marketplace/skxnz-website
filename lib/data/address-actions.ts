@@ -49,7 +49,7 @@ function isMissingTableError(error: { code?: string; message?: string } | null) 
 
 /** India-ready, deliberately simple validation. Returns a normalised payload
  * (snake_case for the DB) or a single user-facing error message. */
-export function validateAddressInput(
+function validateAddressInput(
   input: AddressActionInput,
 ): { ok: true; value: Record<string, unknown> } | { ok: false; message: string } {
   const fullName = (input.fullName ?? "").trim();
