@@ -8,22 +8,13 @@ import { Card } from "@/components/ui/card";
 import { createSupportTicket } from "@/lib/support/create-support-ticket";
 import {
   supportTicketCategories,
+  supportTicketCategoryLabels,
   type SupportTicketCategory,
 } from "@/lib/support/support-requests";
 
 // Buyer support intake wired to the REAL D4-5 action createSupportTicket
 // (session-auth, RLS-owned support_tickets). No fake instant resolution — a
 // created ticket is OPEN and honestly waits for SKXNZ review.
-
-const categoryLabels: Record<SupportTicketCategory, string> = {
-  ORDER: "Order",
-  RETURN: "Return / refund",
-  PAYMENT: "Payment",
-  DELIVERY: "Delivery",
-  PRODUCT: "Product",
-  ACCOUNT: "Account",
-  OTHER: "Other",
-};
 
 const fieldClassName =
   "mt-2 w-full min-w-0 rounded-[20px] border border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-bg-soft)] px-4 py-3 text-sm text-midnightbrown outline-none transition focus:border-[rgba(34,211,238,0.34)] focus:ring-4 focus:ring-[rgba(34,211,238,0.08)]";
@@ -119,7 +110,7 @@ export function BuyerSupportForm({
           >
             {supportTicketCategories.map((value) => (
               <option key={value} value={value}>
-                {categoryLabels[value]}
+                {supportTicketCategoryLabels[value]}
               </option>
             ))}
           </select>

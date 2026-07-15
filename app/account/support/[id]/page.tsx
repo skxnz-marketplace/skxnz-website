@@ -7,7 +7,10 @@ import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { requireUser } from "@/lib/auth/roles";
 import { getBuyerSupportTicketThread } from "@/lib/support/read-support-tickets";
-import type { SupportTicketStatus } from "@/lib/support/support-requests";
+import {
+  supportTicketCategoryLabels,
+  type SupportTicketStatus,
+} from "@/lib/support/support-requests";
 
 // Buyer support-ticket thread (D5-4A). Server component: reads ONE buyer-owned
 // ticket + its messages via the session-scoped Supabase client. RLS + the
@@ -96,7 +99,9 @@ export default async function SupportTicketThreadPage({
             </span>
           </div>
           <p className="mt-3 text-xs text-stone">
-            {ticket.category}
+            {supportTicketCategoryLabels[
+              ticket.category as keyof typeof supportTicketCategoryLabels
+            ] ?? "General"}
             {ticket.orderId
               ? ` · Order ${ticket.orderId.slice(0, 8).toUpperCase()}`
               : ""}

@@ -1,19 +1,9 @@
-import { AccountShell } from "@/components/account/account-shell";
-import { OrderReadinessPanel } from "@/components/orders/order-readiness-panel";
+import { redirect } from "next/navigation";
 
-// NOTE: The seeded demo order history (OrderHistoryDemo) is intentionally not
-// rendered here. Buyers must never see mock orders presented as history.
-// Real order history returns to this page once orders are created server-side
-// after live payment is connected.
-
+// D7-B: /orders is the single source of truth for buyer order history (real
+// DB rows, draft orders labeled unpaid). This page previously rendered a
+// hard-coded "no order has been placed yet" state even when draft orders
+// existed, so it now redirects instead of showing stale copy.
 export default function AccountOrdersPage() {
-  return (
-    <AccountShell
-      eyebrow="Orders"
-      title="No order has been placed yet."
-      description="Order history will appear here after live payment is connected. SKXNZ does not show placeholder or mock orders."
-    >
-      <OrderReadinessPanel />
-    </AccountShell>
-  );
+  redirect("/orders");
 }

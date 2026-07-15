@@ -37,9 +37,9 @@ export function OrderReadinessPanel() {
         No orders yet — and we will not fake one.
       </h2>
       <p className="mt-4 max-w-2xl text-sm leading-7 text-stone">
-        Order history will appear after live payment is connected. Until then
-        there are no orders to show, so nothing is invented here — no order IDs,
-        no payment status, no delivery dates.
+        You have not created any orders yet. An unpaid draft order appears here
+        as soon as you create one at checkout — nothing is invented, no fake
+        order IDs, payment statuses, or delivery dates.
       </p>
 
       {hasReview ? (

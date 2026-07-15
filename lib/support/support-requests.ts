@@ -17,6 +17,17 @@ export const supportTicketCategories = [
 
 export type SupportTicketCategory = (typeof supportTicketCategories)[number];
 
+/** Buyer-facing labels — raw enum values must never render in buyer UI. */
+export const supportTicketCategoryLabels: Record<SupportTicketCategory, string> = {
+  ORDER: "Order",
+  RETURN: "Return / refund",
+  PAYMENT: "Payment",
+  DELIVERY: "Delivery",
+  PRODUCT: "Product",
+  ACCOUNT: "Account",
+  OTHER: "Other",
+};
+
 export const supportTicketStatuses = [
   "OPEN",
   "WAITING_FOR_CUSTOMER",

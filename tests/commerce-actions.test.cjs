@@ -1695,3 +1695,106 @@ test("draft checkout copy never claims a paid or confirmed order", () => {
     assert.equal(`${view.title} ${view.message}`.includes("raw backend detail"), false);
   }
 });
+
+// ---- D7-B: buyer account, order detail, FAQ truth --------------------------
+
+const { describeOrderStatus } = require("@/lib/orders/read-buyer-orders");
+const {
+  validateSupportTicketInput,
+  supportTicketCategoryLabels,
+  supportTicketCategories,
+} = require("@/lib/support/support-requests");
+
+test("draft and payment-pending orders are always described as not paid", () => {
+  for (const status of ["DRAFT", "PAYMENT_PENDING"]) {
+    const view = describeOrderStatus(status);
+    assert.match(view.label, /not paid/i);
+    assert.match(view.note, /(No payment|not been (charged|completed|taken))/i);
+    assert.doesNotMatch(view.label, /confirmed/i);
+  }
+});
+
+test("order detail page keeps the unpaid banner and no tracking claims", () => {
+  const source = fs.readFileSync(path.join(process.cwd(), "app/orders/[id]/page.tsx"), "utf8");
+  assert.match(source, /No payment has been taken/);
+  assert.equal(source.includes('order.status === "DRAFT" || order.status === "PAYMENT_PENDING"'), true);
+  assert.doesNotMatch(source, /real-time tracking|guaranteed delivery|instant refund/i);
+});
+
+test("account page shows no raw backend errors and links to real orders", () => {
+  const source = fs.readFileSync(path.join(process.cwd(), "app/account/page.tsx"), "utf8");
+  assert.equal(source.includes("QUERY ERROR"), false);
+  assert.equal(source.includes("Role query failed"), false);
+  assert.equal(source.includes("RLS policy"), false);
+  assert.match(source, /href="\/orders"/);
+  assert.match(source, /My Orders/);
+});
+
+test("account orders page defers to the real order history route", () => {
+  const source = fs.readFileSync(path.join(process.cwd(), "app/account/orders/page.tsx"), "utf8");
+  assert.match(source, /redirect\("\/orders"\)/);
+  assert.equal(source.includes("No order has been placed yet"), false);
+});
+
+test("order readiness panel does not claim history waits for live payment", () => {
+  const source = fs.readFileSync(path.join(process.cwd(), "components/orders/order-readiness-panel.tsx"), "utf8");
+  assert.equal(source.includes("will appear after live payment is connected"), false);
+  assert.match(source, /unpaid draft order/i);
+  assert.match(source, /Back To Shop/);
+});
+
+test("support ticket categories render via buyer-facing labels", () => {
+  for (const category of supportTicketCategories) {
+    const label = supportTicketCategoryLabels[category];
+    assert.equal(typeof label, "string");
+    assert.notEqual(label, category);
+  }
+  for (const file of ["app/account/support/page.tsx", "app/account/support/[id]/page.tsx"]) {
+    const source = fs.readFileSync(path.join(process.cwd(), file), "utf8");
+    assert.equal(source.includes("supportTicketCategoryLabels"), true);
+  }
+});
+
+test("support validation messages are buyer-friendly", () => {
+  const errors = validateSupportTicketInput({
+    category: "ORDER",
+    subject: "",
+    message: "",
+    orderId: null,
+  });
+  assert.equal(errors.subject, "Subject is required.");
+  assert.equal(errors.message, "Message is required.");
+  for (const value of Object.values(errors)) {
+    assert.doesNotMatch(value, /VALIDATION_FAILED|DB_ERROR|null|undefined/);
+  }
+});
+
+test("FAQ and public support/returns pages carry no internal or false claims", () => {
+  const files = ["app/faq/page.tsx", "app/support/page.tsx", "app/returns/page.tsx"];
+  for (const file of files) {
+    // Rendered copy only: comments and imports are not shown to buyers.
+    const source = fs
+      .readFileSync(path.join(process.cwd(), file), "utf8")
+      .replace(/\/\/[^\n]*/g, "")
+      .replace(/\/\*[\s\S]*?\*\//g, "")
+      .replace(/^import[^\n]*$/gm, "");
+    for (const term of [
+      "MVP",
+      "demo",
+      "mock",
+      "placeholder",
+      "test payment",
+      "payment received",
+      "guaranteed delivery",
+      "instant refund",
+      "real-time tracking",
+      "Razorpay",
+      "launch-ready",
+      "testers",
+    ]) {
+      assert.equal(source.includes(term), false, `${file} leaks "${term}"`);
+    }
+  }
+  const faqSource = fs.readFileSync(path.join(process.cwd(), "app/faq/page.tsx"), "utf8");
+  assert.match(faqSource, /live payment, delivery, and refunds/i);
+});

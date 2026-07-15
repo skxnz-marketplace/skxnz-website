@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { requireUser } from "@/lib/auth/roles";
 import { isOrderIdShape } from "@/lib/orders/read-buyer-orders";
 import { getBuyerSupportTickets } from "@/lib/support/read-support-tickets";
+import { supportTicketCategoryLabels } from "@/lib/support/support-requests";
 
 export const dynamic = "force-dynamic";
 
@@ -78,7 +79,9 @@ export default async function AccountSupportPage({
                     </span>
                   </div>
                   <p className="mt-2 text-xs text-stone">
-                    {ticket.category}
+                    {supportTicketCategoryLabels[
+                      ticket.category as keyof typeof supportTicketCategoryLabels
+                    ] ?? "General"}
                     {ticket.orderId
                       ? ` · Order ${ticket.orderId.slice(0, 8).toUpperCase()}`
                       : ""}

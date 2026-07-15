@@ -121,6 +121,7 @@ export default async function OrdersPage() {
                       ) : null}
                       <Link
                         href={`/orders/${order.id}`}
+                        aria-label={`View order ${order.id.slice(0, 8).toUpperCase()}`}
                         className={`${buttonVariants({ variant: "secondary", size: "sm" })} mt-3 inline-flex`}
                       >
                         View Order

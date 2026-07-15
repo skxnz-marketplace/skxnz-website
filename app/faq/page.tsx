@@ -6,47 +6,47 @@ const faqItems = [
   {
     question: "What is SKXNZ?",
     answer:
-      "SKXNZ is an AI-powered futurewear marketplace by Vivaan Poddar Companies. The current website supports catalog discovery, cart review, unpaid order drafts, seller review workflows, admin operations, and AI Assistant Beta.",
+      "SKXNZ is an AI-powered futurewear marketplace by Vivaan Poddar Companies. Today you can browse the catalogue, review a cart, create unpaid draft orders, and use the AI Assistant Beta for styling questions.",
   },
   {
-    question: "Is SKXNZ live yet?",
+    question: "Is SKXNZ fully live yet?",
     answer:
-      "No. The app is still in private MVP/demo mode. Public launch should wait until legal pages, payments, shipping, seller review, support, and moderation systems are complete.",
+      "Not yet. SKXNZ is in a private preview. You can browse and prepare orders, but live payment, delivery, and refunds are switched on only at public launch.",
   },
   {
     question: "How do I buy?",
     answer:
-      "You can browse products, review a cart, and create a real unpaid draft order. Live payment processing, fulfilment, and delivery tracking are not connected yet.",
+      "Browse products, review your cart, and create a real unpaid draft order at checkout. No payment is taken and nothing ships until live payment is connected — your draft is saved to your account.",
   },
   {
     question: "How do I sell?",
     answer:
-      "Use the seller application flow to test the onboarding foundation. Seller applications are beta/internal and do not mean approval or live selling access.",
+      "You can submit a seller application now. Submitting an application starts a review — it does not mean approval or immediate live selling access.",
   },
   {
-    question: "How does wishlist work?",
+    question: "How does the wishlist work?",
     answer:
-      "Wishlist is a browser-local MVP feature for now. Persistent account sync is planned for a future backend/auth phase.",
+      "Your wishlist is saved on the device you are using for now. Syncing it to your account across devices is planned.",
   },
   {
     question: "What is Signal Community?",
     answer:
-      "Signal Community Beta is a futurewear style layer for demo posts, tagged products, and reports. Public posting should not go live until moderation and safety systems are ready.",
+      "Signal Community Beta is an early preview of the SKXNZ style community — posts, tagged products, and reporting tools. Public posting opens once moderation and safety systems are ready.",
   },
   {
     question: "What is AI Assistant Beta?",
     answer:
-      "The SKXNZ AI Assistant Beta uses current SKXNZ catalog data to answer shopping and styling questions. It should not claim guaranteed fit, live try-on, or products that are not in the catalog.",
+      "The SKXNZ AI Assistant Beta answers shopping and styling questions using the current SKXNZ catalogue only. It does not promise guaranteed fit, offer live try-on, or suggest products that are not in the catalogue.",
   },
   {
     question: "Are AI try-on or video tools live?",
     answer:
-      "No. AI try-on and AI product video generation are future systems. Current AI-related pages are MVP/demo foundations unless explicitly connected later.",
+      "No. AI try-on and AI product video generation are planned future features and are not available yet.",
   },
   {
-    question: "Are returns and shipping final?",
+    question: "Are returns and shipping policies final?",
     answer:
-      "No. Return windows, shipping charges, delivery timelines, courier partners, and refund rules are draft topics for review before public launch.",
+      "Not yet. Return windows, shipping charges, delivery timelines, courier partners, and refund rules are finalized before public launch. Until then, every return request is reviewed individually.",
   },
 ];
 
@@ -54,15 +54,15 @@ export default function FaqPage() {
   return (
     <LegalPageShell
       eyebrow="FAQ"
-      title="Private beta questions."
-      description="A readable FAQ for SKXNZ MVP users, sellers, testers, and operators before the public launch stack is finalized."
-      notice="FAQ answers are draft operational guidance and should be reviewed before public launch."
+      title="Questions, answered honestly."
+      description="What SKXNZ can do today and what is still being connected ahead of public launch."
+      notice="These answers describe the current private preview and are updated as features go live."
     >
       <FaqAccordion items={faqItems} />
       <PolicyNotice>
-        If a page appears to support checkout, seller dashboards, community posting, or
-        AI tools, treat it as MVP/demo unless the relevant backend and operations are
-        explicitly connected later.
+        During the private preview, no page takes live payment and nothing is
+        shipped. If something looks like a payment or delivery step, it is a
+        preparation step only until SKXNZ announces those systems are live.
       </PolicyNotice>
     </LegalPageShell>
   );

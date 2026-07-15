@@ -41,7 +41,7 @@ export default async function AccountPage() {
 
   const roleNotes: Record<string, string> = {
     BUYER:
-      "Buyer account. You can browse the live catalog and product pages. Orders, cart sync, and payments are not connected yet.",
+      "Buyer account. You can browse the catalogue, review your cart, create unpaid draft orders, and open support or return requests. Live payment is not connected yet.",
     SELLER:
       "Seller account. You can open the seller workspace, list your products, and submit new products for review.",
     ADMIN:
@@ -49,33 +49,27 @@ export default async function AccountPage() {
     RIDER: "Rider account. Rider tools are not built yet.",
   };
 
+  // Raw backend errors are logged server-side only; buyers see friendly copy.
   let roleStatus: string;
   if (role) {
     roleStatus = roleNotes[role];
-  } else if (roleLookup.error) {
-    roleStatus = `Role query failed: ${roleLookup.error}`;
-  } else if (roleLookup.rowFound && roleLookup.rawRole) {
-    roleStatus = `Account row found but role value "${roleLookup.rawRole}" is not a known role.`;
   } else {
+    if (roleLookup.error) {
+      console.warn("[account] role lookup failed:", roleLookup.error);
+    }
     roleStatus =
-      "No visible public.users row for this signed-in user. Either the row does not exist in the project this app is connected to, or the \"users: owner can select\" RLS policy is missing in the live database.";
+      "We could not load your account details right now. Your sign-in is fine — refresh this page, and contact support if this keeps happening.";
   }
 
-  const rowStatus = roleLookup.error
-    ? `QUERY ERROR: ${roleLookup.error}`
-    : profileError
-      ? `QUERY ERROR: ${profileError.message}`
-      : roleLookup.rowFound || profile
-        ? "Row found"
-        : "No visible row";
+  if (profileError) {
+    console.warn("[account] profile lookup failed:", profileError.message);
+  }
 
-  const diagnostics: Array<[string, string]> = [
-    ["Auth user ID", user.id],
+  const accountDetails: Array<[string, string]> = [
     ["Email", email],
-    ["Supabase project host", supabaseHost],
-    ["public.users row", rowStatus],
-    ["public.users.id", profile?.id ?? "—"],
-    ["Role", role ?? roleLookup.rawRole ?? "NOT FOUND"],
+    ["Account ID", user.id],
+    ["Account type", role ? role.charAt(0) + role.slice(1).toLowerCase() : "Being verified"],
+    ["Connected region", supabaseHost.endsWith(".supabase.co") ? "SKXNZ secure cloud" : supabaseHost],
   ];
 
   return (
@@ -115,6 +109,12 @@ export default async function AccountPage() {
               </Link>
             )}
             <Link
+              href="/orders"
+              className={buttonVariants({ variant: "secondary", size: "lg" })}
+            >
+              My Orders
+            </Link>
+            <Link
               href="/shop"
               className={buttonVariants({ variant: "secondary", size: "lg" })}
             >
@@ -145,14 +145,14 @@ export default async function AccountPage() {
 
         <Card className="section-border rounded-[36px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-6 sm:p-8">
           <p className="section-kicker text-[0.68rem] uppercase tracking-[0.24em] text-sangria">
-            Account diagnostics
+            Account details
           </p>
           <p className="mt-2 text-sm leading-6 text-stone">
-            Shown to help verify auth and role wiring during the build. No
-            tokens or secrets are displayed.
+            The identity SKXNZ has for this session. No passwords, tokens, or
+            payment details are ever shown here.
           </p>
           <dl className="mt-4 grid gap-3 sm:grid-cols-2">
-            {diagnostics.map(([label, value]) => (
+            {accountDetails.map(([label, value]) => (
               <div
                 key={label}
                 className="rounded-[20px] border border-[rgba(58,8,24,0.10)] bg-[var(--skxnz-bg-soft)] p-4"
@@ -173,9 +173,9 @@ export default async function AccountPage() {
             Coming next
           </p>
           <p className="mt-3 text-sm leading-7 text-stone">
-            Profile editing, addresses, order history, and cart sync are not
-            connected to your account yet. They will be added as the backend
-            build continues.
+            Live payment, delivery tracking, and refunds are not connected yet.
+            Your orders, saved addresses, returns, and support tickets are
+            already available from this account.
           </p>
         </Card>
       </div>

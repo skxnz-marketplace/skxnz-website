@@ -98,6 +98,7 @@ export default async function AccountReturnsPage() {
                 </p>
                 <Link
                   href={`/orders/${entry.orderId}`}
+                  aria-label={`View order ${entry.orderId.slice(0, 8).toUpperCase()}`}
                   className={`${buttonVariants({ variant: "secondary", size: "sm" })} mt-3`}
                 >
                   View Order
