@@ -21,6 +21,13 @@ seconds, also with no output. This does not prove authentication or linking;
 it only proves that the available npx path cannot currently provide a usable
 CLI result in this environment.
 
+A further resumed-project retry ran the exact `npx supabase --version`
+command. It timed out after 64 seconds with no output, prompt, or credential
+request. Because even the version command cannot complete, `status`, `projects
+list`, `db dump --help`, and `link --help` were not invoked again: they cannot
+establish a safe authenticated/linked state and could only repeat the blocked
+runtime behaviour.
+
 ## Why the recovery stopped
 
 Without a usable installed or npx-resolved Supabase CLI, this worktree cannot

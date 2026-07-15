@@ -5,8 +5,9 @@
 D7-A began from `launch-war-july30` at `6f85fa4` in the isolated
 `codex/d7a-supabase-recovery` worktree. The Supabase CLI was unavailable on
 PATH and no local `supabase/config.toml` link metadata was present. The
-follow-up npx CLI retry timed out without output or authentication prompts.
-The task therefore stopped before authentication or database access.
+follow-up npx CLI retry and final exact npx version command both timed out
+without output or authentication prompts. The task therefore stopped before
+authentication or database access.
 
 No schema-only export was possible; no recovery candidate was created; and
 canonical `supabase/migrations/0002_catalog_layer.sql` was not recovered.
