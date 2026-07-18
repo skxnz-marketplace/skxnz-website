@@ -3,7 +3,6 @@ import Link from "next/link";
 import { ShopByBrandSection } from "@/components/brands/shop-by-brand-section";
 import { TopBrandsToolbar } from "@/components/brands/top-brands-toolbar";
 import { ShopCatalog } from "@/components/buyer/shop-catalog";
-import { MetricCard } from "@/components/sections/metric-card";
 import { PageIntro } from "@/components/sections/page-intro";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
@@ -16,19 +15,10 @@ import { normalizeSearchQuery } from "@/src/lib/site-search";
 
 export const revalidate = 300;
 
-const previewMetrics = [
-  {
-    name: "Catalogue Mode",
-    value: "Live",
-    trend: "Public",
-    description: "Live approved products when available. Checkout is not live yet.",
-  },
-  {
-    name: "Checkout",
-    value: "Offline",
-    trend: "Preview",
-    description: "Product discovery is available while payment and fulfillment stay offline.",
-  },
+const shopNotes = [
+  "Every product shown here is an approved SKXNZ catalogue piece.",
+  "Product pages are open for browsing. Checkout and payment are not live yet.",
+  "Prices and availability are refreshed as sellers update their catalogues.",
 ];
 
 type ShopPageProps = {
@@ -69,7 +59,6 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
   const isSearchMode = normalizedQuery.length > 0;
   const topBrands = getTopBrands({ limit: 6 });
   const liveCatalog = await getLiveShopCatalog();
-  const hasLiveCatalog = liveCatalog.products.length > 0;
   const activeBrandSlug = normalizeSearchQuery(brand ?? "");
   const isBrandMode = activeBrandSlug.length > 0;
   const activeBrand = isBrandMode
@@ -84,14 +73,14 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
       : `Search results for "${displayQuery}".`
     : isBrandMode
       ? `${activeBrandLabel} products.`
-      : "Preview the SKXNZ catalogue before live commerce begins.";
+      : "The SKXNZ catalogue, open for browsing before live commerce begins.";
   const pageDescription = isSearchMode
     ? isBrandMode
-      ? `Search is scoped to the ${activeBrandLabel} brand filter when matching products are available. Checkout and fulfillment systems remain offline.`
-      : "Search runs across current public catalogue data when available, with local preview fallback. Checkout and fulfillment systems remain offline."
+      ? `Showing matches for "${displayQuery}" within ${activeBrandLabel}. Checkout is not live yet.`
+      : `Showing matches for "${displayQuery}" across the current catalogue. Checkout is not live yet.`
     : isBrandMode
-      ? `Showing the ${activeBrandLabel} brand filter from current public catalogue data when available, with local preview fallback if needed.`
-      : "Approved public catalogue products are visible here for discovery while checkout and fulfillment systems remain offline.";
+      ? `Browsing ${activeBrandLabel} pieces from the current SKXNZ catalogue. Checkout is not live yet.`
+      : "Browse approved pieces from curated labels. Checkout opens at public launch.";
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
@@ -112,9 +101,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
         footer={
           <div className="flex flex-wrap gap-3">
             <Badge>Approved products only</Badge>
-            <Badge>{hasLiveCatalog ? "Live catalogue" : "Preview fallback"}</Badge>
-            <Badge>Preview catalogue — checkout is not live yet.</Badge>
-            {isSearchMode ? <Badge>Query: {normalizedQuery}</Badge> : null}
+            <Badge>Checkout not live yet</Badge>
             {isBrandMode ? <Badge>Brand: {activeBrandLabel}</Badge> : null}
           </div>
         }
@@ -142,27 +129,19 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
         <div className="grid gap-6">
           <Card className="section-border rounded-[32px] bg-white/88 p-6">
             <p className="text-[0.68rem] uppercase tracking-[0.24em] text-teal">
-              Preview Notes
+              Good to know
             </p>
             <div className="mt-5 space-y-4 text-sm leading-6 text-silver">
-              <div className="rounded-[22px] border border-sandstone bg-white/80 p-4">
-                Product imagery, pricing, and inventory are presented as curated
-                catalogue data for launch mode.
-              </div>
-              <div className="rounded-[22px] border border-sandstone bg-white/80 p-4">
-                Product buttons open preview pages only. Payment and checkout are not
-                active.
-              </div>
-              <div className="rounded-[22px] border border-sandstone bg-white/80 p-4">
-                Catalogue filters use live products when available and fall back to
-                local preview data if the database query returns empty.
-              </div>
+              {shopNotes.map((note) => (
+                <div
+                  key={note}
+                  className="rounded-[22px] border border-sandstone bg-white/80 p-4"
+                >
+                  {note}
+                </div>
+              ))}
             </div>
           </Card>
-
-          {previewMetrics.map((metric) => (
-            <MetricCard key={metric.name} {...metric} />
-          ))}
         </div>
       </div>
     </div>

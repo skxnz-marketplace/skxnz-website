@@ -8,8 +8,8 @@ export default function AIStylistPage() {
   return (
     <DemoRoleGate
       allowedRoles={["buyer", "seller", "admin"]}
-      areaLabel="AI stylist placeholder"
-      helperText="AI placeholder tools stay behind demo access while public launch mode focuses on brand, catalogue preview, and seller applications."
+      areaLabel="AI Assistant Beta"
+      helperText="The AI Assistant Beta is in early access. Sign in to explore catalogue-aware styling help while SKXNZ prepares for public launch."
     >
       <div className="min-h-screen bg-[linear-gradient(135deg,var(--skxnz-obsidian),var(--skxnz-maroon-deep)_52%,var(--skxnz-maroon))] text-[var(--skxnz-text-light)] motion-safe:animate-[skxnz-ai-page-in_420ms_ease-out]">
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">

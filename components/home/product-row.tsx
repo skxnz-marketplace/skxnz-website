@@ -74,7 +74,7 @@ function ProductCard({ product, index }: { product: HomeProduct; index: number }
         )}
         tabIndex={-1}
       >
-        <span className="absolute inset-x-0 bottom-3 px-3 text-[0.58rem] font-medium uppercase tracking-[0.18em] text-white/20">
+        <span className="absolute inset-x-0 bottom-3 truncate px-3 text-[0.58rem] font-medium uppercase tracking-[0.18em] text-white/40">
           {product.brand} · {product.name}
         </span>
       </Link>
@@ -92,10 +92,12 @@ function ProductCard({ product, index }: { product: HomeProduct; index: number }
         <HeartIcon filled={wishlisted} />
       </button>
 
-      {/* Preview hover */}
+      {/* Preview pill — visible on hover and keyboard focus */}
       <Link
         href={product.href}
-        className="absolute bottom-[72px] left-1/2 hidden -translate-x-1/2 items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 text-[0.62rem] font-bold uppercase tracking-[0.08em] text-[#161616] shadow-sm group-hover:flex"
+        tabIndex={-1}
+        aria-hidden="true"
+        className="absolute bottom-[72px] left-1/2 hidden -translate-x-1/2 items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 text-[0.62rem] font-bold uppercase tracking-[0.08em] text-[#161616] shadow-sm group-focus-within:flex group-hover:flex"
       >
         <EyeIcon />
         Preview
@@ -106,9 +108,13 @@ function ProductCard({ product, index }: { product: HomeProduct; index: number }
         <p className="truncate text-[0.58rem] font-bold uppercase tracking-[0.14em] text-[#2E1014]">
           {product.brand}
         </p>
-        <p className="line-clamp-2 text-[0.76rem] font-semibold leading-snug text-[#161616]">
+        <Link
+          href={product.href}
+          className="line-clamp-2 rounded text-[0.76rem] font-semibold leading-snug text-[#161616] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2E1014]"
+          aria-label={`View ${product.brand} ${product.name}`}
+        >
           {product.name}
-        </p>
+        </Link>
         <div className="mt-1 flex items-baseline gap-2">
           <span className="text-[0.82rem] font-bold text-[#161616]">
             {formatPrice(product.price)}

@@ -1989,3 +1989,40 @@ test("community page stays future-truthful with no live-room claims", () => {
   assert.match(source, /when the room opens|after the room opens/i);
   assert.equal(/members online|active members|\d+ members/i.test(source), false);
 });
+
+// ---------------------------------------------------------------------------
+// D9-B — buyer first-impression stabilization (source checks only)
+// ---------------------------------------------------------------------------
+
+test("D9-B: homepage fallback products carry no fabricated strike-through discounts", () => {
+  const source = fs.readFileSync(path.join(process.cwd(), "lib/home-data.ts"), "utf8");
+  // The optional type field may exist, but no fallback product may set oldPrice.
+  assert.equal(/oldPrice:\s*\d/.test(source), false, "fallback data sets oldPrice");
+});
+
+test("D9-B: hero copy makes no daily-drop or guarantee claims", () => {
+  const source = fs.readFileSync(path.join(process.cwd(), "lib/home-data.ts"), "utf8");
+  assert.equal(/DAILY/i.test(source), false, "hero claims daily drops");
+  assert.equal(/guaranteed/i.test(source), false, "hero claims a guarantee");
+  assert.equal(source.includes("Try AI Stylist"), false, "hero implies AI stylist is live");
+});
+
+test("D9-B: shop page shows buyer copy, not internal/dev language", () => {
+  const source = fs.readFileSync(path.join(process.cwd(), "app/shop/page.tsx"), "utf8");
+  for (const term of ["database query", "local preview fallback", "MetricCard", "fulfillment systems remain offline"]) {
+    assert.equal(source.includes(term), false, `shop page leaks "${term}"`);
+  }
+  assert.equal(source.includes("Checkout"), true, "shop page must still state checkout is not live");
+});
+
+test("D9-B: home product card is keyboard reachable via a labelled product link", () => {
+  const source = fs.readFileSync(path.join(process.cwd(), "components/home/product-row.tsx"), "utf8");
+  assert.equal(source.includes("aria-label={`View ${product.brand} ${product.name}`}"), true);
+  assert.equal(source.includes("group-focus-within:flex"), true);
+});
+
+test("D9-B: AI stylist gate copy stays truthful and buyer-facing", () => {
+  const source = fs.readFileSync(path.join(process.cwd(), "app/ai/stylist/page.tsx"), "utf8");
+  assert.equal(source.includes("placeholder tools stay behind demo access"), false);
+  assert.match(source, /No visual try-on or product invention is live/);
+});
