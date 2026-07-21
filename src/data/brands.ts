@@ -72,11 +72,11 @@ export const structuredBrands: StructuredBrand[] = [
   {
     "id": "brand-002",
     "sourceBrandId": "BR-002",
-    "name": "Demo Atelier",
+    "name": "Atelier Nova",
     "slug": "demo-atelier",
-    "tagline": "Demo luxury direction for marketplace testing.",
-    "shortDescription": "Demo premium fashion label used for marketplace testing and layout previews.",
-    "description": "Demo premium fashion label used for marketplace testing and layout previews.",
+    "tagline": "Sculpted luxury direction for the SKXNZ edit.",
+    "shortDescription": "Premium womenswear label curated for the SKXNZ preview catalogue.",
+    "description": "Premium womenswear label curated for the SKXNZ preview catalogue.",
     "brandCategory": "Luxury Fashion",
     "categories": [
       "Woman"
@@ -88,11 +88,12 @@ export const structuredBrands: StructuredBrand[] = [
     "topBrand": false,
     "searchKeywords": [
       "demo atelier",
+      "atelier nova",
       "luxury fashion",
       "premium clothing"
     ],
-    "status": "Demo",
-    "availabilityNote": "Demo marketplace brand imported from planning data.",
+    "status": "Curated Preview",
+    "availabilityNote": "Curated label preview ahead of live commerce.",
     "productIds": [
       "sku-013"
     ],
@@ -103,9 +104,9 @@ export const structuredBrands: StructuredBrand[] = [
     "sourceBrandId": "BR-003",
     "name": "Signal Studio",
     "slug": "signal-studio",
-    "tagline": "Streetwear-coded signal edits for preview testing.",
-    "shortDescription": "Demo futurewear studio used for testing brand pages and product discovery.",
-    "description": "Demo futurewear studio used for testing brand pages and product discovery.",
+    "tagline": "Streetwear-coded signal edits.",
+    "shortDescription": "Futurewear studio bringing streetwear-coded pieces to the SKXNZ catalogue.",
+    "description": "Futurewear studio bringing streetwear-coded pieces to the SKXNZ catalogue.",
     "brandCategory": "Streetwear",
     "categories": [
       "Men"
@@ -120,8 +121,8 @@ export const structuredBrands: StructuredBrand[] = [
       "streetwear",
       "futurewear"
     ],
-    "status": "Demo",
-    "availabilityNote": "Demo marketplace brand imported from planning data.",
+    "status": "Curated Preview",
+    "availabilityNote": "Curated label preview ahead of live commerce.",
     "productIds": [
       "sku-011"
     ],
@@ -132,9 +133,9 @@ export const structuredBrands: StructuredBrand[] = [
     "sourceBrandId": "BR-004",
     "name": "Chrome District",
     "slug": "chrome-district",
-    "tagline": "Accessories and lifestyle concepts for demo discovery.",
-    "shortDescription": "Demo accessory and lifestyle label for SKXNZ marketplace testing.",
-    "description": "Demo accessory and lifestyle label for SKXNZ marketplace testing.",
+    "tagline": "Accessories and lifestyle concepts, chrome-coded.",
+    "shortDescription": "Accessory and lifestyle label curated for the SKXNZ preview catalogue.",
+    "description": "Accessory and lifestyle label curated for the SKXNZ preview catalogue.",
     "brandCategory": "Accessories",
     "categories": [
       "Accessories"
@@ -150,8 +151,8 @@ export const structuredBrands: StructuredBrand[] = [
       "eyewear",
       "bags"
     ],
-    "status": "Demo",
-    "availabilityNote": "Demo marketplace brand imported from planning data.",
+    "status": "Curated Preview",
+    "availabilityNote": "Curated label preview ahead of live commerce.",
     "productIds": [
       "sku-012",
       "sku-014"

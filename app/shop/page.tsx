@@ -13,6 +13,10 @@ import { getTopBrands } from "@/lib/data/brands";
 import type { Product } from "@/lib/data/products";
 import { normalizeSearchQuery } from "@/src/lib/site-search";
 
+export const metadata = {
+  title: "Shop the Catalogue",
+};
+
 export const revalidate = 300;
 
 const shopNotes = [

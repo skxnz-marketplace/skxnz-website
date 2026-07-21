@@ -22,7 +22,7 @@ import {
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Your Orders — SKXNZ",
+  title: "Your Orders",
   description: "Order history for your SKXNZ account.",
 };
 

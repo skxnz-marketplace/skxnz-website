@@ -3,8 +3,10 @@
 import Link from "next/link";
 import { useRef, useState } from "react";
 
+import { SafeImage } from "@/components/shared/safe-image";
 import { cn } from "@/lib/cn";
 import { type HomeProduct, formatPrice } from "@/lib/home-data";
+import { skxnzFallbackAssets } from "@/src/lib/assets";
 
 function HeartIcon({ filled }: { filled: boolean }) {
   return (
@@ -65,7 +67,7 @@ function ProductCard({ product, index }: { product: HomeProduct; index: number }
 
   return (
     <article className="group relative flex flex-col rounded-2xl bg-white shadow-sm ring-1 ring-black/6 transition hover:-translate-y-0.5 hover:shadow-md">
-      {/* Placeholder image */}
+      {/* Product image (branded gradient behind while loading / when absent) */}
       <Link
         href={product.href}
         className={cn(
@@ -74,9 +76,20 @@ function ProductCard({ product, index }: { product: HomeProduct; index: number }
         )}
         tabIndex={-1}
       >
-        <span className="absolute inset-x-0 bottom-3 truncate px-3 text-[0.58rem] font-medium uppercase tracking-[0.18em] text-white/40">
-          {product.brand} · {product.name}
-        </span>
+        {product.image ? (
+          <SafeImage
+            src={product.image}
+            fallbackSrc={skxnzFallbackAssets.product}
+            alt={`${product.brand} ${product.name}`}
+            fill
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 16vw"
+            className="object-cover object-center transition duration-300 group-hover:scale-[1.03]"
+          />
+        ) : (
+          <span className="absolute inset-x-0 bottom-3 truncate px-3 text-[0.64rem] font-medium uppercase tracking-[0.18em] text-white/40">
+            {product.brand} · {product.name}
+          </span>
+        )}
       </Link>
 
       {/* Wishlist */}
@@ -105,7 +118,7 @@ function ProductCard({ product, index }: { product: HomeProduct; index: number }
 
       {/* Info */}
       <div className="flex flex-col gap-0.5 p-3">
-        <p className="truncate text-[0.58rem] font-bold uppercase tracking-[0.14em] text-[#2E1014]">
+        <p className="truncate text-[0.64rem] font-bold uppercase tracking-[0.14em] text-[#2E1014]">
           {product.brand}
         </p>
         <Link

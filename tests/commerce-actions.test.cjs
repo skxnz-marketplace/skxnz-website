@@ -2026,3 +2026,69 @@ test("D9-B: AI stylist gate copy stays truthful and buyer-facing", () => {
   assert.equal(source.includes("placeholder tools stay behind demo access"), false);
   assert.match(source, /No visual try-on or product invention is live/);
 });
+
+// ---------------------------------------------------------------------------
+// D10-C — buyer first-impression recovery (source checks only)
+// ---------------------------------------------------------------------------
+
+test("D10-C: homepage no longer ships fabricated fallback products", () => {
+  const homeData = fs.readFileSync(path.join(process.cwd(), "lib/home-data.ts"), "utf8");
+  for (const fake of ["VANTA", "AXIS", "MERIDIAN", "HALO", "trendingProducts", "luxuryFinds", "newInProducts"]) {
+    assert.equal(homeData.includes(fake), false, `home-data still carries "${fake}"`);
+  }
+  const page = fs.readFileSync(path.join(process.cwd(), "app/page.tsx"), "utf8");
+  assert.equal(page.includes("getProductHref"), true, "homepage fallback must build real PDP links");
+  assert.equal(page.includes("isApprovedProduct"), true, "homepage fallback must use approved catalogue products");
+});
+
+test("D10-C: featured labels rail shows no inflated +N badge", () => {
+  const source = fs.readFileSync(path.join(process.cwd(), "components/home/featured-labels.tsx"), "utf8");
+  assert.equal(source.includes("+18"), false, "featured labels still show a fake +18 badge");
+});
+
+test("D10-C: buyer AI stylist gate exposes no internal roles or demo wording", () => {
+  const page = fs.readFileSync(path.join(process.cwd(), "app/ai/stylist/page.tsx"), "utf8");
+  assert.equal(page.includes("DemoRoleGate"), false, "buyer stylist page still uses the internal role gate");
+  const gate = fs.readFileSync(path.join(process.cwd(), "components/ai/stylist-access-gate.tsx"), "utf8");
+  for (const term of ["Continue as Admin", "Continue as Seller", "demo mode", "Demo Access", "Checking saved demo role"]) {
+    assert.equal(gate.includes(term), false, `stylist gate leaks "${term}"`);
+  }
+  assert.match(gate, /early access/i);
+});
+
+test("D10-C: buyer-visible brand and product data carries no demo wording", () => {
+  const brands = fs.readFileSync(path.join(process.cwd(), "src/data/brands.ts"), "utf8");
+  for (const term of ["Demo Atelier", "marketplace testing", "Demo marketplace brand"]) {
+    assert.equal(brands.includes(term), false, `brand data leaks "${term}"`);
+  }
+  const products = fs.readFileSync(path.join(process.cwd(), "src/data/products.ts"), "utf8");
+  for (const term of ["Demo Atelier Long Coat", "premium demo", "for accessory testing", "marketplace layouts"]) {
+    assert.equal(products.includes(term), false, `product data leaks "${term}"`);
+  }
+  const shopByBrand = fs.readFileSync(path.join(process.cwd(), "components/brands/shop-by-brand-section.tsx"), "utf8");
+  assert.equal(shopByBrand.includes("demo brand stack"), false);
+  assert.equal(/\bdemo\b/i.test(shopByBrand.replace(/\/\/[^\n]*/g, "")), false, "shop-by-brand still renders demo wording");
+});
+
+test("D10-C: buyer page titles avoid duplicated SKXNZ suffixes", () => {
+  const files = [
+    "app/checkout/page.tsx",
+    "app/checkout/success/page.tsx",
+    "app/orders/page.tsx",
+    "app/orders/[id]/page.tsx",
+    "app/returns/page.tsx",
+    "app/support/page.tsx",
+    "app/shop/page.tsx",
+    "app/cart/page.tsx",
+    "app/faq/page.tsx",
+    "app/brands/page.tsx",
+  ];
+  for (const file of files) {
+    const source = fs.readFileSync(path.join(process.cwd(), file), "utf8");
+    const titles = source.match(/title:\s*"([^"]+)"/g) ?? [];
+    for (const entry of titles) {
+      assert.equal(/SKXNZ/.test(entry), false, `${file} title re-appends SKXNZ over the layout template`);
+    }
+    assert.equal(titles.length > 0, true, `${file} is missing a metadata title`);
+  }
+});

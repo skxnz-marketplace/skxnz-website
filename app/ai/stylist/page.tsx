@@ -1,16 +1,16 @@
 import Link from "next/link";
 
 import { AiPhaseOneStudio } from "@/components/ai/ai-phase-one-studio";
-import { DemoRoleGate } from "@/components/auth/demo-role-gate";
+import { StylistAccessGate } from "@/components/ai/stylist-access-gate";
 import { buttonVariants } from "@/components/ui/button";
+
+export const metadata = {
+  title: "AI Stylist",
+};
 
 export default function AIStylistPage() {
   return (
-    <DemoRoleGate
-      allowedRoles={["buyer", "seller", "admin"]}
-      areaLabel="AI Assistant Beta"
-      helperText="The AI Assistant Beta is in early access. Sign in to explore catalogue-aware styling help while SKXNZ prepares for public launch."
-    >
+    <StylistAccessGate>
       <div className="min-h-screen bg-[linear-gradient(135deg,var(--skxnz-obsidian),var(--skxnz-maroon-deep)_52%,var(--skxnz-maroon))] text-[var(--skxnz-text-light)] motion-safe:animate-[skxnz-ai-page-in_420ms_ease-out]">
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
           <section className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_24rem] lg:items-end">
@@ -77,6 +77,6 @@ export default function AIStylistPage() {
           </div>
         </div>
       </div>
-    </DemoRoleGate>
+    </StylistAccessGate>
   );
 }

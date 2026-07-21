@@ -18,8 +18,6 @@ const BADGE_COLORS = [
   "bg-[#161614] text-[#aabb99]",
 ];
 
-const PLUS_BADGE = "bg-[#0E0E10] text-[#F4F1EC]/60";
-
 type FeaturedLabelsProps = {
   /** Live active brands from Supabase; falls back to static labels when empty. */
   brands?: BrandLabel[];
@@ -27,7 +25,8 @@ type FeaturedLabelsProps = {
 
 export function FeaturedLabels({ brands }: FeaturedLabelsProps) {
   const source = brands && brands.length > 0 ? brands : brandLabels;
-  const allBadges = [...source, { name: "+18", monogram: "+18" }];
+  // No inflated "+N more" badge — only labels that exist in the catalogue.
+  const allBadges = [...source];
   // Duplicate for seamless marquee loop
   const doubled = [...allBadges, ...allBadges];
 
@@ -58,8 +57,7 @@ export function FeaturedLabels({ brands }: FeaturedLabelsProps) {
             style={{ animation: "skxnz-marquee 32s linear infinite" }}
           >
             {doubled.map((badge, i) => {
-              const isPlus = badge.monogram === "+18";
-              const colorClass = isPlus ? PLUS_BADGE : (BADGE_COLORS[i % BADGE_COLORS.length] ?? BADGE_COLORS[0]);
+              const colorClass = BADGE_COLORS[i % BADGE_COLORS.length] ?? BADGE_COLORS[0];
               return (
                 <Link
                   key={`${badge.name}-${i}`}
@@ -70,11 +68,9 @@ export function FeaturedLabels({ brands }: FeaturedLabelsProps) {
                   <span className="text-[0.68rem] font-bold leading-none tracking-tight">
                     {badge.monogram}
                   </span>
-                  {!isPlus && (
-                    <span className="mt-0.5 text-[0.42rem] font-medium uppercase tracking-[0.1em] opacity-60">
-                      {badge.name}
-                    </span>
-                  )}
+                  <span className="mt-0.5 max-w-[3.6rem] truncate text-[0.5rem] font-medium uppercase tracking-[0.08em] opacity-60">
+                    {badge.name}
+                  </span>
                 </Link>
               );
             })}

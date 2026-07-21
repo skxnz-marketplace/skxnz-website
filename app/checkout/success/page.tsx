@@ -10,7 +10,7 @@ import { Card } from "@/components/ui/card";
 // confirmation page only after server-verified payment exists.
 
 export const metadata: Metadata = {
-  title: "Checkout Status | SKXNZ",
+  title: "Checkout Status",
   description:
     "SKXNZ checkout status. Payment is unavailable and this route is not an order confirmation.",
 };

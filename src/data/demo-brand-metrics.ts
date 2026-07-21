@@ -31,7 +31,7 @@ export const demoBrandMetrics: BrandOrderMetric[] = [
   {
     brandId: "brand-demo-atelier",
     brandSlug: "demo-atelier",
-    brandName: "Demo Atelier",
+    brandName: "Atelier Nova",
     totalOrders: 6,
     totalRevenue: 28799,
     recentOrders: 2,

@@ -15,7 +15,7 @@ import { Card } from "@/components/ui/card";
 // client state was removed here.
 
 export const metadata = {
-  title: "Support — SKXNZ",
+  title: "Support",
   description: "How to get help with SKXNZ orders, returns, and your account.",
 };
 

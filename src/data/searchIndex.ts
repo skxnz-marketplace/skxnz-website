@@ -291,7 +291,7 @@ export const structuredSearchIndex: StructuredSearchEntry[] = [
   {
     "id": "product-sku-013",
     "type": "product",
-    "label": "Demo Atelier Long Coat",
+    "label": "Atelier Nova Long Coat",
     "href": "/shop?q=Demo%20Atelier%20Long%20Coat",
     "keywords": [
       "woman coat",
@@ -302,11 +302,11 @@ export const structuredSearchIndex: StructuredSearchEntry[] = [
       "atelier",
       "Woman",
       "Coats",
-      "Demo Atelier",
+      "Atelier Nova",
       "New Season"
     ],
     "image": "/assets/demo/products/product-01.webp",
-    "description": "Demo Atelier • Woman",
+    "description": "Atelier Nova • Woman",
     "status": "Demo",
     "dataSource": "sheet"
   },
@@ -382,14 +382,14 @@ export const structuredSearchIndex: StructuredSearchEntry[] = [
   {
     "id": "brand-demo-atelier",
     "type": "brand",
-    "label": "Demo Atelier",
+    "label": "Atelier Nova",
     "href": "/brands/demo-atelier",
     "keywords": [
       "demo atelier",
       "luxury fashion",
       "premium clothing",
       "Woman",
-      "Demo Atelier",
+      "Atelier Nova",
       "demo-atelier"
     ],
     "image": "/assets/demo/brands/pulse-atelier/logo.webp",

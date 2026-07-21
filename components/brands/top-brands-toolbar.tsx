@@ -30,8 +30,7 @@ export function TopBrandsToolbar({
               Top Brands
             </p>
             <p className="mt-2 max-w-[18rem] text-sm leading-6 text-silver sm:max-w-none sm:leading-7">
-              Ranked from catalogue momentum and internal brand analysis. Buyer
-              preview labels stay generic until live commerce data exists.
+              Ranked from catalogue momentum across the curated label roster.
             </p>
           </div>
           <Badge>{rankedBrands.length} curated brands</Badge>

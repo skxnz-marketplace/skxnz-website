@@ -22,7 +22,7 @@ import { getOrderReturnSummary } from "@/lib/returns/read-return-requests";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Order Detail — SKXNZ",
+  title: "Order Detail",
   description: "Detail for one SKXNZ order in your account.",
 };
 
