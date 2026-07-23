@@ -119,7 +119,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
         />
       </div>
 
-      <div className="mt-10 grid gap-6 lg:grid-cols-[1fr_0.38fr]">
+      <div className="mt-8 grid items-start gap-6 lg:mt-10 lg:grid-cols-[minmax(0,1fr)_minmax(17rem,0.34fr)]">
         <div className="grid gap-6">
           <ShopByBrandSection />
           <ShopCatalog
@@ -130,23 +130,23 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
           />
         </div>
 
-        <div className="grid gap-6">
-          <Card className="section-border rounded-[32px] bg-white/88 p-6">
-            <p className="text-[0.68rem] uppercase tracking-[0.24em] text-teal">
+        <aside className="grid gap-6 lg:sticky lg:top-24">
+          <Card className="section-border rounded-[28px] bg-white/92 p-5 sm:p-6">
+            <p className="text-[0.7rem] font-bold uppercase tracking-[0.2em] text-teal">
               Good to know
             </p>
             <div className="mt-5 space-y-4 text-sm leading-6 text-silver">
               {shopNotes.map((note) => (
                 <div
                   key={note}
-                  className="rounded-[22px] border border-sandstone bg-white/80 p-4"
+                  className="rounded-[18px] border border-sandstone bg-white/80 p-4"
                 >
                   {note}
                 </div>
               ))}
             </div>
           </Card>
-        </div>
+        </aside>
       </div>
     </div>
   );

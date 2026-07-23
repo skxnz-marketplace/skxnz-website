@@ -22,17 +22,22 @@ type ShopBrowserProps = {
   initialQuery?: string;
 };
 
-type PriceBand = "All" | "Under $150" | "$150-$250" | "$250-$350" | "$350+";
+type PriceBand =
+  | "All"
+  | "Under ₹2,000"
+  | "₹2,000–₹4,000"
+  | "₹4,000–₹8,000"
+  | "₹8,000+";
 
 const fieldClassName =
-  "field-shell w-full min-w-0 max-w-full rounded-[18px] px-4 py-3 text-sm";
+  "field-shell min-h-11 w-full min-w-0 max-w-full rounded-[16px] px-3.5 py-2.5 text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/45";
 
 const priceBands: PriceBand[] = [
   "All",
-  "Under $150",
-  "$150-$250",
-  "$250-$350",
-  "$350+",
+  "Under ₹2,000",
+  "₹2,000–₹4,000",
+  "₹4,000–₹8,000",
+  "₹8,000+",
 ];
 
 const unknownBrandValue = "__unknown_brand__";
@@ -42,19 +47,19 @@ const matchesPriceBand = (price: number, band: PriceBand) => {
     return true;
   }
 
-  if (band === "Under $150") {
-    return price < 150;
+  if (band === "Under ₹2,000") {
+    return price < 2000;
   }
 
-  if (band === "$150-$250") {
-    return price >= 150 && price <= 250;
+  if (band === "₹2,000–₹4,000") {
+    return price >= 2000 && price < 4000;
   }
 
-  if (band === "$250-$350") {
-    return price > 250 && price <= 350;
+  if (band === "₹4,000–₹8,000") {
+    return price >= 4000 && price < 8000;
   }
 
-  return price > 350;
+  return price >= 8000;
 };
 
 export function ShopBrowser({
@@ -109,21 +114,21 @@ export function ShopBrowser({
     };
 
   return (
-    <div className="space-y-5">
-      <Card className="section-border rounded-[24px] p-4 sm:p-5">
-        <div className="flex flex-col gap-4">
+    <div className="space-y-6">
+      <Card className="section-border rounded-[24px] bg-white/92 p-4 sm:p-5">
+        <div className="flex flex-col gap-5">
           <div>
-            <p className="text-[0.62rem] uppercase tracking-[0.14em] text-teal">
+            <p className="text-[0.7rem] font-bold uppercase tracking-[0.14em] text-teal">
               Filters
             </p>
-            <p className="mt-2 text-wrap-safe break-words text-sm leading-6 text-silver">
+            <p className="mt-1.5 text-wrap-safe break-words text-sm leading-6 text-silver">
               Filter the catalogue by category, brand, size, color, and price.
             </p>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-            <label className="space-y-2">
-              <span className="text-[0.62rem] uppercase tracking-[0.12em] text-silver">
+          <div className="grid gap-x-3 gap-y-4 sm:grid-cols-2 xl:grid-cols-5">
+            <label className="grid gap-2">
+              <span className="text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-silver">
                 Category
               </span>
               <select
@@ -138,8 +143,8 @@ export function ShopBrowser({
               </select>
             </label>
 
-            <label className="space-y-2">
-              <span className="text-[0.62rem] uppercase tracking-[0.12em] text-silver">
+            <label className="grid gap-2">
+              <span className="text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-silver">
                 Brand
               </span>
               <select
@@ -159,8 +164,8 @@ export function ShopBrowser({
               </select>
             </label>
 
-            <label className="space-y-2">
-              <span className="text-[0.62rem] uppercase tracking-[0.12em] text-silver">
+            <label className="grid gap-2">
+              <span className="text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-silver">
                 Size
               </span>
               <select
@@ -175,8 +180,8 @@ export function ShopBrowser({
               </select>
             </label>
 
-            <label className="space-y-2">
-              <span className="text-[0.62rem] uppercase tracking-[0.12em] text-silver">
+            <label className="grid gap-2">
+              <span className="text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-silver">
                 Color
               </span>
               <select
@@ -191,8 +196,8 @@ export function ShopBrowser({
               </select>
             </label>
 
-            <label className="space-y-2">
-              <span className="text-[0.62rem] uppercase tracking-[0.12em] text-silver">
+            <label className="grid gap-2">
+              <span className="text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-silver">
                 Price Range
               </span>
               <select
@@ -207,7 +212,7 @@ export function ShopBrowser({
             </label>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2 border-t border-sandstone/70 pt-4">
             <Badge>{filteredProducts.length} products</Badge>
             {normalizedQuery ? <Badge>Search: {normalizedQuery}</Badge> : null}
             <Badge>{category === "All" ? "All categories" : category}</Badge>

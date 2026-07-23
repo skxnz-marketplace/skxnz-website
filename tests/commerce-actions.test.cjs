@@ -2256,3 +2256,47 @@ test("catalog relation seller reads are authenticated-only before anon grants ar
   assert.match(verification, /non_active_parent_images/);
   assert.match(verification, /anon_users_select_granted/);
 });
+
+// ---------------------------------------------------------------------------
+// D10-D — buyer visual polish and currency consistency (source checks only)
+// ---------------------------------------------------------------------------
+
+test("D10-D: buyer shop price filters use contiguous INR bands with no USD labels", () => {
+  const source = fs.readFileSync(
+    path.join(process.cwd(), "components/buyer/shop-browser.tsx"),
+    "utf8",
+  );
+
+  for (const band of [
+    "Under ₹2,000",
+    "₹2,000–₹4,000",
+    "₹4,000–₹8,000",
+    "₹8,000+",
+  ]) {
+    assert.equal(source.includes(band), true, `shop filter is missing "${band}"`);
+  }
+
+  assert.equal(/Under \$|\$\d/.test(source), false, "shop filter still exposes USD");
+  assert.match(source, /price < 2000/);
+  assert.match(source, /price >= 2000 && price < 4000/);
+  assert.match(source, /price >= 4000 && price < 8000/);
+  assert.match(source, /price >= 8000/);
+});
+
+test("D10-D: product media and links retain repository-safe buyer boundaries", () => {
+  const productCard = fs.readFileSync(
+    path.join(process.cwd(), "components/sections/product-card.tsx"),
+    "utf8",
+  );
+  const productDetail = fs.readFileSync(
+    path.join(process.cwd(), "components/buyer/product-detail-shell.tsx"),
+    "utf8",
+  );
+  const assets = fs.readFileSync(path.join(process.cwd(), "src/lib/assets.ts"), "utf8");
+
+  assert.equal(productCard.includes("getProductHref(product)"), true);
+  assert.equal(productCard.includes("skxnzFallbackAssets.product"), true);
+  assert.equal(productDetail.includes("skxnzFallbackAssets.product"), true);
+  assert.match(assets, /product:\s*"\/assets\/ui\/placeholders\/product-fallback\.svg"/);
+  assert.equal(/placeholder:\/\/gradient/.test(productCard + productDetail), false);
+});
