@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 
 import { requireRole } from "@/lib/auth/roles";
 import { createClient } from "@/lib/supabase/server";
+import { guardServerAction } from "@/lib/security/rate-limit/rate-limit";
 
 export type ProductUploadActionState = {
   message?: string;
@@ -86,6 +87,12 @@ export async function createSellerProduct(
 
   if (userError || !user) {
     return { message: "You must be logged in as a seller before creating a product." };
+  }
+
+  // Abuse control: caps catalogue flooding by one seller account.
+  const rateLimit = await guardServerAction("seller.product.write", { userId: user.id });
+  if (!rateLimit.ok) {
+    return { message: rateLimit.error.message };
   }
 
   try {

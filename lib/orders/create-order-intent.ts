@@ -4,6 +4,7 @@
 // the draft 0011 RPC. There is deliberately no client-side multi-write or
 // service-role fallback.
 import { createClient } from "@/lib/supabase/server";
+import { guardServerAction } from "@/lib/security/rate-limit/rate-limit";
 
 const MAX_LINE_ITEMS = 50;
 const MAX_QUANTITY_PER_LINE = 10;
@@ -13,7 +14,7 @@ export type CreateOrderItemInput = { productId?: string | null; productSlug?: st
 export type CreateOrderIntentInput = { items: CreateOrderItemInput[]; shippingAddressId?: string | null; notes?: string | null; idempotencyKey?: string | null };
 export type CreateOrderIntentResult =
   | { ok: true; orderId: string; status: "DRAFT"; redirectTo: string; reused: boolean; notices?: string[] }
-  | { ok: false; code: "UNAUTHENTICATED"|"FORBIDDEN"|"VALIDATION_FAILED"|"ADDRESS_REQUIRED"|"PRODUCT_UNAVAILABLE"|"OUT_OF_STOCK"|"IDEMPOTENCY_CONFLICT"|"NOT_WIRED"|"DB_ERROR"; message: string };
+  | { ok: false; code: "UNAUTHENTICATED"|"FORBIDDEN"|"VALIDATION_FAILED"|"ADDRESS_REQUIRED"|"PRODUCT_UNAVAILABLE"|"OUT_OF_STOCK"|"IDEMPOTENCY_CONFLICT"|"RATE_LIMITED"|"NOT_WIRED"|"DB_ERROR"; message: string };
 
 const notWired = (): CreateOrderIntentResult => ({ ok:false, code:"NOT_WIRED", message:"Order creation is not connected yet. The atomic order database migration has not been applied, so no order was created and nothing was charged." });
 const dbError = (): CreateOrderIntentResult => ({ ok:false, code:"DB_ERROR", message:"We could not create your draft order right now. Please try again." });
@@ -45,6 +46,9 @@ export async function createOrderIntent(input: CreateOrderIntentInput): Promise<
   const db = await createClient();
   const { data:{ user }, error:userError } = await db.auth.getUser();
   if (userError || !user) return { ok:false, code:"UNAUTHENTICATED", message:"Please sign in to create a draft order." };
+  // Abuse control: backstops the atomic idempotency key against retry storms.
+  const rateLimit = await guardServerAction("commerce.checkout", { userId: user.id });
+  if (!rateLimit.ok) return rateLimit.error;
   const key = input.idempotencyKey ?? crypto.randomUUID();
   const rpcItems = input.items.map(({ productId, productSlug, variantId, quantity }) => ({ product_id: productId ?? null, product_slug: productSlug ?? null, variant_id: variantId ?? null, quantity }));
   const { data, error } = await db.rpc("create_order_intent_atomic", { p_items: rpcItems, p_shipping_address_id: input.shippingAddressId, p_note: input.notes?.trim() || null, p_idempotency_key: key });

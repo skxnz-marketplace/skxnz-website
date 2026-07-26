@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { isOrderIdShape } from "@/lib/orders/read-buyer-orders";
+import { guardServerAction } from "@/lib/security/rate-limit/rate-limit";
 
 const MAX_MESSAGE_LENGTH = 4000;
 
@@ -17,6 +18,7 @@ export type AddSupportTicketMessageResult =
       ok: false;
       code:
         | "UNAUTHENTICATED"
+        | "RATE_LIMITED"
         | "VALIDATION_FAILED"
         | "TICKET_NOT_FOUND"
         | "TICKET_NOT_ACTIVE"
@@ -59,6 +61,12 @@ export async function addSupportTicketMessage(input: AddSupportTicketMessageInpu
     error: userError,
   } = await supabase.auth.getUser();
   if (userError || !user) return { ok: false, code: "UNAUTHENTICATED", message: "Please sign in to reply to support." };
+
+  // Abuse control: per-verified-session, before any write.
+  const limit = await guardServerAction("support.reply", { userId: user.id });
+  if (!limit.ok) {
+    return limit.error;
+  }
 
   const { data, error } = await supabase.rpc("add_support_ticket_message_idempotent", {
     p_ticket_id: input.ticketId,

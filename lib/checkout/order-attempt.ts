@@ -11,6 +11,7 @@ export type CheckoutAttemptView =
         | "conflict"
         | "invalid"
         | "not-wired"
+        | "rate-limited"
         | "retryable"
         | "stock"
         | "unavailable";
@@ -71,6 +72,16 @@ export function resolveCheckoutAttempt(
         title: "Checkout details changed",
         message: "This attempt no longer matches your cart. Review it, then start a new checkout attempt.",
         retryable: false,
+      };
+    case "RATE_LIMITED":
+      // Retryable on purpose: the request was refused for pacing only, and
+      // nothing was created or charged. The action's own message carries the
+      // wait time, so it is passed straight through rather than restated.
+      return {
+        kind: "rate-limited",
+        title: "Too many checkout attempts",
+        message: result.message,
+        retryable: true,
       };
     case "NOT_WIRED":
       return {

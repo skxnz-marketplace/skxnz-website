@@ -6,10 +6,11 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { isOrderIdShape, type BuyerOrderStatus } from "@/lib/orders/read-buyer-orders";
 import { ADMIN_ORDER_TRANSITIONS } from "@/lib/orders/admin-order-transitions";
+import { guardServerAction } from "@/lib/security/rate-limit/rate-limit";
 
 const MAX_NOTE_LENGTH = 500;
 export type AdminUpdateOrderStatusInput = { orderId: string; nextStatus: string; note?: string | null };
-export type AdminUpdateOrderStatusResult = { ok: true; orderId: string; status: BuyerOrderStatus } | { ok: false; code: "UNAUTHENTICATED" | "FORBIDDEN" | "VALIDATION_FAILED" | "ORDER_NOT_FOUND" | "INVALID_TRANSITION" | "NOT_WIRED" | "DB_ERROR"; message: string };
+export type AdminUpdateOrderStatusResult = { ok: true; orderId: string; status: BuyerOrderStatus } | { ok: false; code: "UNAUTHENTICATED" | "FORBIDDEN" | "VALIDATION_FAILED" | "ORDER_NOT_FOUND" | "INVALID_TRANSITION" | "RATE_LIMITED" | "NOT_WIRED" | "DB_ERROR"; message: string };
 const notWired = (): AdminUpdateOrderStatusResult => ({ ok: false, code: "NOT_WIRED", message: "Order management is not connected yet. The atomic admin database migration has not been applied, so nothing was changed." });
 function rpcError(e: { code?: string; message?: string } | null): AdminUpdateOrderStatusResult {
   const m = e?.message ?? "";
@@ -31,6 +32,9 @@ export async function adminUpdateOrderStatus(input: AdminUpdateOrderStatusInput)
   const { data: role, error: roleError } = await db.from("users").select("role").eq("id",user.id).maybeSingle();
   if (roleError) return { ok:false, code:"DB_ERROR", message:"The order status could not be updated right now. Please try again." };
   if (role?.role !== "ADMIN") return { ok:false, code:"FORBIDDEN", message:"Only administrators can update order status." };
+  // Abuse control: caps the blast radius of a stolen admin session.
+  const rateLimit = await guardServerAction("admin.mutation", { userId: user.id });
+  if (!rateLimit.ok) return rateLimit.error;
   const { data, error } = await db.rpc("admin_update_order_status_atomic", { p_order_id:input.orderId, p_next_status:input.nextStatus, p_note:note || null });
   if (error) return rpcError(error); const row = Array.isArray(data) ? data[0] : data;
   if (!row || typeof row.order_id !== "string" || typeof row.status !== "string") return { ok:false, code:"DB_ERROR", message:"The order status could not be updated right now. Please try again." };

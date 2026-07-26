@@ -4,12 +4,17 @@ import { NextResponse } from "next/server";
 
 import { mapCatalogProductToBuyerProduct } from "@/lib/catalog/mappers";
 import { searchActiveProducts } from "@/lib/catalog/queries";
+import { guardRouteHandler } from "@/lib/security/rate-limit/rate-limit";
 
 export const dynamic = "force-dynamic";
 
 const SUGGESTION_LIMIT = 8;
 
 export async function GET(request: Request) {
+  // Abuse control: policy 'search.suggest'. Returns a truthful 429 with Retry-After.
+  const rateLimit = await guardRouteHandler("search.suggest", request);
+  if (!rateLimit.ok) return rateLimit.response;
+
   const { searchParams } = new URL(request.url);
   const query = (searchParams.get("q") ?? "").trim();
 

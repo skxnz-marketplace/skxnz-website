@@ -22,3 +22,19 @@ exports.notFound = () => {
   error.digest = "NEXT_NOT_FOUND";
   throw error;
 };
+
+// next/headers stub. The rate-limit framework reads the caller IP from request
+// headers inside Server Actions; under node:test there is no request scope.
+// Tests set the headers explicitly so per-IP behaviour can be exercised
+// deterministically instead of being skipped.
+let mockHeaders = new Map();
+
+exports.__setMockHeaders = (entries = {}) => {
+  mockHeaders = new Map(
+    Object.entries(entries).map(([key, value]) => [key.toLowerCase(), value]),
+  );
+};
+
+exports.headers = async () => ({
+  get: (name) => mockHeaders.get(String(name).toLowerCase()) ?? null,
+});

@@ -7,10 +7,15 @@ import {
   getDemoRoleFromHeaders,
 } from "@/src/lib/ai/safety";
 import type { BuyerAssistantRequest } from "@/src/lib/ai/types";
+import { guardRouteHandler } from "@/lib/security/rate-limit/rate-limit";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
+  // Abuse control: policy 'ai.request'. Returns a truthful 429 with Retry-After.
+  const rateLimit = await guardRouteHandler("ai.request", request);
+  if (!rateLimit.ok) return rateLimit.response;
+
   const role = getDemoRoleFromHeaders(request.headers);
 
   if (!assertAiFeatureAccess(role, "buyer-assistant")) {

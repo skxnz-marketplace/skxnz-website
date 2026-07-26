@@ -13,12 +13,22 @@
 
 require("./bootstrap.cjs");
 
-const { test } = require("node:test");
+const { test, beforeEach } = require("node:test");
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 
 const { __setMockClient } = require("./mocks/supabase-server.cjs");
+const { resetRateLimitStore } = require("@/lib/security/rate-limit/rate-limit");
+
+// D12-B: rate-limit counters are process-wide by design. Without this reset a
+// suite that calls the same guarded action many times as the same mock user
+// would exhaust the real limit and see RATE_LIMITED instead of the action's own
+// result. Isolating each case keeps these tests about the action, not pacing —
+// the limiter itself is covered by tests/rate-limit.test.cjs.
+beforeEach(async () => {
+  await resetRateLimitStore();
+});
 const { createMockSupabase, findCall } = require("./helpers/mock-supabase.cjs");
 
 const { createReturnRequest } = require("@/lib/returns/create-return-request");

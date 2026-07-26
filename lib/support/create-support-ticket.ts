@@ -6,12 +6,13 @@ import {
   type CreateSupportTicketInput,
 } from "@/lib/support/support-requests";
 import { isOrderIdShape } from "@/lib/orders/read-buyer-orders";
+import { guardServerAction } from "@/lib/security/rate-limit/rate-limit";
 
 export type CreateSupportTicketResult =
   | { ok: true; ticketId: string; status: "OPEN"; redirectTo: string }
   | {
       ok: false;
-      code: "UNAUTHENTICATED" | "VALIDATION_FAILED" | "ORDER_NOT_FOUND" | "NOT_WIRED" | "DB_ERROR";
+      code: "UNAUTHENTICATED" | "VALIDATION_FAILED" | "ORDER_NOT_FOUND" | "RATE_LIMITED" | "NOT_WIRED" | "DB_ERROR";
       message: string;
       fieldErrors?: Record<string, string>;
     };
@@ -56,6 +57,12 @@ export async function createSupportTicket(input: CreateSupportTicketInput): Prom
   } = await supabase.auth.getUser();
   if (userError || !user) {
     return { ok: false, code: "UNAUTHENTICATED", message: "Please sign in to contact support." };
+  }
+
+  // Abuse control: counted against the verified session id, before any write.
+  const limit = await guardServerAction("support.ticket", { userId: user.id });
+  if (!limit.ok) {
+    return limit.error;
   }
 
   const { data, error } = await supabase.rpc("create_support_ticket_idempotent", {

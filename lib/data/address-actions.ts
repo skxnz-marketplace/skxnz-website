@@ -15,6 +15,7 @@
 import { revalidatePath } from "next/cache";
 
 import { createClient } from "@/lib/supabase/server";
+import { guardServerAction } from "@/lib/security/rate-limit/rate-limit";
 
 export type AddressActionInput = {
   label?: string;
@@ -35,6 +36,7 @@ export type AddressActionResult =
       ok: false;
       code:
         | "UNAUTHENTICATED"
+        | "RATE_LIMITED"
         | "VALIDATION_FAILED"
         | "NOT_WIRED"
         | "NOT_FOUND"
@@ -133,6 +135,10 @@ export async function createAddress(
     return { ok: false, code: "UNAUTHENTICATED", message: "Please sign in to save an address." };
   }
 
+  // Abuse control: caps address-table flooding by one account.
+  const rateLimit = await guardServerAction("commerce.address", { userId: user.id });
+  if (!rateLimit.ok) return rateLimit.error;
+
   // First address is always default; otherwise honour the checkbox.
   const { count } = await supabase
     .from("addresses")
@@ -185,6 +191,10 @@ export async function updateAddress(
     return { ok: false, code: "UNAUTHENTICATED", message: "Please sign in to edit an address." };
   }
 
+  // Abuse control: caps address-table flooding by one account.
+  const rateLimit = await guardServerAction("commerce.address", { userId: user.id });
+  if (!rateLimit.ok) return rateLimit.error;
+
   if (input.isDefault) {
     await clearOtherDefaults(supabase, user.id, id);
   }
@@ -228,6 +238,10 @@ export async function deleteAddress(addressId: string): Promise<AddressActionRes
     return { ok: false, code: "UNAUTHENTICATED", message: "Please sign in to manage addresses." };
   }
 
+  // Abuse control: caps address-table flooding by one account.
+  const rateLimit = await guardServerAction("commerce.address", { userId: user.id });
+  if (!rateLimit.ok) return rateLimit.error;
+
   const { error } = await supabase
     .from("addresses")
     .delete()
@@ -261,6 +275,10 @@ export async function setDefaultAddress(addressId: string): Promise<AddressActio
   if (userError || !user) {
     return { ok: false, code: "UNAUTHENTICATED", message: "Please sign in to manage addresses." };
   }
+
+  // Abuse control: caps address-table flooding by one account.
+  const rateLimit = await guardServerAction("commerce.address", { userId: user.id });
+  if (!rateLimit.ok) return rateLimit.error;
 
   await clearOtherDefaults(supabase, user.id, id);
 

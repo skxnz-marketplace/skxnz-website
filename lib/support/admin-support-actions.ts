@@ -22,6 +22,7 @@ import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { getCurrentUserRole } from "@/lib/auth/roles";
 import { isOrderIdShape } from "@/lib/orders/read-buyer-orders";
+import { guardServerAction } from "@/lib/security/rate-limit/rate-limit";
 
 const MAX_MESSAGE_LENGTH = 4000;
 
@@ -43,6 +44,7 @@ export type AdminSupportActionResult =
         | "TICKET_NOT_FOUND"
         | "INVALID_TRANSITION"
         | "NOT_ALLOWED"
+        | "RATE_LIMITED"
         | "DB_ERROR";
       message: string;
     };
@@ -72,6 +74,12 @@ export async function adminUpdateSupportTicketStatus(input: {
       message: "Only administrators can update ticket status.",
     };
   }
+
+  // Abuse control: caps the blast radius of a stolen admin session.
+  const adminSession = await createClient();
+  const { data: { user: adminUser } } = await adminSession.auth.getUser();
+  const rateLimit = await guardServerAction("admin.mutation", { userId: adminUser?.id ?? null });
+  if (!rateLimit.ok) return rateLimit.error;
 
   const db = await createClient();
   const { data: current, error: readError } = await db
@@ -159,6 +167,12 @@ export async function adminAddSupportReply(input: {
       message: "Only administrators can reply here.",
     };
   }
+
+  // Abuse control: caps the blast radius of a stolen admin session.
+  const adminSession = await createClient();
+  const { data: { user: adminUser } } = await adminSession.auth.getUser();
+  const rateLimit = await guardServerAction("admin.mutation", { userId: adminUser?.id ?? null });
+  if (!rateLimit.ok) return rateLimit.error;
 
   const db = await createClient();
   const { data: ticket, error: readError } = await db

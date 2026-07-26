@@ -45,6 +45,7 @@ export type SaveProductResult =
       code:
         | "UNAUTHENTICATED"
         | "VALIDATION_FAILED"
+        | "RATE_LIMITED"
         | "NOT_WIRED"
         | "DB_ERROR";
       message: string;
@@ -54,7 +55,7 @@ export type RemoveSavedProductResult =
   | { ok: true }
   | {
       ok: false;
-      code: "UNAUTHENTICATED" | "VALIDATION_FAILED" | "NOT_WIRED" | "DB_ERROR";
+      code: "UNAUTHENTICATED" | "VALIDATION_FAILED" | "RATE_LIMITED" | "NOT_WIRED" | "DB_ERROR";
       message: string;
     };
 

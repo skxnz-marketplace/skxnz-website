@@ -32,6 +32,14 @@
     "../lib/auth/auth-errors.ts",
     "../lib/consent/consent.ts",
     "../lib/consent/script-gate.ts",
-    "../lib/security/turnstile.ts"
+    "../lib/security/turnstile.ts",
+    "../lib/data/address-actions.ts",
+    "../lib/security/rate-limit/rate-limit.ts",
+    "../lib/security/rate-limit/limiter.ts",
+    "../lib/security/rate-limit/policies.ts",
+    "../lib/security/rate-limit/keys.ts",
+    "../lib/security/rate-limit/helpers.ts",
+    "../lib/security/rate-limit/adapters/index.ts",
+    "../lib/security/rate-limit/adapters/memory-store.ts"
   ]
 }

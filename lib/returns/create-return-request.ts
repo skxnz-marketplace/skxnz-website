@@ -6,6 +6,7 @@ import {
   type CreateReturnRequestInput,
 } from "@/lib/returns/return-requests";
 import { isOrderIdShape } from "@/lib/orders/read-buyer-orders";
+import { guardServerAction } from "@/lib/security/rate-limit/rate-limit";
 
 const MAX_RETURN_ITEMS = 50;
 
@@ -15,6 +16,7 @@ export type CreateReturnRequestResult =
       ok: false;
       code:
         | "UNAUTHENTICATED"
+        | "RATE_LIMITED"
         | "VALIDATION_FAILED"
         | "ORDER_NOT_FOUND"
         | "NOT_ELIGIBLE"
@@ -124,6 +126,12 @@ export async function createReturnRequest(
 
   if (userError || !user) {
     return { ok: false, code: "UNAUTHENTICATED", message: "Please sign in to request a return." };
+  }
+
+  // Abuse control: backstops the D12-A idempotency key against retry storms.
+  const limit = await guardServerAction("returns.create", { userId: user.id });
+  if (!limit.ok) {
+    return limit.error;
   }
 
   const { data, error } = await supabase.rpc("create_return_request_idempotent", {

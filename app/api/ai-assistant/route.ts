@@ -5,6 +5,7 @@ import {
   skxnzAssistantLimits,
   type SkxnzAssistantContext,
 } from "@/src/lib/skxnzAssistant";
+import { guardRouteHandler } from "@/lib/security/rate-limit/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -69,6 +70,10 @@ function sanitizeAssistantContext(value: unknown): SkxnzAssistantContext {
 }
 
 export async function POST(request: Request) {
+  // Abuse control: policy 'ai.request'. Returns a truthful 429 with Retry-After.
+  const rateLimit = await guardRouteHandler("ai.request", request);
+  if (!rateLimit.ok) return rateLimit.response;
+
   let body: AssistantRequestBody;
 
   try {

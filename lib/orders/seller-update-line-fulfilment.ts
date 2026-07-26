@@ -10,6 +10,7 @@ import {
   isSellerOrderIdShape,
   type SellerLineFulfilmentStatus,
 } from "@/lib/orders/read-seller-orders";
+import { guardServerAction } from "@/lib/security/rate-limit/rate-limit";
 
 const MAX_NOTE_LENGTH = 500;
 
@@ -24,7 +25,7 @@ export type SellerLineActionResult =
   | { ok: true; orderItemId: string; orderId: string; status: SellerLineFulfilmentStatus }
   | {
       ok: false;
-      code: "UNAUTHENTICATED" | "FORBIDDEN" | "VALIDATION_FAILED" | "LINE_NOT_FOUND" | "INVALID_TRANSITION" | "NOT_WIRED" | "DB_ERROR";
+      code: "UNAUTHENTICATED" | "FORBIDDEN" | "VALIDATION_FAILED" | "LINE_NOT_FOUND" | "INVALID_TRANSITION" | "RATE_LIMITED" | "NOT_WIRED" | "DB_ERROR";
       message: string;
     };
 
@@ -64,6 +65,10 @@ export async function updateSellerLineFulfilment(input: SellerLineActionInput): 
   const { data: roleRow, error: roleError } = await supabase.from("users").select("role").eq("id", user.id).maybeSingle();
   if (roleError) return { ok: false, code: "DB_ERROR", message: "The line could not be updated right now. Please try again." };
   if (roleRow?.role !== "SELLER") return { ok: false, code: "FORBIDDEN", message: "Only approved sellers can update fulfilment." };
+
+  // Abuse control: high ceiling — bulk fulfilment processing is legitimate.
+  const rateLimit = await guardServerAction("seller.fulfilment", { userId: user.id });
+  if (!rateLimit.ok) return rateLimit.error;
 
   const { data, error } = await supabase.rpc("seller_update_line_fulfilment", {
     p_order_item_id: input.orderItemId,

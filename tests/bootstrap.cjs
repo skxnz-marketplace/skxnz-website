@@ -24,7 +24,11 @@ Module._resolveFilename = function (request, ...rest) {
   if (request === "@/lib/supabase/admin") {
     return originalResolve.call(this, supabaseAdminMockPath, ...rest);
   }
-  if (request === "next/cache" || request === "next/navigation") {
+  if (
+    request === "next/cache" ||
+    request === "next/navigation" ||
+    request === "next/headers"
+  ) {
     return originalResolve.call(this, nextStubsPath, ...rest);
   }
   if (request.startsWith("@/")) {
