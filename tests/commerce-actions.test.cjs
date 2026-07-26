@@ -1881,7 +1881,11 @@ test("public route metadata routes exclude protected buyer, seller, and admin pa
     assert.equal(robots.includes(`"${protectedPath}"`), true, `robots omits ${protectedPath}`);
   }
   assert.match(sitemap, /"\/shop"/);
-  assert.match(robots, /sitemap: "\/sitemap\.xml"/);
+  // robots.txt requires an ABSOLUTE Sitemap URL — crawlers ignore a relative
+  // one. Both metadata routes resolve the origin through getSiteBaseUrl().
+  assert.match(robots, /new URL\("\/sitemap\.xml", getSiteBaseUrl\(\)\)/);
+  assert.match(robots, /getSiteBaseUrl/);
+  assert.match(sitemap, /getSiteBaseUrl\(\)/);
   assert.match(manifest, /name: "SKXNZ"/);
 });
 

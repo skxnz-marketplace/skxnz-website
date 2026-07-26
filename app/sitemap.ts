@@ -1,5 +1,7 @@
 import type { MetadataRoute } from "next";
 
+import { getSiteBaseUrl } from "@/lib/site";
+
 const publicPaths = [
   "/",
   "/about",
@@ -23,7 +25,7 @@ const publicPaths = [
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || "https://skxnz.com";
+  const baseUrl = getSiteBaseUrl();
   const lastModified = new Date();
 
   return publicPaths.map((path) => ({

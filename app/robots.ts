@@ -1,5 +1,7 @@
 import type { MetadataRoute } from "next";
 
+import { getSiteBaseUrl } from "@/lib/site";
+
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
@@ -15,6 +17,7 @@ export default function robots(): MetadataRoute.Robots {
         "/wishlist",
       ],
     },
-    sitemap: "/sitemap.xml",
+    // Must be absolute — crawlers ignore a relative Sitemap directive.
+    sitemap: new URL("/sitemap.xml", getSiteBaseUrl()).toString(),
   };
 }
