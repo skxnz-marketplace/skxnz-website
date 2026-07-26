@@ -45,6 +45,8 @@ export type CreateReturnRequestInput = {
   reason: string;
   note: string | null;
   items: ReturnRequestItemInput[];
+  /** Browser-generated retry key. Same key + same payload returns same request. */
+  idempotencyKey?: string | null;
 };
 
 const maxReasonLength = 500;

@@ -45,6 +45,8 @@ export type CreateSupportTicketInput = {
   message: string;
   /** Real DB order id when the ticket is about an order; null otherwise. */
   orderId: string | null;
+  /** Browser-generated retry key. Same key + same payload returns same ticket. */
+  idempotencyKey?: string | null;
 };
 
 const maxSubjectLength = 160;

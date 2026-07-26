@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
 import { buttonVariants } from "@/components/ui/button";
@@ -20,6 +20,7 @@ export function TicketReplyForm({ ticketId }: { ticketId: string }) {
   const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const idempotencyKey = useRef(crypto.randomUUID());
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -32,9 +33,14 @@ export function TicketReplyForm({ ticketId }: { ticketId: string }) {
     }
 
     startTransition(async () => {
-      const result = await addSupportTicketMessage({ ticketId, message });
+      const result = await addSupportTicketMessage({
+        ticketId,
+        message,
+        idempotencyKey: idempotencyKey.current,
+      });
 
       if (result.ok) {
+        idempotencyKey.current = crypto.randomUUID();
         setMessage("");
         setSent(true);
         router.refresh();

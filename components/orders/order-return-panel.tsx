@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
 import { buttonVariants } from "@/components/ui/button";
@@ -89,6 +89,7 @@ export function OrderReturnPanel({
   const [error, setError] = useState<string | null>(null);
   const [submittedId, setSubmittedId] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const idempotencyKey = useRef(crypto.randomUUID());
 
   // Quantity still claimable per line, after earlier non-rejected requests.
   // The server action re-checks this on submit; here it only shapes the UI.
@@ -197,6 +198,7 @@ export function OrderReturnPanel({
         orderId,
         reason,
         note: note.trim() || null,
+        idempotencyKey: idempotencyKey.current,
         items: chosen.map((item) => ({
           orderItemId: item.id,
           quantity: Math.min(
@@ -208,6 +210,7 @@ export function OrderReturnPanel({
       });
 
       if (result.ok) {
+        idempotencyKey.current = crypto.randomUUID();
         setSubmittedId(result.returnRequestId);
         router.refresh();
         return;

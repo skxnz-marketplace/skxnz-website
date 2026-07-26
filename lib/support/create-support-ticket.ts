@@ -1,27 +1,5 @@
 "use server";
 
-// SKXNZ create-support-ticket server action (D4-5).
-//
-// Creates one `support_tickets` row (status OPEN) + the opening
-// `support_ticket_messages` row (sender_role BUYER) for the authenticated
-// buyer, against the 0005 commerce schema.
-//
-// Security:
-//   - buyer_id is session-derived (NEVER client input).
-//   - If orderId is provided, the order is re-fetched and must belong to the
-//     session buyer — cross-buyer ticket linking is rejected here AND by the
-//     RLS insert policy ("support_tickets: buyer can insert own").
-//   - Status starts at 'OPEN' only. Never RESOLVED/CLOSED. No staff reply is
-//     ever invented — the only message written is the buyer's own.
-//
-// Migration status: 0005 finalized, NOT applied live. Missing tables
-// (Postgres 42P01) surface as { ok: false, code: "NOT_WIRED" }.
-//
-// Atomicity limitation: no client-side transaction, so the ticket inserts
-// before its opening message. If the message insert fails, the ticket still
-// exists with no messages; the action reports DB_ERROR so the buyer retries
-// via a reply (addSupportTicketMessage) — no fake state is created either way.
-
 import { createClient } from "@/lib/supabase/server";
 import {
   validateSupportTicketInput,
@@ -30,25 +8,14 @@ import {
 import { isOrderIdShape } from "@/lib/orders/read-buyer-orders";
 
 export type CreateSupportTicketResult =
-  | {
-      ok: true;
-      ticketId: string;
-      status: "OPEN";
-      redirectTo: string;
-    }
+  | { ok: true; ticketId: string; status: "OPEN"; redirectTo: string }
   | {
       ok: false;
-      code:
-        | "UNAUTHENTICATED"
-        | "VALIDATION_FAILED"
-        | "ORDER_NOT_FOUND"
-        | "NOT_WIRED"
-        | "DB_ERROR";
+      code: "UNAUTHENTICATED" | "VALIDATION_FAILED" | "ORDER_NOT_FOUND" | "NOT_WIRED" | "DB_ERROR";
       message: string;
       fieldErrors?: Record<string, string>;
     };
 
-// Postgres 42P01 = undefined_table -> 0005 migration not applied yet.
 function isMissingTableError(error: { code?: string; message?: string } | null) {
   if (!error) return false;
   return error.code === "42P01" || Boolean(error.message?.includes("does not exist"));
@@ -59,130 +26,59 @@ function notWired(): CreateSupportTicketResult {
     ok: false,
     code: "NOT_WIRED",
     message:
-      "Support tickets are not connected yet. The commerce database has not been applied, so no ticket was created.",
+      "Support tickets are not connected yet. The atomic support database migration has not been applied, so no ticket was created.",
   };
 }
 
 function dbError(): CreateSupportTicketResult {
-  return {
-    ok: false,
-    code: "DB_ERROR",
-    message: "We could not open your ticket right now. Please try again.",
-  };
+  return { ok: false, code: "DB_ERROR", message: "We could not open your ticket right now. Please try again." };
 }
 
-export async function createSupportTicket(
-  input: CreateSupportTicketInput,
-): Promise<CreateSupportTicketResult> {
-  // ---- 1. Shape validation (shared D4-1 validator) ------------------------
+function mapAtomicError(error: { code?: string; message?: string } | null) {
+  if (isMissingTableError(error) || error?.code === "42883" || error?.code === "PGRST202") return notWired();
+  console.warn("[support] atomic ticket RPC failed:", error?.message);
+  return dbError();
+}
+
+export async function createSupportTicket(input: CreateSupportTicketInput): Promise<CreateSupportTicketResult> {
   const fieldErrors = validateSupportTicketInput(input);
   if (Object.keys(fieldErrors).length > 0) {
-    return {
-      ok: false,
-      code: "VALIDATION_FAILED",
-      message: "Some ticket details are missing or invalid.",
-      fieldErrors,
-    };
+    return { ok: false, code: "VALIDATION_FAILED", message: "Some ticket details are missing or invalid.", fieldErrors };
+  }
+  if (input.orderId && !isOrderIdShape(input.orderId)) {
+    return { ok: false, code: "ORDER_NOT_FOUND", message: "That order could not be found." };
   }
 
   const supabase = await createClient();
-
-  // ---- 2. Authenticated buyer ---------------------------------------------
   const {
     data: { user },
     error: userError,
   } = await supabase.auth.getUser();
-
   if (userError || !user) {
-    return {
-      ok: false,
-      code: "UNAUTHENTICATED",
-      message: "Please sign in to contact support.",
-    };
+    return { ok: false, code: "UNAUTHENTICATED", message: "Please sign in to contact support." };
   }
 
-  // ---- 3. Optional order link must be the buyer's OWN order ---------------
-  let linkedOrderId: string | null = null;
-  if (input.orderId) {
-    if (!isOrderIdShape(input.orderId)) {
-      return {
-        ok: false,
-        code: "ORDER_NOT_FOUND",
-        message: "That order could not be found.",
-      };
-    }
+  const { data, error } = await supabase.rpc("create_support_ticket_idempotent", {
+    p_category: input.category,
+    p_subject: input.subject.trim(),
+    p_message: input.message.trim(),
+    p_order_id: input.orderId || null,
+    p_idempotency_key: input.idempotencyKey ?? crypto.randomUUID(),
+  });
 
-    const { data: order, error: orderError } = await supabase
-      .from("orders")
-      .select("id, buyer_id")
-      .eq("id", input.orderId)
-      .eq("buyer_id", user.id)
-      .maybeSingle();
-
-    if (orderError) {
-      if (isMissingTableError(orderError)) return notWired();
-      console.warn("[support] order lookup failed:", orderError.message);
-      return dbError();
-    }
-    if (!order) {
-      return {
-        ok: false,
-        code: "ORDER_NOT_FOUND",
-        message: "That order could not be found.",
-      };
-    }
-    linkedOrderId = order.id;
+  if (error) return mapAtomicError(error);
+  const row = data as { ok?: boolean; code?: string; ticket_id?: string } | null;
+  if (row?.ok === true && typeof row.ticket_id === "string") {
+    return { ok: true, ticketId: row.ticket_id, status: "OPEN", redirectTo: `/account/support/${row.ticket_id}` };
   }
-
-  // ---- 4. Insert support_tickets (status OPEN — the only honest start) ----
-  const { data: ticketRow, error: ticketInsertError } = await supabase
-    .from("support_tickets")
-    .insert({
-      buyer_id: user.id,
-      order_id: linkedOrderId,
-      category: input.category,
-      status: "OPEN",
-      subject: input.subject.trim(),
-    })
-    .select("id")
-    .single();
-
-  if (ticketInsertError || !ticketRow) {
-    if (isMissingTableError(ticketInsertError)) return notWired();
-    console.warn(
-      "[support] support_tickets insert failed:",
-      ticketInsertError?.message,
-    );
-    return dbError();
+  if (row?.code === "ORDER_NOT_FOUND") {
+    return { ok: false, code: "ORDER_NOT_FOUND", message: "That order could not be found." };
   }
-  const ticketId = ticketRow.id as string;
-
-  // ---- 5. Opening buyer message (sender_role BUYER — never staff) ---------
-  const { error: messageInsertError } = await supabase
-    .from("support_ticket_messages")
-    .insert({
-      ticket_id: ticketId,
-      sender_id: user.id,
-      sender_role: "BUYER",
-      message: input.message.trim(),
-    });
-
-  if (messageInsertError) {
-    // Ticket exists without its opening message (no rollback possible from
-    // this session). Report the failure honestly so the buyer can retry the
-    // message as a reply. See the atomicity note at the top of this file.
-    console.warn(
-      "[support] opening message insert failed:",
-      messageInsertError.message,
-    );
-    return dbError();
+  if (row?.code === "UNAUTHENTICATED") {
+    return { ok: false, code: "UNAUTHENTICATED", message: "Please sign in to contact support." };
   }
-
-  return {
-    ok: true,
-    ticketId,
-    status: "OPEN",
-    // The authenticated ticket workspace — /support is the public info page.
-    redirectTo: `/account/support/${ticketId}`,
-  };
+  if (row?.code === "VALIDATION_FAILED" || row?.code === "IDEMPOTENCY_CONFLICT") {
+    return { ok: false, code: "VALIDATION_FAILED", message: "Some ticket details are missing or invalid." };
+  }
+  return dbError();
 }

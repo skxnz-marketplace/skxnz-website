@@ -67,6 +67,20 @@ function returnFlowResolver({
   priorItems = [],
 } = {}) {
   return (query) => {
+    if (query.table === "rpc" && query.fn === "create_return_request_idempotent") {
+      if (!order) return { data: { ok: false, code: "ORDER_NOT_FOUND" }, error: null };
+      if (order.status !== "DELIVERED") return { data: { ok: false, code: "NOT_ELIGIBLE" }, error: null };
+      const requested = query.args.p_items[0];
+      const purchased = orderItems.find((item) => item.id === requested.order_item_id);
+      if (!purchased) return { data: { ok: false, code: "ITEM_MISMATCH" }, error: null };
+      const claimed = priorItems
+        .filter((item) => item.order_item_id === requested.order_item_id)
+        .reduce((sum, item) => sum + item.quantity, 0);
+      const remaining = purchased.quantity - claimed;
+      if (remaining <= 0) return { data: { ok: false, code: "ALREADY_REQUESTED" }, error: null };
+      if (requested.quantity > remaining) return { data: { ok: false, code: "QUANTITY_EXCEEDED" }, error: null };
+      return { data: { ok: true, return_request_id: NEW_ROW_ID, status: "REQUESTED" }, error: null };
+    }
     if (query.table === "orders") return { data: order, error: null };
     if (query.table === "order_items") return { data: orderItems, error: null };
     if (query.table === "return_requests") {
@@ -235,7 +249,9 @@ test("reply to a ticket the buyer does not own is rejected (zero rows)", async (
     createMockSupabase({
       user: BUYER,
       resolve: (query) => {
-        if (query.table === "support_tickets") return { data: null, error: null };
+        if (query.table === "rpc" && query.fn === "add_support_ticket_message_idempotent") {
+          return { data: { ok: false, code: "TICKET_NOT_FOUND" }, error: null };
+        }
         throw new Error(`Unexpected table: ${query.table}`);
       },
     }),
@@ -250,11 +266,8 @@ test("reply to a closed ticket is rejected without reopening it", async () => {
     createMockSupabase({
       user: BUYER,
       resolve: (query) => {
-        if (query.table === "support_tickets") {
-          return {
-            data: { id: TICKET_ID, buyer_id: BUYER.id, status: "CLOSED" },
-            error: null,
-          };
+        if (query.table === "rpc" && query.fn === "add_support_ticket_message_idempotent") {
+          return { data: { ok: false, code: "TICKET_NOT_ACTIVE" }, error: null };
         }
         throw new Error(`Unexpected table: ${query.table}`);
       },
@@ -270,7 +283,9 @@ test("ticket linking an order the buyer does not own is rejected", async () => {
     createMockSupabase({
       user: BUYER,
       resolve: (query) => {
-        if (query.table === "orders") return { data: null, error: null };
+        if (query.table === "rpc" && query.fn === "create_support_ticket_idempotent") {
+          return { data: { ok: false, code: "ORDER_NOT_FOUND" }, error: null };
+        }
         throw new Error(`Unexpected table: ${query.table}`);
       },
     }),
@@ -300,11 +315,9 @@ test("valid owned-order support ticket creates OPEN ticket + BUYER message", asy
       user: BUYER,
       log,
       resolve: (query) => {
-        if (query.table === "orders") {
-          return { data: { id: ORDER_ID, buyer_id: BUYER.id }, error: null };
+        if (query.table === "rpc" && query.fn === "create_support_ticket_idempotent") {
+          return { data: { ok: true, ticket_id: TICKET_ID, status: "OPEN" }, error: null };
         }
-        if (query.table === "support_tickets") return { data: { id: TICKET_ID }, error: null };
-        if (query.table === "support_ticket_messages") return { data: null, error: null };
         throw new Error(`Unexpected table: ${query.table}`);
       },
     }),
@@ -314,19 +327,12 @@ test("valid owned-order support ticket creates OPEN ticket + BUYER message", asy
   assert.equal(result.status, "OPEN");
   assert.equal(result.redirectTo, `/account/support/${TICKET_ID}`);
 
-  const ticketInsert = findCall(
-    log.find((query) => query.table === "support_tickets"),
-    "insert",
-  );
-  assert.equal(ticketInsert.args[0].status, "OPEN");
-  assert.equal(ticketInsert.args[0].buyer_id, BUYER.id);
-
-  const messageInsert = findCall(
-    log.find((query) => query.table === "support_ticket_messages"),
-    "insert",
-  );
-  assert.equal(messageInsert.args[0].sender_role, "BUYER");
-  assert.equal(messageInsert.args[0].sender_id, BUYER.id);
+  const rpc = log.find((query) => query.table === "rpc");
+  assert.equal(rpc.fn, "create_support_ticket_idempotent");
+  assert.equal(rpc.args.p_category, "ORDER");
+  assert.equal(rpc.args.p_order_id, ORDER_ID);
+  assert.equal(log.some((query) => query.table === "support_tickets"), false);
+  assert.equal(log.some((query) => query.table === "support_ticket_messages"), false);
 });
 
 // ---------------------------------------------------------------------------
@@ -342,20 +348,12 @@ test("valid return inserts a REQUESTED request with the buyer's own ids", async 
   assert.equal(result.ok, true);
   assert.equal(result.returnRequestId, NEW_ROW_ID);
 
-  const requestInsert = log
-    .filter((query) => query.table === "return_requests")
-    .map((query) => findCall(query, "insert"))
-    .find(Boolean);
-  assert.equal(requestInsert.args[0].status, "REQUESTED");
-  assert.equal(requestInsert.args[0].buyer_id, BUYER.id);
-  assert.equal(requestInsert.args[0].order_id, ORDER_ID);
-
-  const itemInsert = log
-    .filter((query) => query.table === "return_request_items")
-    .map((query) => findCall(query, "insert"))
-    .find(Boolean);
-  assert.equal(itemInsert.args[0][0].order_item_id, ITEM_ID);
-  assert.equal(itemInsert.args[0][0].quantity, 1);
+  const rpc = log.find((query) => query.table === "rpc");
+  assert.equal(rpc.fn, "create_return_request_idempotent");
+  assert.equal(rpc.args.p_order_id, ORDER_ID);
+  assert.equal(rpc.args.p_items[0].order_item_id, ITEM_ID);
+  assert.equal(rpc.args.p_items[0].quantity, 1);
+  assert.equal(log.some((query) => query.table === "return_request_items" && findCall(query, "insert")), false);
 });
 
 // ---------------------------------------------------------------------------

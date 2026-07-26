@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
 import { buttonVariants } from "@/components/ui/button";
@@ -33,6 +33,7 @@ export function BuyerSupportForm({
   const [error, setError] = useState<string | null>(null);
   const [submittedTicketId, setSubmittedTicketId] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const idempotencyKey = useRef(crypto.randomUUID());
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -45,9 +46,11 @@ export function BuyerSupportForm({
         subject,
         message,
         orderId: defaultOrderId ?? null,
+        idempotencyKey: idempotencyKey.current,
       });
 
       if (result.ok) {
+        idempotencyKey.current = crypto.randomUUID();
         setSubmittedTicketId(result.ticketId);
         setSubject("");
         setMessage("");
