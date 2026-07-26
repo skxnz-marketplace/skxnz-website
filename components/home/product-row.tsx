@@ -1,27 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useRef } from "react";
 
 import { SafeImage } from "@/components/shared/safe-image";
 import { cn } from "@/lib/cn";
 import { type HomeProduct, formatPrice } from "@/lib/home-data";
 import { skxnzFallbackAssets } from "@/src/lib/assets";
-
-function HeartIcon({ filled }: { filled: boolean }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4" aria-hidden="true">
-      <path
-        d="M19.4 5.6a5 5 0 0 0-7.1 0L12 5.9l-.3-.3a5 5 0 0 0-7.1 7.1l.3.3L12 20l7.1-7 .3-.3a5 5 0 0 0 0-7.1Z"
-        stroke="currentColor"
-        strokeWidth="1.65"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill={filled ? "currentColor" : "none"}
-      />
-    </svg>
-  );
-}
 
 function EyeIcon() {
   return (
@@ -62,7 +47,6 @@ const PRODUCT_GRADIENTS = [
 ];
 
 function ProductCard({ product, index }: { product: HomeProduct; index: number }) {
-  const [wishlisted, setWishlisted] = useState(false);
   const gradient = PRODUCT_GRADIENTS[index % PRODUCT_GRADIENTS.length] ?? PRODUCT_GRADIENTS[0];
 
   return (
@@ -91,19 +75,6 @@ function ProductCard({ product, index }: { product: HomeProduct; index: number }
           </span>
         )}
       </Link>
-
-      {/* Wishlist */}
-      <button
-        type="button"
-        onClick={() => setWishlisted((w) => !w)}
-        aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
-        className={cn(
-          "absolute right-2.5 top-2.5 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow-sm transition hover:bg-white",
-          wishlisted ? "text-rose-500" : "text-[#161616]/40",
-        )}
-      >
-        <HeartIcon filled={wishlisted} />
-      </button>
 
       {/* Preview pill — visible on hover and keyboard focus */}
       <Link

@@ -62,7 +62,7 @@ export function AccountShell({
                 Beta safety
               </p>
               <h2 className="mt-4 break-words font-display text-2xl uppercase leading-tight tracking-[0.04em] sm:text-3xl">
-                Demo account area.
+                Account preview area.
               </h2>
               <p className="mt-4 text-sm leading-7 text-[rgba(255,254,250,0.78)]">
                 Saved locally for now. Persistent account sync, real login, and

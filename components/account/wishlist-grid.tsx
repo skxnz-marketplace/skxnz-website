@@ -45,7 +45,11 @@ export function WishlistGrid() {
           <Badge>{wishlistProducts.length} saved</Badge>
         </div>
         {feedback ? (
-          <div className="mt-4 rounded-[22px] border border-[rgba(34,211,238,0.24)] bg-[rgba(34,211,238,0.06)] px-4 py-3 text-sm leading-6 text-midnightbrown">
+          <div
+            role="status"
+            aria-live="polite"
+            className="mt-4 rounded-[22px] border border-[rgba(34,211,238,0.24)] bg-[rgba(34,211,238,0.06)] px-4 py-3 text-sm leading-6 text-midnightbrown"
+          >
             {feedback}
           </div>
         ) : null}

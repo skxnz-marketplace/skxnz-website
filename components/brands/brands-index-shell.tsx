@@ -83,7 +83,7 @@ function BrandCard({
             ) : null}
             {brand.isDemo ? (
               <span className="rounded-full border border-white/20 bg-white/[0.12] px-2.5 py-1 text-[0.56rem] font-black uppercase tracking-[0.12em] text-[var(--skxnz-text-light)] backdrop-blur">
-                Demo profile
+                Preview profile
               </span>
             ) : null}
           </div>
@@ -119,7 +119,9 @@ function BrandCard({
         </p>
         <div className="flex flex-wrap gap-2">
           <Badge>{brand.category}</Badge>
-          <Badge>{brand.productCount} products</Badge>
+          <Badge>
+            {brand.productCount} {brand.productCount === 1 ? "product" : "products"}
+          </Badge>
           {brand.isTopBrand ? <Badge>Top Brand</Badge> : null}
         </div>
         <div className="mt-auto flex flex-col gap-2 sm:flex-row">
@@ -228,9 +230,9 @@ export function BrandsIndexShell({
               Brand discovery.
             </h1>
             <p className="mt-5 max-w-2xl text-sm leading-7 text-white/76 sm:text-base">
-              Explore SKXNZ-safe demo brand profiles, curated product edits, and
-              brand-led shopping paths. No official partnership or authorization
-              claim is made for demo brands.
+              Explore curated brand profiles, product edits, and brand-led
+              shopping paths. No official partnership or authorization claim is
+              made for preview profiles.
             </p>
           </div>
 
@@ -345,22 +347,22 @@ export function BrandsIndexShell({
 
         <BrandSection
           title="Top brands"
-          description="Ranked from demo catalogue signals."
+          description="Ranked from current catalogue activity."
           brands={topBrandEntries}
         />
         <BrandSection
           title="New brands"
-          description="Newly staged demo profiles."
+          description="Recently added brand profiles."
           brands={newBrands}
         />
         <BrandSection
           title="Streetwear brands"
-          description="Streetwear-coded demo routes."
+          description="Streetwear-focused brand profiles."
           brands={streetwearBrands}
         />
         <BrandSection
-          title="Premium demo brands"
-          description="Demo profiles only. No partnership claim."
+          title="Premium brands"
+          description="Preview profiles only. No partnership claim."
           brands={luxuryDemoBrands}
         />
       </div>

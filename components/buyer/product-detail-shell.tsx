@@ -18,6 +18,9 @@ import { skxnzFallbackAssets } from "@/src/lib/assets";
 type ProductDetailShellProps = {
   productId: string;
   seedProduct: Product | null;
+  /** Live catalog products related to a live product. Keeps live PDPs from
+   * mixing in local preview products. */
+  liveSimilarProducts?: Product[];
 };
 
 function getSimilarProducts(product: Product, products: Product[]) {
@@ -81,6 +84,7 @@ function ProductAccordion({
 export function ProductDetailShell({
   productId,
   seedProduct,
+  liveSimilarProducts = [],
 }: ProductDetailShellProps) {
   const { getProductById, approvedProducts, isHydrated } = useMarketplace();
   const product =
@@ -129,9 +133,15 @@ export function ProductDetailShell({
 
   const galleryImages = product.gallery.length ? product.gallery : [product.image];
   const activeGalleryImage = activeImage ?? galleryImages[0];
-  const similarProducts = getSimilarProducts(product, approvedProducts).length
-    ? getSimilarProducts(product, approvedProducts)
-    : approvedProducts.filter((item) => item.id !== product.id).slice(0, 3);
+  // Live products only ever show live similar products (never local preview
+  // items); preview products keep the scored local-catalogue suggestions.
+  const scoredSimilarProducts = getSimilarProducts(product, approvedProducts);
+  const similarProducts =
+    product.dataSource === "live"
+      ? liveSimilarProducts
+      : scoredSimilarProducts.length
+        ? scoredSimilarProducts
+        : approvedProducts.filter((item) => item.id !== product.id).slice(0, 3);
 
   function showGalleryImage(offset: number) {
     const currentIndex = Math.max(galleryImages.indexOf(activeGalleryImage), 0);
@@ -294,6 +304,7 @@ export function ProductDetailShell({
         </div>
       </section>
 
+      {similarProducts.length > 0 ? (
       <section className="mx-auto max-w-[96rem] px-4 pb-12 sm:px-6 lg:px-8">
         <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div className="min-w-0">
@@ -317,6 +328,7 @@ export function ProductDetailShell({
           ))}
         </div>
       </section>
+      ) : null}
     </div>
   );
 }

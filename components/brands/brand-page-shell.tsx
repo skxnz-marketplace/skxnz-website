@@ -148,7 +148,7 @@ export function BrandPageShell({
                 </div>
                 <div className="min-w-0">
                   <p className="text-[0.68rem] font-black uppercase tracking-[0.26em] text-[var(--skxnz-glint)]">
-                    {isLiveBrand ? "Live brand profile" : "Demo brand profile"}
+                    {isLiveBrand ? "Live brand profile" : "Preview brand profile"}
                   </p>
                   <h1 className="mt-2 line-clamp-2 break-words font-display text-[2.4rem] uppercase leading-[0.9] tracking-[0.08em] sm:text-6xl">
                     {brandPageHero?.title ?? brand.name}
@@ -191,7 +191,7 @@ export function BrandPageShell({
               <p className="mt-4 rounded-[24px] border border-[rgba(58,8,24,0.10)] bg-[var(--skxnz-bg-soft)] p-4 text-sm leading-6 text-stone">
                 {isLiveBrand
                   ? "Live SKXNZ catalog brand. Saved brands are stored locally for now."
-                  : "Saved brands are stored locally for now. Brand partnerships, authorization, cloud sync, and seller verification are not claimed by this demo profile."}
+                  : "Saved brands are stored locally for now. Brand partnerships, authorization, cloud sync, and seller verification are not claimed by this preview profile."}
               </p>
             </div>
 
@@ -200,7 +200,7 @@ export function BrandPageShell({
                 ["Products", String(allBrandProducts.length)],
                 ["Country", brand.country],
                 ["Logo type", brand.logoType],
-                ["Status", brand.isDemo ? "Demo/internal" : "SKXNZ"],
+                ["Status", brand.isDemo ? "Preview" : "SKXNZ"],
               ].map(([label, value]) => (
                 <div
                   key={label}
@@ -262,11 +262,20 @@ export function BrandPageShell({
           </div>
 
           <div className="flex flex-wrap gap-3">
-            <Badge>{brandProducts.length} products</Badge>
+            <Badge>
+              {brandProducts.length} {brandProducts.length === 1 ? "product" : "products"}
+            </Badge>
             <Badge>{categoryFilter === "All" ? "All categories" : categoryFilter}</Badge>
             <Badge>{sort}</Badge>
             {brandProducts[0] ? (
-              <Badge>From {formatProductPrice(Math.min(...brandProducts.map((product) => product.price)))}</Badge>
+              <Badge>
+                From{" "}
+                {formatProductPrice(
+                  Math.min(
+                    ...brandProducts.map((product) => product.salePrice ?? product.price),
+                  ),
+                )}
+              </Badge>
             ) : null}
           </div>
 
