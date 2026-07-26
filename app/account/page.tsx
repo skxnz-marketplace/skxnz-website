@@ -76,7 +76,7 @@ export default async function AccountPage() {
     <main className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
       <div className="space-y-6">
         <Card className="section-border rounded-[36px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-6 sm:p-8">
-          <p className="section-kicker text-[0.68rem] uppercase tracking-[0.24em] text-sangria">
+          <p className="section-kicker text-[0.8rem] uppercase tracking-[0.24em] text-sangria">
             Your account
           </p>
           <h1 className="mt-3 font-display text-3xl uppercase leading-tight tracking-[0.04em] text-midnightbrown">
@@ -144,7 +144,7 @@ export default async function AccountPage() {
         </Card>
 
         <Card className="section-border rounded-[36px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-6 sm:p-8">
-          <p className="section-kicker text-[0.68rem] uppercase tracking-[0.24em] text-sangria">
+          <p className="section-kicker text-[0.8rem] uppercase tracking-[0.24em] text-sangria">
             Account details
           </p>
           <p className="mt-2 text-sm leading-6 text-stone">
@@ -157,7 +157,7 @@ export default async function AccountPage() {
                 key={label}
                 className="rounded-[20px] border border-[rgba(58,8,24,0.10)] bg-[var(--skxnz-bg-soft)] p-4"
               >
-                <dt className="text-[0.62rem] font-bold uppercase tracking-[0.18em] text-stone">
+                <dt className="text-[0.78rem] font-bold uppercase tracking-[0.18em] text-stone">
                   {label}
                 </dt>
                 <dd className="mt-2 break-all text-sm font-semibold text-midnightbrown">
@@ -169,7 +169,7 @@ export default async function AccountPage() {
         </Card>
 
         <Card className="section-border rounded-[36px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-6 sm:p-8">
-          <p className="section-kicker text-[0.68rem] uppercase tracking-[0.24em] text-sangria">
+          <p className="section-kicker text-[0.8rem] uppercase tracking-[0.24em] text-sangria">
             Coming next
           </p>
           <p className="mt-3 text-sm leading-7 text-stone">

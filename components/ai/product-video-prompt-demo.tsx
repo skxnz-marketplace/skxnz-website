@@ -50,7 +50,7 @@ export function ProductVideoPromptDemo() {
         <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="space-y-2">
-              <span className="text-[0.68rem] uppercase tracking-[0.22em] text-silver">
+              <span className="text-[0.8rem] uppercase tracking-[0.22em] text-silver">
                 Product type
               </span>
               <select
@@ -73,7 +73,7 @@ export function ProductVideoPromptDemo() {
               </select>
             </label>
             <label className="space-y-2">
-              <span className="text-[0.68rem] uppercase tracking-[0.22em] text-silver">
+              <span className="text-[0.8rem] uppercase tracking-[0.22em] text-silver">
                 Color
               </span>
               <input
@@ -87,7 +87,7 @@ export function ProductVideoPromptDemo() {
           </div>
 
           <label className="space-y-2">
-            <span className="text-[0.68rem] uppercase tracking-[0.22em] text-silver">
+            <span className="text-[0.8rem] uppercase tracking-[0.22em] text-silver">
               Mood
             </span>
             <input
@@ -100,7 +100,7 @@ export function ProductVideoPromptDemo() {
           </label>
 
           <label className="space-y-2">
-            <span className="text-[0.68rem] uppercase tracking-[0.22em] text-silver">
+            <span className="text-[0.8rem] uppercase tracking-[0.22em] text-silver">
               Background
             </span>
             <input
@@ -113,7 +113,7 @@ export function ProductVideoPromptDemo() {
           </label>
 
           <label className="space-y-2">
-            <span className="text-[0.68rem] uppercase tracking-[0.22em] text-silver">
+            <span className="text-[0.8rem] uppercase tracking-[0.22em] text-silver">
               Model style
             </span>
             <input

@@ -7,7 +7,7 @@ type CommunityEmptyStateProps = {
 export function CommunityEmptyState({ onCreatePost }: CommunityEmptyStateProps) {
   return (
     <div className="rounded-[32px] border border-[var(--skxnz-border)] bg-[var(--skxnz-surface)] p-8 text-center shadow-[0_18px_54px_rgba(58,8,24,0.06)]">
-      <p className="text-[0.66rem] font-black uppercase tracking-[0.24em] text-[var(--skxnz-maroon)]">
+      <p className="text-[0.78rem] font-black uppercase tracking-[0.24em] text-[var(--skxnz-maroon)]">
         No signals yet
       </p>
       <h2 className="mt-3 font-display text-3xl uppercase tracking-[0.08em] text-[var(--skxnz-text-dark)]">

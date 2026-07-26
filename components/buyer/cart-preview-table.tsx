@@ -57,7 +57,7 @@ export function CartPreviewTable() {
         <div className="border-b border-[rgba(58,8,24,0.10)] p-5 sm:p-7">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div className="min-w-0">
-              <p className="section-kicker text-[0.68rem] uppercase tracking-[0.24em] text-sangria">
+              <p className="section-kicker text-[0.8rem] uppercase tracking-[0.24em] text-sangria">
                 Cart Items
               </p>
               <h2 className="mt-2 break-words font-display text-2xl uppercase leading-tight tracking-[0.06em] text-midnightbrown sm:text-3xl">
@@ -102,7 +102,7 @@ export function CartPreviewTable() {
 
                 <div className="min-w-0 space-y-4">
                   <div className="min-w-0">
-                    <p className="line-clamp-1 text-[0.68rem] font-bold uppercase tracking-[0.2em] text-sangria">
+                    <p className="line-clamp-1 text-[0.8rem] font-bold uppercase tracking-[0.2em] text-sangria">
                       {item.product.brandName}
                     </p>
                     <Link
@@ -191,7 +191,7 @@ export function CartPreviewTable() {
                 </div>
 
                 <div className="min-w-0 rounded-[26px] border border-[rgba(58,8,24,0.10)] bg-[var(--skxnz-bg-soft)] p-4 lg:text-right">
-                  <p className="text-[0.68rem] uppercase tracking-[0.2em] text-stone">
+                  <p className="text-[0.8rem] uppercase tracking-[0.2em] text-stone">
                     Price
                   </p>
                   <p className="product-price mt-2 text-lg font-black text-sangria">
@@ -202,7 +202,7 @@ export function CartPreviewTable() {
                       {formatProductPrice(item.product.price)}
                     </p>
                   ) : null}
-                  <p className="mt-4 text-[0.68rem] uppercase tracking-[0.2em] text-stone">
+                  <p className="mt-4 text-[0.8rem] uppercase tracking-[0.2em] text-stone">
                     Subtotal
                   </p>
                   <p className="product-price mt-2 text-xl font-black text-midnightbrown">
@@ -241,7 +241,7 @@ function CartSummary({
 
   return (
     <Card className="section-border sticky top-28 min-w-0 self-start rounded-[36px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-6 sm:p-7">
-      <p className="section-kicker text-[0.68rem] uppercase tracking-[0.24em] text-sangria">
+      <p className="section-kicker text-[0.8rem] uppercase tracking-[0.24em] text-sangria">
         Order Summary
       </p>
       <h2 className="mt-3 break-words font-display text-2xl uppercase leading-tight tracking-[0.06em] text-midnightbrown">

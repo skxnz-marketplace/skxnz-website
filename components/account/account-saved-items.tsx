@@ -74,7 +74,7 @@ export async function AccountSavedItems() {
             </Link>
             <div className="mt-3 flex min-w-0 flex-1 flex-col">
               {item.brandName ? (
-                <p className="line-clamp-1 text-[0.62rem] font-black uppercase tracking-[0.18em] text-sangria">
+                <p className="line-clamp-1 text-[0.78rem] font-black uppercase tracking-[0.18em] text-sangria">
                   {item.brandName}
                 </p>
               ) : null}
@@ -111,7 +111,7 @@ function PanelShell({
   return (
     <Card className="section-border rounded-[30px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <p className="section-kicker text-[0.68rem] uppercase tracking-[0.24em] text-sangria">
+        <p className="section-kicker text-[0.8rem] uppercase tracking-[0.24em] text-sangria">
           Account saved items
         </p>
         <Badge>{status}</Badge>

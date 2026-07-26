@@ -88,7 +88,7 @@ export function SiteOpeningLoader() {
           className="h-auto w-[150px] object-contain drop-shadow-[0_18px_36px_rgba(255,254,250,0.13)] sm:w-[200px] lg:w-[224px]"
           sizes="(max-width: 640px) 150px, (max-width: 1024px) 200px, 224px"
         />
-        <p className="mt-5 text-center text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-[#FFFEFA]/70 sm:text-[0.68rem]">
+        <p className="mt-5 text-center text-[0.78rem] font-semibold uppercase tracking-[0.18em] text-[#FFFEFA]/70 sm:text-[0.8rem]">
           {siteConfig.tagline}
         </p>
       </div>

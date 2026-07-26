@@ -16,10 +16,10 @@ export function DemoOrderCard({ order }: { order: DemoOrder }) {
       <div className="grid gap-0 lg:grid-cols-[minmax(0,1fr)_15rem]">
         <div className="min-w-0 p-5 sm:p-6">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-full border border-[rgba(34,211,238,0.24)] bg-[rgba(34,211,238,0.08)] px-3 py-1 text-[0.62rem] font-bold uppercase tracking-[0.16em] text-sangria">
+            <span className="rounded-full border border-[rgba(34,211,238,0.24)] bg-[rgba(34,211,238,0.08)] px-3 py-1 text-[0.78rem] font-bold uppercase tracking-[0.16em] text-sangria">
               {order.status}
             </span>
-            <span className="rounded-full border border-[rgba(58,8,24,0.10)] bg-[var(--skxnz-bg-soft)] px-3 py-1 text-[0.62rem] font-bold uppercase tracking-[0.16em] text-stone">
+            <span className="rounded-full border border-[rgba(58,8,24,0.10)] bg-[var(--skxnz-bg-soft)] px-3 py-1 text-[0.78rem] font-bold uppercase tracking-[0.16em] text-stone">
               {order.source === "demo-checkout"
                 ? "Internal checkout record"
                 : "Seeded demo order"}
@@ -70,7 +70,7 @@ export function DemoOrderCard({ order }: { order: DemoOrder }) {
 function SummaryPill({ label, value }: { label: string; value: string }) {
   return (
     <div className="min-w-0 rounded-[20px] border border-[rgba(58,8,24,0.10)] bg-[var(--skxnz-bg-soft)] px-4 py-3">
-      <p className="text-[0.62rem] font-bold uppercase tracking-[0.18em] text-stone">
+      <p className="text-[0.78rem] font-bold uppercase tracking-[0.18em] text-stone">
         {label}
       </p>
       <p className="mt-1 line-clamp-1 break-words font-black text-midnightbrown">

@@ -27,7 +27,7 @@ export function ShopByBrandSection() {
       <div className="flex flex-col gap-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div className="min-w-0">
-            <p className="text-[0.68rem] uppercase tracking-[0.24em] text-teal">
+            <p className="text-[0.8rem] uppercase tracking-[0.24em] text-teal">
               Shop By Brand
             </p>
             <h2 className="mt-3 max-w-[12ch] text-wrap-safe break-words font-display text-[1.28rem] uppercase leading-[1] tracking-[0.05em] text-midnightbrown sm:max-w-none sm:text-2xl sm:tracking-[0.12em]">
@@ -57,7 +57,7 @@ export function ShopByBrandSection() {
                   className="object-cover object-center"
                 />
                 <div className="absolute left-4 top-4">
-                  <span className="inline-flex rounded-full border border-sandstone/60 bg-midnightbrown/78 px-3 py-1 text-[0.62rem] uppercase tracking-[0.2em] text-pearlcream backdrop-blur">
+                  <span className="inline-flex rounded-full border border-sandstone/60 bg-midnightbrown/78 px-3 py-1 text-[0.78rem] uppercase tracking-[0.2em] text-pearlcream backdrop-blur">
                     Rank #{index + 1}
                   </span>
                 </div>
@@ -98,7 +98,7 @@ export function ShopByBrandSection() {
 
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div className="rounded-[20px] border border-sandstone bg-white/80 p-4">
-                    <p className="text-[0.62rem] uppercase tracking-[0.2em] text-silver">
+                    <p className="text-[0.78rem] uppercase tracking-[0.2em] text-silver">
                       Featured Categories
                     </p>
                     <p className="mt-2 line-clamp-2 break-words font-display text-lg uppercase tracking-[0.12em] text-midnightbrown">
@@ -106,7 +106,7 @@ export function ShopByBrandSection() {
                     </p>
                   </div>
                   <div className="rounded-[20px] border border-sandstone bg-white/80 p-4">
-                    <p className="text-[0.62rem] uppercase tracking-[0.2em] text-silver">
+                    <p className="text-[0.78rem] uppercase tracking-[0.2em] text-silver">
                       Brand Status
                     </p>
                     <p className="mt-2 line-clamp-2 break-words font-display text-lg uppercase tracking-[0.12em] text-midnightbrown">

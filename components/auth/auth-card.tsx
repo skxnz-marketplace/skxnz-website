@@ -90,7 +90,7 @@ export function AuthCard({ mode, nextPath }: AuthCardProps) {
 
   return (
     <Card className="section-border rounded-[36px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-6 sm:p-8">
-      <p className="section-kicker text-[0.68rem] uppercase tracking-[0.24em] text-sangria">
+      <p className="section-kicker text-[0.8rem] uppercase tracking-[0.24em] text-sangria">
         {isSignup ? "JOIN SKXNZ" : "Sign in"}
       </p>
       <h2 className="mt-4 font-display text-3xl uppercase leading-tight tracking-[0.04em] text-midnightbrown">

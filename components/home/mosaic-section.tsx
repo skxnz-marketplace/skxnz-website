@@ -27,7 +27,7 @@ export function MosaicSection() {
   return (
     <section
       aria-label="Shop by category"
-      className="relative isolate overflow-hidden bg-[#7b262c] py-12"
+      className="relative isolate overflow-hidden bg-[#7b262c] py-14 sm:py-20"
     >
       {/* Brand gradient backdrop — spans the section horizontally, tiles sit on top */}
       <div
@@ -37,7 +37,7 @@ export function MosaicSection() {
       />
 
       <div className="relative mx-auto max-w-[1440px] px-6 sm:px-10 lg:px-16">
-        <h2 className="font-grotesk mb-6 text-xl font-bold uppercase tracking-[-0.01em] text-[#F4F1EC]">
+        <h2 className="font-grotesk mb-8 text-2xl font-bold uppercase tracking-[-0.015em] text-[#F4F1EC] sm:text-3xl">
           Shop The Edit
         </h2>
 
@@ -73,10 +73,10 @@ export function MosaicSection() {
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
 
               <div className="relative z-10">
-                <p className="text-[0.72rem] font-bold uppercase tracking-[0.14em] text-[#F4F1EC]">
+                <p className="text-[0.95rem] font-bold uppercase tracking-[0.1em] text-[#F4F1EC]">
                   {tile.label}
                 </p>
-                <span className="mt-1 inline-flex items-center gap-1.5 text-[0.64rem] font-semibold uppercase tracking-[0.1em] text-[#F4F1EC]/50 transition group-hover:text-[#00E5FF]">
+                <span className="mt-1.5 inline-flex items-center gap-1.5 text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#F4F1EC]/60 transition duration-300 group-hover:text-[#00E5FF] motion-reduce:transition-none">
                   {tile.cta} →
                 </span>
               </div>

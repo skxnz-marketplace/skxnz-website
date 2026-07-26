@@ -18,7 +18,7 @@ type SidebarProps = {
 export function Sidebar({ title, items, activeHref }: SidebarProps) {
   return (
     <Card className="section-border self-start rounded-[24px] p-3 sm:p-4 xl:sticky xl:top-24">
-      <p className="px-2 text-[0.62rem] uppercase tracking-[0.12em] text-teal">
+      <p className="px-2 text-[0.78rem] uppercase tracking-[0.12em] text-teal">
         {title}
       </p>
       <div className="mt-3 grid gap-2">

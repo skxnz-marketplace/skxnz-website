@@ -16,10 +16,10 @@ export function CommunityHero({
       <div className="relative mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[1.08fr_0.92fr] lg:px-8 lg:py-16">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-3">
-            <span className="rounded-full border border-[rgba(34,211,238,0.34)] bg-[rgba(34,211,238,0.08)] px-3 py-1 text-[0.62rem] font-black uppercase tracking-[0.22em] text-[var(--skxnz-glint)]">
+            <span className="rounded-full border border-[rgba(34,211,238,0.34)] bg-[rgba(34,211,238,0.08)] px-3 py-1 text-[0.78rem] font-black uppercase tracking-[0.22em] text-[var(--skxnz-glint)]">
               Beta
             </span>
-            <span className="text-[0.66rem] font-black uppercase tracking-[0.28em] text-white/58">
+            <span className="text-[0.78rem] font-black uppercase tracking-[0.28em] text-white/58">
               Post the fit. Tag the signal.
             </span>
           </div>
@@ -53,7 +53,7 @@ export function CommunityHero({
               key={label}
               className="rounded-[26px] border border-white/12 bg-white/[0.075] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur"
             >
-              <p className="text-[0.62rem] font-black uppercase tracking-[0.22em] text-white/50">
+              <p className="text-[0.78rem] font-black uppercase tracking-[0.22em] text-white/50">
                 {label}
               </p>
               <p className="mt-3 line-clamp-2 text-sm font-semibold leading-6 text-white/86">

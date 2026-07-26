@@ -24,7 +24,7 @@ export function OrderDetailDemo({ order }: { order: DemoOrder }) {
                 />
               </div>
               <div className="min-w-0">
-                <p className="line-clamp-1 text-[0.64rem] font-bold uppercase tracking-[0.18em] text-sangria">
+                <p className="line-clamp-1 text-[0.78rem] font-bold uppercase tracking-[0.18em] text-sangria">
                   {item.brandName || "SKXNZ Demo"}
                 </p>
                 <h4 className="mt-2 line-clamp-2 break-words text-base font-black text-midnightbrown">
@@ -36,7 +36,7 @@ export function OrderDetailDemo({ order }: { order: DemoOrder }) {
                 </p>
               </div>
               <div className="min-w-0 text-left sm:text-right">
-                <p className="text-[0.62rem] font-bold uppercase tracking-[0.18em] text-stone">
+                <p className="text-[0.78rem] font-bold uppercase tracking-[0.18em] text-stone">
                   Line total
                 </p>
                 <p className="mt-2 font-black text-sangria">
@@ -48,7 +48,7 @@ export function OrderDetailDemo({ order }: { order: DemoOrder }) {
         </div>
 
         <aside className="min-w-0 rounded-[26px] border border-[rgba(58,8,24,0.10)] bg-[var(--skxnz-surface)] p-5 text-sm leading-7 text-stone">
-          <p className="text-[0.68rem] font-bold uppercase tracking-[0.22em] text-sangria">
+          <p className="text-[0.8rem] font-bold uppercase tracking-[0.22em] text-sangria">
             Demo order details
           </p>
           <div className="mt-4 space-y-4">

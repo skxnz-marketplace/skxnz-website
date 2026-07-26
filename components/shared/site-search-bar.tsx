@@ -88,7 +88,7 @@ function SuggestionRow({
         <span className="line-clamp-1 block break-words font-medium uppercase tracking-[0.12em] text-midnightbrown">
           {suggestion.label}
         </span>
-        <span className="mt-1 block text-[0.68rem] uppercase tracking-[0.2em] text-stone">
+        <span className="mt-1 block text-[0.8rem] uppercase tracking-[0.2em] text-stone">
           {suggestion.description}
         </span>
       </span>
@@ -313,7 +313,7 @@ export function SiteSearchBar({
       ) : null}
 
       {pathname === "/shop" && normalizedQuery ? (
-        <p className="mt-3 text-[0.68rem] uppercase tracking-[0.2em] text-stone">
+        <p className="mt-3 text-[0.8rem] uppercase tracking-[0.2em] text-stone">
           Search active: {normalizedQuery}
         </p>
       ) : null}

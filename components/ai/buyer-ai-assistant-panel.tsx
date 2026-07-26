@@ -99,7 +99,7 @@ export function BuyerAiAssistantPanel() {
 
       <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
         <label className="space-y-2">
-          <span className="text-[0.68rem] uppercase tracking-[0.22em] text-sangria/75">
+          <span className="text-[0.8rem] uppercase tracking-[0.22em] text-sangria/75">
             Shopping question
           </span>
           <input
@@ -113,7 +113,7 @@ export function BuyerAiAssistantPanel() {
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <label className="space-y-2">
-            <span className="text-[0.68rem] uppercase tracking-[0.22em] text-sangria/75">
+            <span className="text-[0.8rem] uppercase tracking-[0.22em] text-sangria/75">
               Budget
             </span>
             <input
@@ -125,7 +125,7 @@ export function BuyerAiAssistantPanel() {
             />
           </label>
           <label className="space-y-2">
-            <span className="text-[0.68rem] uppercase tracking-[0.22em] text-sangria/75">
+            <span className="text-[0.8rem] uppercase tracking-[0.22em] text-sangria/75">
               Category
             </span>
             <input
@@ -136,7 +136,7 @@ export function BuyerAiAssistantPanel() {
             />
           </label>
           <label className="space-y-2">
-            <span className="text-[0.68rem] uppercase tracking-[0.22em] text-sangria/75">
+            <span className="text-[0.8rem] uppercase tracking-[0.22em] text-sangria/75">
               Style signal
             </span>
             <input
@@ -147,7 +147,7 @@ export function BuyerAiAssistantPanel() {
             />
           </label>
           <label className="space-y-2">
-            <span className="text-[0.68rem] uppercase tracking-[0.22em] text-sangria/75">
+            <span className="text-[0.8rem] uppercase tracking-[0.22em] text-sangria/75">
               Size
             </span>
             <input
@@ -173,7 +173,7 @@ export function BuyerAiAssistantPanel() {
       ) : null}
 
       <div className="mt-6 rounded-[28px] border border-sandstone/80 bg-white/80 p-5">
-        <p className="text-[0.68rem] uppercase tracking-[0.22em] text-teal">
+        <p className="text-[0.8rem] uppercase tracking-[0.22em] text-teal">
           AI Response
         </p>
         <p className="mt-3 text-sm leading-7 text-obsidian/80">{response.answer}</p>
@@ -193,7 +193,7 @@ export function BuyerAiAssistantPanel() {
                 key={product.id}
                 className="rounded-[24px] border border-sandstone/80 bg-pearlcream/90 p-4"
               >
-                <p className="text-[0.68rem] uppercase tracking-[0.22em] text-teal">
+                <p className="text-[0.8rem] uppercase tracking-[0.22em] text-teal">
                   {product.brandName} · {product.category}
                 </p>
                 <h3 className="mt-2 line-clamp-2 font-display text-lg uppercase tracking-[0.1em] text-obsidian">

@@ -14,10 +14,10 @@ export function AiStylistBanner() {
             {/* Left: text */}
             <div className="max-w-lg">
               <div className="mb-3 inline-flex items-center gap-2">
-                <span className="rounded-full border border-[#00E5FF]/30 bg-[#00E5FF]/10 px-2.5 py-0.5 text-[0.6rem] font-bold uppercase tracking-[0.14em] text-[#00E5FF]">
+                <span className="rounded-full border border-[#00E5FF]/30 bg-[#00E5FF]/10 px-2.5 py-0.5 text-[0.78rem] font-bold uppercase tracking-[0.14em] text-[#00E5FF]">
                   COMING SOON
                 </span>
-                <span className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-[#F4F1EC]/40">
+                <span className="text-[0.8rem] font-semibold uppercase tracking-[0.12em] text-[#F4F1EC]/40">
                   AI Stylist
                 </span>
               </div>
@@ -32,7 +32,7 @@ export function AiStylistBanner() {
               <div className="mt-6 flex flex-wrap gap-4">
                 {aiSteps.map((step) => (
                   <div key={step.step} className="flex items-center gap-2.5">
-                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[#00E5FF]/25 bg-[#00E5FF]/8 text-[0.6rem] font-bold text-[#00E5FF]">
+                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[#00E5FF]/25 bg-[#00E5FF]/8 text-[0.78rem] font-bold text-[#00E5FF]">
                       {step.step}
                     </span>
                     <span className="text-[0.76rem] font-semibold text-[#F4F1EC]/70">

@@ -39,7 +39,7 @@ export function BrandMark({ className, compact = false }: BrandMarkProps) {
           />
         </span>
         {!compact ? (
-          <span className="block text-[0.66rem] uppercase tracking-[0.28em] text-silver">
+          <span className="block text-[0.78rem] uppercase tracking-[0.28em] text-silver">
             {siteConfig.tagline}
           </span>
         ) : null}

@@ -61,7 +61,7 @@ export function CommunityPostCard({
         {primaryProduct ? (
           <Link
             href={`/product/${primaryProduct.id}`}
-            className="absolute bottom-4 left-4 max-w-[calc(100%-2rem)] rounded-full border border-white/18 bg-white/[0.14] px-3 py-1.5 text-[0.62rem] font-black uppercase tracking-[0.16em] text-white backdrop-blur transition hover:border-[rgba(34,211,238,0.45)]"
+            className="absolute bottom-4 left-4 max-w-[calc(100%-2rem)] rounded-full border border-white/18 bg-white/[0.14] px-3 py-1.5 text-[0.78rem] font-black uppercase tracking-[0.16em] text-white backdrop-blur transition hover:border-[rgba(34,211,238,0.45)]"
           >
             Tagged: {primaryProduct.name}
           </Link>
@@ -78,7 +78,7 @@ export function CommunityPostCard({
             <Link
               key={`${post.id}-${tag}`}
               href={`/shop?q=${encodeURIComponent(tag.replace("#", ""))}`}
-              className="rounded-full border border-[var(--skxnz-border)] bg-[var(--skxnz-surface)] px-3 py-1 text-[0.62rem] font-black uppercase tracking-[0.14em] text-[var(--skxnz-maroon)] transition hover:border-[rgba(34,211,238,0.42)]"
+              className="rounded-full border border-[var(--skxnz-border)] bg-[var(--skxnz-surface)] px-3 py-1 text-[0.78rem] font-black uppercase tracking-[0.14em] text-[var(--skxnz-maroon)] transition hover:border-[rgba(34,211,238,0.42)]"
             >
               {tag}
             </Link>
@@ -112,7 +112,7 @@ export function CommunityPostCard({
           </Button>
         </div>
 
-        <p className="text-[0.68rem] leading-5 text-[var(--skxnz-text-muted)]">
+        <p className="text-[0.8rem] leading-5 text-[var(--skxnz-text-muted)]">
           Share and comment actions are demo placeholders until community
           moderation and account persistence are connected.
         </p>

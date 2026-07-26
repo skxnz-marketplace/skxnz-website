@@ -91,10 +91,10 @@ export default async function SupportTicketThreadPage({
       <div className="space-y-6">
         <Card className="section-border rounded-[36px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-6 sm:p-8">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="section-kicker text-[0.68rem] uppercase tracking-[0.24em] text-sangria">
+            <p className="section-kicker text-[0.8rem] uppercase tracking-[0.24em] text-sangria">
               Ticket {ticket.id.slice(0, 8).toUpperCase()}
             </p>
-            <span className="rounded-full border border-[rgba(34,211,238,0.24)] bg-[rgba(34,211,238,0.08)] px-3 py-1 text-[0.62rem] font-bold uppercase tracking-[0.16em] text-sangria">
+            <span className="rounded-full border border-[rgba(34,211,238,0.24)] bg-[rgba(34,211,238,0.08)] px-3 py-1 text-[0.78rem] font-bold uppercase tracking-[0.16em] text-sangria">
               {statusLabels[ticket.status]}
             </span>
           </div>
@@ -119,7 +119,7 @@ export default async function SupportTicketThreadPage({
         </Card>
 
         <Card className="section-border rounded-[36px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-6 sm:p-8">
-          <p className="section-kicker text-[0.68rem] uppercase tracking-[0.24em] text-sangria">
+          <p className="section-kicker text-[0.8rem] uppercase tracking-[0.24em] text-sangria">
             Conversation
           </p>
 
@@ -141,10 +141,10 @@ export default async function SupportTicketThreadPage({
                     }`}
                   >
                     <div className="flex flex-wrap items-center justify-between gap-2">
-                      <p className="text-[0.62rem] font-bold uppercase tracking-[0.18em] text-sangria">
+                      <p className="text-[0.78rem] font-bold uppercase tracking-[0.18em] text-sangria">
                         {senderLabels[entry.senderRole] ?? entry.senderRole}
                       </p>
-                      <p className="text-[0.68rem] text-stone">
+                      <p className="text-[0.8rem] text-stone">
                         {formatDateTime(entry.createdAt)}
                       </p>
                     </div>

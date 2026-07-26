@@ -77,7 +77,7 @@ function BrandCard({
           <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(16,0,6,0.06)_0%,rgba(16,0,6,0.28)_40%,rgba(16,0,6,0.88)_100%)]" />
           <div className="absolute left-3 top-3 flex flex-wrap gap-2">
             {priorityLabel ? (
-              <span className="rounded-full border border-white/20 bg-white/[0.12] px-2.5 py-1 text-[0.56rem] font-black uppercase tracking-[0.12em] text-[var(--skxnz-text-light)] backdrop-blur">
+              <span className="rounded-full border border-white/20 bg-white/[0.12] px-2.5 py-1 text-[0.75rem] font-black uppercase tracking-[0.12em] text-[var(--skxnz-text-light)] backdrop-blur">
                 {priorityLabel}
               </span>
             ) : null}
@@ -155,7 +155,7 @@ function BrandSection({
     <section className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className="min-w-0">
-          <p className="text-[0.62rem] font-black uppercase tracking-[0.14em] text-teal">
+          <p className="text-[0.78rem] font-black uppercase tracking-[0.14em] text-teal">
             {title}
           </p>
           <p className="mt-1 max-w-2xl text-sm leading-6 text-stone">
@@ -223,7 +223,7 @@ export function BrandsIndexShell({
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_78%_18%,rgba(34,211,238,0.14),transparent_28%),radial-gradient(circle_at_18%_80%,rgba(217,70,239,0.12),transparent_32%)]" />
         <div className="relative mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:py-16">
           <div className="min-w-0 self-end">
-            <p className="text-[0.68rem] font-black uppercase tracking-[0.3em] text-[var(--skxnz-glint)]">
+            <p className="text-[0.8rem] font-black uppercase tracking-[0.3em] text-[var(--skxnz-glint)]">
               Shop by Brand
             </p>
             <h1 className="mt-5 max-w-[12ch] break-words font-display text-[2.6rem] uppercase leading-[0.9] tracking-[0.04em] sm:text-6xl">
@@ -237,7 +237,7 @@ export function BrandsIndexShell({
           </div>
 
           <Card className="min-w-0 rounded-[34px] border-white/12 bg-white/[0.08] p-5 text-[var(--skxnz-text-light)] backdrop-blur-xl">
-            <p className="text-[0.66rem] font-black uppercase tracking-[0.22em] text-white/62">
+            <p className="text-[0.78rem] font-black uppercase tracking-[0.22em] text-white/62">
               Featured brands strip
             </p>
             <div className="mt-5 grid gap-3">
@@ -278,7 +278,7 @@ export function BrandsIndexShell({
         <Card className="rounded-[24px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-4 shadow-[0_12px_32px_rgba(58,8,24,0.06)] sm:p-5">
           <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
             <label className="min-w-0 space-y-2">
-              <span className="text-[0.62rem] font-black uppercase tracking-[0.12em] text-stone">
+              <span className="text-[0.78rem] font-black uppercase tracking-[0.12em] text-stone">
                 Search brands
               </span>
               <input
@@ -300,7 +300,7 @@ export function BrandsIndexShell({
                     type="button"
                     onClick={() => setFilter(entry)}
                     className={cn(
-                      "rounded-full border px-3 py-1.5 text-[0.62rem] font-black uppercase tracking-[0.1em] transition",
+                      "rounded-full border px-3 py-1.5 text-[0.78rem] font-black uppercase tracking-[0.1em] transition",
                       isActive
                         ? "border-[rgba(34,211,238,0.38)] bg-[rgba(34,211,238,0.08)] text-sangria"
                         : "border-[rgba(58,8,24,0.12)] bg-white text-stone hover:border-[rgba(34,211,238,0.32)] hover:text-sangria",

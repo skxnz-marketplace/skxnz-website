@@ -181,7 +181,7 @@ export function BrandPageShell({
         <Card className="rounded-[32px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-5 shadow-[0_18px_55px_rgba(58,8,24,0.07)] sm:p-6">
           <div className="grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(18rem,0.8fr)]">
             <div className="min-w-0">
-              <p className="text-[0.68rem] font-black uppercase tracking-[0.24em] text-teal">
+              <p className="text-[0.8rem] font-black uppercase tracking-[0.24em] text-teal">
                 Brand page
               </p>
               <h2 className="mt-3 font-display text-2xl uppercase tracking-[0.1em] text-midnightbrown sm:text-3xl">
@@ -206,7 +206,7 @@ export function BrandPageShell({
                   key={label}
                   className="min-w-0 rounded-[24px] border border-[rgba(58,8,24,0.10)] bg-[var(--skxnz-card)] p-4"
                 >
-                  <p className="text-[0.62rem] font-black uppercase tracking-[0.18em] text-stone">
+                  <p className="text-[0.78rem] font-black uppercase tracking-[0.18em] text-stone">
                     {label}
                   </p>
                   <p className="mt-2 line-clamp-2 font-black text-sangria">
@@ -230,7 +230,7 @@ export function BrandPageShell({
         <section id="brand-products" className="space-y-5">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div className="min-w-0">
-              <p className="text-[0.68rem] font-black uppercase tracking-[0.24em] text-teal">
+              <p className="text-[0.8rem] font-black uppercase tracking-[0.24em] text-teal">
                 Brand Products
               </p>
               <h2 className="mt-3 font-display text-2xl uppercase tracking-[0.12em] text-midnightbrown sm:text-3xl">
@@ -289,7 +289,7 @@ export function BrandPageShell({
 
         <section className="space-y-5">
           <div className="min-w-0">
-            <p className="text-[0.68rem] font-black uppercase tracking-[0.24em] text-teal">
+            <p className="text-[0.8rem] font-black uppercase tracking-[0.24em] text-teal">
               Similar brands
             </p>
             <h2 className="mt-3 font-display text-2xl uppercase tracking-[0.12em] text-midnightbrown sm:text-3xl">

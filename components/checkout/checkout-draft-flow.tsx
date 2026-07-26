@@ -124,7 +124,7 @@ export function CheckoutDraftFlow() {
       <Card className="section-border overflow-hidden rounded-[36px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-0">
         <div className="grid gap-0 lg:grid-cols-[minmax(0,1fr)_0.62fr]">
           <div className="min-w-0 p-6 sm:p-8 lg:p-10">
-            <p className="section-kicker text-[0.68rem] uppercase tracking-[0.24em] text-sangria">
+            <p className="section-kicker text-[0.8rem] uppercase tracking-[0.24em] text-sangria">
               Checkout review
             </p>
             <h1 className="mt-4 max-w-[14ch] break-words font-display text-[2.35rem] uppercase leading-[0.92] tracking-[-0.04em] text-midnightbrown sm:text-5xl lg:text-6xl">
@@ -136,7 +136,7 @@ export function CheckoutDraftFlow() {
             </p>
           </div>
           <div className="min-w-0 border-t border-[rgba(58,8,24,0.12)] bg-[linear-gradient(135deg,var(--skxnz-maroon-deep),var(--skxnz-maroon),var(--skxnz-obsidian))] p-6 text-[var(--skxnz-text-light)] sm:p-8 lg:border-l lg:border-t-0 lg:p-10">
-            <p className="text-[0.68rem] uppercase tracking-[0.24em] text-[rgba(255,254,250,0.72)]">
+            <p className="text-[0.8rem] uppercase tracking-[0.24em] text-[rgba(255,254,250,0.72)]">
               Payment status
             </p>
             <h2 className="mt-4 max-w-sm break-words font-display text-2xl uppercase leading-tight tracking-[0.04em] sm:text-3xl">
@@ -153,7 +153,7 @@ export function CheckoutDraftFlow() {
       <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_26rem]">
         <section className="min-w-0 space-y-6">
           <Card className="section-border rounded-[36px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-6 sm:p-8">
-            <p className="section-kicker text-[0.68rem] uppercase tracking-[0.24em] text-sangria">
+            <p className="section-kicker text-[0.8rem] uppercase tracking-[0.24em] text-sangria">
               Step 1
             </p>
             <h2 className="mt-3 font-display text-3xl uppercase leading-tight tracking-[0.04em] text-midnightbrown">
@@ -191,7 +191,7 @@ export function CheckoutDraftFlow() {
           </Card>
 
           <Card className="section-border rounded-[36px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-6 sm:p-8">
-            <p className="section-kicker text-[0.68rem] uppercase tracking-[0.24em] text-sangria">
+            <p className="section-kicker text-[0.8rem] uppercase tracking-[0.24em] text-sangria">
               Step 2
             </p>
             <h2 className="mt-3 font-display text-3xl uppercase leading-tight tracking-[0.04em] text-midnightbrown">
@@ -250,7 +250,7 @@ export function CheckoutDraftFlow() {
           </Card>
 
           <Card className="section-border rounded-[36px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-6 sm:p-8">
-            <p className="section-kicker text-[0.68rem] uppercase tracking-[0.24em] text-sangria">
+            <p className="section-kicker text-[0.8rem] uppercase tracking-[0.24em] text-sangria">
               Step 3
             </p>
             <h2 className="mt-3 font-display text-3xl uppercase leading-tight tracking-[0.04em] text-midnightbrown">
@@ -260,7 +260,7 @@ export function CheckoutDraftFlow() {
               Optional instructions for delivery, saved with your draft.
             </p>
             <label className="mt-5 block min-w-0">
-              <span className="text-[0.68rem] font-bold uppercase tracking-[0.18em] text-stone">
+              <span className="text-[0.8rem] font-bold uppercase tracking-[0.18em] text-stone">
                 Note (optional)
               </span>
               <textarea
@@ -276,7 +276,7 @@ export function CheckoutDraftFlow() {
           </Card>
 
           <Card className="section-border rounded-[36px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-bg-soft)] p-6 sm:p-8">
-            <p className="section-kicker text-[0.68rem] uppercase tracking-[0.24em] text-sangria">
+            <p className="section-kicker text-[0.8rem] uppercase tracking-[0.24em] text-sangria">
               Step 4
             </p>
             <h2 className="mt-3 font-display text-3xl uppercase leading-tight tracking-[0.04em] text-midnightbrown">
@@ -309,7 +309,7 @@ export function CheckoutDraftFlow() {
 
         <aside className="min-w-0 space-y-4 self-start xl:sticky xl:top-28">
           <Card className="section-border min-w-0 rounded-[36px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-6 sm:p-7">
-            <p className="section-kicker text-[0.68rem] uppercase tracking-[0.24em] text-sangria">
+            <p className="section-kicker text-[0.8rem] uppercase tracking-[0.24em] text-sangria">
               Cart summary
             </p>
             <div className="mt-5 space-y-4">
@@ -329,7 +329,7 @@ export function CheckoutDraftFlow() {
                     />
                   </div>
                   <div className="min-w-0">
-                    <p className="line-clamp-1 text-[0.65rem] font-bold uppercase tracking-[0.18em] text-sangria">
+                    <p className="line-clamp-1 text-[0.78rem] font-bold uppercase tracking-[0.18em] text-sangria">
                       {item.product.brandName}
                     </p>
                     <p className="mt-1 line-clamp-2 break-words text-sm font-bold leading-snug text-midnightbrown">
@@ -361,7 +361,7 @@ export function CheckoutDraftFlow() {
           </Card>
 
           <Card className="section-border min-w-0 rounded-[36px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-6 sm:p-7">
-            <p className="section-kicker text-[0.68rem] uppercase tracking-[0.24em] text-sangria">
+            <p className="section-kicker text-[0.8rem] uppercase tracking-[0.24em] text-sangria">
               Checkout draft
             </p>
             <p className="mt-3 text-sm leading-7 text-stone">
@@ -384,7 +384,7 @@ export function CheckoutDraftFlow() {
                 role="status"
                 className="mt-4 rounded-[22px] border border-[rgba(34,211,238,0.28)] bg-[rgba(34,211,238,0.08)] p-4 text-sm leading-6 text-midnightbrown"
               >
-                <span className="mr-2 text-[0.66rem] font-bold uppercase tracking-[0.2em] text-sangria">
+                <span className="mr-2 text-[0.78rem] font-bold uppercase tracking-[0.2em] text-sangria">
                   Checkout draft ready
                 </span>
                 Your details are saved on this device for review. This local save
@@ -448,7 +448,7 @@ function Field({
 }) {
   return (
     <label className={cn("block min-w-0", className)}>
-      <span className="text-[0.68rem] font-bold uppercase tracking-[0.18em] text-stone">
+      <span className="text-[0.8rem] font-bold uppercase tracking-[0.18em] text-stone">
         {label}
       </span>
       <input

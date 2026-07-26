@@ -104,7 +104,7 @@ export function ProductDetailShell({
     return (
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
         <Card className="rounded-[36px] border-[var(--skxnz-border)] bg-[var(--skxnz-surface)] p-8 text-center">
-          <p className="text-[0.68rem] font-bold uppercase tracking-[0.24em] text-[var(--skxnz-maroon)]">
+          <p className="text-[0.8rem] font-bold uppercase tracking-[0.24em] text-[var(--skxnz-maroon)]">
             Product Route
           </p>
           <h1 className="mt-4 break-words text-[1.6rem] font-semibold leading-tight text-[var(--skxnz-text-dark)] sm:text-3xl">
@@ -169,13 +169,13 @@ export function ProductDetailShell({
                     className="object-cover object-center"
                   />
                   <div className="absolute left-4 top-4 flex flex-wrap gap-2 sm:left-6 sm:top-6">
-                    <span className="inline-flex rounded-full border border-white/20 bg-[rgba(16,0,6,0.72)] px-3 py-1.5 text-[0.62rem] font-bold uppercase tracking-[0.2em] text-[var(--skxnz-text-light)] backdrop-blur">
+                    <span className="inline-flex rounded-full border border-white/20 bg-[rgba(16,0,6,0.72)] px-3 py-1.5 text-[0.78rem] font-bold uppercase tracking-[0.2em] text-[var(--skxnz-text-light)] backdrop-blur">
                       {product.category}
                     </span>
                     {product.collections.slice(0, 1).map((collection) => (
                       <span
                         key={collection}
-                        className="inline-flex rounded-full border border-white/20 bg-[rgba(58,8,24,0.70)] px-3 py-1.5 text-[0.62rem] font-bold uppercase tracking-[0.2em] text-[var(--skxnz-text-light)] backdrop-blur"
+                        className="inline-flex rounded-full border border-white/20 bg-[rgba(58,8,24,0.70)] px-3 py-1.5 text-[0.78rem] font-bold uppercase tracking-[0.2em] text-[var(--skxnz-text-light)] backdrop-blur"
                       >
                         {collection}
                       </span>
@@ -282,7 +282,7 @@ export function ProductDetailShell({
             <div className="absolute right-[-5rem] top-[-4rem] h-48 w-48 rounded-full bg-[rgba(34,211,238,0.14)] blur-3xl" />
             <div className="absolute bottom-[-5rem] left-[-4rem] h-48 w-48 rounded-full bg-[rgba(139,92,246,0.16)] blur-3xl" />
             <div className="relative z-10">
-              <p className="text-[0.66rem] font-bold uppercase tracking-[0.24em] text-[rgba(255,254,250,0.66)]">
+              <p className="text-[0.78rem] font-bold uppercase tracking-[0.24em] text-[rgba(255,254,250,0.66)]">
                 AI Styling Preview
               </p>
               <h2 className="mt-4 text-2xl font-semibold uppercase leading-tight tracking-[0.04em]">
@@ -308,7 +308,7 @@ export function ProductDetailShell({
       <section className="mx-auto max-w-[96rem] px-4 pb-12 sm:px-6 lg:px-8">
         <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div className="min-w-0">
-            <p className="text-[0.68rem] font-bold uppercase tracking-[0.24em] text-[var(--skxnz-maroon)]">
+            <p className="text-[0.8rem] font-bold uppercase tracking-[0.24em] text-[var(--skxnz-maroon)]">
               Similar Products
             </p>
             <h2 className="mt-2 break-words text-2xl font-semibold uppercase leading-tight tracking-[-0.02em] text-[var(--skxnz-text-dark)] sm:text-3xl">

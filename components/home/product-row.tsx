@@ -50,7 +50,7 @@ function ProductCard({ product, index }: { product: HomeProduct; index: number }
   const gradient = PRODUCT_GRADIENTS[index % PRODUCT_GRADIENTS.length] ?? PRODUCT_GRADIENTS[0];
 
   return (
-    <article className="group relative flex flex-col rounded-2xl bg-white shadow-sm ring-1 ring-black/6 transition hover:-translate-y-0.5 hover:shadow-md">
+    <article className="group relative flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-black/6 transition duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_18px_44px_rgba(22,22,22,0.12)] focus-within:-translate-y-1 focus-within:shadow-[0_18px_44px_rgba(22,22,22,0.12)] motion-reduce:transform-none motion-reduce:transition-none">
       {/* Product image (branded gradient behind while loading / when absent) */}
       <Link
         href={product.href}
@@ -70,7 +70,7 @@ function ProductCard({ product, index }: { product: HomeProduct; index: number }
             className="object-cover object-center transition duration-300 group-hover:scale-[1.03]"
           />
         ) : (
-          <span className="absolute inset-x-0 bottom-3 truncate px-3 text-[0.64rem] font-medium uppercase tracking-[0.18em] text-white/40">
+          <span className="absolute inset-x-0 bottom-3 truncate px-3 text-[0.78rem] font-medium uppercase tracking-[0.18em] text-white/40">
             {product.brand} · {product.name}
           </span>
         )}
@@ -81,30 +81,32 @@ function ProductCard({ product, index }: { product: HomeProduct; index: number }
         href={product.href}
         tabIndex={-1}
         aria-hidden="true"
-        className="absolute bottom-[72px] left-1/2 hidden -translate-x-1/2 items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 text-[0.62rem] font-bold uppercase tracking-[0.08em] text-[#161616] shadow-sm group-focus-within:flex group-hover:flex"
+        className="absolute bottom-[72px] left-1/2 hidden -translate-x-1/2 items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 text-[0.78rem] font-bold uppercase tracking-[0.08em] text-[#161616] shadow-sm group-focus-within:flex group-hover:flex"
       >
         <EyeIcon />
         Preview
       </Link>
 
-      {/* Info */}
-      <div className="flex flex-col gap-0.5 p-3">
-        <p className="truncate text-[0.64rem] font-bold uppercase tracking-[0.14em] text-[#2E1014]">
+      {/* Info — brand is the quiet label, product name and price carry the
+          weight. Previously the name rendered smaller than the brand above it,
+          which inverted the hierarchy. */}
+      <div className="flex flex-col gap-1 p-4">
+        <p className="truncate text-[0.75rem] font-bold uppercase tracking-[0.12em] text-[#2E1014]/70">
           {product.brand}
         </p>
         <Link
           href={product.href}
-          className="line-clamp-2 rounded text-[0.76rem] font-semibold leading-snug text-[#161616] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2E1014]"
+          className="line-clamp-2 rounded text-[0.95rem] font-semibold leading-snug text-[#161616] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2E1014]"
           aria-label={`View ${product.brand} ${product.name}`}
         >
           {product.name}
         </Link>
-        <div className="mt-1 flex items-baseline gap-2">
-          <span className="text-[0.82rem] font-bold text-[#161616]">
+        <div className="mt-1.5 flex items-baseline gap-2">
+          <span className="text-[1rem] font-bold tracking-[-0.01em] text-[#161616]">
             {formatPrice(product.price)}
           </span>
           {product.oldPrice != null && (
-            <span className="text-[0.7rem] font-medium text-[#161616]/40 line-through">
+            <span className="text-[0.8rem] font-medium text-[#161616]/40 line-through">
               {formatPrice(product.oldPrice)}
             </span>
           )}
@@ -131,23 +133,23 @@ export function ProductRow({ heading, viewAllHref, products, staggered = false }
 
   if (staggered) {
     return (
-      <section aria-label={heading} className="overflow-hidden bg-[#F4F1EC] pb-10 pt-2">
+      <section aria-label={heading} className="overflow-hidden bg-[#F4F1EC] pb-14 pt-10 sm:pb-20 sm:pt-14">
         <div className="mx-auto max-w-[1800px] px-4 sm:px-6 lg:px-8">
           {/* Header */}
-          <div className="mb-4 flex items-center justify-between gap-4">
-            <h2 className="font-grotesk text-xl font-bold uppercase tracking-[-0.01em] text-[#161616]">
+          <div className="mb-8 flex items-center justify-between gap-4">
+            <h2 className="font-grotesk text-2xl font-bold uppercase tracking-[-0.015em] text-[#161616] sm:text-3xl">
               {heading}
             </h2>
             <Link
               href={viewAllHref}
-              className="shrink-0 text-[0.72rem] font-bold uppercase tracking-[0.12em] text-[#2E1014] transition hover:opacity-70"
+              className="inline-flex min-h-[44px] shrink-0 items-center rounded-full px-2 text-[0.8rem] font-bold uppercase tracking-[0.1em] text-[#2E1014] transition hover:opacity-70"
             >
               View All →
             </Link>
           </div>
 
           {/* Staggered grid — alternate cards drop down, all float slowly */}
-          <div className="hidden gap-4 sm:grid sm:grid-cols-3 lg:grid-cols-6 lg:gap-5">
+          <div className="hidden gap-5 sm:grid sm:grid-cols-3 lg:grid-cols-6 lg:gap-6">
             {products.map((p, i) => (
               <div key={p.id} className={cn(i % 2 === 1 && "sm:mt-14")}>
                 <ProductCard product={p} index={i} />
@@ -156,7 +158,7 @@ export function ProductRow({ heading, viewAllHref, products, staggered = false }
           </div>
 
           {/* Mobile: 2-col grid, no stagger */}
-          <div className="grid grid-cols-2 gap-3 sm:hidden">
+          <div className="grid grid-cols-2 gap-4 sm:hidden">
             {products.map((p, i) => (
               <ProductCard key={p.id} product={p} index={i} />
             ))}
@@ -167,16 +169,16 @@ export function ProductRow({ heading, viewAllHref, products, staggered = false }
   }
 
   return (
-    <section aria-label={heading} className="bg-[#F4F1EC] py-8">
+    <section aria-label={heading} className="bg-[#F4F1EC] py-14 sm:py-20">
       <div className="mx-auto max-w-[1440px] px-6 sm:px-10 lg:px-16">
         {/* Header */}
-        <div className="mb-5 flex items-center justify-between gap-4">
-          <h2 className="font-grotesk text-xl font-bold uppercase tracking-[-0.01em] text-[#161616]">
+        <div className="mb-8 flex items-center justify-between gap-4">
+          <h2 className="font-grotesk text-2xl font-bold uppercase tracking-[-0.015em] text-[#161616] sm:text-3xl">
             {heading}
           </h2>
           <Link
             href={viewAllHref}
-            className="shrink-0 text-[0.72rem] font-bold uppercase tracking-[0.12em] text-[#2E1014] transition hover:opacity-70"
+            className="inline-flex min-h-[44px] shrink-0 items-center rounded-full px-2 text-[0.8rem] font-bold uppercase tracking-[0.1em] text-[#2E1014] transition hover:opacity-70"
           >
             View All →
           </Link>
@@ -188,7 +190,7 @@ export function ProductRow({ heading, viewAllHref, products, staggered = false }
             type="button"
             onClick={() => scroll("left")}
             aria-label={`Scroll ${heading} left`}
-            className="absolute -left-4 top-1/2 z-10 hidden h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-md ring-1 ring-black/8 transition hover:shadow-lg lg:flex"
+            className="absolute -left-5 top-1/2 z-10 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-md ring-1 ring-black/8 transition hover:shadow-lg lg:flex"
           >
             <ChevronLeft />
           </button>
@@ -208,7 +210,7 @@ export function ProductRow({ heading, viewAllHref, products, staggered = false }
             type="button"
             onClick={() => scroll("right")}
             aria-label={`Scroll ${heading} right`}
-            className="absolute -right-4 top-1/2 z-10 hidden h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-md ring-1 ring-black/8 transition hover:shadow-lg lg:flex"
+            className="absolute -right-5 top-1/2 z-10 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-md ring-1 ring-black/8 transition hover:shadow-lg lg:flex"
           >
             <ChevronRight />
           </button>

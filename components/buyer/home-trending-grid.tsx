@@ -37,7 +37,7 @@ export function HomeTrendingGrid() {
               </div>
 
               <div className="flex min-w-0 flex-1 flex-col gap-2 px-1 pb-1">
-                <p className="line-clamp-1 text-[0.62rem] uppercase tracking-[0.22em] text-teal">
+                <p className="line-clamp-1 text-[0.78rem] uppercase tracking-[0.22em] text-teal">
                   {product.category}
                 </p>
                 <h3 className="product-title line-clamp-2 min-w-0 break-words text-sm font-semibold leading-snug tracking-[0.01em] text-midnightbrown sm:text-[0.95rem]">

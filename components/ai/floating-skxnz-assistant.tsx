@@ -247,7 +247,7 @@ function ProductRecommendationCard({
       </Link>
 
       <div className="flex min-w-0 flex-col">
-        <p className="line-clamp-1 min-w-0 break-words text-[0.6rem] font-bold uppercase tracking-[0.18em] text-teal">
+        <p className="line-clamp-1 min-w-0 break-words text-[0.78rem] font-bold uppercase tracking-[0.18em] text-teal">
           {product.brandName || "SKXNZ"} · {product.category || "Product"}
         </p>
         <Link
@@ -266,7 +266,7 @@ function ProductRecommendationCard({
           {product.formattedPrice || "Price shown on product page"}
         </p>
         {product.colors.length > 0 ? (
-          <p className="mt-1 line-clamp-1 min-w-0 break-words text-[0.66rem] uppercase tracking-[0.16em] text-stone">
+          <p className="mt-1 line-clamp-1 min-w-0 break-words text-[0.78rem] uppercase tracking-[0.16em] text-stone">
             Color: {product.matchedColor ?? product.colors.slice(0, 2).join(", ")}
           </p>
         ) : null}
@@ -286,7 +286,7 @@ function ProductRecommendationCard({
             className={buttonVariants({
               variant: "primary",
               size: "sm",
-              className: "w-full px-2 text-[0.62rem]",
+              className: "w-full px-2 text-[0.78rem]",
             })}
           >
             View Product
@@ -297,7 +297,7 @@ function ProductRecommendationCard({
             className={buttonVariants({
               variant: "secondary",
               size: "sm",
-              className: "w-full px-2 text-[0.62rem]",
+              className: "w-full px-2 text-[0.78rem]",
             })}
           >
             Add to Cart
@@ -308,7 +308,7 @@ function ProductRecommendationCard({
             className={buttonVariants({
               variant: isSaved ? "primary" : "ghost",
               size: "sm",
-              className: "w-full px-2 text-[0.62rem]",
+              className: "w-full px-2 text-[0.78rem]",
             })}
           >
             {isSaved ? "Saved" : "Save"}
@@ -339,10 +339,10 @@ function AssistantPreviewCard({
           className="object-cover object-center transition duration-300 group-hover:scale-105"
         />
       </span>
-      <span className="mt-2 block line-clamp-2 min-w-0 break-words text-[0.58rem] font-bold uppercase leading-tight tracking-[0.08em]">
+      <span className="mt-2 block line-clamp-2 min-w-0 break-words text-[0.75rem] font-bold uppercase leading-tight tracking-[0.08em]">
         {product.name}
       </span>
-      <span className="mt-1 block text-[0.62rem] font-bold text-sangria">
+      <span className="mt-1 block text-[0.78rem] font-bold text-sangria">
         {product.price}
       </span>
     </Link>
@@ -749,11 +749,11 @@ export function FloatingSkxnzAssistant() {
               <div className="min-w-0 flex-1">
                 <p className="line-clamp-1 min-w-0 break-words text-sm font-bold uppercase tracking-[0.16em] text-pearlcream">
                   SKXNZ AI
-                  <span className="ml-2 rounded-full bg-pearlcream/[0.1] px-2 py-0.5 text-[0.56rem] font-bold tracking-[0.16em] text-pearlcream/[0.82]">
+                  <span className="ml-2 rounded-full bg-pearlcream/[0.1] px-2 py-0.5 text-[0.75rem] font-bold tracking-[0.16em] text-pearlcream/[0.82]">
                     BETA
                   </span>
                 </p>
-                <p className="mt-1 line-clamp-1 text-[0.66rem] uppercase tracking-[0.18em] text-pearlcream/[0.58]">
+                <p className="mt-1 line-clamp-1 text-[0.78rem] uppercase tracking-[0.18em] text-pearlcream/[0.58]">
                   Shopping help for SKXNZ only.
                 </p>
               </div>
@@ -761,7 +761,7 @@ export function FloatingSkxnzAssistant() {
                 <button
                   type="button"
                   onClick={resetChat}
-                  className="inline-flex h-8 items-center justify-center rounded-full border border-pearlcream/[0.12] bg-pearlcream/[0.08] px-3 text-[0.58rem] font-bold uppercase tracking-[0.16em] text-pearlcream/[0.72] transition hover:bg-pearlcream/[0.14] hover:text-pearlcream"
+                  className="inline-flex h-8 items-center justify-center rounded-full border border-pearlcream/[0.12] bg-pearlcream/[0.08] px-3 text-[0.75rem] font-bold uppercase tracking-[0.16em] text-pearlcream/[0.72] transition hover:bg-pearlcream/[0.14] hover:text-pearlcream"
                   aria-label="Reset SKXNZ AI Assistant chat"
                 >
                   Reset
@@ -817,7 +817,7 @@ export function FloatingSkxnzAssistant() {
                         <Link
                           key={link.id}
                           href={link.href}
-                          className="inline-flex max-w-full items-center gap-1 rounded-full border border-pearlcream/[0.16] bg-pearlcream/[0.1] px-3 py-1.5 text-[0.64rem] font-bold uppercase tracking-[0.14em] text-pearlcream/[0.82] transition hover:bg-pearlcream hover:text-sangria"
+                          className="inline-flex max-w-full items-center gap-1 rounded-full border border-pearlcream/[0.16] bg-pearlcream/[0.1] px-3 py-1.5 text-[0.78rem] font-bold uppercase tracking-[0.14em] text-pearlcream/[0.82] transition hover:bg-pearlcream hover:text-sangria"
                           title={link.helperText}
                         >
                           <span className="truncate">
@@ -860,7 +860,7 @@ export function FloatingSkxnzAssistant() {
                   type="button"
                   onClick={() => void submitPrompt(prompt)}
                   disabled={isLoading}
-                  className="shrink-0 rounded-full border border-pearlcream/[0.12] bg-pearlcream/[0.08] px-3 py-2 text-[0.66rem] font-semibold uppercase tracking-[0.14em] text-pearlcream/[0.74] transition hover:bg-pearlcream/[0.14] hover:text-pearlcream disabled:opacity-50"
+                  className="shrink-0 rounded-full border border-pearlcream/[0.12] bg-pearlcream/[0.08] px-3 py-2 text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-pearlcream/[0.74] transition hover:bg-pearlcream/[0.14] hover:text-pearlcream disabled:opacity-50"
                 >
                   {prompt}
                 </button>

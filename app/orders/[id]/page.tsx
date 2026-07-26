@@ -48,7 +48,7 @@ export default async function OrderDetailPage({
     return (
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
         <Card className="section-border rounded-[36px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-8 text-center">
-          <p className="section-kicker text-[0.68rem] uppercase tracking-[0.24em] text-sangria">
+          <p className="section-kicker text-[0.8rem] uppercase tracking-[0.24em] text-sangria">
             Buyer Orders
           </p>
           <h1 className="mx-auto mt-4 max-w-[18ch] break-words font-display text-4xl uppercase leading-tight tracking-[0.04em] text-midnightbrown">
@@ -91,7 +91,7 @@ export default async function OrderDetailPage({
         <Card className="section-border rounded-[36px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-6 sm:p-8">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <p className="section-kicker text-[0.68rem] uppercase tracking-[0.24em] text-sangria">
+              <p className="section-kicker text-[0.8rem] uppercase tracking-[0.24em] text-sangria">
                 Order {order.id.slice(0, 8).toUpperCase()}
               </p>
               <h1 className="mt-3 font-display text-3xl uppercase leading-tight tracking-[0.04em] text-midnightbrown sm:text-4xl">
@@ -124,7 +124,7 @@ export default async function OrderDetailPage({
         </Card>
 
         <Card className="section-border rounded-[36px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-6 sm:p-8">
-          <p className="section-kicker text-[0.68rem] uppercase tracking-[0.24em] text-sangria">
+          <p className="section-kicker text-[0.8rem] uppercase tracking-[0.24em] text-sangria">
             Items
           </p>
           <div className="mt-4 divide-y divide-[rgba(58,8,24,0.08)]">
@@ -153,7 +153,7 @@ export default async function OrderDetailPage({
                     )}
                     <div>
                       {item.brandSnapshot ? (
-                        <p className="text-[0.64rem] font-bold uppercase tracking-[0.2em] text-sangria">
+                        <p className="text-[0.78rem] font-bold uppercase tracking-[0.2em] text-sangria">
                           {item.brandSnapshot}
                         </p>
                       ) : null}
@@ -216,7 +216,7 @@ export default async function OrderDetailPage({
               </span>
             </div>
             {order.totalPaise === null ? (
-              <p className="text-[0.7rem] leading-5 text-stone">
+              <p className="text-[0.8rem] leading-5 text-stone">
                 Estimate before delivery and taxes. The final amount is fixed at
                 live checkout — nothing has been charged.
               </p>
@@ -226,7 +226,7 @@ export default async function OrderDetailPage({
 
         {order.shippingAddress ? (
           <Card className="section-border rounded-[36px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-6 sm:p-8">
-            <p className="section-kicker text-[0.68rem] uppercase tracking-[0.24em] text-sangria">
+            <p className="section-kicker text-[0.8rem] uppercase tracking-[0.24em] text-sangria">
               Shipping Address
             </p>
             <p className="mt-3 text-sm leading-7 text-midnightbrown">
@@ -264,7 +264,7 @@ export default async function OrderDetailPage({
         />
 
         <Card className="section-border rounded-[36px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-6 sm:p-8">
-          <p className="section-kicker text-[0.68rem] uppercase tracking-[0.24em] text-sangria">
+          <p className="section-kicker text-[0.8rem] uppercase tracking-[0.24em] text-sangria">
             Need help with this order?
           </p>
           <p className="mt-3 text-sm leading-7 text-stone">

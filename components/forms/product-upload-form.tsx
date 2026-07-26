@@ -224,7 +224,7 @@ export function ProductUploadForm({
       <form className="mt-6 space-y-4" action={formAction}>
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="space-y-2">
-            <span className="text-[0.68rem] uppercase tracking-[0.22em] text-silver">
+            <span className="text-[0.8rem] uppercase tracking-[0.22em] text-silver">
               Product name
             </span>
             <input
@@ -238,7 +238,7 @@ export function ProductUploadForm({
             />
           </label>
           <label className="space-y-2">
-            <span className="text-[0.68rem] uppercase tracking-[0.22em] text-silver">
+            <span className="text-[0.8rem] uppercase tracking-[0.22em] text-silver">
               Brand
             </span>
             <select
@@ -259,7 +259,7 @@ export function ProductUploadForm({
 
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="space-y-2">
-            <span className="text-[0.68rem] uppercase tracking-[0.22em] text-silver">
+            <span className="text-[0.8rem] uppercase tracking-[0.22em] text-silver">
               Category
             </span>
             <select
@@ -277,7 +277,7 @@ export function ProductUploadForm({
             </select>
           </label>
           <label className="space-y-2">
-            <span className="text-[0.68rem] uppercase tracking-[0.22em] text-silver">
+            <span className="text-[0.8rem] uppercase tracking-[0.22em] text-silver">
               Tags
             </span>
             <input
@@ -293,7 +293,7 @@ export function ProductUploadForm({
 
         <div className="grid gap-4 sm:grid-cols-3">
           <label className="space-y-2">
-            <span className="text-[0.68rem] uppercase tracking-[0.22em] text-silver">
+            <span className="text-[0.8rem] uppercase tracking-[0.22em] text-silver">
               Price
             </span>
             <input
@@ -309,7 +309,7 @@ export function ProductUploadForm({
             />
           </label>
           <label className="space-y-2">
-            <span className="text-[0.68rem] uppercase tracking-[0.22em] text-silver">
+            <span className="text-[0.8rem] uppercase tracking-[0.22em] text-silver">
               Compare-at price
             </span>
             <input
@@ -326,7 +326,7 @@ export function ProductUploadForm({
             />
           </label>
           <label className="space-y-2">
-            <span className="text-[0.68rem] uppercase tracking-[0.22em] text-silver">
+            <span className="text-[0.8rem] uppercase tracking-[0.22em] text-silver">
               Stock
             </span>
             <input
@@ -345,7 +345,7 @@ export function ProductUploadForm({
 
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="space-y-2">
-            <span className="text-[0.68rem] uppercase tracking-[0.22em] text-silver">
+            <span className="text-[0.8rem] uppercase tracking-[0.22em] text-silver">
               Sizes
             </span>
             <input
@@ -358,7 +358,7 @@ export function ProductUploadForm({
             />
           </label>
           <label className="space-y-2">
-            <span className="text-[0.68rem] uppercase tracking-[0.22em] text-silver">
+            <span className="text-[0.8rem] uppercase tracking-[0.22em] text-silver">
               Colors
             </span>
             <input
@@ -374,7 +374,7 @@ export function ProductUploadForm({
 
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="space-y-2">
-            <span className="text-[0.68rem] uppercase tracking-[0.22em] text-silver">
+            <span className="text-[0.8rem] uppercase tracking-[0.22em] text-silver">
               Fabric
             </span>
             <input
@@ -387,7 +387,7 @@ export function ProductUploadForm({
             />
           </label>
           <label className="space-y-2">
-            <span className="text-[0.68rem] uppercase tracking-[0.22em] text-silver">
+            <span className="text-[0.8rem] uppercase tracking-[0.22em] text-silver">
               Fit
             </span>
             <input
@@ -402,7 +402,7 @@ export function ProductUploadForm({
         </div>
 
         <label className="space-y-2">
-          <span className="text-[0.68rem] uppercase tracking-[0.22em] text-silver">
+          <span className="text-[0.8rem] uppercase tracking-[0.22em] text-silver">
             Description
           </span>
           <textarea
@@ -417,7 +417,7 @@ export function ProductUploadForm({
         </label>
 
         <label className="space-y-2">
-          <span className="text-[0.68rem] uppercase tracking-[0.22em] text-silver">
+          <span className="text-[0.8rem] uppercase tracking-[0.22em] text-silver">
             Product image URL
           </span>
           <input
@@ -444,7 +444,7 @@ export function ProductUploadForm({
 
         {validationResult ? (
           <div className="rounded-[24px] border border-sandstone/80 bg-pearlcream/80 p-4 text-sm leading-6 text-obsidian break-words">
-            <p className="text-[0.68rem] uppercase tracking-[0.22em] text-teal">
+            <p className="text-[0.8rem] uppercase tracking-[0.22em] text-teal">
               Seller AI Validation
             </p>
             <p className="mt-2 font-medium text-sangria">
@@ -470,7 +470,7 @@ export function ProductUploadForm({
                   key={item.label}
                   className="rounded-[18px] border border-sandstone bg-white/80 p-3"
                 >
-                  <p className="text-[0.68rem] uppercase tracking-[0.22em] text-teal">
+                  <p className="text-[0.8rem] uppercase tracking-[0.22em] text-teal">
                     {item.label}
                   </p>
                   <p className="mt-1 text-sm text-obsidian/80">{item.detail}</p>

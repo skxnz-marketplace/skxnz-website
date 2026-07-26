@@ -51,7 +51,7 @@ export default async function AccountReturnsPage() {
       description="Return requests you have submitted from your delivered orders. A human reviews every request — no pickup or refund has been confirmed until SKXNZ updates the status here."
     >
       <Card className="section-border rounded-[36px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-6 sm:p-8">
-        <p className="section-kicker text-[0.68rem] uppercase tracking-[0.24em] text-sangria">
+        <p className="section-kicker text-[0.8rem] uppercase tracking-[0.24em] text-sangria">
           Return requests
         </p>
 
@@ -84,7 +84,7 @@ export default async function AccountReturnsPage() {
                   <p className="text-sm font-black text-midnightbrown">
                     Order {entry.orderId.slice(0, 8).toUpperCase()}
                   </p>
-                  <span className="rounded-full border border-[rgba(34,211,238,0.24)] bg-[rgba(34,211,238,0.08)] px-3 py-1 text-[0.62rem] font-bold uppercase tracking-[0.16em] text-sangria">
+                  <span className="rounded-full border border-[rgba(34,211,238,0.24)] bg-[rgba(34,211,238,0.08)] px-3 py-1 text-[0.78rem] font-bold uppercase tracking-[0.16em] text-sangria">
                     {statusLabels[entry.status]}
                   </span>
                 </div>

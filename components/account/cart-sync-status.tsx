@@ -15,7 +15,7 @@ export function CartSyncStatusPanel() {
   return (
     <div className="space-y-6">
       <Card className="section-border rounded-[36px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-6 sm:p-8">
-        <p className="section-kicker text-[0.68rem] uppercase tracking-[0.24em] text-sangria">
+        <p className="section-kicker text-[0.8rem] uppercase tracking-[0.24em] text-sangria">
           Cart sync prep
         </p>
         <h2 className="mt-3 font-display text-3xl uppercase leading-tight tracking-[0.04em] text-midnightbrown">
@@ -51,7 +51,7 @@ export function CartSyncStatusPanel() {
       </Card>
 
       <Card className="section-border rounded-[36px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-6 sm:p-8">
-        <p className="section-kicker text-[0.68rem] uppercase tracking-[0.24em] text-sangria">
+        <p className="section-kicker text-[0.8rem] uppercase tracking-[0.24em] text-sangria">
           Future sync rules
         </p>
         <div className="mt-5 grid gap-4">
@@ -82,7 +82,7 @@ export function CartSyncStatusPanel() {
 function MetricCard({ label, value }: { label: string; value: string }) {
   return (
     <div className="min-w-0 rounded-[24px] border border-[rgba(58,8,24,0.10)] bg-[var(--skxnz-bg-soft)] p-5">
-      <p className="text-[0.62rem] font-bold uppercase tracking-[0.18em] text-stone">
+      <p className="text-[0.78rem] font-bold uppercase tracking-[0.18em] text-stone">
         {label}
       </p>
       <p className="mt-2 text-3xl font-black text-sangria">{value}</p>

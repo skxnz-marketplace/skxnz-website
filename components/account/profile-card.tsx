@@ -77,7 +77,7 @@ export function ProfileCard() {
 
   return (
     <Card className="section-border rounded-[36px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-6 sm:p-8">
-      <p className="section-kicker text-[0.68rem] uppercase tracking-[0.24em] text-sangria">
+      <p className="section-kicker text-[0.8rem] uppercase tracking-[0.24em] text-sangria">
         Demo profile
       </p>
       <h2 className="mt-3 font-display text-3xl uppercase leading-tight tracking-[0.04em] text-midnightbrown">
@@ -99,7 +99,7 @@ export function ProfileCard() {
               key={field.name}
               className={cn("block min-w-0", isLongField ? "sm:col-span-2" : "")}
             >
-              <span className="text-[0.68rem] font-bold uppercase tracking-[0.18em] text-stone">
+              <span className="text-[0.8rem] font-bold uppercase tracking-[0.18em] text-stone">
                 {field.label}
               </span>
               {isLongField ? (

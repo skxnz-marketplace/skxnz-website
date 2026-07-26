@@ -32,7 +32,7 @@ export function CheckoutNextSteps({ className }: { className?: string }) {
         className,
       )}
     >
-      <p className="section-kicker text-[0.68rem] uppercase tracking-[0.24em] text-sangria">
+      <p className="section-kicker text-[0.8rem] uppercase tracking-[0.24em] text-sangria">
         What happens next
       </p>
       <h2 className="mt-3 font-display text-3xl uppercase leading-tight tracking-[0.04em] text-midnightbrown">
@@ -60,7 +60,7 @@ export function CheckoutNextSteps({ className }: { className?: string }) {
                 <p className="break-words text-sm font-bold uppercase tracking-[0.12em] text-midnightbrown">
                   {item.title}
                 </p>
-                <span className="rounded-full border border-[rgba(58,8,24,0.16)] bg-[var(--skxnz-surface)] px-2 py-0.5 text-[0.6rem] font-bold uppercase tracking-[0.18em] text-stone">
+                <span className="rounded-full border border-[rgba(58,8,24,0.16)] bg-[var(--skxnz-surface)] px-2 py-0.5 text-[0.78rem] font-bold uppercase tracking-[0.18em] text-stone">
                   Upcoming
                 </span>
               </div>

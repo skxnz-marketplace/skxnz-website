@@ -52,14 +52,14 @@ export function FeaturedLabels() {
   }));
 
   return (
-    <section aria-label="Top brands" className="overflow-hidden bg-[#F4F1EC] pb-3 pt-8">
-      <div className="mx-auto mb-5 flex max-w-[1440px] items-center justify-between px-6 sm:px-10 lg:px-16">
-        <h2 className="font-grotesk text-xl font-bold uppercase tracking-[-0.01em] text-[#161616]">
+    <section aria-label="Top brands" className="overflow-hidden bg-[#F4F1EC] py-14 sm:py-20">
+      <div className="mx-auto mb-8 flex max-w-[1440px] items-center justify-between gap-4 px-6 sm:px-10 lg:px-16">
+        <h2 className="font-grotesk text-2xl font-bold uppercase tracking-[-0.015em] text-[#161616] sm:text-3xl">
           Top Brands
         </h2>
         <Link
           href="/brands"
-          className="text-[0.72rem] font-bold uppercase tracking-[0.12em] text-[#2E1014] transition hover:opacity-70"
+          className="inline-flex min-h-[44px] shrink-0 items-center rounded-full px-2 text-[0.8rem] font-bold uppercase tracking-[0.1em] text-[#2E1014] transition hover:opacity-70"
         >
           View All →
         </Link>

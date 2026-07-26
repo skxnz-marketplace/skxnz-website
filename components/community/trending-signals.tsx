@@ -35,7 +35,7 @@ export function TrendingSignals({ tags }: TrendingSignalsProps) {
     >
       <div className="flex min-w-0 items-center justify-between gap-4">
         <div className="min-w-0">
-          <p className="text-[0.66rem] font-black uppercase tracking-[0.24em] text-[var(--skxnz-maroon)]">
+          <p className="text-[0.78rem] font-black uppercase tracking-[0.24em] text-[var(--skxnz-maroon)]">
             Trending Signals
           </p>
           <p className="mt-1 text-sm text-[var(--skxnz-text-muted)]">
@@ -50,7 +50,7 @@ export function TrendingSignals({ tags }: TrendingSignalsProps) {
             <Link
               key={tag}
               href={getTagHref(tag)}
-              className="rounded-full border border-[var(--skxnz-border)] bg-[var(--skxnz-surface)] px-4 py-2 text-[0.7rem] font-black uppercase tracking-[0.18em] text-[var(--skxnz-text-dark)] shadow-[0_10px_26px_rgba(58,8,24,0.05)] transition hover:border-[rgba(34,211,238,0.45)] hover:text-[var(--skxnz-maroon)]"
+              className="rounded-full border border-[var(--skxnz-border)] bg-[var(--skxnz-surface)] px-4 py-2 text-[0.8rem] font-black uppercase tracking-[0.18em] text-[var(--skxnz-text-dark)] shadow-[0_10px_26px_rgba(58,8,24,0.05)] transition hover:border-[rgba(34,211,238,0.45)] hover:text-[var(--skxnz-maroon)]"
             >
               {tag}
             </Link>

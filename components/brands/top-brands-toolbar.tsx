@@ -26,7 +26,7 @@ export function TopBrandsToolbar({
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
-            <p className="text-[0.68rem] uppercase tracking-[0.24em] text-teal">
+            <p className="text-[0.8rem] uppercase tracking-[0.24em] text-teal">
               Top Brands
             </p>
             <p className="mt-2 max-w-[18rem] text-sm leading-6 text-silver sm:max-w-none sm:leading-7">
@@ -89,12 +89,12 @@ export function TopBrandsToolbar({
                         <p className="accent-label line-clamp-1 text-sm font-semibold uppercase text-midnightbrown">
                           {snapshot.brand.name}
                         </p>
-                        <p className="mt-1 line-clamp-1 text-[0.62rem] uppercase tracking-[0.2em] text-silver">
+                        <p className="mt-1 line-clamp-1 text-[0.78rem] uppercase tracking-[0.2em] text-silver">
                           {snapshot.momentumLabel}
                         </p>
                       </div>
                     </div>
-                    <span className="shrink-0 text-[0.62rem] uppercase tracking-[0.2em] text-teal">
+                    <span className="shrink-0 text-[0.78rem] uppercase tracking-[0.2em] text-teal">
                       #{index + 1}
                     </span>
                   </div>

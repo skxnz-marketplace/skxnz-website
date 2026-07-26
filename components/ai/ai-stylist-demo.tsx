@@ -54,7 +54,7 @@ export function AIStylistDemo() {
         <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="space-y-2">
-              <span className="text-[0.68rem] uppercase tracking-[0.22em] text-silver">
+              <span className="text-[0.8rem] uppercase tracking-[0.22em] text-silver">
                 Gender
               </span>
               <select
@@ -69,7 +69,7 @@ export function AIStylistDemo() {
               </select>
             </label>
             <label className="space-y-2">
-              <span className="text-[0.68rem] uppercase tracking-[0.22em] text-silver">
+              <span className="text-[0.8rem] uppercase tracking-[0.22em] text-silver">
                 Occasion
               </span>
               <input
@@ -84,7 +84,7 @@ export function AIStylistDemo() {
 
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="space-y-2">
-              <span className="text-[0.68rem] uppercase tracking-[0.22em] text-silver">
+              <span className="text-[0.8rem] uppercase tracking-[0.22em] text-silver">
                 Color preference
               </span>
               <input
@@ -96,7 +96,7 @@ export function AIStylistDemo() {
               />
             </label>
             <label className="space-y-2">
-              <span className="text-[0.68rem] uppercase tracking-[0.22em] text-silver">
+              <span className="text-[0.8rem] uppercase tracking-[0.22em] text-silver">
                 Style preference
               </span>
               <input
@@ -124,7 +124,7 @@ export function AIStylistDemo() {
                 key={recommendation.title}
                 className="rounded-[28px] border border-white/[0.08] bg-white/[0.03] p-5"
               >
-                <p className="text-[0.68rem] uppercase tracking-[0.22em] text-teal">
+                <p className="text-[0.8rem] uppercase tracking-[0.22em] text-teal">
                   Look {index + 1}
                 </p>
                 <h2 className="mt-3 font-display text-xl uppercase tracking-[0.14em] text-pearl">
@@ -133,7 +133,7 @@ export function AIStylistDemo() {
                 <p className="mt-3 text-sm leading-7 text-silver">
                   {recommendation.reason}
                 </p>
-                <p className="mt-4 text-[0.68rem] uppercase tracking-[0.22em] text-teal">
+                <p className="mt-4 text-[0.8rem] uppercase tracking-[0.22em] text-teal">
                   Palette
                 </p>
                 <p className="mt-2 text-sm leading-6 text-silver">

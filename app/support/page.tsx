@@ -50,7 +50,7 @@ export default function SupportPage() {
   return (
     <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
       <section className="rounded-[36px] border border-[var(--skxnz-border)] bg-[linear-gradient(135deg,var(--skxnz-maroon-deep),var(--skxnz-maroon),var(--skxnz-obsidian))] p-6 text-pearlcream shadow-[0_28px_70px_rgba(26,3,11,0.22)] sm:p-8">
-        <p className="section-kicker text-[0.68rem] font-bold uppercase tracking-[0.24em] text-pearlcream/70">
+        <p className="section-kicker text-[0.8rem] font-bold uppercase tracking-[0.24em] text-pearlcream/70">
           Support
         </p>
         <h1 className="mt-4 max-w-4xl font-display text-4xl uppercase leading-[0.95] tracking-[0.04em] text-pearlcream sm:text-5xl">
@@ -88,7 +88,7 @@ export default function SupportPage() {
       </div>
 
       <Card className="section-border mt-8 rounded-[36px] bg-white p-6 sm:p-8">
-        <p className="text-[0.68rem] font-bold uppercase tracking-[0.22em] text-teal">
+        <p className="text-[0.8rem] font-bold uppercase tracking-[0.22em] text-teal">
           About an existing order?
         </p>
         <p className="mt-4 max-w-3xl text-sm leading-7 text-midnightbrown/75">

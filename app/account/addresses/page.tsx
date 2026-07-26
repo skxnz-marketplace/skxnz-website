@@ -20,7 +20,7 @@ export default async function AccountAddressesPage() {
         <AddressBookLive initialAddresses={addresses} />
       ) : (
         <Card className="section-border rounded-[36px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-6 sm:p-8">
-          <p className="section-kicker text-[0.68rem] uppercase tracking-[0.24em] text-sangria">
+          <p className="section-kicker text-[0.8rem] uppercase tracking-[0.24em] text-sangria">
             Addresses not connected yet
           </p>
           <p className="mt-3 text-sm leading-7 text-stone">

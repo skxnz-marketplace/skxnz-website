@@ -30,7 +30,7 @@ export function OrderReadinessPanel() {
 
   return (
     <Card className="section-border overflow-hidden rounded-[36px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-6 sm:p-8">
-      <p className="section-kicker text-[0.68rem] uppercase tracking-[0.24em] text-sangria">
+      <p className="section-kicker text-[0.8rem] uppercase tracking-[0.24em] text-sangria">
         Order readiness
       </p>
       <h2 className="mt-3 max-w-[18ch] font-display text-3xl uppercase leading-tight tracking-[0.04em] text-midnightbrown sm:text-4xl">
@@ -45,10 +45,10 @@ export function OrderReadinessPanel() {
       {hasReview ? (
         <div className="mt-6 rounded-[24px] border border-[rgba(34,211,238,0.28)] bg-[rgba(34,211,238,0.08)] p-5">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-[0.66rem] font-bold uppercase tracking-[0.2em] text-sangria">
+            <span className="text-[0.78rem] font-bold uppercase tracking-[0.2em] text-sangria">
               Saved checkout review
             </span>
-            <span className="rounded-full border border-[rgba(58,8,24,0.16)] bg-[var(--skxnz-surface)] px-2 py-0.5 text-[0.6rem] font-bold uppercase tracking-[0.18em] text-stone">
+            <span className="rounded-full border border-[rgba(58,8,24,0.16)] bg-[var(--skxnz-surface)] px-2 py-0.5 text-[0.78rem] font-bold uppercase tracking-[0.18em] text-stone">
               Not an order
             </span>
           </div>

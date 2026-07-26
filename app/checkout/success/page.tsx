@@ -19,7 +19,7 @@ export default function CheckoutSuccessPage() {
   return (
     <main className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
       <Card className="section-border rounded-[36px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-8 text-center sm:p-10">
-        <p className="section-kicker text-[0.68rem] uppercase tracking-[0.24em] text-sangria">
+        <p className="section-kicker text-[0.8rem] uppercase tracking-[0.24em] text-sangria">
           Checkout status
         </p>
         <h1 className="mx-auto mt-4 max-w-[16ch] break-words font-display text-4xl uppercase leading-tight tracking-[0.04em] text-midnightbrown sm:text-5xl">

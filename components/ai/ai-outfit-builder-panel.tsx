@@ -98,7 +98,7 @@ export function AiOutfitBuilderPanel({
       <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <label className="space-y-2">
-            <span className="text-[0.68rem] uppercase tracking-[0.22em] text-sangria/75">
+            <span className="text-[0.8rem] uppercase tracking-[0.22em] text-sangria/75">
               Budget
             </span>
             <input
@@ -111,7 +111,7 @@ export function AiOutfitBuilderPanel({
             />
           </label>
           <label className="space-y-2">
-            <span className="text-[0.68rem] uppercase tracking-[0.22em] text-sangria/75">
+            <span className="text-[0.8rem] uppercase tracking-[0.22em] text-sangria/75">
               Occasion
             </span>
             <input
@@ -122,7 +122,7 @@ export function AiOutfitBuilderPanel({
             />
           </label>
           <label className="space-y-2">
-            <span className="text-[0.68rem] uppercase tracking-[0.22em] text-sangria/75">
+            <span className="text-[0.8rem] uppercase tracking-[0.22em] text-sangria/75">
               Style
             </span>
             <input
@@ -133,7 +133,7 @@ export function AiOutfitBuilderPanel({
             />
           </label>
           <label className="space-y-2">
-            <span className="text-[0.68rem] uppercase tracking-[0.22em] text-sangria/75">
+            <span className="text-[0.8rem] uppercase tracking-[0.22em] text-sangria/75">
               Size
             </span>
             <input
@@ -144,7 +144,7 @@ export function AiOutfitBuilderPanel({
             />
           </label>
           <label className="space-y-2">
-            <span className="text-[0.68rem] uppercase tracking-[0.22em] text-sangria/75">
+            <span className="text-[0.8rem] uppercase tracking-[0.22em] text-sangria/75">
               Gender
             </span>
             <select
@@ -158,7 +158,7 @@ export function AiOutfitBuilderPanel({
             </select>
           </label>
           <label className="space-y-2">
-            <span className="text-[0.68rem] uppercase tracking-[0.22em] text-sangria/75">
+            <span className="text-[0.8rem] uppercase tracking-[0.22em] text-sangria/75">
               Color signal
             </span>
             <input
@@ -171,7 +171,7 @@ export function AiOutfitBuilderPanel({
         </div>
 
         <label className="space-y-2">
-          <span className="text-[0.68rem] uppercase tracking-[0.22em] text-sangria/75">
+          <span className="text-[0.8rem] uppercase tracking-[0.22em] text-sangria/75">
             Prompt
           </span>
           <input
@@ -194,7 +194,7 @@ export function AiOutfitBuilderPanel({
       ) : null}
 
       <div className="mt-6 rounded-[28px] border border-sandstone/80 bg-white/80 p-5">
-        <p className="text-[0.68rem] uppercase tracking-[0.22em] text-teal">
+        <p className="text-[0.8rem] uppercase tracking-[0.22em] text-teal">
           Outfit Output
         </p>
         <p className="mt-3 text-sm leading-7 text-obsidian/80">
@@ -209,7 +209,7 @@ export function AiOutfitBuilderPanel({
                 key={option.id}
                 className="rounded-[24px] border border-sandstone/80 bg-pearlcream/90 p-4"
               >
-                <p className="text-[0.68rem] uppercase tracking-[0.22em] text-teal">
+                <p className="text-[0.8rem] uppercase tracking-[0.22em] text-teal">
                   {option.withinBudget ? "Within Budget" : "Over Budget"}
                 </p>
                 <h3 className="mt-2 font-display text-lg uppercase tracking-[0.1em] text-obsidian">
@@ -227,7 +227,7 @@ export function AiOutfitBuilderPanel({
                       key={`${option.id}-${item.id}`}
                       className="rounded-[18px] border border-sandstone bg-white/80 p-3"
                     >
-                      <p className="text-[0.62rem] uppercase tracking-[0.22em] text-teal">
+                      <p className="text-[0.78rem] uppercase tracking-[0.22em] text-teal">
                         {item.slot}
                       </p>
                       <p className="mt-1 line-clamp-2 text-sm font-medium text-obsidian">
@@ -238,7 +238,7 @@ export function AiOutfitBuilderPanel({
                       </p>
                       <Link
                         href={`/product/${item.slug}`}
-                        className="mt-3 inline-flex rounded-full border border-sandstone bg-pearlcream px-3 py-2 text-[0.68rem] uppercase tracking-[0.18em] text-sangria transition hover:border-teal/45 hover:text-obsidian"
+                        className="mt-3 inline-flex rounded-full border border-sandstone bg-pearlcream px-3 py-2 text-[0.8rem] uppercase tracking-[0.18em] text-sangria transition hover:border-teal/45 hover:text-obsidian"
                       >
                         View Product
                       </Link>

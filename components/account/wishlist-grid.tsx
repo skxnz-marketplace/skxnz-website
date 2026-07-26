@@ -34,7 +34,7 @@ export function WishlistGrid() {
       <Card className="section-border rounded-[30px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-5">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
-            <p className="section-kicker text-[0.68rem] uppercase tracking-[0.24em] text-sangria">
+            <p className="section-kicker text-[0.8rem] uppercase tracking-[0.24em] text-sangria">
               Saved on this device
             </p>
             <p className="mt-2 text-sm leading-6 text-stone">
@@ -76,7 +76,7 @@ export function WishlistGrid() {
             </Link>
 
             <div className="flex min-w-0 flex-1 flex-col p-2">
-              <p className="mt-2 line-clamp-1 text-[0.68rem] font-black uppercase tracking-[0.18em] text-sangria">
+              <p className="mt-2 line-clamp-1 text-[0.8rem] font-black uppercase tracking-[0.18em] text-sangria">
                 {product.brandName}
               </p>
               <Link href={getProductHref(product)}>

@@ -49,7 +49,7 @@ export default async function AccountSupportPage({
         <BuyerSupportForm defaultOrderId={defaultOrderId} />
 
         <Card className="section-border rounded-[36px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-6 sm:p-8">
-          <p className="section-kicker text-[0.68rem] uppercase tracking-[0.24em] text-sangria">
+          <p className="section-kicker text-[0.8rem] uppercase tracking-[0.24em] text-sangria">
             Your tickets
           </p>
 
@@ -74,7 +74,7 @@ export default async function AccountSupportPage({
                     <p className="line-clamp-1 text-sm font-black text-midnightbrown group-hover:text-sangria">
                       {ticket.subject}
                     </p>
-                    <span className="rounded-full border border-[rgba(34,211,238,0.24)] bg-[rgba(34,211,238,0.08)] px-3 py-1 text-[0.62rem] font-bold uppercase tracking-[0.16em] text-sangria">
+                    <span className="rounded-full border border-[rgba(34,211,238,0.24)] bg-[rgba(34,211,238,0.08)] px-3 py-1 text-[0.78rem] font-bold uppercase tracking-[0.16em] text-sangria">
                       {statusLabels[ticket.status] ?? ticket.status}
                     </span>
                   </div>

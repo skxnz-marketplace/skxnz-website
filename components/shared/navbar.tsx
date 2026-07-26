@@ -204,7 +204,7 @@ export function Navbar() {
                   <span className="block whitespace-nowrap text-[1.05rem] font-semibold uppercase leading-none tracking-[0.52em] text-pearlcream sm:text-[1.2rem]">
                     SKXNZ
                   </span>
-                  <span className="mt-1 block truncate text-[0.56rem] uppercase tracking-[0.24em] text-pearlcream/70">
+                  <span className="mt-1 block truncate text-[0.75rem] uppercase tracking-[0.24em] text-pearlcream/70">
                     {siteConfig.tagline}
                   </span>
                 </Link>
@@ -270,7 +270,7 @@ export function Navbar() {
                 >
                   <CartIcon />
                   {cartCount > 0 ? (
-                    <span className="absolute -right-1 -top-1 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-pearlcream px-1 text-[0.56rem] font-bold text-sangria">
+                    <span className="absolute -right-1 -top-1 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-pearlcream px-1 text-[0.75rem] font-bold text-sangria">
                       {cartCount}
                     </span>
                   ) : (
@@ -340,7 +340,7 @@ export function Navbar() {
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <BrandMark compact />
             <div className="flex flex-wrap items-center gap-3">
-              <span className="max-w-full truncate rounded-full border border-white/10 bg-white/[0.08] px-4 py-2 text-[0.68rem] uppercase tracking-[0.2em] text-white/68">
+              <span className="max-w-full truncate rounded-full border border-white/10 bg-white/[0.08] px-4 py-2 text-[0.8rem] uppercase tracking-[0.2em] text-white/68">
                 {roleLabel}
               </span>
               {user ? (
@@ -372,7 +372,7 @@ export function Navbar() {
                   key={link.href}
                   href={link.href}
                   className={cn(
-                    "rounded-full border px-4 py-2 text-[0.7rem] uppercase tracking-[0.22em] transition",
+                    "rounded-full border px-4 py-2 text-[0.8rem] uppercase tracking-[0.22em] transition",
                     isActiveNavItem(pathname, link.href)
                       ? "border-white/20 bg-white/[0.12] text-white"
                       : "border-white/10 bg-white/[0.06] text-white/68 hover:border-white/20 hover:text-white",

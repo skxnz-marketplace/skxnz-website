@@ -20,7 +20,7 @@ export function EmptyState({
 }: EmptyStateProps) {
   return (
     <Card className="section-border rounded-[32px] p-8 text-center">
-      <p className="text-[0.68rem] uppercase tracking-[0.24em] text-teal">
+      <p className="text-[0.8rem] uppercase tracking-[0.24em] text-teal">
         {kicker}
       </p>
       <h2 className="mx-auto mt-4 max-w-[13ch] break-words font-display text-[1.28rem] uppercase leading-[1] tracking-[0.05em] text-midnightbrown sm:max-w-none sm:text-2xl sm:tracking-[0.14em]">

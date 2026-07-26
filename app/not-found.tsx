@@ -7,7 +7,7 @@ export default function NotFound() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-20 sm:px-6 lg:px-8">
       <Card className="section-border rounded-[36px] p-8 text-center sm:p-12">
-        <p className="text-[0.68rem] uppercase tracking-[0.24em] text-teal">404</p>
+        <p className="text-[0.8rem] uppercase tracking-[0.24em] text-teal">404</p>
         <h1 className="mt-4 font-display text-3xl uppercase tracking-[0.16em] text-pearl sm:text-5xl">
           Signal not found.
         </h1>

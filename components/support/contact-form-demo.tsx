@@ -35,7 +35,7 @@ export function ContactFormDemo() {
     <form className="space-y-4" onSubmit={handleSubmit}>
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="space-y-2">
-          <span className="text-[0.68rem] uppercase tracking-[0.22em] text-midnightbrown/62">
+          <span className="text-[0.8rem] uppercase tracking-[0.22em] text-midnightbrown/62">
             Name
           </span>
           <input
@@ -49,7 +49,7 @@ export function ContactFormDemo() {
           />
         </label>
         <label className="space-y-2">
-          <span className="text-[0.68rem] uppercase tracking-[0.22em] text-midnightbrown/62">
+          <span className="text-[0.8rem] uppercase tracking-[0.22em] text-midnightbrown/62">
             Email or phone
           </span>
           <input
@@ -65,7 +65,7 @@ export function ContactFormDemo() {
       </div>
 
       <label className="space-y-2">
-        <span className="text-[0.68rem] uppercase tracking-[0.22em] text-midnightbrown/62">
+        <span className="text-[0.8rem] uppercase tracking-[0.22em] text-midnightbrown/62">
           Topic
         </span>
         <select
@@ -85,7 +85,7 @@ export function ContactFormDemo() {
       </label>
 
       <label className="space-y-2">
-        <span className="text-[0.68rem] uppercase tracking-[0.22em] text-midnightbrown/62">
+        <span className="text-[0.8rem] uppercase tracking-[0.22em] text-midnightbrown/62">
           Message
         </span>
         <textarea

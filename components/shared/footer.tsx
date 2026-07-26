@@ -18,7 +18,7 @@ import { siteConfig } from "@/lib/site";
 function FooterCol({ title, links }: { title: string; links: { label: string; href: string }[] }) {
   return (
     <div>
-      <p className="mb-4 text-[0.66rem] font-bold uppercase tracking-[0.18em] text-[#F4F1EC]/40">
+      <p className="mb-4 text-[0.78rem] font-bold uppercase tracking-[0.18em] text-[#F4F1EC]/40">
         {title}
       </p>
       <ul className="space-y-2.5">
@@ -55,7 +55,7 @@ function getFooterLinkClassName(pathname: string, href: string) {
   const isActive = pathname === href;
 
   return [
-    "rounded-2xl border px-3 py-2 text-[0.66rem] uppercase tracking-[0.16em] transition",
+    "rounded-2xl border px-3 py-2 text-[0.78rem] uppercase tracking-[0.16em] transition",
     isActive
       ? "border-teal/45 bg-pearlcream/12 text-pearlcream"
       : "border-pearlcream/10 bg-pearlcream/5 text-pearlcream/72 hover:border-teal/35 hover:text-pearlcream",
@@ -85,7 +85,7 @@ export function Footer() {
                 <p className="text-[1.1rem] font-bold uppercase tracking-[0.46em] text-[#F4F1EC]">
                   SKXNZ
                 </p>
-                <p className="mt-1 text-[0.66rem] uppercase tracking-[0.22em] text-[#F4F1EC]/40">
+                <p className="mt-1 text-[0.78rem] uppercase tracking-[0.22em] text-[#F4F1EC]/40">
                   AI-powered premium futurewear fashion marketplace
                 </p>
               </div>
@@ -95,7 +95,7 @@ export function Footer() {
                 {["Instagram", "Twitter/X", "YouTube"].map((s) => (
                   <span
                     key={s}
-                    className="flex h-8 w-8 items-center justify-center rounded-full border border-[#F4F1EC]/10 text-[0.56rem] font-bold uppercase tracking-tight text-[#F4F1EC]/30"
+                    className="flex h-8 w-8 items-center justify-center rounded-full border border-[#F4F1EC]/10 text-[0.75rem] font-bold uppercase tracking-tight text-[#F4F1EC]/30"
                     title={s}
                   >
                     {s[0]}
@@ -112,7 +112,7 @@ export function Footer() {
                 />
                 <button
                   type="button"
-                  className="shrink-0 rounded-full bg-[#F4F1EC] px-4 py-2.5 text-[0.66rem] font-bold uppercase tracking-[0.08em] text-[#0E0E10] transition hover:bg-white"
+                  className="shrink-0 rounded-full bg-[#F4F1EC] px-4 py-2.5 text-[0.78rem] font-bold uppercase tracking-[0.08em] text-[#0E0E10] transition hover:bg-white"
                 >
                   Join
                 </button>
@@ -162,7 +162,7 @@ export function Footer() {
         {/* Bottom strip */}
         <div className="border-t border-[#F4F1EC]/8">
           <div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-3 px-6 py-5 sm:px-10 lg:px-16">
-            <p className="text-[0.66rem] text-[#F4F1EC]/35">
+            <p className="text-[0.78rem] text-[#F4F1EC]/35">
               © 2025 SKXNZ. All rights reserved.
             </p>
             <div className="flex flex-wrap gap-4">
@@ -174,14 +174,14 @@ export function Footer() {
                 <Link
                   key={l.href + l.label}
                   href={l.href}
-                  className="text-[0.66rem] text-[#F4F1EC]/35 transition hover:text-[#F4F1EC]/70"
+                  className="text-[0.78rem] text-[#F4F1EC]/35 transition hover:text-[#F4F1EC]/70"
                 >
                   {l.label}
                 </Link>
               ))}
               <CookiePreferencesLink className="text-[0.66rem] text-[#F4F1EC]/35 transition hover:text-[#F4F1EC]/70" />
             </div>
-            <p className="text-[0.66rem] text-[#F4F1EC]/35">India (INR ₹)</p>
+            <p className="text-[0.78rem] text-[#F4F1EC]/35">India (INR ₹)</p>
           </div>
         </div>
       </footer>

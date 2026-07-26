@@ -12,7 +12,7 @@ export function PolicySection({ title, children, eyebrow }: PolicySectionProps) 
   return (
     <Card className="section-border rounded-[30px] bg-white p-5 sm:p-6">
       {eyebrow ? (
-        <p className="section-kicker text-[0.66rem] font-bold uppercase tracking-[0.22em] text-teal">
+        <p className="section-kicker text-[0.78rem] font-bold uppercase tracking-[0.22em] text-teal">
           {eyebrow}
         </p>
       ) : null}

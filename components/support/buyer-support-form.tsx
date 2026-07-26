@@ -64,7 +64,7 @@ export function BuyerSupportForm({
   if (submittedTicketId) {
     return (
       <Card className="section-border rounded-[36px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-6 sm:p-8">
-        <p className="section-kicker text-[0.68rem] uppercase tracking-[0.24em] text-sangria">
+        <p className="section-kicker text-[0.8rem] uppercase tracking-[0.24em] text-sangria">
           Support ticket submitted
         </p>
         <h2 className="mt-3 font-display text-2xl uppercase leading-tight tracking-[0.04em] text-midnightbrown">
@@ -87,7 +87,7 @@ export function BuyerSupportForm({
 
   return (
     <Card className="section-border rounded-[36px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-6 sm:p-8">
-      <p className="section-kicker text-[0.68rem] uppercase tracking-[0.24em] text-sangria">
+      <p className="section-kicker text-[0.8rem] uppercase tracking-[0.24em] text-sangria">
         New support ticket
       </p>
       <h2 className="mt-3 font-display text-2xl uppercase leading-tight tracking-[0.04em] text-midnightbrown">
@@ -101,7 +101,7 @@ export function BuyerSupportForm({
 
       <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
         <label className="block min-w-0">
-          <span className="text-[0.68rem] font-bold uppercase tracking-[0.18em] text-stone">
+          <span className="text-[0.8rem] font-bold uppercase tracking-[0.18em] text-stone">
             Category
           </span>
           <select
@@ -120,7 +120,7 @@ export function BuyerSupportForm({
         </label>
 
         <label className="block min-w-0">
-          <span className="text-[0.68rem] font-bold uppercase tracking-[0.18em] text-stone">
+          <span className="text-[0.8rem] font-bold uppercase tracking-[0.18em] text-stone">
             Subject
           </span>
           <input
@@ -134,7 +134,7 @@ export function BuyerSupportForm({
         </label>
 
         <label className="block min-w-0">
-          <span className="text-[0.68rem] font-bold uppercase tracking-[0.18em] text-stone">
+          <span className="text-[0.8rem] font-bold uppercase tracking-[0.18em] text-stone">
             Message
           </span>
           <textarea

@@ -91,10 +91,10 @@ function ProductTag({
         />
       </span>
       <span className="min-w-0">
-        <span className="block truncate text-[0.65rem] font-black uppercase tracking-[0.13em]">
+        <span className="block truncate text-[0.78rem] font-black uppercase tracking-[0.13em]">
           {product.name}
         </span>
-        <span className="mt-0.5 block truncate text-[0.64rem] text-white/60">
+        <span className="mt-0.5 block truncate text-[0.78rem] text-white/60">
           {formatProductPrice(product.salePrice ?? product.price)}
         </span>
       </span>
@@ -113,7 +113,7 @@ export default function CommunityPage() {
               <Badge className="border-[rgba(34,211,238,0.34)] bg-[rgba(34,211,238,0.10)] text-[var(--skxnz-glint)]">
                 Opening soon
               </Badge>
-              <p className="text-[0.66rem] font-black uppercase tracking-[0.34em] text-white/58">
+              <p className="text-[0.78rem] font-black uppercase tracking-[0.34em] text-white/58">
                 WEAR THE SIGNAL.
               </p>
             </div>
@@ -169,7 +169,7 @@ export default function CommunityPage() {
               key={pillar.title}
               className="rounded-[28px] border border-[var(--skxnz-border)] bg-[var(--skxnz-surface)] p-5 shadow-[0_18px_54px_rgba(58,8,24,0.06)]"
             >
-              <p className="text-[0.64rem] font-black uppercase tracking-[0.24em] text-[var(--skxnz-maroon)]">
+              <p className="text-[0.78rem] font-black uppercase tracking-[0.24em] text-[var(--skxnz-maroon)]">
                 Signal Room intro
               </p>
               <h2 className="mt-3 text-lg font-semibold uppercase tracking-[0.02em]">
@@ -187,7 +187,7 @@ export default function CommunityPage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="text-[0.66rem] font-black uppercase tracking-[0.28em] text-[var(--skxnz-maroon)]">
+              <p className="text-[0.78rem] font-black uppercase tracking-[0.28em] text-[var(--skxnz-maroon)]">
                 Styled By SKXNZ
               </p>
               <h2 className="mt-3 font-display text-3xl uppercase tracking-[0.04em]">
@@ -250,7 +250,7 @@ export default function CommunityPage() {
               className="rounded-[24px] border border-[var(--skxnz-border)] bg-[var(--skxnz-surface)] p-5 shadow-[0_16px_46px_rgba(58,8,24,0.055)]"
             >
               <div className="flex items-center justify-between gap-4">
-                <p className="text-[0.66rem] font-black uppercase tracking-[0.22em] text-[var(--skxnz-maroon)]">
+                <p className="text-[0.78rem] font-black uppercase tracking-[0.22em] text-[var(--skxnz-maroon)]">
                   {item.title}
                 </p>
                 <Badge>Preview</Badge>
@@ -266,7 +266,7 @@ export default function CommunityPage() {
       <section className="bg-[var(--skxnz-surface)] py-10">
         <div className="mx-auto grid max-w-7xl gap-6 px-4 sm:px-6 lg:grid-cols-[1fr_0.75fr] lg:px-8">
           <div>
-            <p className="text-[0.66rem] font-black uppercase tracking-[0.28em] text-[var(--skxnz-maroon)]">
+            <p className="text-[0.78rem] font-black uppercase tracking-[0.28em] text-[var(--skxnz-maroon)]">
               Community code
             </p>
             <h2 className="mt-3 font-display text-3xl uppercase tracking-[0.04em]">

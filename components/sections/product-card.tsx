@@ -54,7 +54,7 @@ export function ProductCard({
         <div className="min-w-0">
           <Link
             href={`/brands/${product.brandSlug}`}
-            className="line-clamp-1 min-w-0 break-words text-[0.62rem] font-bold uppercase tracking-[0.12em] text-teal transition hover:text-sangria"
+            className="line-clamp-1 min-w-0 break-words text-[0.78rem] font-bold uppercase tracking-[0.12em] text-teal transition hover:text-sangria"
           >
             {product.brandName}
           </Link>
@@ -65,7 +65,7 @@ export function ProductCard({
           >
             {product.name}
           </Link>
-          <p className="mt-1 line-clamp-1 min-w-0 text-[0.68rem] text-silver">
+          <p className="mt-1.5 line-clamp-1 min-w-0 text-[0.8rem] leading-5 text-silver">
             {product.subtitle}
           </p>
         </div>

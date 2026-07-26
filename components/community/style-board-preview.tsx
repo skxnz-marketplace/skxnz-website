@@ -12,7 +12,7 @@ export function StyleBoardPreview({ boards }: StyleBoardPreviewProps) {
   return (
     <section className="space-y-4">
       <div className="min-w-0">
-        <p className="text-[0.66rem] font-black uppercase tracking-[0.24em] text-[var(--skxnz-maroon)]">
+        <p className="text-[0.78rem] font-black uppercase tracking-[0.24em] text-[var(--skxnz-maroon)]">
           Featured Style Boards
         </p>
         <p className="mt-2 text-sm leading-6 text-[var(--skxnz-text-muted)]">
@@ -48,7 +48,7 @@ export function StyleBoardPreview({ boards }: StyleBoardPreviewProps) {
                 {board.tags.slice(0, 2).map((tag) => (
                   <span
                     key={`${board.id}-${tag}`}
-                    className="rounded-full border border-[var(--skxnz-border)] bg-[var(--skxnz-bg-soft)] px-2 py-1 text-[0.55rem] font-black uppercase tracking-[0.12em] text-[var(--skxnz-maroon)]"
+                    className="rounded-full border border-[var(--skxnz-border)] bg-[var(--skxnz-bg-soft)] px-2 py-1 text-[0.75rem] font-black uppercase tracking-[0.12em] text-[var(--skxnz-maroon)]"
                   >
                     {tag}
                   </span>

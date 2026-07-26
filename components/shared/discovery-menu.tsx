@@ -143,7 +143,7 @@ function DrawerSection({
     <details className="group rounded-[16px] bg-white/[0.055] ring-1 ring-white/[0.08]">
       <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 marker:hidden">
         <span className="min-w-0">
-          <span className="block text-[0.56rem] font-bold uppercase tracking-[0.16em] text-[rgba(255,254,250,0.52)]">
+          <span className="block text-[0.75rem] font-bold uppercase tracking-[0.16em] text-[rgba(255,254,250,0.52)]">
             {section.eyebrow}
           </span>
           <span className="mt-1 block truncate text-sm font-bold uppercase tracking-[0.1em] text-[#FFFEFA]">
@@ -161,7 +161,7 @@ function DrawerSection({
         <Link
           href={section.href}
           onClick={onNavigate}
-          className="mt-3 flex items-center justify-between rounded-full bg-white/[0.07] px-3 py-2 text-[0.68rem] font-bold uppercase tracking-[0.08em] text-[#FFFEFA] ring-1 ring-[rgba(34,211,238,0.18)]"
+          className="mt-3 flex items-center justify-between rounded-full bg-white/[0.07] px-3 py-2 text-[0.8rem] font-bold uppercase tracking-[0.08em] text-[#FFFEFA] ring-1 ring-[rgba(34,211,238,0.18)]"
         >
           Open {section.title}
           <ArrowIcon />
@@ -172,7 +172,7 @@ function DrawerSection({
               key={`${section.title}-${link.label}`}
               href={link.href}
               onClick={onNavigate}
-              className="truncate rounded-full bg-white/[0.05] px-3 py-2 text-[0.66rem] font-semibold uppercase tracking-[0.06em] text-[rgba(255,254,250,0.74)] ring-1 ring-white/[0.08] transition hover:text-[#FFFEFA] hover:ring-[rgba(34,211,238,0.35)]"
+              className="truncate rounded-full bg-white/[0.05] px-3 py-2 text-[0.78rem] font-semibold uppercase tracking-[0.06em] text-[rgba(255,254,250,0.74)] ring-1 ring-white/[0.08] transition hover:text-[#FFFEFA] hover:ring-[rgba(34,211,238,0.35)]"
             >
               {link.label}
             </Link>
@@ -191,7 +191,7 @@ function BrandPills({ onNavigate }: { onNavigate: () => void }) {
           key={brand.id}
           href={`/brands/${brand.slug}`}
           onClick={onNavigate}
-          className="rounded-full bg-white/[0.08] px-3 py-1.5 text-[0.62rem] font-bold uppercase tracking-[0.08em] text-white/[0.78] ring-1 ring-white/[0.08] transition hover:text-white hover:ring-[rgba(34,211,238,0.32)]"
+          className="rounded-full bg-white/[0.08] px-3 py-1.5 text-[0.78rem] font-bold uppercase tracking-[0.08em] text-white/[0.78] ring-1 ring-white/[0.08] transition hover:text-white hover:ring-[rgba(34,211,238,0.32)]"
         >
           {brand.name}
         </Link>
@@ -199,7 +199,7 @@ function BrandPills({ onNavigate }: { onNavigate: () => void }) {
       <Link
         href="/brands"
         onClick={onNavigate}
-        className="rounded-full bg-white/[0.08] px-3 py-1.5 text-[0.62rem] font-bold uppercase tracking-[0.08em] text-[var(--skxnz-glint)] ring-1 ring-[rgba(139,92,246,0.20)] transition hover:text-white"
+        className="rounded-full bg-white/[0.08] px-3 py-1.5 text-[0.78rem] font-bold uppercase tracking-[0.08em] text-[var(--skxnz-glint)] ring-1 ring-[rgba(139,92,246,0.20)] transition hover:text-white"
       >
         View All
       </Link>
@@ -225,7 +225,7 @@ export function DesktopMegaMenu({
       <div className="border-b border-[rgba(255,254,250,0.10)] bg-[radial-gradient(circle_at_18%_12%,rgba(34,211,238,0.12),transparent_28%),rgba(16,0,6,0.30)] p-5">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
-            <p className="text-[0.58rem] font-bold uppercase tracking-[0.18em] text-[var(--skxnz-glint)]">
+            <p className="text-[0.75rem] font-bold uppercase tracking-[0.18em] text-[var(--skxnz-glint)]">
               Discover
             </p>
             <h2 className="mt-2 text-xl font-semibold uppercase tracking-[0.04em] text-[#FFFEFA]">
@@ -249,13 +249,13 @@ export function DesktopMegaMenu({
       <div className="flex-1 overflow-y-auto p-4">
         <div className="mb-4 rounded-[16px] bg-white/[0.055] p-3 ring-1 ring-white/[0.08]">
           <div className="flex items-center justify-between gap-3">
-            <p className="text-[0.58rem] font-bold uppercase tracking-[0.14em] text-[var(--skxnz-glint)]">
+            <p className="text-[0.75rem] font-bold uppercase tracking-[0.14em] text-[var(--skxnz-glint)]">
               Top Brands
             </p>
             <Link
               href="/brands"
               onClick={onNavigate}
-              className="text-[0.58rem] font-bold uppercase tracking-[0.08em] text-white/[0.58] hover:text-white"
+              className="text-[0.75rem] font-bold uppercase tracking-[0.08em] text-white/[0.58] hover:text-white"
             >
               View All
             </Link>
@@ -349,13 +349,13 @@ export function MobileDiscoveryDrawer({
       <div className="flex-1 overflow-y-auto px-5 py-5">
         <div className="mb-4 rounded-[18px] bg-[linear-gradient(135deg,var(--skxnz-obsidian),var(--skxnz-maroon-deep))] p-4 text-[#FFFEFA] shadow-[0_12px_30px_rgba(16,0,6,0.14)]">
           <div className="flex items-center justify-between gap-3">
-            <p className="text-[0.6rem] font-bold uppercase tracking-[0.14em] text-[var(--skxnz-glint)]">
+            <p className="text-[0.78rem] font-bold uppercase tracking-[0.14em] text-[var(--skxnz-glint)]">
               Top Brands
             </p>
             <Link
               href="/brands"
               onClick={onNavigate}
-              className="text-[0.58rem] font-bold uppercase tracking-[0.08em] text-white/[0.58]"
+              className="text-[0.75rem] font-bold uppercase tracking-[0.08em] text-white/[0.58]"
             >
               View All
             </Link>
@@ -373,7 +373,7 @@ export function MobileDiscoveryDrawer({
             >
               <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-4 marker:hidden">
                 <span className="min-w-0">
-                  <span className="block text-[0.58rem] font-bold uppercase tracking-[0.24em] text-[var(--skxnz-text-muted)]">
+                  <span className="block text-[0.75rem] font-bold uppercase tracking-[0.24em] text-[var(--skxnz-text-muted)]">
                     {section.eyebrow}
                   </span>
                   <span

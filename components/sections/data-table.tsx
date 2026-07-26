@@ -41,7 +41,7 @@ export function DataTable({
               {columns.map((column) => (
                 <th
                   key={column}
-                  className="whitespace-nowrap px-6 py-4 text-[0.68rem] uppercase tracking-[0.2em] text-silver sm:px-8"
+                  className="whitespace-nowrap px-6 py-4 text-[0.8rem] uppercase tracking-[0.2em] text-silver sm:px-8"
                 >
                   {column}
                 </th>

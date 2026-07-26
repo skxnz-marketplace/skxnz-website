@@ -58,7 +58,7 @@ export function AddressForm({
     <form className="grid gap-4 sm:grid-cols-2" onSubmit={handleSubmit}>
       {textFields.map((field) => (
         <label key={field.name} className={cn("block min-w-0", field.className)}>
-          <span className="text-[0.68rem] font-bold uppercase tracking-[0.18em] text-stone">
+          <span className="text-[0.8rem] font-bold uppercase tracking-[0.18em] text-stone">
             {field.label}
           </span>
           <input

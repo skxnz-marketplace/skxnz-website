@@ -15,7 +15,7 @@ export default function AIStylistPage() {
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
           <section className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_24rem] lg:items-end">
             <div className="min-w-0">
-              <p className="text-[0.64rem] font-bold uppercase tracking-[0.14em] text-[var(--skxnz-glint)]">
+              <p className="text-[0.78rem] font-bold uppercase tracking-[0.14em] text-[var(--skxnz-glint)]">
                 AI Assistant Beta
               </p>
               <h1 className="mt-3 max-w-3xl text-[2.25rem] font-semibold uppercase leading-[0.96] tracking-[-0.025em] sm:text-5xl">
@@ -52,7 +52,7 @@ export default function AIStylistPage() {
             </div>
 
             <aside className="rounded-[24px] bg-white/[0.08] p-5 ring-1 ring-white/10 backdrop-blur">
-              <p className="text-[0.64rem] font-black uppercase tracking-[0.14em] text-[var(--skxnz-glint)]">
+              <p className="text-[0.78rem] font-black uppercase tracking-[0.14em] text-[var(--skxnz-glint)]">
                 Relevance rule
               </p>
               <p className="mt-3 text-sm leading-6 text-white/[0.72]">
@@ -63,7 +63,7 @@ export default function AIStylistPage() {
                 {["Catalog only", "No try-on live", "Beta"].map((label) => (
                   <span
                     key={label}
-                    className="rounded-full bg-white/[0.08] px-3 py-1.5 text-[0.62rem] font-bold uppercase tracking-[0.08em] text-white/[0.76] ring-1 ring-white/10"
+                    className="rounded-full bg-white/[0.08] px-3 py-1.5 text-[0.78rem] font-bold uppercase tracking-[0.08em] text-white/[0.76] ring-1 ring-white/10"
                   >
                     {label}
                   </span>

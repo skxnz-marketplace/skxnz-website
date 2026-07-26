@@ -206,7 +206,7 @@ function FeaturedProductStrip({ products }: { products: Product[] }) {
     <section className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className="min-w-0">
-          <p className="text-[0.62rem] font-black uppercase tracking-[0.14em] text-teal">
+          <p className="text-[0.78rem] font-black uppercase tracking-[0.14em] text-teal">
             Featured
           </p>
           <h2 className="mt-2 font-display text-xl font-semibold uppercase text-midnightbrown sm:text-2xl">
@@ -235,7 +235,7 @@ function FeaturedProductStrip({ products }: { products: Product[] }) {
                 />
               </div>
               <div className="min-w-0 p-3">
-                <p className="line-clamp-1 text-[0.58rem] font-black uppercase tracking-[0.12em] text-teal">
+                <p className="line-clamp-1 text-[0.75rem] font-black uppercase tracking-[0.12em] text-teal">
                   {product.brandName}
                 </p>
                 <p className="mt-1 line-clamp-2 text-xs font-bold leading-5 text-midnightbrown">
@@ -382,7 +382,7 @@ export function CategoryPageShell({ category, liveProducts }: CategoryPageShellP
 
           <div className="relative z-10 mx-auto flex min-h-[300px] max-w-7xl flex-col justify-end px-4 py-8 sm:px-6 lg:min-h-[360px] lg:px-8 lg:py-10">
             <div className="max-w-2xl">
-              <p className="text-[0.62rem] font-black uppercase tracking-[0.18em] text-[var(--skxnz-glint)]">
+              <p className="text-[0.78rem] font-black uppercase tracking-[0.18em] text-[var(--skxnz-glint)]">
                 Category landing
               </p>
               <h1 className="mt-4 max-w-[12ch] break-words font-display text-[2.2rem] font-semibold uppercase leading-[0.98] tracking-[-0.02em] sm:text-5xl">
@@ -420,7 +420,7 @@ export function CategoryPageShell({ category, liveProducts }: CategoryPageShellP
         <Card className="rounded-[24px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-4 shadow-[0_14px_36px_rgba(58,8,24,0.06)] sm:p-5">
           <div className="grid gap-5 xl:grid-cols-[0.7fr_1.3fr] xl:items-end">
             <div className="min-w-0">
-              <p className="text-[0.62rem] font-black uppercase tracking-[0.14em] text-teal">
+              <p className="text-[0.78rem] font-black uppercase tracking-[0.14em] text-teal">
                 Controls
               </p>
               <h2 className="mt-2 font-display text-xl font-semibold uppercase text-midnightbrown sm:text-2xl">
@@ -435,7 +435,7 @@ export function CategoryPageShell({ category, liveProducts }: CategoryPageShellP
 
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               <label className="min-w-0">
-                <span className="text-[0.62rem] font-black uppercase tracking-[0.12em] text-stone">
+                <span className="text-[0.78rem] font-black uppercase tracking-[0.12em] text-stone">
                   Brand
                 </span>
                 <select
@@ -453,7 +453,7 @@ export function CategoryPageShell({ category, liveProducts }: CategoryPageShellP
               </label>
 
               <label className="min-w-0">
-                <span className="text-[0.62rem] font-black uppercase tracking-[0.12em] text-stone">
+                <span className="text-[0.78rem] font-black uppercase tracking-[0.12em] text-stone">
                   Price
                 </span>
                 <select
@@ -468,7 +468,7 @@ export function CategoryPageShell({ category, liveProducts }: CategoryPageShellP
               </label>
 
               <label className="min-w-0">
-                <span className="text-[0.62rem] font-black uppercase tracking-[0.12em] text-stone">
+                <span className="text-[0.78rem] font-black uppercase tracking-[0.12em] text-stone">
                   Sort
                 </span>
                 <select
@@ -483,7 +483,7 @@ export function CategoryPageShell({ category, liveProducts }: CategoryPageShellP
               </label>
 
               <label className="min-w-0">
-                <span className="text-[0.62rem] font-black uppercase tracking-[0.12em] text-stone">
+                <span className="text-[0.78rem] font-black uppercase tracking-[0.12em] text-stone">
                   Size
                 </span>
                 <select
@@ -499,7 +499,7 @@ export function CategoryPageShell({ category, liveProducts }: CategoryPageShellP
               </label>
 
               <label className="min-w-0">
-                <span className="text-[0.62rem] font-black uppercase tracking-[0.12em] text-stone">
+                <span className="text-[0.78rem] font-black uppercase tracking-[0.12em] text-stone">
                   Color
                 </span>
                 <select
@@ -515,7 +515,7 @@ export function CategoryPageShell({ category, liveProducts }: CategoryPageShellP
               </label>
 
               <label className="min-w-0">
-                <span className="text-[0.62rem] font-black uppercase tracking-[0.12em] text-stone">
+                <span className="text-[0.78rem] font-black uppercase tracking-[0.12em] text-stone">
                   Subcategory
                 </span>
                 <select
@@ -569,7 +569,7 @@ export function CategoryPageShell({ category, liveProducts }: CategoryPageShellP
         <section id="category-products" className="space-y-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div className="min-w-0">
-              <p className="text-[0.62rem] font-black uppercase tracking-[0.14em] text-teal">
+              <p className="text-[0.78rem] font-black uppercase tracking-[0.14em] text-teal">
                 Category products
               </p>
               <h2 className="mt-2 font-display text-xl font-semibold uppercase text-midnightbrown sm:text-2xl">
@@ -600,7 +600,7 @@ export function CategoryPageShell({ category, liveProducts }: CategoryPageShellP
 
         <section className="space-y-4">
           <div className="min-w-0">
-            <p className="text-[0.62rem] font-black uppercase tracking-[0.14em] text-teal">
+            <p className="text-[0.78rem] font-black uppercase tracking-[0.14em] text-teal">
               Similar categories
             </p>
             <h2 className="mt-2 font-display text-xl font-semibold uppercase text-midnightbrown sm:text-2xl">

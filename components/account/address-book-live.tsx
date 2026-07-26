@@ -121,7 +121,7 @@ export function AddressBookLive({
       <Card className="section-border rounded-[36px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-6 sm:p-8">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div className="min-w-0">
-            <p className="section-kicker text-[0.68rem] uppercase tracking-[0.24em] text-sangria">
+            <p className="section-kicker text-[0.8rem] uppercase tracking-[0.24em] text-sangria">
               {editingAddressId ? "Edit address" : "Add address"}
             </p>
             <h2 className="mt-3 font-display text-3xl uppercase leading-tight tracking-[0.04em] text-midnightbrown">
@@ -166,7 +166,7 @@ export function AddressBookLive({
       </Card>
 
       <Card className="section-border rounded-[36px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-6 sm:p-8">
-        <p className="section-kicker text-[0.68rem] uppercase tracking-[0.24em] text-sangria">
+        <p className="section-kicker text-[0.8rem] uppercase tracking-[0.24em] text-sangria">
           Address list
         </p>
 
@@ -193,7 +193,7 @@ export function AddressBookLive({
                         {address.label || "Address"}
                       </p>
                       {address.isDefault ? (
-                        <span className="rounded-full border border-[rgba(34,211,238,0.24)] bg-[rgba(34,211,238,0.08)] px-3 py-1 text-[0.62rem] font-bold uppercase tracking-[0.16em] text-sangria">
+                        <span className="rounded-full border border-[rgba(34,211,238,0.24)] bg-[rgba(34,211,238,0.08)] px-3 py-1 text-[0.78rem] font-bold uppercase tracking-[0.16em] text-sangria">
                           Default
                         </span>
                       ) : null}

@@ -63,7 +63,7 @@ export default function WaitlistPage() {
           <form className="mt-6 space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="space-y-2">
-                <span className="text-[0.68rem] uppercase tracking-[0.22em] text-silver">
+                <span className="text-[0.8rem] uppercase tracking-[0.22em] text-silver">
                   First name
                 </span>
                 <input
@@ -73,7 +73,7 @@ export default function WaitlistPage() {
                 />
               </label>
               <label className="space-y-2">
-                <span className="text-[0.68rem] uppercase tracking-[0.22em] text-silver">
+                <span className="text-[0.8rem] uppercase tracking-[0.22em] text-silver">
                   Email
                 </span>
                 <input
@@ -86,7 +86,7 @@ export default function WaitlistPage() {
 
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="space-y-2">
-                <span className="text-[0.68rem] uppercase tracking-[0.22em] text-silver">
+                <span className="text-[0.8rem] uppercase tracking-[0.22em] text-silver">
                   Interest
                 </span>
                 <select className={fieldClassName}>
@@ -96,7 +96,7 @@ export default function WaitlistPage() {
                 </select>
               </label>
               <label className="space-y-2">
-                <span className="text-[0.68rem] uppercase tracking-[0.22em] text-silver">
+                <span className="text-[0.8rem] uppercase tracking-[0.22em] text-silver">
                   Region
                 </span>
                 <input
@@ -108,7 +108,7 @@ export default function WaitlistPage() {
             </div>
 
             <label className="space-y-2">
-              <span className="text-[0.68rem] uppercase tracking-[0.22em] text-silver">
+              <span className="text-[0.8rem] uppercase tracking-[0.22em] text-silver">
                 Style note
               </span>
               <textarea

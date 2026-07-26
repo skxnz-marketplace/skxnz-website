@@ -115,7 +115,7 @@ export function OrderReturnPanel({
   if (!eligible) {
     return (
       <Card className="section-border rounded-[36px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-6 sm:p-8">
-        <p className="section-kicker text-[0.68rem] uppercase tracking-[0.24em] text-sangria">
+        <p className="section-kicker text-[0.8rem] uppercase tracking-[0.24em] text-sangria">
           Returns
         </p>
         <h2 className="mt-3 font-display text-2xl uppercase leading-tight tracking-[0.04em] text-midnightbrown">
@@ -129,7 +129,7 @@ export function OrderReturnPanel({
   if (submittedId) {
     return (
       <Card className="section-border rounded-[36px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-6 sm:p-8">
-        <p className="section-kicker text-[0.68rem] uppercase tracking-[0.24em] text-sangria">
+        <p className="section-kicker text-[0.8rem] uppercase tracking-[0.24em] text-sangria">
           Return request submitted for review
         </p>
         <p className="mt-3 text-sm leading-7 text-stone">
@@ -144,7 +144,7 @@ export function OrderReturnPanel({
   const existingReturnsBlock =
     existingReturns.length > 0 ? (
       <div className="mt-5 rounded-[20px] border border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-bg-soft)] p-4">
-        <p className="text-[0.68rem] font-bold uppercase tracking-[0.18em] text-stone">
+        <p className="text-[0.8rem] font-bold uppercase tracking-[0.18em] text-stone">
           Returns already requested for this order
         </p>
         <ul className="mt-2 space-y-1">
@@ -164,7 +164,7 @@ export function OrderReturnPanel({
   if (returnableItems.length === 0) {
     return (
       <Card className="section-border rounded-[36px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-6 sm:p-8">
-        <p className="section-kicker text-[0.68rem] uppercase tracking-[0.24em] text-sangria">
+        <p className="section-kicker text-[0.8rem] uppercase tracking-[0.24em] text-sangria">
           Returns
         </p>
         <h2 className="mt-3 font-display text-2xl uppercase leading-tight tracking-[0.04em] text-midnightbrown">
@@ -221,7 +221,7 @@ export function OrderReturnPanel({
 
   return (
     <Card className="section-border rounded-[36px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-6 sm:p-8">
-      <p className="section-kicker text-[0.68rem] uppercase tracking-[0.24em] text-sangria">
+      <p className="section-kicker text-[0.8rem] uppercase tracking-[0.24em] text-sangria">
         Request a return
       </p>
       <h2 className="mt-3 font-display text-2xl uppercase leading-tight tracking-[0.04em] text-midnightbrown">
@@ -303,7 +303,7 @@ export function OrderReturnPanel({
         </div>
 
         <label className="block min-w-0">
-          <span className="text-[0.68rem] font-bold uppercase tracking-[0.18em] text-stone">
+          <span className="text-[0.8rem] font-bold uppercase tracking-[0.18em] text-stone">
             Return reason
           </span>
           <input
@@ -317,7 +317,7 @@ export function OrderReturnPanel({
         </label>
 
         <label className="block min-w-0">
-          <span className="text-[0.68rem] font-bold uppercase tracking-[0.18em] text-stone">
+          <span className="text-[0.8rem] font-bold uppercase tracking-[0.18em] text-stone">
             Note (optional)
           </span>
           <textarea

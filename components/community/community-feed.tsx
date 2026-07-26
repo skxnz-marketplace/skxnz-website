@@ -147,7 +147,7 @@ export function CommunityFeed({
           <section className="rounded-[28px] bg-[var(--skxnz-surface)] p-5 shadow-[0_14px_40px_rgba(58,8,24,0.055)] ring-1 ring-[rgba(58,8,24,0.08)]">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="min-w-0">
-                <p className="text-[0.64rem] font-black uppercase tracking-[0.14em] text-[var(--skxnz-maroon)]">
+                <p className="text-[0.78rem] font-black uppercase tracking-[0.14em] text-[var(--skxnz-maroon)]">
                   Community chat area
                 </p>
                 <h2 className="mt-2 text-xl font-semibold uppercase tracking-[-0.01em] text-[var(--skxnz-text-dark)]">
@@ -165,7 +165,7 @@ export function CommunityFeed({
           <section className="rounded-[32px] border border-[var(--skxnz-border)] bg-[var(--skxnz-surface)] p-5 shadow-[0_18px_54px_rgba(58,8,24,0.06)]">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
               <div className="min-w-0">
-                <p className="text-[0.66rem] font-black uppercase tracking-[0.24em] text-[var(--skxnz-maroon)]">
+                <p className="text-[0.78rem] font-black uppercase tracking-[0.24em] text-[var(--skxnz-maroon)]">
                   Product-tagged looks
                 </p>
                 <p className="mt-2 text-sm leading-6 text-[var(--skxnz-text-muted)]">
@@ -206,7 +206,7 @@ export function CommunityFeed({
           <section className="space-y-5">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div className="min-w-0">
-                <p className="text-[0.66rem] font-black uppercase tracking-[0.24em] text-[var(--skxnz-maroon)]">
+                <p className="text-[0.78rem] font-black uppercase tracking-[0.24em] text-[var(--skxnz-maroon)]">
                   Community updates
                 </p>
                 <p className="mt-2 text-sm leading-6 text-[var(--skxnz-text-muted)]">
@@ -243,7 +243,7 @@ export function CommunityFeed({
           </section>
 
           <section className="rounded-[32px] border border-[var(--skxnz-border)] bg-[linear-gradient(135deg,var(--skxnz-obsidian),var(--skxnz-maroon-deep),var(--skxnz-maroon))] p-5 text-[var(--skxnz-text-light)] shadow-[0_24px_70px_rgba(16,0,6,0.18)]">
-            <p className="text-[0.66rem] font-black uppercase tracking-[0.24em] text-[var(--skxnz-glint)]">
+            <p className="text-[0.78rem] font-black uppercase tracking-[0.24em] text-[var(--skxnz-glint)]">
               Beta safety note
             </p>
             <p className="mt-3 text-sm leading-7 text-white/[0.76]">
@@ -256,7 +256,7 @@ export function CommunityFeed({
 
         <aside className="min-w-0 space-y-6 lg:sticky lg:top-28 lg:self-start">
           <section className="rounded-[28px] bg-[linear-gradient(145deg,var(--skxnz-obsidian),var(--skxnz-maroon-deep),var(--skxnz-maroon))] p-5 text-[var(--skxnz-text-light)] shadow-[0_20px_56px_rgba(16,0,6,0.18)]">
-            <p className="text-[0.64rem] font-black uppercase tracking-[0.14em] text-[var(--skxnz-glint)]">
+            <p className="text-[0.78rem] font-black uppercase tracking-[0.14em] text-[var(--skxnz-glint)]">
               Marketplace updates hub
             </p>
             <div className="mt-4 grid gap-3">
@@ -279,7 +279,7 @@ export function CommunityFeed({
           <StyleBoardPreview boards={styleBoards} />
 
           <section className="rounded-[28px] border border-[var(--skxnz-border)] bg-[var(--skxnz-surface)] p-5 shadow-[0_18px_54px_rgba(58,8,24,0.06)]">
-            <p className="text-[0.66rem] font-black uppercase tracking-[0.24em] text-[var(--skxnz-maroon)]">
+            <p className="text-[0.78rem] font-black uppercase tracking-[0.24em] text-[var(--skxnz-maroon)]">
               Tagged products
             </p>
             <p className="mt-2 text-sm leading-6 text-[var(--skxnz-text-muted)]">

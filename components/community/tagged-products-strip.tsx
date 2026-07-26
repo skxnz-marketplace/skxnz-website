@@ -48,7 +48,7 @@ export function TaggedProductsStrip({
             <p className="line-clamp-1 text-xs font-black uppercase tracking-[0.14em] text-[var(--skxnz-text-dark)]">
               {product.name}
             </p>
-            <p className="mt-1 line-clamp-1 text-[0.7rem] text-[var(--skxnz-text-muted)]">
+            <p className="mt-1 line-clamp-1 text-[0.8rem] text-[var(--skxnz-text-muted)]">
               {product.brandName} · {formatProductPrice(product.salePrice ?? product.price)}
             </p>
           </div>

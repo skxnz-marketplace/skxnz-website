@@ -62,7 +62,7 @@ export function ReportPostModal({
       <div className="w-full max-w-xl rounded-[32px] border border-[rgba(255,254,250,0.14)] bg-[linear-gradient(135deg,var(--skxnz-obsidian),var(--skxnz-maroon-deep),var(--skxnz-maroon))] p-5 text-[var(--skxnz-text-light)] shadow-[0_30px_90px_rgba(16,0,6,0.38)] sm:p-6">
         <div className="flex min-w-0 items-start justify-between gap-4">
           <div className="min-w-0">
-            <p className="text-[0.62rem] font-black uppercase tracking-[0.24em] text-[var(--skxnz-glint)]">
+            <p className="text-[0.78rem] font-black uppercase tracking-[0.24em] text-[var(--skxnz-glint)]">
               Report demo post
             </p>
             <h2
@@ -87,7 +87,7 @@ export function ReportPostModal({
 
         <div className="mt-6 grid gap-5">
           <label className="grid gap-2">
-            <span className="text-[0.68rem] font-black uppercase tracking-[0.2em] text-white/62">
+            <span className="text-[0.8rem] font-black uppercase tracking-[0.2em] text-white/62">
               Reason
             </span>
             <select
@@ -106,7 +106,7 @@ export function ReportPostModal({
           </label>
 
           <label className="grid gap-2">
-            <span className="text-[0.68rem] font-black uppercase tracking-[0.2em] text-white/62">
+            <span className="text-[0.8rem] font-black uppercase tracking-[0.2em] text-white/62">
               Optional note
             </span>
             <textarea

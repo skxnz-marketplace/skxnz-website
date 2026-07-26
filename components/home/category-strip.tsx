@@ -47,9 +47,9 @@ export function CategoryStrip() {
             >
               <span
                 aria-hidden="true"
-                className="absolute inset-0 bg-white/0 transition-colors duration-200 ease-out group-hover:bg-white/[0.05]"
+                className="absolute inset-0 bg-white/0 transition-colors duration-300 ease-out group-hover:bg-white/[0.06] motion-reduce:transition-none"
               />
-              <span className="relative px-5 pb-4 text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-white/90 transition-colors duration-200 group-hover:text-white">
+              <span className="relative px-5 pb-5 text-[0.85rem] font-semibold uppercase tracking-[0.12em] text-white/90 transition-colors duration-300 group-hover:text-white motion-reduce:transition-none">
                 {cat.label}
               </span>
             </Link>

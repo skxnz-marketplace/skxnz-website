@@ -19,10 +19,13 @@ const variantClasses: Record<ButtonVariant, string> = {
     "border-transparent bg-transparent text-sangria hover:border-sandstone hover:bg-pearlcream/90 hover:text-obsidian",
 };
 
+// Minimum touch target is 44px on the md/lg sizes (min-h), and label sizes are
+// legible rather than micro — a "large" CTA reading at 12px was the main reason
+// buttons felt unfinished next to the rest of the page.
 const sizeClasses: Record<ButtonSize, string> = {
-  sm: "px-3 py-1.5 text-[0.72rem]",
-  md: "px-4 py-2 text-xs",
-  lg: "px-5 py-2.5 text-xs",
+  sm: "min-h-[36px] px-3.5 py-2 text-[0.78rem]",
+  md: "min-h-[44px] px-5 py-2.5 text-[0.84rem]",
+  lg: "min-h-[48px] px-7 py-3 text-[0.9rem]",
 };
 
 export function buttonVariants({

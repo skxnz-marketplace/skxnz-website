@@ -66,7 +66,7 @@ export default async function OrdersPage() {
 
         {!result.backendReady ? (
           <Card className="section-border rounded-[36px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-8">
-            <p className="section-kicker text-[0.68rem] uppercase tracking-[0.24em] text-sangria">
+            <p className="section-kicker text-[0.8rem] uppercase tracking-[0.24em] text-sangria">
               Order history
             </p>
             <h2 className="mt-3 max-w-[20ch] font-display text-3xl uppercase leading-tight tracking-[0.04em] text-midnightbrown">
@@ -91,7 +91,7 @@ export default async function OrdersPage() {
                 >
                   <div className="flex flex-wrap items-start justify-between gap-4">
                     <div>
-                      <p className="text-[0.66rem] font-bold uppercase tracking-[0.2em] text-sangria">
+                      <p className="text-[0.78rem] font-bold uppercase tracking-[0.2em] text-sangria">
                         Order {order.id.slice(0, 8).toUpperCase()}
                       </p>
                       <p className="mt-2 text-sm font-semibold text-midnightbrown">
@@ -108,14 +108,14 @@ export default async function OrdersPage() {
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-[0.66rem] uppercase tracking-[0.2em] text-stone">
+                      <p className="text-[0.78rem] uppercase tracking-[0.2em] text-stone">
                         {order.totalPaise !== null ? "Total" : "Subtotal"}
                       </p>
                       <p className="mt-1 text-lg font-semibold text-midnightbrown">
                         {formatInrFromPaise(order.totalPaise ?? order.subtotalPaise)}
                       </p>
                       {order.totalPaise === null ? (
-                        <p className="mt-1 max-w-[22ch] text-[0.7rem] leading-5 text-stone">
+                        <p className="mt-1 max-w-[22ch] text-[0.8rem] leading-5 text-stone">
                           Delivery and taxes are added at live checkout.
                         </p>
                       ) : null}

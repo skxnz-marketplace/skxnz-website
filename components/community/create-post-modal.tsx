@@ -113,7 +113,7 @@ export function CreatePostModal({
       <div className="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-[32px] border border-[rgba(255,254,250,0.14)] bg-[linear-gradient(135deg,var(--skxnz-obsidian),var(--skxnz-maroon-deep),var(--skxnz-maroon))] p-5 text-[var(--skxnz-text-light)] shadow-[0_30px_90px_rgba(16,0,6,0.38)] sm:p-6">
         <div className="flex min-w-0 items-start justify-between gap-4">
           <div className="min-w-0">
-            <p className="text-[0.62rem] font-black uppercase tracking-[0.24em] text-[var(--skxnz-glint)]">
+            <p className="text-[0.78rem] font-black uppercase tracking-[0.24em] text-[var(--skxnz-glint)]">
               Signal Community Beta
             </p>
             <h2
@@ -139,7 +139,7 @@ export function CreatePostModal({
 
         <div className="mt-6 grid gap-5">
           <label className="grid gap-2">
-            <span className="text-[0.68rem] font-black uppercase tracking-[0.2em] text-white/62">
+            <span className="text-[0.8rem] font-black uppercase tracking-[0.2em] text-white/62">
               Image upload placeholder
             </span>
             <input
@@ -153,7 +153,7 @@ export function CreatePostModal({
           </label>
 
           <label className="grid gap-2">
-            <span className="text-[0.68rem] font-black uppercase tracking-[0.2em] text-white/62">
+            <span className="text-[0.8rem] font-black uppercase tracking-[0.2em] text-white/62">
               Caption
             </span>
             <textarea
@@ -167,7 +167,7 @@ export function CreatePostModal({
           </label>
 
           <div className="grid gap-2">
-            <span className="text-[0.68rem] font-black uppercase tracking-[0.2em] text-white/62">
+            <span className="text-[0.8rem] font-black uppercase tracking-[0.2em] text-white/62">
               Style tags
             </span>
             <div className="flex flex-wrap gap-2">
@@ -177,7 +177,7 @@ export function CreatePostModal({
                   type="button"
                   onClick={() => toggleTag(tag)}
                   className={cn(
-                    "rounded-full border px-3 py-2 text-[0.66rem] font-black uppercase tracking-[0.16em] transition",
+                    "rounded-full border px-3 py-2 text-[0.78rem] font-black uppercase tracking-[0.16em] transition",
                     selectedTags.includes(tag)
                       ? "border-[rgba(34,211,238,0.48)] bg-[rgba(34,211,238,0.12)] text-white"
                       : "border-white/12 bg-white/[0.07] text-white/62",
@@ -190,7 +190,7 @@ export function CreatePostModal({
           </div>
 
           <div className="grid gap-2">
-            <span className="text-[0.68rem] font-black uppercase tracking-[0.2em] text-white/62">
+            <span className="text-[0.8rem] font-black uppercase tracking-[0.2em] text-white/62">
               Tagged SKXNZ products
             </span>
             <div className="grid max-h-56 gap-2 overflow-y-auto rounded-[20px] border border-white/12 bg-white/[0.06] p-2 sm:grid-cols-2">
@@ -209,7 +209,7 @@ export function CreatePostModal({
                   <span className="line-clamp-1 text-xs font-black uppercase tracking-[0.14em] text-white">
                     {product.name}
                   </span>
-                  <span className="mt-1 block line-clamp-1 text-[0.68rem] text-white/56">
+                  <span className="mt-1 block line-clamp-1 text-[0.8rem] text-white/56">
                     {product.brandName} · {product.category}
                   </span>
                 </button>
@@ -218,7 +218,7 @@ export function CreatePostModal({
           </div>
 
           <label className="grid gap-2">
-            <span className="text-[0.68rem] font-black uppercase tracking-[0.2em] text-white/62">
+            <span className="text-[0.8rem] font-black uppercase tracking-[0.2em] text-white/62">
               Visibility
             </span>
             <select

@@ -56,7 +56,7 @@ export function ProductDescriptionDemo() {
         <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="space-y-2">
-              <span className="text-[0.68rem] uppercase tracking-[0.22em] text-silver">
+              <span className="text-[0.8rem] uppercase tracking-[0.22em] text-silver">
                 Product name
               </span>
               <input
@@ -68,7 +68,7 @@ export function ProductDescriptionDemo() {
               />
             </label>
             <label className="space-y-2">
-              <span className="text-[0.68rem] uppercase tracking-[0.22em] text-silver">
+              <span className="text-[0.8rem] uppercase tracking-[0.22em] text-silver">
                 Category
               </span>
               <select
@@ -95,7 +95,7 @@ export function ProductDescriptionDemo() {
 
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="space-y-2">
-              <span className="text-[0.68rem] uppercase tracking-[0.22em] text-silver">
+              <span className="text-[0.8rem] uppercase tracking-[0.22em] text-silver">
                 Fabric
               </span>
               <input
@@ -107,7 +107,7 @@ export function ProductDescriptionDemo() {
               />
             </label>
             <label className="space-y-2">
-              <span className="text-[0.68rem] uppercase tracking-[0.22em] text-silver">
+              <span className="text-[0.8rem] uppercase tracking-[0.22em] text-silver">
                 Fit
               </span>
               <select
@@ -126,7 +126,7 @@ export function ProductDescriptionDemo() {
           </div>
 
           <label className="space-y-2">
-            <span className="text-[0.68rem] uppercase tracking-[0.22em] text-silver">
+            <span className="text-[0.8rem] uppercase tracking-[0.22em] text-silver">
               Color
             </span>
             <input
@@ -139,7 +139,7 @@ export function ProductDescriptionDemo() {
           </label>
 
           <label className="space-y-2">
-            <span className="text-[0.68rem] uppercase tracking-[0.22em] text-silver">
+            <span className="text-[0.8rem] uppercase tracking-[0.22em] text-silver">
               Style notes
             </span>
             <textarea
@@ -167,7 +167,7 @@ export function ProductDescriptionDemo() {
             </div>
 
             <div className="rounded-[28px] border border-white/[0.08] bg-white/[0.03] p-5">
-              <p className="text-[0.68rem] uppercase tracking-[0.22em] text-teal">
+              <p className="text-[0.8rem] uppercase tracking-[0.22em] text-teal">
                 Bullet highlights
               </p>
               <ul className="mt-4 space-y-3 text-sm leading-7 text-silver">
@@ -180,7 +180,7 @@ export function ProductDescriptionDemo() {
             </div>
 
             <div className="rounded-[28px] border border-white/[0.08] bg-white/[0.03] p-5">
-              <p className="text-[0.68rem] uppercase tracking-[0.22em] text-teal">
+              <p className="text-[0.8rem] uppercase tracking-[0.22em] text-teal">
                 Care note
               </p>
               <p className="mt-3 text-sm leading-7 text-silver">{output.careNote}</p>

@@ -54,7 +54,7 @@ export function TicketReplyForm({ ticketId }: { ticketId: string }) {
   return (
     <form className="mt-6 space-y-3" onSubmit={handleSubmit}>
       <label className="block min-w-0">
-        <span className="text-[0.68rem] font-bold uppercase tracking-[0.18em] text-stone">
+        <span className="text-[0.8rem] font-bold uppercase tracking-[0.18em] text-stone">
           Add a reply
         </span>
         <textarea

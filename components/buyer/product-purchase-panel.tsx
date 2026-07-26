@@ -170,7 +170,7 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
         <div className="flex min-w-0 flex-wrap items-center gap-2">
           <Link
             href={`/brands/${product.brandSlug}`}
-            className="line-clamp-1 min-w-0 text-[0.68rem] font-bold uppercase tracking-[0.24em] text-[var(--skxnz-maroon)] transition hover:text-[var(--skxnz-wine)]"
+            className="line-clamp-1 min-w-0 text-[0.8rem] font-bold uppercase tracking-[0.24em] text-[var(--skxnz-maroon)] transition hover:text-[var(--skxnz-wine)]"
           >
             {product.brandName}
           </Link>
@@ -208,7 +208,7 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
             "N units for this option" label forced horizontal overflow at 390px. */}
         <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
           <div className="min-w-0">
-            <p className="text-[0.62rem] font-bold uppercase tracking-[0.22em] text-[var(--skxnz-text-muted)]">
+            <p className="text-[0.78rem] font-bold uppercase tracking-[0.22em] text-[var(--skxnz-text-muted)]">
               Stock
             </p>
             <p className="mt-1 line-clamp-1 text-sm font-bold text-[var(--skxnz-text-dark)]">
@@ -319,7 +319,7 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
         </div>
 
         <div>
-          <p className="text-[0.66rem] font-bold uppercase tracking-[0.22em] text-[var(--skxnz-text-muted)]">
+          <p className="text-[0.78rem] font-bold uppercase tracking-[0.22em] text-[var(--skxnz-text-muted)]">
             Quantity
           </p>
           <div className="mt-3 inline-flex items-center overflow-hidden rounded-full border border-[var(--skxnz-border)] bg-[var(--skxnz-surface)]">
@@ -425,7 +425,7 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
 
       <div className="mt-6 grid gap-3">
         <div className="rounded-[22px] border border-[var(--skxnz-border)] bg-[var(--skxnz-card)] p-4">
-          <p className="text-[0.62rem] font-bold uppercase tracking-[0.22em] text-[var(--skxnz-text-muted)]">
+          <p className="text-[0.78rem] font-bold uppercase tracking-[0.22em] text-[var(--skxnz-text-muted)]">
             Delivery
           </p>
           <p className="mt-2 text-sm leading-6 text-[var(--skxnz-text-muted)]">
@@ -433,7 +433,7 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
           </p>
         </div>
         <div className="rounded-[22px] border border-[var(--skxnz-border)] bg-[var(--skxnz-card)] p-4">
-          <p className="text-[0.62rem] font-bold uppercase tracking-[0.22em] text-[var(--skxnz-text-muted)]">
+          <p className="text-[0.78rem] font-bold uppercase tracking-[0.22em] text-[var(--skxnz-text-muted)]">
             Returns
           </p>
           <p className="mt-2 text-sm leading-6 text-[var(--skxnz-text-muted)]">

@@ -148,7 +148,7 @@ export function PlaceDraftOrder({ addresses, backendReady }: PlaceDraftOrderProp
     <Card className="section-border overflow-hidden rounded-[36px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)]">
       <div className="grid min-w-0 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.68fr)]">
         <div className="min-w-0 p-6 sm:p-8 lg:p-10">
-          <p className="section-kicker text-[0.68rem] uppercase tracking-[0.24em] text-sangria">
+          <p className="section-kicker text-[0.8rem] uppercase tracking-[0.24em] text-sangria">
             Final review
           </p>
           <h2 className="mt-3 break-words font-display text-3xl uppercase leading-tight tracking-[0.04em] text-midnightbrown sm:text-4xl">
@@ -173,7 +173,7 @@ export function PlaceDraftOrder({ addresses, backendReady }: PlaceDraftOrderProp
             </div>
           ) : (
             <fieldset className="mt-6">
-              <legend className="text-[0.68rem] font-bold uppercase tracking-[0.18em] text-stone">
+              <legend className="text-[0.8rem] font-bold uppercase tracking-[0.18em] text-stone">
                 Deliver to
               </legend>
               <div className="mt-3 space-y-2">
@@ -201,7 +201,7 @@ export function PlaceDraftOrder({ addresses, backendReady }: PlaceDraftOrderProp
                     <span className="min-w-0 break-words text-midnightbrown">
                       {formatAddress(address)}
                       {address.isDefault ? (
-                        <span className="ml-2 text-[0.62rem] font-bold uppercase tracking-[0.18em] text-sangria">
+                        <span className="ml-2 text-[0.78rem] font-bold uppercase tracking-[0.18em] text-sangria">
                           Default
                         </span>
                       ) : null}
@@ -220,7 +220,7 @@ export function PlaceDraftOrder({ addresses, backendReady }: PlaceDraftOrderProp
         </div>
 
         <div className="min-w-0 border-t border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-bg-soft)] p-6 sm:p-8 lg:border-l lg:border-t-0 lg:p-10">
-          <p className="text-[0.68rem] font-bold uppercase tracking-[0.2em] text-stone">
+          <p className="text-[0.8rem] font-bold uppercase tracking-[0.2em] text-stone">
             Draft status
           </p>
           <h3 className="mt-3 font-display text-2xl uppercase leading-tight text-midnightbrown">

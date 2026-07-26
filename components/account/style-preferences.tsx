@@ -23,7 +23,7 @@ export function StylePreferences() {
 
   return (
     <Card className="section-border rounded-[32px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-6">
-      <p className="section-kicker text-[0.68rem] uppercase tracking-[0.24em] text-sangria">
+      <p className="section-kicker text-[0.8rem] uppercase tracking-[0.24em] text-sangria">
         Style preferences
       </p>
       <div className="mt-5 space-y-3">
@@ -32,7 +32,7 @@ export function StylePreferences() {
             key={label}
             className="rounded-[22px] border border-[rgba(58,8,24,0.10)] bg-[var(--skxnz-bg-soft)] p-4"
           >
-            <p className="text-[0.62rem] font-bold uppercase tracking-[0.18em] text-stone">
+            <p className="text-[0.78rem] font-bold uppercase tracking-[0.18em] text-stone">
               {label}
             </p>
             <p className="mt-2 break-words text-sm font-semibold leading-6 text-midnightbrown">

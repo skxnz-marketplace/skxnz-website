@@ -23,7 +23,7 @@ export function StylistAccessGate({ children }: StylistAccessGateProps) {
     return (
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
         <Card className="section-border rounded-[36px] p-8 text-center">
-          <p className="text-[0.68rem] uppercase tracking-[0.24em] text-teal">
+          <p className="text-[0.8rem] uppercase tracking-[0.24em] text-teal">
             AI Stylist
           </p>
           <h1 className="mt-4 break-words font-display text-[1.7rem] uppercase tracking-[0.08em] text-midnightbrown sm:text-3xl sm:tracking-[0.14em]">
@@ -41,7 +41,7 @@ export function StylistAccessGate({ children }: StylistAccessGateProps) {
   return (
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
       <Card className="section-border rounded-[36px] p-6 sm:p-8">
-        <p className="text-[0.68rem] uppercase tracking-[0.24em] text-teal">
+        <p className="text-[0.8rem] uppercase tracking-[0.24em] text-teal">
           Early Access Preview
         </p>
         <h1 className="mt-4 break-words font-display text-[1.8rem] uppercase leading-[0.98] tracking-[0.08em] text-midnightbrown sm:text-3xl sm:tracking-[0.14em]">

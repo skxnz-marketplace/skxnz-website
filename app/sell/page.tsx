@@ -21,7 +21,7 @@ export default function SellPage() {
 
           <aside className="space-y-6">
             <Card className="section-border rounded-[36px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-6 sm:p-7">
-              <p className="section-kicker text-[0.68rem] uppercase tracking-[0.24em] text-sangria">
+              <p className="section-kicker text-[0.8rem] uppercase tracking-[0.24em] text-sangria">
                 Application review
               </p>
               <h2 className="mt-3 font-display text-3xl uppercase leading-tight tracking-[0.04em] text-midnightbrown">
@@ -40,7 +40,7 @@ export default function SellPage() {
             </Card>
 
             <Card className="section-border rounded-[36px] border-[rgba(58,8,24,0.12)] bg-[linear-gradient(135deg,var(--skxnz-maroon-deep),var(--skxnz-maroon),var(--skxnz-obsidian))] p-6 text-[var(--skxnz-text-light)] sm:p-7">
-              <p className="text-[0.68rem] font-bold uppercase tracking-[0.24em] text-[rgba(255,254,250,0.68)]">
+              <p className="text-[0.8rem] font-bold uppercase tracking-[0.24em] text-[rgba(255,254,250,0.68)]">
                 Beta-safe status
               </p>
               <h2 className="mt-3 font-display text-3xl uppercase leading-tight tracking-[0.04em]">

@@ -108,20 +108,20 @@ export function HeroCarousel() {
               >
                 {s.headline}
               </h1>
-              <p className="mt-5 max-w-[480px] text-[clamp(0.9rem,1.4vw,1.1rem)] font-medium leading-relaxed text-[#F4F1EC]/65">
+              <p className="mt-6 max-w-[480px] text-[clamp(1rem,1.4vw,1.15rem)] font-medium leading-relaxed text-[#F4F1EC]/75">
                 {s.subline}
               </p>
-              <div className="mt-8 flex flex-wrap items-center gap-3">
+              <div className="mt-9 flex flex-wrap items-center gap-3">
                 <Link
                   href={s.primaryHref}
-                  className="inline-flex h-12 items-center gap-2.5 rounded-full bg-[#F4F1EC] px-7 text-sm font-bold uppercase tracking-[0.08em] text-[#0E0E10] transition hover:bg-white"
+                  className="inline-flex h-[52px] items-center gap-2.5 rounded-full bg-[#F4F1EC] px-8 text-sm font-bold uppercase tracking-[0.08em] text-[#0E0E10] transition duration-300 ease-out hover:bg-white motion-reduce:transition-none"
                 >
                   {s.primaryCta}
                   <ArrowRight />
                 </Link>
                 <Link
                   href={s.secondaryHref}
-                  className="inline-flex h-12 items-center gap-2.5 rounded-full border border-[#00E5FF]/40 bg-[#00E5FF]/10 px-7 text-sm font-bold uppercase tracking-[0.08em] text-[#00E5FF] transition hover:bg-[#00E5FF]/18"
+                  className="inline-flex h-[52px] items-center gap-2.5 rounded-full border border-[#00E5FF]/40 bg-[#00E5FF]/10 px-8 text-sm font-bold uppercase tracking-[0.08em] text-[#00E5FF] transition duration-300 ease-out hover:bg-[#00E5FF]/18 motion-reduce:transition-none"
                 >
                   {s.secondaryCta}
                 </Link>
@@ -151,21 +151,28 @@ export function HeroCarousel() {
         <ChevronRight />
       </button>
 
-      {/* Dots */}
-      <div className="absolute bottom-6 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2">
+      {/* Dots — the visible bar stays thin, but each control carries a 44px
+          padded hit area so it is actually tappable on a phone. */}
+      <div className="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 items-center">
         {heroSlides.map((s, i) => (
           <button
             key={s.id}
             type="button"
             onClick={() => setActive(i)}
             aria-label={`Go to slide ${i + 1}`}
-            className={cn(
-              "h-[3px] rounded-full transition-all duration-300",
-              i === active
-                ? "w-8 bg-[#00E5FF]"
-                : "w-3 bg-white/30 hover:bg-white/50",
-            )}
-          />
+            aria-current={i === active}
+            className="group flex h-11 w-8 items-center justify-center"
+          >
+            <span
+              aria-hidden="true"
+              className={cn(
+                "h-[3px] rounded-full transition-all duration-300 motion-reduce:transition-none",
+                i === active
+                  ? "w-8 bg-[#00E5FF]"
+                  : "w-3 bg-white/30 group-hover:bg-white/50",
+              )}
+            />
+          </button>
         ))}
       </div>
     </section>
