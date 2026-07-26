@@ -7,7 +7,7 @@ import { getBuyerAddresses } from "@/lib/orders/read-buyer-addresses";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Checkout Review | SKXNZ",
+  title: "Checkout Review",
   description:
     "SKXNZ checkout review. Prepare contact and shipping details, then save an unpaid draft order before live payment is connected.",
 };

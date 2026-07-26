@@ -91,7 +91,7 @@ export const demoBrands: DemoBrand[] = structuredBrands.map((brand) => {
       brand.logo || controlledSkxnzBrandPlaceholder,
       brand.slug,
     ),
-    logoType: brand.slug === "skxnz" ? "SKXNZ mark" : "SKXNZ-safe demo logo",
+    logoType: brand.slug === "skxnz" ? "SKXNZ mark" : "Curated label mark",
     heroImage: ensureBrandHeroAsset(
       brandHero?.image ?? brand.heroImage ?? heroProduct?.image ?? controlledSkxnzPlaceholderImage,
       brand.slug,
@@ -104,7 +104,7 @@ export const demoBrands: DemoBrand[] = structuredBrands.map((brand) => {
     isStreetwear: normalizedBrandSignals.includes("streetwear"),
     isNew: brand.status.toLowerCase().includes("demo") || brand.slug !== "skxnz",
     isDemo: brand.status.toLowerCase() !== "active" || brand.slug !== "skxnz",
-    country: brand.slug === "skxnz" ? "India" : "Demo marketplace",
+    country: "India",
     productCount: brandProducts.length,
     description: brand.description,
     availabilityNote: brand.availabilityNote,

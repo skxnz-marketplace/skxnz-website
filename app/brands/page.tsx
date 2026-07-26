@@ -3,6 +3,10 @@ import { demoBrands, getTopBrands } from "@/lib/data/brands";
 import { getActiveBrands, getActiveProducts } from "@/lib/catalog/queries";
 import { mapBrandToDemoBrand } from "@/lib/catalog/mappers";
 
+export const metadata = {
+  title: "Brands",
+};
+
 export const revalidate = 300;
 
 export default async function BrandsPage() {

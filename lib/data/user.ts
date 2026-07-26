@@ -40,7 +40,7 @@ export const defaultDemoBuyerProfileSettings: DemoBuyerProfileSettings = {
   phone: "",
   city: "Mumbai",
   preferredCategory: "Streetwear",
-  favouriteBrands: "SKXNZ, Demo Atelier, Chrome District",
+  favouriteBrands: "SKXNZ, Atelier Nova, Chrome District",
   favouriteColors: "Black, Chrome, Pearl",
   styleVibe: "Futurewear, clean street-luxury, chrome accents",
   budgetRange: "₹8,000 - ₹30,000",

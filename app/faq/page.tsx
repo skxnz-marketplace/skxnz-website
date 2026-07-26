@@ -2,6 +2,10 @@ import { LegalPageShell } from "@/components/legal/legal-page-shell";
 import { PolicyNotice } from "@/components/legal/policy-notice";
 import { FaqAccordion } from "@/components/support/faq-accordion";
 
+export const metadata = {
+  title: "FAQ",
+};
+
 const faqItems = [
   {
     question: "What is SKXNZ?",

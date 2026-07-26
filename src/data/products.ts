@@ -754,8 +754,8 @@ export const structuredProducts: StructuredProduct[] = [
     "priceInr": 3299,
     "salePriceInr": 2899,
     "currency": "INR",
-    "description": "Demo layered shirt concept for testing SKXNZ marketplace layouts.",
-    "shortDescription": "Layered premium demo shirt.",
+    "description": "Layered shirt concept with a streetwear-coded signal finish.",
+    "shortDescription": "Layered premium signal shirt.",
     "image": "/assets/demo/products/product-01.webp",
     "gallery": [
       "/assets/demo/products/product-01.webp"
@@ -822,7 +822,7 @@ export const structuredProducts: StructuredProduct[] = [
     "priceInr": 1799,
     "salePriceInr": 1499,
     "currency": "INR",
-    "description": "Demo chrome bracelet concept for accessory testing.",
+    "description": "Chrome bracelet concept with a polished sculptural finish.",
     "shortDescription": "Chrome premium bracelet.",
     "image": "/assets/demo/products/product-01.webp",
     "gallery": [
@@ -866,10 +866,10 @@ export const structuredProducts: StructuredProduct[] = [
     "id": "sku-013",
     "sourceProductId": "SKXNZ-013",
     "slug": "demo-atelier-long-coat",
-    "name": "Demo Atelier Long Coat",
+    "name": "Atelier Nova Long Coat",
     "brandId": "brand-002",
     "brandSlug": "demo-atelier",
-    "brandName": "Demo Atelier",
+    "brandName": "Atelier Nova",
     "category": "Woman",
     "subcategory": "Coats",
     "gender": "Woman",
@@ -886,8 +886,8 @@ export const structuredProducts: StructuredProduct[] = [
     "priceInr": 7999,
     "salePriceInr": 6999,
     "currency": "INR",
-    "description": "Demo long coat concept for premium brand-page testing.",
-    "shortDescription": "Premium demo atelier coat.",
+    "description": "Long coat concept with a sculpted premium silhouette.",
+    "shortDescription": "Premium atelier long coat.",
     "image": "/assets/demo/products/product-01.webp",
     "gallery": [
       "/assets/demo/products/product-01.webp"
@@ -953,7 +953,7 @@ export const structuredProducts: StructuredProduct[] = [
     "priceInr": 2599,
     "salePriceInr": 2199,
     "currency": "INR",
-    "description": "Demo crossbody bag concept for accessory and search testing.",
+    "description": "Crossbody bag concept with a clean chrome-district finish.",
     "shortDescription": "Futurewear crossbody bag.",
     "image": "/assets/demo/products/product-01.webp",
     "gallery": [

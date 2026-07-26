@@ -110,140 +110,17 @@ export const categoryItems: CategoryItem[] = [
   { label: "Accessories", href: "/categories/accessories", image: "" },
 ];
 
+// Real curated labels from the local catalogue — never invented brand names.
 export const brandLabels: BrandLabel[] = [
-  { name: "VANTA", monogram: "V" },
-  { name: "AXIS", monogram: "AX" },
-  { name: "SIGNAL", monogram: "SG" },
-  { name: "MERIDIAN", monogram: "MD" },
-  { name: "HALO", monogram: "HL" },
-  { name: "KORE", monogram: "KR" },
-  { name: "FLUX", monogram: "FX" },
-  { name: "NOIR", monogram: "NR" },
-  { name: "MONOLITH", monogram: "MN" },
-  { name: "APEX", monogram: "AP" },
-  { name: "PULSE", monogram: "PL" },
+  { name: "SKXNZ", monogram: "SX" },
+  { name: "ATELIER NOVA", monogram: "AN" },
+  { name: "SIGNAL STUDIO", monogram: "SS" },
+  { name: "CHROME DISTRICT", monogram: "CD" },
 ];
 
-export const trendingProducts: HomeProduct[] = [
-  {
-    id: "t1",
-    brand: "VANTA",
-    name: "Obsidian Utility Jacket",
-    price: 749900,
-    href: "/shop",
-    image: "",
-  },
-  {
-    id: "t2",
-    brand: "AXIS",
-    name: "Chrome Runner Sneaker",
-    price: 1299900,
-    href: "/shop",
-    image: "",
-  },
-  {
-    id: "t3",
-    brand: "MERIDIAN",
-    name: "Midnight Cargo Pants",
-    price: 499900,
-    href: "/shop",
-    image: "",
-  },
-  {
-    id: "t4",
-    brand: "SIGNAL",
-    name: "Signal Black Hoodie",
-    price: 399900,
-    href: "/shop",
-    image: "",
-  },
-  {
-    id: "t5",
-    brand: "HALO",
-    name: "Silver Dial Timepiece",
-    price: 1849900,
-    href: "/shop",
-    image: "",
-  },
-  {
-    id: "t6",
-    brand: "KORE",
-    name: "Urban Sling Bag",
-    price: 549900,
-    href: "/shop",
-    image: "",
-  },
-];
-
-export const newInProducts: HomeProduct[] = [
-  {
-    id: "n1",
-    brand: "FLUX",
-    name: "Vapor Low Trainer",
-    price: 899900,
-    href: "/shop",
-    image: "",
-  },
-  {
-    id: "n2",
-    brand: "NOIR",
-    name: "Structured Bomber",
-    price: 649900,
-    href: "/shop",
-    image: "",
-  },
-  {
-    id: "n3",
-    brand: "MONOLITH",
-    name: "Slate Overshirt",
-    price: 459900,
-    href: "/shop",
-    image: "",
-  },
-  {
-    id: "n4",
-    brand: "APEX",
-    name: "Velocity Track Pant",
-    price: 379900,
-    href: "/shop",
-    image: "",
-  },
-];
-
-export const luxuryFinds: HomeProduct[] = [
-  {
-    id: "l1",
-    brand: "HALO",
-    name: "Obsidian Chronograph",
-    price: 3499900,
-    href: "/shop",
-    image: "",
-  },
-  {
-    id: "l2",
-    brand: "MERIDIAN",
-    name: "Sculpted Leather Tote",
-    price: 2299900,
-    href: "/shop",
-    image: "",
-  },
-  {
-    id: "l3",
-    brand: "VANTA",
-    name: "Cashmere Wrap Coat",
-    price: 1899900,
-    href: "/shop",
-    image: "",
-  },
-  {
-    id: "l4",
-    brand: "PULSE",
-    name: "Titanium Frame Shades",
-    price: 1249900,
-    href: "/shop",
-    image: "",
-  },
-];
+// Fabricated homepage product lists were removed in D10-C. Homepage sections
+// now render live catalog products or the approved local catalogue mapped in
+// app/page.tsx — every card links to a real product-detail page.
 
 export const mosaicTiles: MosaicTile[] = [
   {

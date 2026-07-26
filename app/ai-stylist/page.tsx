@@ -1,1 +1,1 @@
-export { default } from "../ai/stylist/page";
+export { default, metadata } from "../ai/stylist/page";

@@ -36,7 +36,7 @@ export const brandPageHeroes: BrandPageHero[] = [
   },
   {
     "id": "brand-hero-demo-atelier",
-    "brandName": "Demo Atelier",
+    "brandName": "Atelier Nova",
     "brandSlug": "demo-atelier",
     "title": "DEMO ATELIER EDIT",
     "subtitle": "Premium demo collection for testing the SKXNZ brand experience.",

@@ -13,7 +13,7 @@ import { buttonVariants } from "@/components/ui/button";
 // (browser-local request state) was removed from this route.
 
 export const metadata = {
-  title: "Returns — SKXNZ",
+  title: "Returns",
   description: "How returns work at SKXNZ and where to request one.",
 };
 

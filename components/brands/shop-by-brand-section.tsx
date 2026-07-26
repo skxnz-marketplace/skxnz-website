@@ -31,12 +31,11 @@ export function ShopByBrandSection() {
               Shop By Brand
             </p>
             <h2 className="mt-3 max-w-[12ch] text-wrap-safe break-words font-display text-[1.28rem] uppercase leading-[1] tracking-[0.05em] text-midnightbrown sm:max-w-none sm:text-2xl sm:tracking-[0.12em]">
-              Explore the curated demo brand stack.
+              Explore the curated brand stack.
             </h2>
             <p className="mt-3 max-w-[19rem] text-sm leading-6 text-silver sm:max-w-none sm:leading-7">
-              Top-brand placement is driven by internal ranking signals, while the
-              public buyer view stays focused on curated discovery instead of demo
-              order counts.
+              Every label here is hand-picked for the SKXNZ catalogue, with
+              placement guided by curation rather than order counts.
             </p>
           </div>
           <Badge>{rankedBrands.length} curated brands</Badge>
