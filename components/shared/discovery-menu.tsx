@@ -311,11 +311,12 @@ export function MobileDiscoveryDrawer({
       id="skxnz-mobile-discovery-menu"
       className={cn(
         "fixed inset-y-0 left-0 z-[140] flex w-full max-w-[30rem] flex-col border-r border-[var(--skxnz-border)] bg-[var(--skxnz-bg)] shadow-[0_30px_90px_rgba(16,0,6,0.24)] transition duration-300 lg:hidden",
-        isOpen ? "translate-x-0" : "-translate-x-full",
+        // `invisible` keeps the closed drawer out of tab order and hit-testing without
+        // an `inert` attribute; visibility flips only after the slide-out finishes.
+        isOpen ? "visible translate-x-0" : "invisible -translate-x-full",
       )}
       aria-label="SKXNZ mobile discovery menu"
       aria-hidden={!isOpen}
-      inert={!isOpen ? true : undefined}
     >
       <div className="border-b border-[var(--skxnz-border)] bg-[linear-gradient(135deg,rgba(16,0,6,0.98),rgba(42,6,19,0.96),rgba(58,8,24,0.94))] px-5 py-5 text-[#FFFEFA]">
         <div className="flex items-center justify-between gap-4">

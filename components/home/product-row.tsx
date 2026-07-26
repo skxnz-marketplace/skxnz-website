@@ -134,13 +134,52 @@ type ProductRowProps = {
   heading: string;
   viewAllHref: string;
   products: HomeProduct[];
+  /** Alternating up/down card offsets with a slow float animation; row stretches near full-bleed. */
+  staggered?: boolean;
 };
 
-export function ProductRow({ heading, viewAllHref, products }: ProductRowProps) {
+export function ProductRow({ heading, viewAllHref, products, staggered = false }: ProductRowProps) {
   const rowRef = useRef<HTMLDivElement>(null);
 
   function scroll(dir: "left" | "right") {
     rowRef.current?.scrollBy({ left: dir === "left" ? -380 : 380, behavior: "smooth" });
+  }
+
+  if (staggered) {
+    return (
+      <section aria-label={heading} className="overflow-hidden bg-[#F4F1EC] pb-10 pt-2">
+        <div className="mx-auto max-w-[1800px] px-4 sm:px-6 lg:px-8">
+          {/* Header */}
+          <div className="mb-4 flex items-center justify-between gap-4">
+            <h2 className="font-grotesk text-xl font-bold uppercase tracking-[-0.01em] text-[#161616]">
+              {heading}
+            </h2>
+            <Link
+              href={viewAllHref}
+              className="shrink-0 text-[0.72rem] font-bold uppercase tracking-[0.12em] text-[#2E1014] transition hover:opacity-70"
+            >
+              View All →
+            </Link>
+          </div>
+
+          {/* Staggered grid — alternate cards drop down, all float slowly */}
+          <div className="hidden gap-4 sm:grid sm:grid-cols-3 lg:grid-cols-6 lg:gap-5">
+            {products.map((p, i) => (
+              <div key={p.id} className={cn(i % 2 === 1 && "sm:mt-14")}>
+                <ProductCard product={p} index={i} />
+              </div>
+            ))}
+          </div>
+
+          {/* Mobile: 2-col grid, no stagger */}
+          <div className="grid grid-cols-2 gap-3 sm:hidden">
+            {products.map((p, i) => (
+              <ProductCard key={p.id} product={p} index={i} />
+            ))}
+          </div>
+        </div>
+      </section>
+    );
   }
 
   return (

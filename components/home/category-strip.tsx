@@ -1,7 +1,4 @@
-"use client";
-
 import Link from "next/link";
-import { useRef } from "react";
 
 import { cn } from "@/lib/cn";
 import { categoryItems } from "@/lib/home-data";
@@ -15,81 +12,49 @@ const CATEGORY_COLORS: Record<string, string> = {
   Accessories: "from-[#1a1816] to-[#2a2420]",
 };
 
-function ChevronLeft() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4" aria-hidden="true">
-      <path d="m14.5 5.5-6 6 6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function ChevronRight() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4" aria-hidden="true">
-      <path d="m9.5 5.5 6 6-6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
+const CATEGORY_IMAGES: Record<string, string> = {
+  Sneakers: "/assets/home/categories/sneakers.webp",
+  Jackets: "/assets/home/categories/jackets.webp",
+  Watches: "/assets/home/categories/watches.webp",
+  Streetwear: "/assets/home/categories/streetwear.webp",
+  Bags: "/assets/home/categories/bags.webp",
+  Accessories: "/assets/home/categories/accessories.webp",
+};
 
 export function CategoryStrip() {
-  const stripRef = useRef<HTMLDivElement>(null);
-
-  function scroll(dir: "left" | "right") {
-    stripRef.current?.scrollBy({ left: dir === "left" ? -340 : 340, behavior: "smooth" });
-  }
-
   return (
-    <section aria-label="Shop by category" className="relative bg-[#F4F1EC] py-6">
-      <div className="mx-auto max-w-[1440px] px-6 sm:px-10 lg:px-16">
-        <div className="relative">
-          {/* Left arrow */}
-          <button
-            type="button"
-            onClick={() => scroll("left")}
-            aria-label="Scroll categories left"
-            className="absolute -left-4 top-1/2 z-10 hidden h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-md ring-1 ring-black/8 transition hover:shadow-lg lg:flex"
-          >
-            <ChevronLeft />
-          </button>
+    <section aria-label="Shop by category" className="bg-[#F4F1EC]">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
+        {categoryItems.map((cat) => {
+          const image = CATEGORY_IMAGES[cat.label];
 
-          {/* Strip */}
-          <div
-            ref={stripRef}
-            className="flex gap-3 overflow-x-auto scroll-smooth pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-          >
-            {categoryItems.map((cat) => (
-              <Link
-                key={cat.label}
-                href={cat.href}
-                className="group flex shrink-0 flex-col items-center gap-2"
-              >
-                <div
-                  className={cn(
-                    "relative flex h-[100px] w-[140px] items-end overflow-hidden rounded-xl bg-gradient-to-br sm:h-[112px] sm:w-[158px]",
-                    CATEGORY_COLORS[cat.label] ?? "from-[#1a1a1c] to-[#2d2d32]",
-                  )}
-                >
-                  <span className="absolute inset-x-0 bottom-2 px-3 text-[0.6rem] font-medium uppercase tracking-[0.15em] text-white/25">
-                    {cat.label}
-                  </span>
-                </div>
-                <span className="text-[0.74rem] font-semibold uppercase tracking-[0.1em] text-[#161616] transition group-hover:text-[#2E1014]">
-                  {cat.label}
-                </span>
-              </Link>
-            ))}
-          </div>
-
-          {/* Right arrow */}
-          <button
-            type="button"
-            onClick={() => scroll("right")}
-            aria-label="Scroll categories right"
-            className="absolute -right-4 top-1/2 z-10 hidden h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-md ring-1 ring-black/8 transition hover:shadow-lg lg:flex"
-          >
-            <ChevronRight />
-          </button>
-        </div>
+          return (
+            <Link
+              key={cat.label}
+              href={cat.href}
+              className={cn(
+                "group relative flex h-[150px] items-end overflow-hidden bg-gradient-to-br bg-cover bg-center bg-no-repeat sm:h-[190px] lg:h-[230px]",
+                "focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-white",
+                CATEGORY_COLORS[cat.label] ?? "from-[#1a1a1c] to-[#2d2d32]",
+              )}
+              style={
+                image
+                  ? {
+                      backgroundImage: `linear-gradient(180deg, rgba(6, 6, 8, 0.08) 0%, rgba(6, 6, 8, 0.22) 46%, rgba(6, 6, 8, 0.72) 100%), url(${image})`,
+                    }
+                  : undefined
+              }
+            >
+              <span
+                aria-hidden="true"
+                className="absolute inset-0 bg-white/0 transition-colors duration-200 ease-out group-hover:bg-white/[0.05]"
+              />
+              <span className="relative px-5 pb-4 text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-white/90 transition-colors duration-200 group-hover:text-white">
+                {cat.label}
+              </span>
+            </Link>
+          );
+        })}
       </div>
     </section>
   );

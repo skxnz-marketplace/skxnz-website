@@ -30,22 +30,25 @@ function ArrowRight() {
   );
 }
 
-const SLIDE_BG_GRADIENTS = [
-  "from-[#0a0a0c] via-[#111116] to-[#1a1a22]",
-  "from-[#0c0a0e] via-[#130f18] to-[#1e1528]",
-  "from-[#0a0c0c] via-[#0f1514] to-[#182020]",
-  "from-[#0c0a0a] via-[#160e0e] to-[#221414]",
-];
+/**
+ * Hero backdrop, shared by every slide.
+ * The shared photo lives at `public/assets/home/hero-signal.png` and takes over
+ * automatically — CSS paints the first layer that resolves, so while that file is
+ * absent the vector stand-in below shows instead. No code change needed to swap.
+ */
+const HERO_BACKDROP =
+  "url('/assets/home/hero-signal.png'), url('/assets/home/hero-signal-blur.svg')";
 
 export function HeroCarousel() {
   const [active, setActive] = useState(0);
 
   useEffect(() => {
+    // Users who ask for reduced motion get a static hero; arrows and dots still work.
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+
     const id = setInterval(() => setActive((i) => (i + 1) % heroSlides.length), 4500);
     return () => clearInterval(id);
   }, []);
-
-  const slide = heroSlides[active];
 
   return (
     <section
@@ -53,20 +56,26 @@ export function HeroCarousel() {
       className="relative w-full overflow-hidden bg-[#0E0E10]"
       style={{ minHeight: "clamp(480px, 62vw, 680px)" }}
     >
-      {/* Animated background panels */}
-      {heroSlides.map((s, i) => (
-        <div
-          key={s.id}
-          className={cn(
-            "absolute inset-0 bg-gradient-to-br transition-opacity duration-[900ms] ease-in-out",
-            SLIDE_BG_GRADIENTS[i],
-            i === active ? "opacity-100" : "opacity-0",
-          )}
-        />
-      ))}
+      {/* Backdrop image — shared by every slide */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: HERO_BACKDROP }}
+      />
+
+      {/* Readability scrim — keeps headline/CTA contrast above 4.5:1 over the image */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 bg-gradient-to-r from-[#05101a]/92 via-[#05101a]/62 to-[#05101a]/15"
+      />
+      <div
+        aria-hidden="true"
+        className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#05101a]/85 to-transparent"
+      />
 
       {/* Grid texture overlay */}
       <div
+        aria-hidden="true"
         className="absolute inset-0 opacity-[0.04]"
         style={{
           backgroundImage:
@@ -75,9 +84,6 @@ export function HeroCarousel() {
         }}
       />
 
-      {/* Cyan glow top-right */}
-      <div className="pointer-events-none absolute -right-24 -top-24 h-[480px] w-[480px] rounded-full bg-[#00E5FF] opacity-[0.03] blur-3xl" />
-
       {/* Slide content */}
       <div className="relative z-10 mx-auto flex h-full max-w-[1440px] flex-col justify-center px-6 py-16 sm:px-10 lg:px-16"
         style={{ minHeight: "clamp(480px, 62vw, 680px)" }}
@@ -85,13 +91,15 @@ export function HeroCarousel() {
         {heroSlides.map((s, i) => (
           <div
             key={s.id}
+            // `invisible` (visibility: hidden) already removes inactive slides from
+            // tab order and hit-testing, so no `inert` attribute is needed here.
+            aria-hidden={i !== active}
             className={cn(
-              "absolute inset-0 flex flex-col justify-center px-6 py-16 transition-all duration-[900ms] sm:px-10 lg:px-16",
+              "absolute inset-0 flex flex-col justify-center px-6 py-16 sm:px-10 lg:px-16",
+              "transition-[opacity,transform,visibility] ease-out motion-reduce:transition-none",
               i === active
-                ? "translate-y-0 opacity-100"
-                : i < active
-                ? "-translate-y-4 opacity-0"
-                : "translate-y-4 opacity-0",
+                ? "visible translate-y-0 opacity-100 duration-[420ms]"
+                : "invisible translate-y-3 opacity-0 duration-[260ms]",
             )}
           >
             <div className="max-w-[600px]">

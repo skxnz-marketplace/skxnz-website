@@ -14,8 +14,18 @@ const TILE_GRADIENTS = [
 
 export function MosaicSection() {
   return (
-    <section aria-label="Shop by category" className="bg-[#0E0E10] py-12">
-      <div className="mx-auto max-w-[1440px] px-6 sm:px-10 lg:px-16">
+    <section
+      aria-label="Shop by category"
+      className="relative isolate overflow-hidden bg-[#7b262c] py-12"
+    >
+      {/* Brand gradient backdrop — spans the section horizontally, tiles sit on top */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 -z-10 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: "url('/assets/home/shop-the-edit-gradient.svg')" }}
+      />
+
+      <div className="relative mx-auto max-w-[1440px] px-6 sm:px-10 lg:px-16">
         <h2 className="font-grotesk mb-6 text-xl font-bold uppercase tracking-[-0.01em] text-[#F4F1EC]">
           Shop The Edit
         </h2>

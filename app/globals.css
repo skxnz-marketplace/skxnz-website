@@ -134,11 +134,6 @@ body[data-skxnz-intro-seen="true"] [data-skxnz-opening-loader] {
   scroll-margin-top: calc(var(--skxnz-header-offset) + 0.75rem);
 }
 
-@keyframes skxnz-marquee {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
-}
-
 @keyframes skxnz-menu-in {
   from {
     opacity: 0;

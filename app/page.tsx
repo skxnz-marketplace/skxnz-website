@@ -1,15 +1,14 @@
-import { AiStylistBanner } from "@/components/home/ai-stylist-banner";
 import { CategoryStrip } from "@/components/home/category-strip";
 import { FeaturedLabels } from "@/components/home/featured-labels";
 import { HeroCarousel } from "@/components/home/hero-carousel";
 import { MosaicSection } from "@/components/home/mosaic-section";
 import { ProductRow } from "@/components/home/product-row";
+import { ShopSplit } from "@/components/home/shop-split";
 import { TrustBar } from "@/components/home/trust-bar";
 import { getActiveBrands, getActiveProducts } from "@/lib/catalog/queries";
 import { mapBrandToBrandLabel, mapProductToHomeProduct } from "@/lib/catalog/mappers";
 import {
   trendingProducts as fallbackTrending,
-  newInProducts as fallbackNewIn,
   luxuryFinds as fallbackLuxury,
   type HomeProduct,
 } from "@/lib/home-data";
@@ -17,7 +16,6 @@ import {
 export const revalidate = 300;
 
 const TRENDING_COUNT = 6;
-const NEW_IN_COUNT = 4;
 const LUXURY_COUNT = 4;
 
 export default async function HomePage() {
@@ -39,11 +37,6 @@ export default async function HomePage() {
       ? latestHomeProducts.slice(0, TRENDING_COUNT)
       : fallbackTrending;
 
-  const newInSection =
-    latestHomeProducts.length >= TRENDING_COUNT + NEW_IN_COUNT
-      ? latestHomeProducts.slice(TRENDING_COUNT, TRENDING_COUNT + NEW_IN_COUNT)
-      : fallbackNewIn;
-
   const premiumHomeProducts = [...liveProducts]
     .sort((a, b) => b.price_inr - a.price_inr)
     .slice(0, LUXURY_COUNT)
@@ -60,14 +53,10 @@ export default async function HomePage() {
         heading="Trending Now"
         viewAllHref="/shop"
         products={trendingSection}
+        staggered
       />
       <MosaicSection />
-      <ProductRow
-        heading="New In"
-        viewAllHref="/shop?new=1"
-        products={newInSection}
-      />
-      <AiStylistBanner />
+      <ShopSplit />
       <ProductRow
         heading="Luxury Finds"
         viewAllHref="/shop"
