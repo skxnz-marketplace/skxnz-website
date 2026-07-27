@@ -1,3 +1,4 @@
+import { cache } from "react";
 import type { Metadata } from "next";
 
 import { CategoryPageShell } from "@/components/categories/category-page-shell";
@@ -7,6 +8,12 @@ import { getActiveCategoryBySlug, getActiveProductsByCategoryId } from "@/lib/ca
 import { mapCatalogProductToBuyerProduct, mapCategoryToStructuredCategory } from "@/lib/catalog/mappers";
 
 export const revalidate = 300;
+
+// PERF (D13-A): generateMetadata and the page body each looked the category up
+// by slug, so every category page ran the query twice per request. React
+// cache() dedupes it to one lookup per render pass. Request-scoped only — no
+// cross-request staleness.
+const resolveCategoryBySlug = cache((slug: string) => getActiveCategoryBySlug(slug));
 
 type CategoryPageProps = {
   params: Promise<{
@@ -30,7 +37,7 @@ export async function generateMetadata({
 }: CategoryPageProps): Promise<Metadata> {
   const { slug } = await params;
 
-  const liveCategory = await getActiveCategoryBySlug(slug);
+  const liveCategory = await resolveCategoryBySlug(slug);
   if (liveCategory) {
     return {
       title: liveCategory.name,
@@ -54,7 +61,7 @@ export async function generateMetadata({
 export default async function CategoryPage({ params }: CategoryPageProps) {
   const { slug } = await params;
 
-  const liveCategory = await getActiveCategoryBySlug(slug);
+  const liveCategory = await resolveCategoryBySlug(slug);
 
   if (liveCategory) {
     const liveProducts = (await getActiveProductsByCategoryId(liveCategory.id)).map(

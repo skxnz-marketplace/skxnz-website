@@ -20,32 +20,13 @@
   font-display: swap;
 }
 
-@font-face {
-  font-family: "Bodoni Moda SC";
-  src: url("/assets/fonts/bodoni-moda-sc/BodoniModaSC-VariableFont_opsz,wght.ttf")
-    format("truetype");
-  font-weight: 400 900;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Merriweather Sans";
-  src: url("/assets/fonts/merriweather-sans/MerriweatherSans-VariableFont_wght.ttf")
-    format("truetype");
-  font-weight: 300 800;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Merriweather Sans";
-  src: url("/assets/fonts/merriweather-sans/MerriweatherSans-Italic-VariableFont_wght.ttf")
-    format("truetype");
-  font-weight: 300 800;
-  font-style: italic;
-  font-display: swap;
-}
+/* PERF (D13-A): removed dead @font-face blocks for "Bodoni Moda SC" and
+   "Merriweather Sans". No CSS variable, Tailwind token, or class references
+   either family, so nothing could ever match them. Their TTFs under
+   public/assets/fonts/{bodoni-moda-sc,merriweather-sans} are now unreferenced
+   dead assets (~830KB) safe to delete in an asset-cleanup pass. Only the two
+   fonts actually rendered — Source Sans 3 (body) and Syne (display, loaded via
+   @fontsource in the layout) — remain. */
 
 :root {
   --font-grotesk: "Syne", system-ui, sans-serif;

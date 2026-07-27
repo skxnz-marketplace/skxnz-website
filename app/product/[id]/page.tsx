@@ -1,3 +1,4 @@
+import { cache } from "react";
 import type { Metadata } from "next";
 
 import { ProductDetailShell } from "@/components/buyer/product-detail-shell";
@@ -53,7 +54,14 @@ async function resolveLiveProduct(id: string) {
   }
 }
 
-async function resolveProduct(id: string): Promise<Product | null> {
+// PERF (D13-A): generateMetadata AND the page body both resolve the same
+// product for one request. Each call was up to two sequential Supabase lookups
+// (slug then id) plus their relation fetches and a 2.5s timeout race, so the
+// page paid that cost twice. React cache() memoizes per render pass, keyed by
+// id, so the second caller reuses the first's promise. This is request-scoped
+// only — it never persists across requests, so it cannot serve stale product
+// data. Behaviour is identical; the work happens once.
+const resolveProduct = cache(async (id: string): Promise<Product | null> => {
   try {
     const liveProduct = await resolveLiveProduct(id);
 
@@ -65,7 +73,7 @@ async function resolveProduct(id: string): Promise<Product | null> {
   }
 
   return getSeedProductById(id) ?? null;
-}
+});
 
 /** Live catalog products related to a live product — same category first, then
  * the latest actives. Never demo products, so a live PDP stays consistent. */
