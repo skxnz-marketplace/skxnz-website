@@ -8,7 +8,7 @@ import {
   NEXT_SELLER_FULFILMENT,
   describeSellerFulfilment,
   type SellerLineFulfilmentStatus,
-} from "@/lib/orders/read-seller-orders";
+} from "@/lib/orders/seller-fulfilment-vocabulary";
 
 type Props = {
   orderItemId: string;

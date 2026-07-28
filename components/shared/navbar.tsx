@@ -1,21 +1,38 @@
 "use client";
 
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 
 import { useDemoRole } from "@/components/auth/demo-role-provider";
 import { useMarketplace } from "@/components/marketplace/marketplace-provider";
 import { BrandMark } from "@/components/layout/brand-mark";
-import {
-  DesktopMegaMenu,
-  MobileDiscoveryDrawer,
-} from "@/components/shared/discovery-menu";
 import { SiteSearchBar } from "@/components/shared/site-search-bar";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
 import { demoRoleSummaries, getDemoNavLinks } from "@/lib/demo-role";
 import { siteConfig } from "@/lib/site";
+
+const DesktopMegaMenu = dynamic(
+  () =>
+    import("@/components/shared/discovery-menu").then(
+      (module) => module.DesktopMegaMenu,
+    ),
+  { ssr: false },
+);
+
+const MobileDiscoveryDrawer = dynamic(
+  () =>
+    import("@/components/shared/discovery-menu").then(
+      (module) => module.MobileDiscoveryDrawer,
+    ),
+  { ssr: false },
+);
+
+function preloadDiscoveryMenu() {
+  void import("@/components/shared/discovery-menu");
+}
 
 function isActiveNavItem(pathname: string, href: string) {
   if (href === "/") {
@@ -169,6 +186,8 @@ export function Navbar() {
                 <button
                   type="button"
                   onClick={() => setIsDrawerOpen((current) => !current)}
+                  onPointerEnter={preloadDiscoveryMenu}
+                  onFocus={preloadDiscoveryMenu}
                   className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[rgba(255,254,250,0.14)] bg-[var(--skxnz-maroon-deep)] text-pearlcream transition hover:border-[rgba(255,254,250,0.30)] hover:bg-[var(--skxnz-maroon)]"
                   aria-label="Open navigation menu"
                   aria-expanded={isDrawerOpen}
@@ -198,6 +217,7 @@ export function Navbar() {
                   }
                 >
                   <SiteSearchBar
+                    surface="desktop"
                     focusSignal={searchFocusSignal}
                     placeholder="Search for products, brands or styles..."
                     className="mx-auto w-full max-w-[30rem] [&_input]:h-10 [&_input]:border-[rgba(255,254,250,0.16)] [&_input]:bg-[var(--skxnz-maroon-deep)] [&_input]:text-[#FFFEFA] [&_input]:placeholder:text-[rgba(255,254,250,0.54)] [&_input]:shadow-none"
@@ -273,8 +293,9 @@ export function Navbar() {
                   <div className="mx-auto h-11 w-full rounded-full border border-white/[0.12] bg-white/[0.08]" />
                 }
               >
-                <SiteSearchBar
-                  focusSignal={searchFocusSignal}
+                  <SiteSearchBar
+                    surface="mobile"
+                    focusSignal={searchFocusSignal}
                   placeholder="Search for products, brands or styles..."
                   className="mx-auto w-full [&_input]:h-11 [&_input]:border-[rgba(255,254,250,0.16)] [&_input]:bg-[var(--skxnz-maroon-deep)] [&_input]:text-[#FFFEFA] [&_input]:placeholder:text-[rgba(255,254,250,0.54)] [&_input]:shadow-none"
                 />
@@ -283,30 +304,31 @@ export function Navbar() {
           </div>
         </header>
 
-        <div
-          className={cn(
-            "fixed inset-0 z-[130] bg-black/60 backdrop-blur-sm transition",
-            isDrawerOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0",
-          )}
-          onClick={() => setIsDrawerOpen(false)}
-          aria-hidden="true"
-        />
+        {isDrawerOpen ? (
+          <>
+            <div
+              className="fixed inset-0 z-[130] bg-black/60 backdrop-blur-sm transition"
+              onClick={() => setIsDrawerOpen(false)}
+              aria-hidden="true"
+            />
 
-        <DesktopMegaMenu
-          isOpen={isDrawerOpen}
-          onClose={() => setIsDrawerOpen(false)}
-          onNavigate={() => setIsDrawerOpen(false)}
-          pathname={pathname}
-          searchFocusSignal={searchFocusSignal}
-        />
+            <DesktopMegaMenu
+              isOpen
+              onClose={() => setIsDrawerOpen(false)}
+              onNavigate={() => setIsDrawerOpen(false)}
+              pathname={pathname}
+              searchFocusSignal={searchFocusSignal}
+            />
 
-        <MobileDiscoveryDrawer
-          isOpen={isDrawerOpen}
-          onClose={() => setIsDrawerOpen(false)}
-          onNavigate={() => setIsDrawerOpen(false)}
-          pathname={pathname}
-          searchFocusSignal={searchFocusSignal}
-        />
+            <MobileDiscoveryDrawer
+              isOpen
+              onClose={() => setIsDrawerOpen(false)}
+              onNavigate={() => setIsDrawerOpen(false)}
+              pathname={pathname}
+              searchFocusSignal={searchFocusSignal}
+            />
+          </>
+        ) : null}
       </>
     );
   }

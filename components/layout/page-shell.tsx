@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-import { FloatingSkxnzAssistant } from "@/components/ai/floating-skxnz-assistant";
+import { FloatingSkxnzAssistantLoader } from "@/components/ai/floating-skxnz-assistant-loader";
 import { MockNotice } from "@/components/layout/mock-notice";
 import { Footer } from "@/components/shared/footer";
 import { Navbar } from "@/components/shared/navbar";
@@ -16,7 +16,7 @@ export function PageShell({ children }: PageShellProps) {
       <Navbar />
       <main className="flex-1">{children}</main>
       <Footer />
-      <FloatingSkxnzAssistant />
+      <FloatingSkxnzAssistantLoader />
     </div>
   );
 }

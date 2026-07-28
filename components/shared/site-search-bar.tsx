@@ -26,6 +26,9 @@ type SiteSearchBarProps = {
   className?: string;
   focusSignal?: number;
   placeholder?: string;
+  /** Header renders desktop and mobile placements concurrently for CSS layout.
+   * Only the placement matching this viewport may run suggestion work. */
+  surface?: "desktop" | "mobile";
 };
 
 function SearchGlyph() {
@@ -97,6 +100,7 @@ export function SiteSearchBar({
   className,
   focusSignal = 0,
   placeholder = "Search products, brands, categories, and collections",
+  surface,
 }: SiteSearchBarProps) {
   const inputId = useId();
   const suggestionsId = `${inputId}-suggestions`;
@@ -106,6 +110,7 @@ export function SiteSearchBar({
   const { approvedProducts } = useMarketplace();
   const [query, setQuery] = useState("");
   const [isFocused, setIsFocused] = useState(false);
+  const [isSurfaceActive, setIsSurfaceActive] = useState(surface == null);
   /** Live catalog product suggestions; null = live unavailable/failed → local fallback. */
   const [liveProductSuggestions, setLiveProductSuggestions] = useState<SearchSuggestion[] | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -113,22 +118,38 @@ export function SiteSearchBar({
   const urlQuery = searchParams.get("q") ?? "";
 
   useEffect(() => {
+    if (!surface) {
+      setIsSurfaceActive(true);
+      return;
+    }
+
+    const media = window.matchMedia(
+      surface === "desktop" ? "(min-width: 768px)" : "(max-width: 767px)",
+    );
+    const updateSurface = () => setIsSurfaceActive(media.matches);
+
+    updateSurface();
+    media.addEventListener("change", updateSurface);
+    return () => media.removeEventListener("change", updateSurface);
+  }, [surface]);
+
+  useEffect(() => {
     setQuery(urlQuery);
   }, [urlQuery]);
 
   useEffect(() => {
-    if (!focusSignal) {
+    if (!isSurfaceActive || !focusSignal) {
       return;
     }
 
     inputRef.current?.focus();
     inputRef.current?.select();
-  }, [focusSignal]);
+  }, [focusSignal, isSurfaceActive]);
 
   const normalizedQuery = normalizeSearchQuery(query);
 
   useEffect(() => {
-    if (normalizedQuery.length < 2) {
+    if (!isSurfaceActive || normalizedQuery.length < 2) {
       setLiveProductSuggestions(null);
       return;
     }
@@ -164,9 +185,13 @@ export function SiteSearchBar({
       window.clearTimeout(timer);
       controller.abort();
     };
-  }, [normalizedQuery]);
+  }, [isSurfaceActive, normalizedQuery]);
 
   const suggestions = useMemo(() => {
+    if (!isSurfaceActive) {
+      return [];
+    }
+
     const localSuggestions = buildSearchSuggestions({
       query,
       products: approvedProducts,
@@ -187,8 +212,9 @@ export function SiteSearchBar({
     return [...liveProductSuggestions, ...navigationSuggestions]
       .sort((left, right) => right.score - left.score)
       .slice(0, 8);
-  }, [approvedProducts, liveProductSuggestions, query]);
-  const shouldShowSuggestions = isFocused && normalizedQuery.length > 0;
+  }, [approvedProducts, isSurfaceActive, liveProductSuggestions, query]);
+  const shouldShowSuggestions =
+    isSurfaceActive && isFocused && normalizedQuery.length > 0;
 
   const navigateToQuery = (nextQuery: string) => {
     const normalized = normalizeSearchQuery(nextQuery);

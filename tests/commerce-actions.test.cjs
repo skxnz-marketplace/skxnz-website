@@ -2092,3 +2092,45 @@ test("D10-C: buyer page titles avoid duplicated SKXNZ suffixes", () => {
     assert.equal(titles.length > 0, true, `${file} is missing a metadata title`);
   }
 });
+
+// ---------------------------------------------------------------------------
+// D13-B — runtime performance guards (source contracts)
+// ---------------------------------------------------------------------------
+
+test("D13-B: closed assistant and discovery menus stay outside initial route work", () => {
+  const pageShell = fs.readFileSync(
+    path.join(process.cwd(), "components/layout/page-shell.tsx"),
+    "utf8",
+  );
+  const assistantLoader = fs.readFileSync(
+    path.join(process.cwd(), "components/ai/floating-skxnz-assistant-loader.tsx"),
+    "utf8",
+  );
+  const navbar = fs.readFileSync(
+    path.join(process.cwd(), "components/shared/navbar.tsx"),
+    "utf8",
+  );
+
+  assert.equal(pageShell.includes("FloatingSkxnzAssistantLoader"), true);
+  assert.equal(pageShell.includes("FloatingSkxnzAssistant />"), false);
+  assert.equal(assistantLoader.includes("ssr: false"), true);
+  assert.equal(assistantLoader.includes('import("@/components/ai/floating-skxnz-assistant")'), true);
+  assert.equal(navbar.includes('import("@/components/shared/discovery-menu")'), true);
+  assert.equal(navbar.includes("{isDrawerOpen ? ("), true);
+});
+
+test("D13-B: header only runs search suggestion work for its visible placement", () => {
+  const navbar = fs.readFileSync(
+    path.join(process.cwd(), "components/shared/navbar.tsx"),
+    "utf8",
+  );
+  const search = fs.readFileSync(
+    path.join(process.cwd(), "components/shared/site-search-bar.tsx"),
+    "utf8",
+  );
+
+  assert.equal(navbar.includes('surface="desktop"'), true);
+  assert.equal(navbar.includes('surface="mobile"'), true);
+  assert.equal(search.includes('surface?: "desktop" | "mobile"'), true);
+  assert.equal(search.includes("if (!isSurfaceActive || normalizedQuery.length < 2)"), true);
+});
