@@ -21,10 +21,12 @@ const LOGO_SRC = "/assets/home/skxnz-logo.jpeg";
 const LOGO_AR = 2244 / 701;
 
 // Scroll room (in viewport heights) mapped onto video playback. This sets what
-// the clip costs to scroll past: at 420vh it burned through in ~33 wheel ticks,
-// about 22 of the 718 frames per tick, which reads as jumping rather than
-// motion. 1200vh puts it near ~9 frames per tick.
-const SCRUB_VH = 1200;
+// the clip costs to scroll past: at 420vh it burned through in ~33 wheel ticks
+// (~22 of the 718 frames per tick, which read as jumping rather than motion),
+// while 1200vh was smooth but ~78 ticks — too long to sit through. 800vh lands
+// near ~52 ticks at ~14 frames each, which playback-driven scrubbing carries
+// smoothly because it plays through them rather than seeking to each one.
+const SCRUB_VH = 800;
 
 function fitRect(vw: number, vh: number) {
   // Largest rect with the video's aspect ratio that fits the viewport.
@@ -282,7 +284,7 @@ export function HeroScrollVideo() {
   // Reduced motion: static poster, normal-height section, no pin.
   if (reduced) {
     return (
-      <section aria-label="SKXNZ signal film" className="flex w-full justify-center bg-black">
+      <section aria-label="SKXNZ signal film" className="flex w-full justify-center bg-[#F4F1EC]">
         <div className="relative" style={stageStyle}>
           <HeroMedia videoRef={videoRef} logoCanvasRef={logoCanvasRef} box={box} />
         </div>
@@ -297,7 +299,11 @@ export function HeroScrollVideo() {
       style={{ height: `${SCRUB_VH}vh` }}
       className="relative w-full"
     >
-      <div className="sticky top-0 flex h-screen w-full items-center justify-center overflow-hidden bg-black">
+      {/* Letterbox fill: the stage keeps the clip's aspect ratio, so the bands
+          above and below it show this background. Site cream, not black — the
+          clip is shot on a near-white studio backdrop, so cream reads as part
+          of the page instead of two hard black bars. */}
+      <div className="sticky top-0 flex h-screen w-full items-center justify-center overflow-hidden bg-[#F4F1EC]">
         <div className="relative" style={stageStyle}>
           <HeroMedia videoRef={videoRef} logoCanvasRef={logoCanvasRef} box={box} />
         </div>
@@ -330,10 +336,12 @@ function HeroMedia({
         className="absolute inset-0 h-full w-full object-cover"
       />
 
-      {/* Bottom scrim for logo/tagline legibility. */}
+      {/* Bottom scrim. Fades to the page cream rather than to black: the
+          letterbox band below is cream, so a black scrim left a hard line
+          across the bottom edge of the frame. */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/70 via-black/20 to-transparent"
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-[34%] bg-gradient-to-t from-[#F4F1EC] via-[#F4F1EC]/25 to-transparent"
       />
 
       {/* Supplied logo (alpha-keyed on canvas) + tagline, centered near bottom. */}
@@ -349,7 +357,8 @@ function HeroMedia({
             aspectRatio: `${2244}/${701}`,
           }}
         />
-        <p className="text-[0.6rem] font-light uppercase tracking-[0.42em] text-white/85 sm:text-[0.72rem]">
+        {/* Ink, not white: the scrim behind it now fades to cream. */}
+        <p className="text-[0.6rem] font-light uppercase tracking-[0.42em] text-[#161616]/75 sm:text-[0.72rem]">
           Wear the Signal.
         </p>
       </div>
