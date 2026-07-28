@@ -24,14 +24,14 @@
 //     copy without faking transitions.
 
 import { createClient } from "@/lib/supabase/server";
-import type { SellerLineFulfilmentStatus } from "./seller-fulfilment";
+import type { SellerLineFulfilmentStatus } from "./seller-fulfilment-vocabulary";
 
 // Re-exported so existing server-side importers keep their import path.
 export {
   describeSellerFulfilment,
   NEXT_SELLER_FULFILMENT,
-} from "./seller-fulfilment";
-export type { SellerLineFulfilmentStatus } from "./seller-fulfilment";
+} from "./seller-fulfilment-vocabulary";
+export type { SellerLineFulfilmentStatus } from "./seller-fulfilment-vocabulary";
 
 export type SellerOrderLine = {
   id: string;

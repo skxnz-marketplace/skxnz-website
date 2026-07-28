@@ -1,10 +1,11 @@
-// Shared, dependency-free seller fulfilment vocabulary.
+// CLIENT-SAFE — pure constants, types, and label helpers for the seller
+// per-line fulfilment ladder. Deliberately has NO imports: client components
+// need this vocabulary, and pulling it from read-seller-orders.ts dragged
+// `next/headers` (via lib/supabase/server.ts) into the client graph.
 //
-// These live apart from read-seller-orders.ts on purpose: client components
-// need the status type, the labels and the transition map, but that module
-// imports lib/supabase/server.ts (which uses next/headers). Importing even a
-// pure helper from it pulls the server client into the client bundle and fails
-// the production build. Nothing here may import server-only code.
+// The ladder itself remains enforced server-side in
+// lib/orders/seller-update-line-fulfilment.ts and the 0009 RPC. These values
+// only describe the UI state; they are never an authority for a mutation.
 
 export type SellerLineFulfilmentStatus =
   | "PENDING"

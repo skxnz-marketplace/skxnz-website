@@ -82,8 +82,8 @@ export default async function HomePage() {
       <ShopSplit />
       <LuxuryFinds />
       <TrustBar />
-      {/* Section 1 slot — the signal film. Given 320vh of scroll room so the
-          full clip plays out uncropped; that room absorbs section 2's space. */}
+      {/* Section 1 slot — the signal film. Its long scroll room absorbs what
+          were the Section 1 and Section 2 scaffolds, per the founder's layout. */}
       <HeroScrollVideo />
       <HomepageSection3 />
       <HomepageSection4 />
