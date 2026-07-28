@@ -24,12 +24,14 @@
 //     copy without faking transitions.
 
 import { createClient } from "@/lib/supabase/server";
+import type { SellerLineFulfilmentStatus } from "./seller-fulfilment";
 
-export type SellerLineFulfilmentStatus =
-  | "PENDING"
-  | "ACCEPTED"
-  | "PACKED"
-  | "HANDED_TO_DELIVERY";
+// Re-exported so existing server-side importers keep their import path.
+export {
+  describeSellerFulfilment,
+  NEXT_SELLER_FULFILMENT,
+} from "./seller-fulfilment";
+export type { SellerLineFulfilmentStatus } from "./seller-fulfilment";
 
 export type SellerOrderLine = {
   id: string;
@@ -481,42 +483,7 @@ export async function getSellerOrderById(
 }
 
 /** Honest, seller-facing label per line fulfilment step. */
-export function describeSellerFulfilment(
-  status: SellerLineFulfilmentStatus,
-): { label: string; note: string } {
-  switch (status) {
-    case "PENDING":
-      return {
-        label: "Awaiting action",
-        note: "Buyer has paid. Accept the line to start preparing it.",
-      };
-    case "ACCEPTED":
-      return {
-        label: "Accepted — preparing",
-        note: "You have accepted the line. Prepare and pack it next.",
-      };
-    case "PACKED":
-      return {
-        label: "Packed",
-        note: "Packed and ready for hand-off to the delivery partner.",
-      };
-    case "HANDED_TO_DELIVERY":
-      return {
-        label: "Handed to delivery",
-        note: "You have handed the parcel to a delivery partner.",
-      };
-  }
-}
 
-export const NEXT_SELLER_FULFILMENT: Record<
-  SellerLineFulfilmentStatus,
-  SellerLineFulfilmentStatus | null
-> = {
-  PENDING: "ACCEPTED",
-  ACCEPTED: "PACKED",
-  PACKED: "HANDED_TO_DELIVERY",
-  HANDED_TO_DELIVERY: null,
-};
 
 /** Backwards-compat with D4-6 UI code. Prefer getSellerOrders(). */
 export type SellerOrderLinesResult =

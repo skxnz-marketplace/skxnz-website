@@ -4,11 +4,13 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
 import { updateSellerLineFulfilment } from "@/lib/orders/seller-update-line-fulfilment";
+// From the server-free module: read-seller-orders.ts also imports
+// lib/supabase/server.ts, which cannot be bundled into a client component.
 import {
   NEXT_SELLER_FULFILMENT,
   describeSellerFulfilment,
   type SellerLineFulfilmentStatus,
-} from "@/lib/orders/read-seller-orders";
+} from "@/lib/orders/seller-fulfilment";
 
 type Props = {
   orderItemId: string;
