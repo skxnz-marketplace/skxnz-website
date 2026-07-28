@@ -321,8 +321,12 @@ function HeroMedia({
   logoCanvasRef: React.RefObject<HTMLCanvasElement | null>;
   box: { w: number; h: number };
 }) {
-  // The stage box carries the video's own aspect ratio, so object-cover fills
-  // it exactly with zero crop.
+  // The stage box carries the video's own aspect ratio, so object-contain fills
+  // it edge-to-edge with zero crop. object-contain (not -cover) is deliberate:
+  // when the box AR matches the clip they render identically, but on any
+  // sub-pixel rounding or a transient resize, contain shows a hairline of the
+  // cream stage behind rather than cropping the frame — and "no crop" is a hard
+  // requirement for this clip.
   return (
     <>
       <video
@@ -333,7 +337,7 @@ function HeroMedia({
         playsInline
         preload="metadata"
         aria-hidden="true"
-        className="absolute inset-0 h-full w-full object-cover"
+        className="absolute inset-0 h-full w-full object-contain"
       />
 
       {/* Bottom scrim. Fades to the page cream rather than to black: the
