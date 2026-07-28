@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 import { cn } from "@/lib/cn";
@@ -10,6 +11,16 @@ const TILE_GRADIENTS = [
   "from-[#100e0c] to-[#20181a]",
   "from-[#0e0e10] to-[#1a1a20]",
   "from-[#0c0e10] to-[#181e26]",
+];
+
+// Index matches mosaicTiles order in lib/home-data.ts.
+const TILE_IMAGES = [
+  "/assets/home/shop-the-edit/luxury-sneakers.webp",
+  "/assets/home/shop-the-edit/new-streetwear.webp",
+  "/assets/home/shop-the-edit/timepieces.png",
+  "/assets/home/shop-the-edit/carry-goods.png",
+  "/assets/home/shop-the-edit/everyday-essentials.png",
+  "/assets/home/shop-the-edit/designer-selects.png",
 ];
 
 export function MosaicSection() {
@@ -48,10 +59,18 @@ export function MosaicSection() {
                 i === 3 ? "col-span-2 lg:col-span-2" : "",
               )}
             >
-              {/* Subtle label watermark */}
-              <span className="absolute inset-x-0 top-1/3 -translate-y-1/2 text-center text-[clamp(1rem,3vw,2.5rem)] font-bold uppercase tracking-widest text-white/[0.04] select-none">
-                {tile.label}
-              </span>
+              {TILE_IMAGES[i] && (
+                <Image
+                  src={TILE_IMAGES[i]}
+                  alt={tile.label}
+                  fill
+                  sizes="(max-width: 1024px) 50vw, 25vw"
+                  className="object-cover object-center"
+                />
+              )}
+
+              {/* Darken the photo so the label stays readable */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
 
               <div className="relative z-10">
                 <p className="text-[0.72rem] font-bold uppercase tracking-[0.14em] text-[#F4F1EC]">
