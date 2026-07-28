@@ -1,60 +1,55 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 
 import LogoLoop, { type LogoItem } from "@/components/reactbits/logo-loop";
-import { brandLabels, type BrandLabel } from "@/lib/home-data";
 
-const BADGE_COLORS = [
-  "bg-[#1a1a24] text-[#8888cc]",
-  "bg-[#1a1416] text-[#cc8888]",
-  "bg-[#141a18] text-[#88ccaa]",
-  "bg-[#181418] text-[#cc88cc]",
-  "bg-[#16181a] text-[#88aacc]",
-  "bg-[#1a1816] text-[#ccaa88]",
-  "bg-[#121212] text-[#aaaaaa]",
-  "bg-[#1a1a1c] text-[#99ccbb]",
-  "bg-[#141416] text-[#bb99cc]",
-  "bg-[#181818] text-[#ccbb99]",
-  "bg-[#161614] text-[#aabb99]",
-];
+const BRAND_LOGOS = [
+  { name: "Louis Vuitton", file: "louisvuitton-com-logo.png" },
+  { name: "Hermès", file: "hermes-com-logo.png" },
+  { name: "Cartier", file: "cartier-com-logo.png" },
+  { name: "Chanel", file: "chanel-com-logo.png" },
+  { name: "Gucci", file: "gucci-com-logo.png" },
+  { name: "Prada", file: "prada-com-logo.png" },
+  { name: "Burberry", file: "burberry-com-logo.png" },
+  { name: "Loewe", file: "loewe-com-logo.png" },
+  { name: "Celine", file: "celine-com-logo.png" },
+  { name: "Balmain", file: "balmain-com-logo.png" },
+  { name: "Dolce & Gabbana", file: "dolcegabbana-com-logo.png" },
+  { name: "Tiffany & Co.", file: "tiffany-com-logo.png" },
+  { name: "Patek Philippe", file: "patek-com-logo.png" },
+  { name: "Omega", file: "omegawatches-com-logo.png" },
+  { name: "Breitling", file: "breitling-com-logo.png" },
+  { name: "Hublot", file: "hublot-com-logo.png" },
+  { name: "Montblanc", file: "montblanc-com-logo.png" },
+  { name: "Fossil", file: "fossil-com-logo.png" },
+  { name: "Oakley", file: "oakley-com-logo.png" },
+] as const;
 
-type FeaturedLabelsProps = {
-  /** Live active brands from Supabase; falls back to static labels when empty. */
-  brands?: BrandLabel[];
-};
-
-function BrandBadge({ badge, colorClass }: { badge: BrandLabel; colorClass: string }) {
+function BrandLogo({ name, file }: { name: string; file: string }) {
   return (
     <Link
       href="/brands"
-      className={`flex h-16 w-16 shrink-0 flex-col items-center justify-center rounded-full ${colorClass} transition hover:scale-105`}
-      aria-label={badge.name}
+      className="flex h-16 w-28 shrink-0 items-center justify-center rounded-xl bg-white px-4 py-2 shadow-sm ring-1 ring-black/5 transition hover:shadow-md"
+      aria-label={name}
     >
-      <span className="text-[0.68rem] font-bold leading-none tracking-tight">
-        {badge.monogram}
-      </span>
-      <span className="mt-0.5 max-w-[3.6rem] truncate text-[0.5rem] font-medium uppercase tracking-[0.08em] opacity-60">
-        {badge.name}
-      </span>
+      <Image
+        src={`/assets/brands/logos/${file}`}
+        alt={name}
+        width={140}
+        height={48}
+        className="h-full w-full object-contain"
+      />
     </Link>
   );
 }
 
-export function FeaturedLabels({ brands }: FeaturedLabelsProps) {
-  const source = brands && brands.length > 0 ? brands : brandLabels;
-  // No inflated "+N more" badge — only labels that exist in the catalogue.
-  const logos: LogoItem[] = source.map((badge, i) => ({
-    node: (
-      <BrandBadge
-        badge={badge}
-        colorClass={BADGE_COLORS[i % BADGE_COLORS.length] ?? BADGE_COLORS[0]}
-      />
-    ),
-    ariaLabel: badge.name,
+export function FeaturedLabels() {
+  const logos: LogoItem[] = BRAND_LOGOS.map((brand) => ({
+    node: <BrandLogo name={brand.name} file={brand.file} />,
+    ariaLabel: brand.name,
   }));
-
-  if (logos.length === 0) return null;
 
   return (
     <section aria-label="Top brands" className="overflow-hidden bg-[#F4F1EC] pb-3 pt-8">
@@ -74,7 +69,7 @@ export function FeaturedLabels({ brands }: FeaturedLabelsProps) {
         logos={logos}
         speed={28}
         direction="left"
-        gap={16}
+        gap={20}
         logoHeight={64}
         pauseOnHover
         fadeOut

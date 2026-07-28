@@ -55,15 +55,15 @@ export const skxnzAssetMap = {
   products: {
     demo: {
       "obsidian-signal-oversized-tee":
-        "/assets/products/demo/obsidian-signal-oversized-tee.png",
+        "/assets/home/trending/obsidian-signal-tee.jpeg",
       "pearl-signal-crop-jacket":
-        "/assets/products/demo/pearl-signal-crop-jacket.png",
-      "chrome-trace-hoodie": "/assets/products/demo/chrome-trace-hoodie.webp",
+        "/assets/home/trending/pearl-signal-crop-jacket.jpeg",
+      "chrome-trace-hoodie": "/assets/home/trending/chrome-trace-hoodie.jpeg",
       ["sonic-ma" + "genta-mini-bag"]:
-        "/assets/products/demo/sonic-ma" + "genta-mini-bag.webp",
+        "/assets/home/trending/sonic-magenta-mini-bag.jpeg",
       "liquid-silver-perfume":
-        "/assets/products/demo/liquid-silver-perfume.png",
-      "midnight-cargo-pants": "/assets/products/demo/midnight-cargo-pants.webp",
+        "/assets/home/trending/liquid-silver-perfume.jpeg",
+      "midnight-cargo-pants": "/assets/home/trending/midnight-cargo-pants.jpeg",
       "ultraviolet-mesh-top": "/assets/products/demo/ultraviolet-mesh-top.webp",
       "pearl-white-sneakers": "/assets/products/demo/pearl-white-sneakers.webp",
       "obsidian-rider-vest": "/assets/products/demo/obsidian-rider-vest.webp",

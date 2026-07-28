@@ -64,7 +64,7 @@ export const structuredProducts: StructuredProduct[] = [
     "currency": "INR",
     "description": "Premium oversized tee concept built around the SKXNZ signal identity.",
     "shortDescription": "Oversized premium SKXNZ tee.",
-    "image": "/assets/demo/uploaded/products/skxnz-graphic-tee.png",
+    "image": "/assets/home/trending/obsidian-signal-tee.jpeg",
     "gallery": [
       "/assets/demo/uploaded/products/skxnz-graphic-tee.png",
       "/assets/demo/products/product-01.webp",
@@ -138,7 +138,7 @@ export const structuredProducts: StructuredProduct[] = [
     "currency": "INR",
     "description": "A pearl-toned cropped jacket concept for futurewear styling.",
     "shortDescription": "Pearl cropped futurewear jacket.",
-    "image": "/assets/home/categories/women.png",
+    "image": "/assets/home/trending/pearl-signal-crop-jacket.jpeg",
     "gallery": [
       "/assets/home/categories/women.png",
       "/assets/demo/products/product-02.webp",
@@ -212,7 +212,7 @@ export const structuredProducts: StructuredProduct[] = [
     "currency": "INR",
     "description": "A clean heavyweight hoodie concept with chrome signal detailing.",
     "shortDescription": "Premium chrome streetwear hoodie.",
-    "image": "/assets/demo/products/product-01.webp",
+    "image": "/assets/home/trending/chrome-trace-hoodie.jpeg",
     "gallery": [
       "/assets/demo/products/product-01.webp",
       "/assets/demo/uploaded/products/skxnz-back-tee.png",
@@ -284,7 +284,7 @@ export const structuredProducts: StructuredProduct[] = [
     "currency": "INR",
     "description": "Compact statement bag concept with sonic magenta detailing.",
     "shortDescription": "Premium mini accessory bag.",
-    "image": "/assets/demo/products/product-06.webp",
+    "image": "/assets/home/trending/sonic-magenta-mini-bag.jpeg",
     "gallery": [
       "/assets/demo/products/product-06.webp",
       "/assets/demo/products/product-05.webp",
@@ -352,7 +352,7 @@ export const structuredProducts: StructuredProduct[] = [
     "currency": "INR",
     "description": "A luxury fragrance concept for the SKXNZ futurewear identity.",
     "shortDescription": "Liquid silver fragrance concept.",
-    "image": "/assets/demo/uploaded/editorial/chrome-queen.png",
+    "image": "/assets/home/trending/liquid-silver-perfume.jpeg",
     "gallery": [
       "/assets/demo/uploaded/editorial/chrome-queen.png",
       "/assets/demo/products/product-05.webp",
@@ -419,7 +419,7 @@ export const structuredProducts: StructuredProduct[] = [
     "currency": "INR",
     "description": "Utility cargo pants concept with premium streetwear proportions.",
     "shortDescription": "Premium midnight cargo pants.",
-    "image": "/assets/demo/products/product-01.webp",
+    "image": "/assets/home/trending/midnight-cargo-pants.jpeg",
     "gallery": [
       "/assets/demo/products/product-01.webp"
     ],
