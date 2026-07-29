@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { CookiePreferencesLink } from "@/components/consent/cookie-preferences-link";
+
 import { useDemoRole } from "@/components/auth/demo-role-provider";
 import { BrandMark } from "@/components/layout/brand-mark";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -167,7 +169,7 @@ export function Footer() {
               {[
                 { label: "Terms", href: "/terms" },
                 { label: "Privacy", href: "/privacy" },
-                { label: "Cookies", href: "/privacy" },
+                { label: "Cookies", href: "/cookies" },
               ].map((l) => (
                 <Link
                   key={l.href + l.label}
@@ -177,6 +179,7 @@ export function Footer() {
                   {l.label}
                 </Link>
               ))}
+              <CookiePreferencesLink className="text-[0.66rem] text-[#F4F1EC]/35 transition hover:text-[#F4F1EC]/70" />
             </div>
             <p className="text-[0.66rem] text-[#F4F1EC]/35">India (INR ₹)</p>
           </div>
