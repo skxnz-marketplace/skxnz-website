@@ -31,6 +31,7 @@
     "../lib/auth/safe-redirect.ts",
     "../lib/auth/auth-errors.ts",
     "../lib/consent/consent.ts",
+    "../lib/consent/script-gate.ts",
     "../lib/security/turnstile.ts"
   ]
 }

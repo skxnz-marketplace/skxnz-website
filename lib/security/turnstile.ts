@@ -45,6 +45,16 @@ export function isTurnstileTestMode(): boolean {
   return site === TEST_SITE_KEY || secret === TEST_SECRET_KEY;
 }
 
+/**
+ * Build the Supabase auth `options` fragment that forwards a Turnstile token as
+ * `captchaToken`. Returns {} when there is no token, so a caller can always
+ * spread it. This is the ONLY way auth flows pass the token — the token is
+ * never Siteverify'd by us (single-use) and never logged.
+ */
+export function captchaOptions(token: string | null | undefined): { captchaToken?: string } {
+  return token ? { captchaToken: token } : {};
+}
+
 export type TurnstileVerifyResult =
   | { success: true; testMode: boolean }
   | { success: false; testMode: boolean; reason: string };

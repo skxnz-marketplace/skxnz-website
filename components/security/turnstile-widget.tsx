@@ -112,9 +112,16 @@ export function TurnstileWidget({
 
   useEffect(() => {
     let cancelled = false;
+    // A blocked network can leave the script request hanging so neither onload
+    // nor onerror ever fires. Flip to the error/retry state after a deadline so
+    // the user is never stuck on "Loading" forever.
+    const loadTimer = window.setTimeout(() => {
+      if (!cancelled && !window.turnstile) setStatus("error");
+    }, 12000);
     loadTurnstileScript()
       .then(() => {
         if (cancelled) return;
+        window.clearTimeout(loadTimer);
         setStatus("ready");
         renderWidget();
       })
@@ -123,6 +130,7 @@ export function TurnstileWidget({
       });
     return () => {
       cancelled = true;
+      window.clearTimeout(loadTimer);
       const api = window.turnstile;
       if (api && widgetIdRef.current) {
         try {

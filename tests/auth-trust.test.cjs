@@ -32,7 +32,9 @@ const {
   verifyTurnstileToken,
   isTurnstileTestMode,
   turnstileSiteKey,
+  captchaOptions,
 } = require("@/lib/security/turnstile");
+const { canRun, hasInstalledOptionalIntegrations } = require("@/lib/consent/script-gate");
 
 // ---------------- safe-redirect ----------------
 
@@ -243,4 +245,40 @@ test("verifyTurnstileToken: production hostname mismatch fails closed", async ()
     delete process.env.NEXT_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY;
     delete process.env.CLOUDFLARE_TURNSTILE_SECRET_KEY;
   }
+});
+
+// ---------------- captchaToken forwarding ----------------
+
+test("captchaOptions: forwards a present token as captchaToken", () => {
+  assert.deepEqual(captchaOptions("tok123"), { captchaToken: "tok123" });
+});
+
+test("captchaOptions: omits captchaToken when no token (spreadable {})", () => {
+  assert.deepEqual(captchaOptions(null), {});
+  assert.deepEqual(captchaOptions(undefined), {});
+  assert.deepEqual(captchaOptions(""), {});
+});
+
+// ---------------- script gating ----------------
+
+test("canRun: necessary always allowed; optionals denied when undecided", () => {
+  assert.equal(canRun(null, "necessary"), true);
+  assert.equal(canRun(null, "analytics"), false);
+  assert.equal(canRun(null, "marketing"), false);
+});
+
+test("canRun: optional allowed only after an explicit stored grant", () => {
+  const consent = encodeURIComponent(
+    JSON.stringify(buildConsentRecord(allOnCategories(), "2026-07-30T00:00:00Z")),
+  );
+  assert.equal(canRun(consent, "analytics"), true);
+  assert.equal(canRun(consent, "marketing"), true);
+});
+
+test("canRun: corrupt consent denies optional (fail safe)", () => {
+  assert.equal(canRun("{garbage", "analytics"), false);
+});
+
+test("no optional integrations are installed (truthful scaffold)", () => {
+  assert.equal(hasInstalledOptionalIntegrations(), false);
 });
