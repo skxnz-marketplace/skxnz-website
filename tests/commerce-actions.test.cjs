@@ -2134,3 +2134,31 @@ test("D13-B: header only runs search suggestion work for its visible placement",
   assert.equal(search.includes('surface?: "desktop" | "mobile"'), true);
   assert.equal(search.includes("if (!isSurfaceActive || normalizedQuery.length < 2)"), true);
 });
+
+test("public catalog permission diagnostic stays read-only and protects users", () => {
+  const diagnostic = fs.readFileSync(
+    path.join(process.cwd(), "supabase/verification/0012_public_catalog_read_diagnostic.sql"),
+    "utf8",
+  );
+
+  for (const relation of [
+    "products",
+    "users",
+    "brands",
+    "categories",
+    "product_variants",
+    "product_images",
+  ]) {
+    assert.match(diagnostic, new RegExp(`'${relation}'`));
+  }
+
+  assert.match(diagnostic, /relrowsecurity/);
+  assert.match(diagnostic, /anon_users_select_granted/);
+  assert.match(diagnostic, /authenticated_users_select_granted/);
+  assert.match(diagnostic, /using_expression/);
+  assert.match(diagnostic, /with_check_expression/);
+  assert.match(diagnostic, /public\.users/);
+  assert.match(diagnostic, /pg_get_viewdef/);
+  assert.match(diagnostic, /pg_get_function_identity_arguments/);
+  assert.doesNotMatch(diagnostic, /\b(grant|revoke|alter|create|drop|insert|update|delete)\b/i);
+});
