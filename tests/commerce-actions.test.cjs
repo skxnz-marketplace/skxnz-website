@@ -2200,3 +2200,23 @@ test("admin product SELECT policy cannot make anonymous catalog reads query user
   assert.doesNotMatch(executableSql, /public\.users/i);
   assert.doesNotMatch(executableSql, /\b(grant|revoke|alter|disable|insert|update|delete)\b/i);
 });
+
+test("admin product DELETE policy is authenticated-admin only with no direct users read", () => {
+  const migration = fs.readFileSync(
+    path.join(process.cwd(), "supabase/migrations/0014_fix_products_admin_delete_policy.sql"),
+    "utf8",
+  );
+  const executableSql = migration.replace(/^--.*$/gm, "");
+  const verification = fs.readFileSync(
+    path.join(process.cwd(), "supabase/verification/0014_catalog_relations_and_admin_policy_verify.sql"),
+    "utf8",
+  );
+
+  assert.match(migration, /drop policy if exists "products: admin can delete"/i);
+  assert.match(migration, /for delete\s+to authenticated\s+using \(public\.is_admin\(\)\)/i);
+  assert.doesNotMatch(executableSql, /public\.users/i);
+  assert.match(verification, /product_variants/);
+  assert.match(verification, /product_images/);
+  assert.match(verification, /set local role anon/i);
+  assert.match(verification, /directly_references_users/);
+});
