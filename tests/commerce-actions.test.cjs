@@ -2134,3 +2134,113 @@ test("D13-B: header only runs search suggestion work for its visible placement",
   assert.equal(search.includes('surface?: "desktop" | "mobile"'), true);
   assert.equal(search.includes("if (!isSurfaceActive || normalizedQuery.length < 2)"), true);
 });
+
+test("public catalog permission diagnostic stays read-only and protects users", () => {
+  const diagnostic = fs.readFileSync(
+    path.join(process.cwd(), "supabase/verification/0012_public_catalog_read_diagnostic.sql"),
+    "utf8",
+  );
+
+  for (const relation of [
+    "products",
+    "users",
+    "brands",
+    "categories",
+    "product_variants",
+    "product_images",
+  ]) {
+    assert.match(diagnostic, new RegExp(`'${relation}'`));
+  }
+
+  assert.match(diagnostic, /relrowsecurity/);
+  assert.match(diagnostic, /anon_users_select_granted/);
+  assert.match(diagnostic, /authenticated_users_select_granted/);
+  assert.match(diagnostic, /using_expression/);
+  assert.match(diagnostic, /with_check_expression/);
+  assert.match(diagnostic, /public\.users/);
+  assert.match(diagnostic, /pg_get_viewdef/);
+  assert.match(diagnostic, /pg_get_function_identity_arguments/);
+  assert.doesNotMatch(diagnostic, /\b(grant|revoke|alter|create|drop|insert|update|delete)\b/i);
+});
+
+test("public catalog grant migration is least-privilege and preserves RLS policy boundaries", () => {
+  const migration = fs.readFileSync(
+    path.join(process.cwd(), "supabase/migrations/0012_catalog_public_read_grants.sql"),
+    "utf8",
+  );
+  const queries = fs.readFileSync(path.join(process.cwd(), "lib/catalog/queries.ts"), "utf8");
+  const verification = fs.readFileSync(
+    path.join(process.cwd(), "supabase/verification/0013_public_catalog_read_grants_verify.sql"),
+    "utf8",
+  );
+
+  assert.match(migration, /grant\s+select\s+on\s+table\s+public\.products\s+to\s+anon,\s*authenticated/i);
+  assert.doesNotMatch(migration, /public\.users/i);
+  assert.doesNotMatch(migration, /\b(alter|disable|drop|create|insert|update|delete|revoke)\b/i);
+  assert.match(queries, /\.from\("products"\)[\s\S]*?\.eq\("status", "ACTIVE"\)/);
+  assert.doesNotMatch(queries, /\.from\(["']users["']\)/);
+  assert.match(verification, /set local role anon/i);
+  assert.match(verification, /set local role authenticated/i);
+  assert.match(verification, /anon_can_read_non_active_products/);
+  assert.match(verification, /authenticated_can_read_non_active_products/);
+  assert.match(verification, /anon_users_select_granted/);
+  assert.match(verification, /users_rls_enabled/);
+});
+
+test("admin product SELECT policy cannot make anonymous catalog reads query users", () => {
+  const migration = fs.readFileSync(
+    path.join(process.cwd(), "supabase/migrations/0013_fix_products_admin_select_policy.sql"),
+    "utf8",
+  );
+  const executableSql = migration.replace(/^--.*$/gm, "");
+
+  assert.match(migration, /drop policy if exists "products: admin can select all"/i);
+  assert.match(migration, /create policy "products: admin can select all"/i);
+  assert.match(migration, /for select\s+to authenticated\s+using \(public\.is_admin\(\)\)/i);
+  assert.doesNotMatch(executableSql, /public\.users/i);
+  assert.doesNotMatch(executableSql, /\b(grant|revoke|alter|disable|insert|update|delete)\b/i);
+});
+
+test("admin product DELETE policy is authenticated-admin only with no direct users read", () => {
+  const migration = fs.readFileSync(
+    path.join(process.cwd(), "supabase/migrations/0014_fix_products_admin_delete_policy.sql"),
+    "utf8",
+  );
+  const executableSql = migration.replace(/^--.*$/gm, "");
+  const verification = fs.readFileSync(
+    path.join(process.cwd(), "supabase/verification/0014_catalog_relations_and_admin_policy_verify.sql"),
+    "utf8",
+  );
+
+  assert.match(migration, /drop policy if exists "products: admin can delete"/i);
+  assert.match(migration, /for delete\s+to authenticated\s+using \(public\.is_admin\(\)\)/i);
+  assert.doesNotMatch(executableSql, /public\.users/i);
+  assert.match(verification, /product_variants/);
+  assert.match(verification, /product_images/);
+  assert.match(verification, /set local role anon/i);
+  assert.match(verification, /directly_references_users/);
+});
+
+test("catalog relation seller reads are authenticated-only before anon grants are added", () => {
+  const migration = fs.readFileSync(
+    path.join(process.cwd(), "supabase/migrations/0015_harden_catalog_relation_reads.sql"),
+    "utf8",
+  );
+  const executableSql = migration.replace(/^--.*$/gm, "");
+  const verification = fs.readFileSync(
+    path.join(process.cwd(), "supabase/verification/0015_catalog_relation_reads_verify.sql"),
+    "utf8",
+  );
+
+  for (const table of ["product_variants", "product_images"]) {
+    assert.match(migration, new RegExp(`on public\\.${table}\\s+for select\\s+to authenticated`, "i"));
+    assert.match(migration, new RegExp(`p\\.id = ${table}\\.product_id\\s+and p\\.seller_id = auth\\.uid\\(\\)`, "i"));
+    assert.match(migration, new RegExp(`grant\\s+select\\s+on\\s+table\\s+public\\.${table}\\s+to\\s+anon`, "i"));
+  }
+  assert.doesNotMatch(executableSql, /public\.users/i);
+  assert.match(verification, /active_parent_variants/);
+  assert.match(verification, /non_active_parent_variants/);
+  assert.match(verification, /active_parent_images/);
+  assert.match(verification, /non_active_parent_images/);
+  assert.match(verification, /anon_users_select_granted/);
+});
