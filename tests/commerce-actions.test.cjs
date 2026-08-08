@@ -2162,3 +2162,27 @@ test("public catalog permission diagnostic stays read-only and protects users", 
   assert.match(diagnostic, /pg_get_function_identity_arguments/);
   assert.doesNotMatch(diagnostic, /\b(grant|revoke|alter|create|drop|insert|update|delete)\b/i);
 });
+
+test("public catalog grant migration is least-privilege and preserves RLS policy boundaries", () => {
+  const migration = fs.readFileSync(
+    path.join(process.cwd(), "supabase/migrations/0012_catalog_public_read_grants.sql"),
+    "utf8",
+  );
+  const queries = fs.readFileSync(path.join(process.cwd(), "lib/catalog/queries.ts"), "utf8");
+  const verification = fs.readFileSync(
+    path.join(process.cwd(), "supabase/verification/0013_public_catalog_read_grants_verify.sql"),
+    "utf8",
+  );
+
+  assert.match(migration, /grant\s+select\s+on\s+table\s+public\.products\s+to\s+anon,\s*authenticated/i);
+  assert.doesNotMatch(migration, /public\.users/i);
+  assert.doesNotMatch(migration, /\b(alter|disable|drop|create|insert|update|delete|revoke)\b/i);
+  assert.match(queries, /\.from\("products"\)[\s\S]*?\.eq\("status", "ACTIVE"\)/);
+  assert.doesNotMatch(queries, /\.from\(["']users["']\)/);
+  assert.match(verification, /set local role anon/i);
+  assert.match(verification, /set local role authenticated/i);
+  assert.match(verification, /anon_can_read_non_active_products/);
+  assert.match(verification, /authenticated_can_read_non_active_products/);
+  assert.match(verification, /anon_users_select_granted/);
+  assert.match(verification, /users_rls_enabled/);
+});
