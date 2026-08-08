@@ -27,6 +27,11 @@
     "../lib/orders/admin-update-order-status.ts",
     "../lib/orders/read-admin-orders.ts",
     "../lib/returns/admin-update-return-status.ts",
-    "../lib/support/admin-support-actions.ts"
+    "../lib/support/admin-support-actions.ts",
+    "../lib/auth/safe-redirect.ts",
+    "../lib/auth/auth-errors.ts",
+    "../lib/consent/consent.ts",
+    "../lib/consent/script-gate.ts",
+    "../lib/security/turnstile.ts"
   ]
 }

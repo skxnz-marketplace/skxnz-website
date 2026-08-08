@@ -1,60 +1,33 @@
-import Link from "next/link";
+import type { Metadata } from "next";
 
-import { AuthCard } from "@/components/auth/auth-card";
-import { PageIntro } from "@/components/sections/page-intro";
-import { buttonVariants } from "@/components/ui/button";
+import { AccessLayout } from "@/components/auth/access-layout";
+import { AccessForm } from "@/components/auth/access-form";
+import { safeNextPath } from "@/lib/auth/safe-redirect";
+
+export const metadata: Metadata = { title: "Sign in" };
 
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<Record<string, string>>
+  searchParams: Promise<Record<string, string>>;
 }) {
-  const params = await searchParams
-  const authError = params.error ?? null
-  const nextPath = params.next ?? undefined
+  const params = await searchParams;
+  const nextPath = safeNextPath(params.next);
+  // A callback/link failure arrives as ?auth=error — show ONE generic line, no
+  // raw provider text, and nothing that reveals whether an account exists.
+  const linkError = params.auth === "error" || params.error != null;
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
-      <div className="space-y-6">
-        <PageIntro
-          eyebrow="SIGN IN"
-          title="ENTER THE SIGNAL."
-          description="Sign in to your SKXNZ account and continue into the futurewear marketplace."
-          actions={
-            <>
-              <Link
-                href="/shop"
-                className={buttonVariants({ variant: "secondary", size: "lg" })}
-              >
-                Browse Shop
-              </Link>
-              <Link
-                href="/signup"
-                className={buttonVariants({ variant: "ghost", size: "lg" })}
-              >
-                Create Account
-              </Link>
-              <Link
-                href="/about"
-                className={buttonVariants({ variant: "ghost", size: "lg" })}
-              >
-                About SKXNZ
-              </Link>
-            </>
-          }
-        />
-
-        {authError && (
-          <div className="rounded-[20px] border border-sangria/30 bg-sangria/10 px-5 py-4 text-sm leading-6 text-midnightbrown">
-            <span className="font-semibold">Sign-in error:&nbsp;</span>
-            {authError}
-          </div>
-        )}
-
-        <div className="max-w-xl">
-          <AuthCard mode="login" nextPath={nextPath} />
-        </div>
-      </div>
-    </div>
+    <AccessLayout>
+      {linkError && (
+        <p
+          role="alert"
+          className="mb-5 rounded-xl border border-[#ff8fb0]/40 bg-[#ff8fb0]/10 px-4 py-3 text-[0.82rem] text-[#ffc2d4]"
+        >
+          That link didn&apos;t work or has expired. Sign in below, or request a new link.
+        </p>
+      )}
+      <AccessForm mode="login" nextPath={nextPath} />
+    </AccessLayout>
   );
 }

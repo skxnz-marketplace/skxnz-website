@@ -5,6 +5,7 @@ import "@fontsource/syne/500.css";
 import "@fontsource/syne/600.css";
 import "@fontsource/syne/700.css";
 
+import { ConsentManager } from "@/components/consent/consent-manager";
 import { DemoRoleProvider } from "@/components/auth/demo-role-provider";
 import { MarketplaceProvider } from "@/components/marketplace/marketplace-provider";
 import { PageShell } from "@/components/layout/page-shell";
@@ -71,6 +72,7 @@ export default function RootLayout({
             <PageShell>{children}</PageShell>
           </MarketplaceProvider>
         </DemoRoleProvider>
+        <ConsentManager />
       </body>
     </html>
   );
