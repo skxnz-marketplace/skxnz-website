@@ -2220,3 +2220,27 @@ test("admin product DELETE policy is authenticated-admin only with no direct use
   assert.match(verification, /set local role anon/i);
   assert.match(verification, /directly_references_users/);
 });
+
+test("catalog relation seller reads are authenticated-only before anon grants are added", () => {
+  const migration = fs.readFileSync(
+    path.join(process.cwd(), "supabase/migrations/0015_harden_catalog_relation_reads.sql"),
+    "utf8",
+  );
+  const executableSql = migration.replace(/^--.*$/gm, "");
+  const verification = fs.readFileSync(
+    path.join(process.cwd(), "supabase/verification/0015_catalog_relation_reads_verify.sql"),
+    "utf8",
+  );
+
+  for (const table of ["product_variants", "product_images"]) {
+    assert.match(migration, new RegExp(`on public\\.${table}\\s+for select\\s+to authenticated`, "i"));
+    assert.match(migration, new RegExp(`p\\.id = ${table}\\.product_id\\s+and p\\.seller_id = auth\\.uid\\(\\)`, "i"));
+    assert.match(migration, new RegExp(`grant\\s+select\\s+on\\s+table\\s+public\\.${table}\\s+to\\s+anon`, "i"));
+  }
+  assert.doesNotMatch(executableSql, /public\.users/i);
+  assert.match(verification, /active_parent_variants/);
+  assert.match(verification, /non_active_parent_variants/);
+  assert.match(verification, /active_parent_images/);
+  assert.match(verification, /non_active_parent_images/);
+  assert.match(verification, /anon_users_select_granted/);
+});
