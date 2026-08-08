@@ -2186,3 +2186,17 @@ test("public catalog grant migration is least-privilege and preserves RLS policy
   assert.match(verification, /anon_users_select_granted/);
   assert.match(verification, /users_rls_enabled/);
 });
+
+test("admin product SELECT policy cannot make anonymous catalog reads query users", () => {
+  const migration = fs.readFileSync(
+    path.join(process.cwd(), "supabase/migrations/0013_fix_products_admin_select_policy.sql"),
+    "utf8",
+  );
+  const executableSql = migration.replace(/^--.*$/gm, "");
+
+  assert.match(migration, /drop policy if exists "products: admin can select all"/i);
+  assert.match(migration, /create policy "products: admin can select all"/i);
+  assert.match(migration, /for select\s+to authenticated\s+using \(public\.is_admin\(\)\)/i);
+  assert.doesNotMatch(executableSql, /public\.users/i);
+  assert.doesNotMatch(executableSql, /\b(grant|revoke|alter|disable|insert|update|delete)\b/i);
+});
