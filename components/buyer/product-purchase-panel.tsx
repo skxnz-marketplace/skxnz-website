@@ -208,14 +208,21 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
       <div className="mt-7 space-y-6">
         <div>
           <div className="flex items-center justify-between gap-3">
-            <p className="text-[0.66rem] font-bold uppercase tracking-[0.22em] text-[var(--skxnz-text-muted)]">
+            <p
+              id="product-size-label"
+              className="text-[0.66rem] font-bold uppercase tracking-[0.22em] text-[var(--skxnz-text-muted)]"
+            >
               Size
             </p>
             <span className="text-xs font-semibold text-[var(--skxnz-text-muted)]">
               {selectedSize ?? "Select a size"}
             </span>
           </div>
-          <div className="mt-3 flex flex-wrap gap-2">
+          <div
+            role="group"
+            aria-labelledby="product-size-label"
+            className="mt-3 flex flex-wrap gap-2"
+          >
             {product.sizes.map((size) => {
               const isSelected = size === selectedSize;
 
@@ -240,14 +247,21 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
 
         <div>
           <div className="flex items-center justify-between gap-3">
-            <p className="text-[0.66rem] font-bold uppercase tracking-[0.22em] text-[var(--skxnz-text-muted)]">
+            <p
+              id="product-color-label"
+              className="text-[0.66rem] font-bold uppercase tracking-[0.22em] text-[var(--skxnz-text-muted)]"
+            >
               Color
             </p>
             <span className="text-xs font-semibold text-[var(--skxnz-text-muted)]">
               {selectedColor}
             </span>
           </div>
-          <div className="mt-3 flex flex-wrap gap-2">
+          <div
+            role="group"
+            aria-labelledby="product-color-label"
+            className="mt-3 flex flex-wrap gap-2"
+          >
             {product.colors.map((color) => {
               const isSelected = color === selectedColor;
 
@@ -343,23 +357,27 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
         </Link>
       </div>
 
-      {feedback ? (
-        <div
-          role="status"
-          className={
-            feedback.ok
-              ? "mt-4 rounded-[22px] border border-[rgba(34,211,238,0.28)] bg-[rgba(34,211,238,0.08)] p-4 text-sm leading-6 text-[var(--skxnz-text-dark)]"
-              : "mt-4 rounded-[22px] border border-[rgba(217,70,239,0.24)] bg-[rgba(217,70,239,0.06)] p-4 text-sm leading-6 text-[var(--skxnz-text-dark)]"
-          }
-        >
-          {feedback.ok ? (
-            <span className="mr-2 text-[0.66rem] font-bold uppercase tracking-[0.2em] text-[var(--skxnz-maroon)]">
-              Added to cart
-            </span>
-          ) : null}
-          {feedback.message}
-        </div>
-      ) : null}
+      {/* The live region is always mounted so assistive tech announces the
+          message when it changes. A region created at the same moment as its
+          text is frequently missed by screen readers. */}
+      <div role="status" aria-live="polite">
+        {feedback ? (
+          <div
+            className={
+              feedback.ok
+                ? "mt-4 rounded-[22px] border border-[rgba(34,211,238,0.28)] bg-[rgba(34,211,238,0.08)] p-4 text-sm leading-6 text-[var(--skxnz-text-dark)]"
+                : "mt-4 rounded-[22px] border border-[rgba(217,70,239,0.24)] bg-[rgba(217,70,239,0.06)] p-4 text-sm leading-6 text-[var(--skxnz-text-dark)]"
+            }
+          >
+            {feedback.ok ? (
+              <span className="mr-2 text-[0.66rem] font-bold uppercase tracking-[0.2em] text-[var(--skxnz-maroon)]">
+                Added to cart
+              </span>
+            ) : null}
+            {feedback.message}
+          </div>
+        ) : null}
+      </div>
 
       {!isApproved ? (
         <div className="mt-4 rounded-[22px] border border-[var(--skxnz-border)] bg-[var(--skxnz-card)] p-4 text-sm leading-6 text-[var(--skxnz-text-muted)]">
