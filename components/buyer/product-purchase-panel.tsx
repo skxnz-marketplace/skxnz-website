@@ -101,6 +101,24 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
   const selectionUnavailable =
     isVariantBacked && Boolean(selectedSize) && (!selectedVariant || !selectedVariant.isActive);
   const isOutOfStock = hasRealStockData && (availableStock <= 0 || selectionUnavailable);
+  // Per-option availability — only derivable for variant-backed live products.
+  // A size is unavailable when no active variant carries it (across any color).
+  // A color is unavailable when no active variant carries it (across any size).
+  // Demo products have no variant rows so no per-option state is shown.
+  const unavailableSizes = useMemo<Set<string>>(() => {
+    if (!isVariantBacked) return new Set();
+    const active = (product.variants ?? []).filter((v) => v.isActive && v.stock > 0);
+    const available = new Set(active.map((v) => v.size ?? "").filter(Boolean));
+    return new Set(product.sizes.filter((s) => !available.has(s)));
+  }, [isVariantBacked, product.variants, product.sizes]);
+
+  const unavailableColors = useMemo<Set<string>>(() => {
+    if (!isVariantBacked) return new Set();
+    const active = (product.variants ?? []).filter((v) => v.isActive && v.stock > 0);
+    const available = new Set(active.map((v) => v.color ?? "").filter(Boolean));
+    return new Set(product.colors.filter((c) => !available.has(c)));
+  }, [isVariantBacked, product.variants, product.colors]);
+
   // Cap the quantity stepper at the known available stock (still server-validated).
   const maxQuantity =
     hasRealStockData && availableStock > 0 ? Math.min(9, availableStock) : 9;
@@ -225,17 +243,22 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
           >
             {product.sizes.map((size) => {
               const isSelected = size === selectedSize;
+              const isUnavailable = unavailableSizes.has(size);
 
               return (
                 <button
                   key={size}
                   type="button"
                   aria-pressed={isSelected}
-                  onClick={() => setSelectedSize(size)}
+                  aria-disabled={isUnavailable || undefined}
+                  disabled={isUnavailable}
+                  onClick={() => !isUnavailable && setSelectedSize(size)}
                   className={
-                    isSelected
-                      ? "min-w-11 rounded-full border border-[var(--skxnz-maroon)] bg-[var(--skxnz-maroon-deep)] px-4 py-2.5 text-xs font-bold uppercase tracking-[0.16em] text-[var(--skxnz-text-light)] shadow-[0_0_0_4px_rgba(34,211,238,0.07)]"
-                      : "min-w-11 rounded-full border border-[var(--skxnz-border)] bg-[var(--skxnz-surface)] px-4 py-2.5 text-xs font-bold uppercase tracking-[0.16em] text-[var(--skxnz-text-dark)] transition hover:border-[rgba(34,211,238,0.45)]"
+                    isUnavailable
+                      ? "relative min-w-11 cursor-not-allowed rounded-full border border-[var(--skxnz-border)] bg-[var(--skxnz-surface)] px-4 py-2.5 text-xs font-bold uppercase tracking-[0.16em] text-[var(--skxnz-text-muted)] opacity-40 after:absolute after:inset-x-1 after:top-1/2 after:h-px after:bg-current after:content-['']"
+                      : isSelected
+                        ? "min-w-11 rounded-full border border-[var(--skxnz-maroon)] bg-[var(--skxnz-maroon-deep)] px-4 py-2.5 text-xs font-bold uppercase tracking-[0.16em] text-[var(--skxnz-text-light)] shadow-[0_0_0_4px_rgba(34,211,238,0.07)]"
+                        : "min-w-11 rounded-full border border-[var(--skxnz-border)] bg-[var(--skxnz-surface)] px-4 py-2.5 text-xs font-bold uppercase tracking-[0.16em] text-[var(--skxnz-text-dark)] transition hover:border-[rgba(34,211,238,0.45)]"
                   }
                 >
                   {size}
@@ -264,17 +287,22 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
           >
             {product.colors.map((color) => {
               const isSelected = color === selectedColor;
+              const isUnavailable = unavailableColors.has(color);
 
               return (
                 <button
                   key={color}
                   type="button"
                   aria-pressed={isSelected}
-                  onClick={() => setSelectedColor(color)}
+                  aria-disabled={isUnavailable || undefined}
+                  disabled={isUnavailable}
+                  onClick={() => !isUnavailable && setSelectedColor(color)}
                   className={
-                    isSelected
-                      ? "inline-flex max-w-full items-center gap-2 rounded-full border border-[var(--skxnz-maroon)] bg-[var(--skxnz-maroon-deep)] px-3 py-2 text-xs font-bold uppercase tracking-[0.14em] text-[var(--skxnz-text-light)] shadow-[0_0_0_4px_rgba(139,92,246,0.08)]"
-                      : "inline-flex max-w-full items-center gap-2 rounded-full border border-[var(--skxnz-border)] bg-[var(--skxnz-surface)] px-3 py-2 text-xs font-bold uppercase tracking-[0.14em] text-[var(--skxnz-text-dark)] transition hover:border-[rgba(139,92,246,0.34)]"
+                    isUnavailable
+                      ? "inline-flex max-w-full cursor-not-allowed items-center gap-2 rounded-full border border-[var(--skxnz-border)] bg-[var(--skxnz-surface)] px-3 py-2 text-xs font-bold uppercase tracking-[0.14em] text-[var(--skxnz-text-muted)] opacity-40"
+                      : isSelected
+                        ? "inline-flex max-w-full items-center gap-2 rounded-full border border-[var(--skxnz-maroon)] bg-[var(--skxnz-maroon-deep)] px-3 py-2 text-xs font-bold uppercase tracking-[0.14em] text-[var(--skxnz-text-light)] shadow-[0_0_0_4px_rgba(139,92,246,0.08)]"
+                        : "inline-flex max-w-full items-center gap-2 rounded-full border border-[var(--skxnz-border)] bg-[var(--skxnz-surface)] px-3 py-2 text-xs font-bold uppercase tracking-[0.14em] text-[var(--skxnz-text-dark)] transition hover:border-[rgba(139,92,246,0.34)]"
                   }
                 >
                   <span

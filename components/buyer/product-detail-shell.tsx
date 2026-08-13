@@ -148,7 +148,7 @@ export function ProductDetailShell({
           <div className="grid gap-6 xl:grid-cols-[minmax(0,1.08fr)_minmax(380px,0.78fr)]">
             <div className="min-w-0 space-y-4">
               <Card className="overflow-hidden rounded-[34px] border-[var(--skxnz-border)] bg-[var(--skxnz-card)] p-2 shadow-[0_24px_70px_rgba(58,8,24,0.10)]">
-                <div className="relative min-h-[420px] overflow-hidden rounded-[28px] bg-[linear-gradient(180deg,var(--skxnz-surface),var(--skxnz-bg-soft))] sm:min-h-[580px] xl:min-h-[680px]">
+                <div className="relative aspect-[4/5] overflow-hidden rounded-[28px] bg-[linear-gradient(180deg,var(--skxnz-surface),var(--skxnz-bg-soft))] sm:aspect-auto sm:min-h-[580px] xl:min-h-[680px]">
                   <SafeImage
                     src={activeGalleryImage}
                     fallbackSrc={skxnzFallbackAssets.product}
@@ -311,7 +311,7 @@ export function ProductDetailShell({
             Back To Shop
           </Link>
         </div>
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-2 gap-5 xl:grid-cols-3">
           {similarProducts.map((relatedProduct) => (
             <ProductCard key={relatedProduct.id} product={relatedProduct} />
           ))}
