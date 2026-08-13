@@ -1,9 +1,8 @@
 import { CategoryStrip } from "@/components/home/category-strip";
 import { FeaturedLabels } from "@/components/home/featured-labels";
+import { HeroCarousel } from "@/components/home/hero-carousel";
 import { HeroScrollVideo } from "@/components/home/hero-scroll-video";
-import { HomepageSection1 } from "@/components/home/homepage-section-1";
 import { HomepageSection10 } from "@/components/home/homepage-section-10";
-import { HomepageSection2 } from "@/components/home/homepage-section-2";
 import { HomepageSection3 } from "@/components/home/homepage-section-3";
 import { HomepageSection4 } from "@/components/home/homepage-section-4";
 import { HomepageSection5 } from "@/components/home/homepage-section-5";
@@ -68,7 +67,7 @@ export default async function HomePage() {
 
   return (
     <div className="min-h-screen bg-[#F4F1EC]">
-      <HeroScrollVideo />
+      <HeroCarousel />
       <CategoryStrip />
       <FeaturedLabels />
       {trendingSection.length > 0 ? (
@@ -83,8 +82,9 @@ export default async function HomePage() {
       <ShopSplit />
       <LuxuryFinds />
       <TrustBar />
-      <HomepageSection1 />
-      <HomepageSection2 />
+      {/* Section 1 slot — the signal film. Its long scroll room absorbs what
+          were the Section 1 and Section 2 scaffolds, per the founder's layout. */}
+      <HeroScrollVideo />
       <HomepageSection3 />
       <HomepageSection4 />
       <HomepageSection5 />

@@ -1,36 +1,20 @@
-import Link from "next/link";
+import type { Metadata } from "next";
 
-import { AuthCard } from "@/components/auth/auth-card";
-import { PageIntro } from "@/components/sections/page-intro";
-import { buttonVariants } from "@/components/ui/button";
+import { AccessLayout } from "@/components/auth/access-layout";
+import { AccessForm } from "@/components/auth/access-form";
+import { safeNextPath } from "@/lib/auth/safe-redirect";
 
-export default function SignupPage() {
+export const metadata: Metadata = { title: "Create account" };
+
+export default async function SignupPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string>>;
+}) {
+  const params = await searchParams;
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
-      <div className="space-y-6">
-        <PageIntro
-          eyebrow="JOIN SKXNZ"
-          title="ENTER THE SIGNAL."
-          description="Create your SKXNZ account to access the futurewear marketplace."
-          actions={
-            <>
-              <Link
-                href="/login"
-                className={buttonVariants({ variant: "secondary", size: "lg" })}
-              >
-                Sign In
-              </Link>
-              <Link
-                href="/shop"
-                className={buttonVariants({ variant: "ghost", size: "lg" })}
-              >
-                Browse Shop
-              </Link>
-            </>
-          }
-        />
-        <AuthCard mode="signup" />
-      </div>
-    </div>
+    <AccessLayout>
+      <AccessForm mode="signup" nextPath={safeNextPath(params.next)} />
+    </AccessLayout>
   );
 }

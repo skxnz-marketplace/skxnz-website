@@ -3,6 +3,7 @@
 // (migration not applied), we log a warning and return an empty/null result
 // instead of throwing, so pages relying on lib/home-data.ts keep rendering.
 import { createClient } from "@/lib/supabase/server";
+import { createPublicCatalogClient } from "@/lib/supabase/public-catalog";
 import type { Brand, Category, Product, ProductVariant, ProductImage, ProductWithRelations } from "./types";
 
 function isMissingTableError(error: { code?: string; message?: string } | null): boolean {
@@ -29,8 +30,10 @@ export type CatalogListResult<T> = {
   error: string | null;
 };
 
+// Public catalog read — cookie-free for the same caching reason as
+// getActiveProducts below. RLS still applies (same anon key).
 export async function getActiveBrandsDetail(): Promise<CatalogListResult<Brand>> {
-  const supabase = await createClient();
+  const supabase = createPublicCatalogClient();
   const { data, error } = await supabase
     .from("brands")
     .select("*")
@@ -227,8 +230,11 @@ export async function getActiveProductsByBrandId(brandId: string): Promise<Produ
   }));
 }
 
+// Public catalog read: no session involved, so it uses the cookie-free client.
+// Reading cookies here opts every calling page into dynamic rendering and
+// silently defeats its `revalidate`. RLS still applies — same anon key.
 export async function getActiveProducts(): Promise<Product[]> {
-  const supabase = await createClient();
+  const supabase = createPublicCatalogClient();
   const { data, error } = await supabase
     .from("products")
     .select("*")
