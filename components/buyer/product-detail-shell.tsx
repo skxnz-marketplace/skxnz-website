@@ -142,7 +142,7 @@ export function ProductDetailShell({
   }
 
   return (
-    <div className="bg-[var(--skxnz-bg)] text-[var(--skxnz-text-dark)]">
+    <div className="overflow-x-clip bg-[var(--skxnz-bg)] text-[var(--skxnz-text-dark)]">
       <section className="border-b border-[var(--skxnz-border)] bg-[linear-gradient(180deg,var(--skxnz-bg-soft),var(--skxnz-bg))]">
         <div className="mx-auto max-w-[96rem] px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
           <div className="grid gap-6 xl:grid-cols-[minmax(0,1.08fr)_minmax(380px,0.78fr)]">
@@ -311,7 +311,7 @@ export function ProductDetailShell({
             Back To Shop
           </Link>
         </div>
-        <div className="grid grid-cols-2 gap-5 xl:grid-cols-3">
+        <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3">
           {similarProducts.map((relatedProduct) => (
             <ProductCard key={relatedProduct.id} product={relatedProduct} />
           ))}

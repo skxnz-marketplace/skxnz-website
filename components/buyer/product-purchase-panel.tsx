@@ -177,7 +177,7 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
           <StatusBadge label={product.status} />
         </div>
 
-        <h1 className="mt-4 line-clamp-3 min-w-0 break-words text-[2rem] font-semibold uppercase leading-[0.95] tracking-[-0.035em] text-[var(--skxnz-text-dark)] sm:text-[2.55rem] lg:text-[3rem]">
+        <h1 className="mt-4 line-clamp-3 min-w-0 break-words text-[1.7rem] font-semibold uppercase leading-[1.02] tracking-[-0.02em] text-[var(--skxnz-text-dark)] sm:text-[2.55rem] sm:leading-[0.95] sm:tracking-[-0.035em] lg:text-[3rem]">
           {product.name}
         </h1>
 
@@ -204,7 +204,9 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
       </div>
 
       <div className="mt-7 rounded-[26px] border border-[var(--skxnz-border)] bg-[var(--skxnz-card)] p-4">
-        <div className="flex items-center justify-between gap-4">
+        {/* Wraps on narrow screens: the old shrink-0 badge with a long
+            "N units for this option" label forced horizontal overflow at 390px. */}
+        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
           <div className="min-w-0">
             <p className="text-[0.62rem] font-bold uppercase tracking-[0.22em] text-[var(--skxnz-text-muted)]">
               Stock
@@ -214,10 +216,10 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
             </p>
           </div>
           {hasRealStockData ? (
-            <span className="shrink-0 rounded-full border border-[rgba(47,111,115,0.22)] bg-[rgba(34,211,238,0.08)] px-3 py-1 text-[0.66rem] font-bold uppercase tracking-[0.14em] text-[var(--skxnz-maroon)]">
+            <span className="max-w-full rounded-full border border-[rgba(47,111,115,0.22)] bg-[rgba(34,211,238,0.08)] px-3 py-1 text-[0.66rem] font-bold uppercase tracking-[0.14em] text-[var(--skxnz-maroon)]">
               {isVariantBacked && selectedSize
-                ? `${Math.max(availableStock, 0)} units for this option`
-                : `${product.stock} units`}
+                ? `${Math.max(availableStock, 0)} in this size`
+                : `${product.stock} in stock`}
             </span>
           ) : null}
         </div>
