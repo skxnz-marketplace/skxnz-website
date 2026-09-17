@@ -27,8 +27,26 @@ const LOGO_AR = 2244 / 701;
 // near ~52 ticks at ~14 frames each, which playback-driven scrubbing carries
 // smoothly because it plays through them rather than seeking to each one.
 const SCRUB_VH = 800;
+// Touch scrolling covers far more distance per gesture than a wheel tick, so
+// phones get a shorter runway for the same sense of pace.
+const SCRUB_VH_MOBILE = 460;
 
-function fitRect(vw: number, vh: number) {
+// Portrait phones: letterboxing the 2.33:1 clip into a 390px-wide screen left a
+// ~167px strip floating in cream. The subject stands in the centre third of a
+// seamless white studio frame, so phones instead get a tall stage that crops
+// only empty backdrop from the sides. MOBILE_SOURCE_W is how many source pixels
+// of width stay visible: 500 keeps the shoulders (~450px) in frame while the
+// stage runs ~1.25x the screen width tall, so the film owns the viewport.
+const MOBILE_BREAKPOINT = 768;
+const MOBILE_SOURCE_W = 500;
+
+type Stage = { w: number; h: number; cover: boolean };
+
+function fitRect(vw: number, vh: number): Stage {
+  if (vw < MOBILE_BREAKPOINT && vw < vh) {
+    const h = Math.min(vh, vw * (VIDEO_H / MOBILE_SOURCE_W));
+    return { w: vw, h, cover: true };
+  }
   // Largest rect with the video's aspect ratio that fits the viewport.
   let w = vw;
   let h = w / VIDEO_AR;
@@ -36,7 +54,12 @@ function fitRect(vw: number, vh: number) {
     h = vh;
     w = h * VIDEO_AR;
   }
-  return { w, h };
+  return { w, h, cover: false };
+}
+
+function headerHeight() {
+  const header = document.querySelector<HTMLElement>("[data-site-header]");
+  return header ? header.offsetHeight : 0;
 }
 
 export function HeroScrollVideo() {
@@ -44,13 +67,21 @@ export function HeroScrollVideo() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const logoCanvasRef = useRef<HTMLCanvasElement>(null);
 
-  const [box, setBox] = useState({ w: VIDEO_W, h: VIDEO_H });
+  const [box, setBox] = useState<Stage>({ w: VIDEO_W, h: VIDEO_H, cover: false });
+  // The sticky site header overlaps a top-pinned stage; pin below it instead.
+  const [offset, setOffset] = useState(0);
+  const [measured, setMeasured] = useState(false);
   const [reduced, setReduced] = useState(false);
 
   // ---- responsive video rect (keeps original AR, never crops) ----
   useEffect(() => {
     const measure = () => {
-      setBox(fitRect(window.innerWidth, window.innerHeight));
+      const top = headerHeight();
+      setOffset(top);
+      // clientWidth excludes a desktop scrollbar; innerHeight tracks the
+      // visible area as mobile browser chrome collapses.
+      setBox(fitRect(document.documentElement.clientWidth, window.innerHeight - top));
+      setMeasured(true);
     };
     measure();
     window.addEventListener("resize", measure);
@@ -104,7 +135,7 @@ export function HeroScrollVideo() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(src, 0, 0, src.width, src.height, 0, 0, canvas.width, canvas.height);
     };
-  }, [box.w]);
+  }, [box.w, box.h]);
 
   // ---- scrub engine: smoothed playhead, driven by PLAYBACK not seeking ----
   //
@@ -138,8 +169,14 @@ export function HeroScrollVideo() {
       ).requestIdleCallback;
       idle = ric ? ric(beginFetch, { timeout: 2000 }) : window.setTimeout(beginFetch, 400);
     };
-    if (document.readyState === "complete") scheduleFetch();
-    else window.addEventListener("load", scheduleFetch, { once: true });
+    // Phones skip the idle preload: on cellular data a ~15 MB fetch for a
+    // section far below the fold is a real cost. The observer below still
+    // starts it three screens ahead.
+    const isPhone = window.innerWidth < MOBILE_BREAKPOINT;
+    if (!isPhone) {
+      if (document.readyState === "complete") scheduleFetch();
+      else window.addEventListener("load", scheduleFetch, { once: true });
+    }
 
     // Backstop: approaching the section forces the fetch regardless.
     const preloader = new IntersectionObserver(
@@ -279,7 +316,12 @@ export function HeroScrollVideo() {
     };
   }, [reduced]);
 
-  const stageStyle = { width: box.w, height: box.h } as const;
+  // Until the first measure runs (SSR and pre-hydration) the stage is sized in
+  // CSS, fluid and letterboxed. Pixel sizes before then would render a
+  // 1456px-wide stage and widen the whole page on phones.
+  const stageStyle = measured
+    ? ({ width: box.w, height: box.h } as const)
+    : ({ width: "100%", maxHeight: "100%", aspectRatio: `${VIDEO_W}/${VIDEO_H}` } as const);
 
   // Reduced motion: static poster, normal-height section, no pin.
   if (reduced) {
@@ -296,14 +338,17 @@ export function HeroScrollVideo() {
     <section
       ref={sectionRef}
       aria-label="SKXNZ signal film"
-      style={{ height: `${SCRUB_VH}vh` }}
+      style={{ height: `${box.cover ? SCRUB_VH_MOBILE : SCRUB_VH}vh` }}
       className="relative w-full"
     >
       {/* Letterbox fill: the stage keeps the clip's aspect ratio, so the bands
           above and below it show this background. Site cream, not black — the
           clip is shot on a near-white studio backdrop, so cream reads as part
           of the page instead of two hard black bars. */}
-      <div className="sticky top-0 flex h-screen w-full items-center justify-center overflow-hidden bg-[#F4F1EC]">
+      <div
+        className="sticky flex w-full items-center justify-center overflow-hidden bg-[#F4F1EC]"
+        style={{ top: offset, height: `calc(100vh - ${offset}px)` }}
+      >
         <div className="relative" style={stageStyle}>
           <HeroMedia videoRef={videoRef} logoCanvasRef={logoCanvasRef} box={box} />
         </div>
@@ -319,14 +364,15 @@ function HeroMedia({
 }: {
   videoRef: React.RefObject<HTMLVideoElement | null>;
   logoCanvasRef: React.RefObject<HTMLCanvasElement | null>;
-  box: { w: number; h: number };
+  box: Stage;
 }) {
   // The stage box carries the video's own aspect ratio, so object-contain fills
   // it edge-to-edge with zero crop. object-contain (not -cover) is deliberate:
   // when the box AR matches the clip they render identically, but on any
   // sub-pixel rounding or a transient resize, contain shows a hairline of the
   // cream stage behind rather than cropping the frame — and "no crop" is a hard
-  // requirement for this clip.
+  // requirement for this clip on landscape screens. Portrait phones are the
+  // exception (see fitRect): there cover trims only empty studio backdrop.
   return (
     <>
       <video
@@ -337,8 +383,17 @@ function HeroMedia({
         playsInline
         preload="metadata"
         aria-hidden="true"
-        className="absolute inset-0 h-full w-full object-contain"
+        className={`absolute inset-0 h-full w-full ${box.cover ? "object-cover object-center" : "object-contain"}`}
       />
+
+      {/* Portrait crop: the studio backdrop is brighter than the page cream, so
+          the stage's top edge would read as a hard box without this fade. */}
+      {box.cover ? (
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 top-0 h-[16%] bg-gradient-to-b from-[#F4F1EC] to-transparent"
+        />
+      ) : null}
 
       {/* Bottom scrim. Fades to the page cream rather than to black: the
           letterbox band below is cream, so a black scrim left a hard line
@@ -356,13 +411,13 @@ function HeroMedia({
           role="img"
           className="block"
           style={{
-            width: Math.min(box.w * 0.44, 520),
+            width: `min(${box.cover ? 62 : 44}%, 520px)`,
             height: "auto",
             aspectRatio: `${2244}/${701}`,
           }}
         />
         {/* Ink, not white: the scrim behind it now fades to cream. */}
-        <p className="text-[0.6rem] font-light uppercase tracking-[0.42em] text-[#161616]/75 sm:text-[0.72rem]">
+        <p className="text-[0.72rem] font-light uppercase tracking-[0.42em] text-[#161616]/75">
           Wear the Signal.
         </p>
       </div>
