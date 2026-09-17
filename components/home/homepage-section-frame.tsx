@@ -16,11 +16,11 @@ export function HomepageSectionFrame({
       aria-label={`Homepage shop section ${number}`}
       className={
         isDark
-          ? "min-h-[86vh] bg-[#09090B] px-6 py-16 text-[#F4F1EC] sm:px-10 lg:px-16"
-          : "min-h-[86vh] bg-[#F4F1EC] px-6 py-16 text-[#161616] sm:px-10 lg:px-16"
+          ? "bg-[#09090B] px-5 py-12 sm:min-h-[86vh] sm:px-10 sm:py-16 text-[#F4F1EC] lg:px-16"
+          : "bg-[#F4F1EC] px-5 py-12 sm:min-h-[86vh] sm:px-10 sm:py-16 text-[#161616] lg:px-16"
       }
     >
-      <div className="mx-auto flex min-h-[70vh] w-full max-w-[1440px] flex-col gap-8">
+      <div className="mx-auto flex w-full sm:min-h-[70vh] max-w-[1440px] flex-col gap-8">
         <div className="flex items-end justify-between gap-6 border-b border-current/10 pb-5">
           <div>
             <p className="text-[0.72rem] font-black uppercase tracking-[0.24em] opacity-55">
@@ -36,7 +36,7 @@ export function HomepageSectionFrame({
         </div>
 
         <div className="grid flex-1 gap-4 lg:grid-cols-[1.1fr_0.9fr]">
-          <div className="grid min-h-[460px] grid-cols-2 gap-4">
+          <div className="grid min-h-[300px] grid-cols-2 gap-3 sm:min-h-[460px] sm:gap-4">
             {slots.slice(0, 4).map((slot) => (
               <div
                 key={slot}
@@ -46,7 +46,7 @@ export function HomepageSectionFrame({
                     : "flex items-end border border-black/10 bg-white/45 p-5"
                 }
               >
-                <span className="text-[0.68rem] font-black uppercase tracking-[0.22em] opacity-55">
+                <span className="text-[0.75rem] font-black uppercase tracking-[0.22em] opacity-55">
                   {number}.{slot}
                 </span>
               </div>
@@ -59,11 +59,11 @@ export function HomepageSectionFrame({
                 key={slot}
                 className={
                   isDark
-                    ? "flex min-h-[220px] items-end border border-white/10 bg-white/[0.035] p-5"
-                    : "flex min-h-[220px] items-end border border-black/10 bg-white/45 p-5"
+                    ? "flex min-h-[140px] items-end border border-white/10 sm:min-h-[220px] bg-white/[0.035] p-5"
+                    : "flex min-h-[140px] items-end border border-black/10 sm:min-h-[220px] bg-white/45 p-5"
                 }
               >
-                <span className="text-[0.68rem] font-black uppercase tracking-[0.22em] opacity-55">
+                <span className="text-[0.75rem] font-black uppercase tracking-[0.22em] opacity-55">
                   {number}.{slot}
                 </span>
               </div>

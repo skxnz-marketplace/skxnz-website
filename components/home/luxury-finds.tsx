@@ -54,7 +54,7 @@ export function LuxuryFinds() {
           </h2>
           <Link
             href="/shop"
-            className="shrink-0 text-[0.72rem] font-bold uppercase tracking-[0.12em] text-[#2E1014] transition hover:opacity-70"
+            className="inline-flex min-h-[44px] shrink-0 items-center px-2 text-[0.8rem] font-bold uppercase tracking-[0.12em] text-[#2E1014] transition hover:opacity-70"
           >
             View All →
           </Link>

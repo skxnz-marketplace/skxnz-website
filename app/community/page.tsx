@@ -117,7 +117,7 @@ export default function CommunityPage() {
                 WEAR THE SIGNAL.
               </p>
             </div>
-            <h1 className="mt-6 max-w-[10ch] break-words font-display text-[3.1rem] uppercase leading-[0.9] tracking-[0.05em] sm:text-6xl lg:text-7xl">
+            <h1 className="mt-6 sm:max-w-[10ch] break-words font-display text-[clamp(2.1rem,11vw,3.1rem)] uppercase leading-[0.9] tracking-[0.05em] sm:text-6xl lg:text-7xl">
               Signal Room
             </h1>
             <p className="mt-6 max-w-2xl text-sm leading-7 text-white/76 sm:text-base">

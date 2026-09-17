@@ -150,7 +150,7 @@ export function BrandPageShell({
                   <p className="text-[0.68rem] font-black uppercase tracking-[0.26em] text-[var(--skxnz-glint)]">
                     {isLiveBrand ? "Live brand profile" : "Preview brand profile"}
                   </p>
-                  <h1 className="mt-2 line-clamp-2 break-words font-display text-[2.4rem] uppercase leading-[0.9] tracking-[0.08em] sm:text-6xl">
+                  <h1 className="mt-2 line-clamp-2 break-words font-display text-[clamp(1.85rem,9vw,2.4rem)] uppercase leading-[0.9] tracking-[0.08em] sm:text-6xl">
                     {brandPageHero?.title ?? brand.name}
                   </h1>
                 </div>

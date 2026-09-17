@@ -37,7 +37,7 @@ export function ProductCard({
             className="object-cover object-center transition duration-500 hover:scale-[1.02]"
           />
           <div className="absolute left-3 top-3">
-            <span className="inline-flex max-w-full rounded-full border border-sandstone/55 bg-midnightbrown/78 px-2.5 py-1 text-[0.56rem] uppercase tracking-[0.12em] text-pearlcream backdrop-blur">
+            <span className="inline-flex max-w-full rounded-full border border-sandstone/55 bg-midnightbrown/78 px-2.5 py-1 text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-pearlcream backdrop-blur">
               {product.category}
             </span>
           </div>
@@ -88,7 +88,9 @@ export function ProductCard({
             showLabel
             savedLabel="Saved"
             unsavedLabel="Save"
-            className={`${buttonVariants({ variant: "ghost", size: "sm" })} w-full`}
+            // The heart on the image already saves; on phones a second full-width
+            // button only makes every card taller.
+            className={`${buttonVariants({ variant: "ghost", size: "sm" })} w-full max-sm:hidden`}
           />
         ) : null}
       </div>

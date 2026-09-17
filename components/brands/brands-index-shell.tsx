@@ -226,7 +226,7 @@ export function BrandsIndexShell({
             <p className="text-[0.8rem] font-black uppercase tracking-[0.3em] text-[var(--skxnz-glint)]">
               Shop by Brand
             </p>
-            <h1 className="mt-5 max-w-[12ch] break-words font-display text-[2.6rem] uppercase leading-[0.9] tracking-[0.04em] sm:text-6xl">
+            <h1 className="mt-5 sm:max-w-[12ch] break-words font-display text-[clamp(1.9rem,9.6vw,2.6rem)] uppercase leading-[0.9] tracking-[0.04em] sm:text-6xl">
               Brand discovery.
             </h1>
             <p className="mt-5 max-w-2xl text-sm leading-7 text-white/76 sm:text-base">

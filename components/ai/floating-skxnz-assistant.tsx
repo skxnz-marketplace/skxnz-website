@@ -68,7 +68,8 @@ type AssistantEventName =
   | "assistant_add_to_cart_clicked";
 
 const buttonSize = 64;
-const positionStorageKey = "skxnz-floating-ai-position-v4";
+// v5: earlier versions also wrote resize-clamped positions, not just drags.
+const positionStorageKey = "skxnz-floating-ai-position-v5";
 
 const starterPrompts = [
   "Style me for a beach party",
@@ -141,7 +142,10 @@ function clampPosition(position: AssistantPosition): AssistantPosition {
   }
 
   const margin = 14;
-  const topSafeArea = 82;
+  // Keep clear of the sticky header, whose height varies by breakpoint (the
+  // mobile header also carries the search bar), plus any device safe area.
+  const header = document.querySelector<HTMLElement>("[data-site-header]");
+  const topSafeArea = Math.max(82, (header?.getBoundingClientRect().bottom ?? 0) + margin);
   const maxX = Math.max(margin, window.innerWidth - buttonSize - margin);
   const maxY = Math.max(topSafeArea, window.innerHeight - buttonSize - margin);
 
@@ -395,17 +399,22 @@ export function FloatingSkxnzAssistant() {
     setIsMounted(true);
     setPosition(readStoredPosition() ?? getDefaultPosition());
 
+    // Only a position the user dragged to is persisted. Writing the clamped
+    // position on every resize pinned the button to phone coordinates, so
+    // rotating to landscape or a tablet left it floating mid-screen.
     const handleResize = () => {
-      setPosition((current) => {
-        const nextPosition = clampPosition(current ?? getDefaultPosition());
-        storePosition(nextPosition);
-        return nextPosition;
-      });
+      const next = readStoredPosition() ?? getDefaultPosition();
+      setPosition((prev) => (prev && prev.x === next.x && prev.y === next.y ? prev : next));
     };
 
+    // ResizeObserver catches rotations some mobile browsers report only as a
+    // layout change; without it the button could stay below a landscape fold.
+    const resizeObserver = new ResizeObserver(handleResize);
+    resizeObserver.observe(document.documentElement);
     window.addEventListener("resize", handleResize);
 
     return () => {
+      resizeObserver.disconnect();
       window.removeEventListener("resize", handleResize);
 
       if (animationFrameRef.current !== null) {

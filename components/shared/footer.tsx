@@ -21,12 +21,12 @@ function FooterCol({ title, links }: { title: string; links: { label: string; hr
       <p className="mb-4 text-[0.78rem] font-bold uppercase tracking-[0.18em] text-[#F4F1EC]/40">
         {title}
       </p>
-      <ul className="space-y-2.5">
+      <ul className="space-y-0.5 sm:space-y-2.5">
         {links.map((l) => (
           <li key={l.label}>
             <Link
               href={l.href}
-              className="text-[0.76rem] text-[#F4F1EC]/60 transition hover:text-[#F4F1EC]"
+              className="inline-flex min-h-10 items-center text-[0.85rem] text-[#F4F1EC]/60 transition hover:text-[#F4F1EC] sm:min-h-0 sm:text-[0.76rem]"
             >
               {l.label}
             </Link>
@@ -77,10 +77,10 @@ export function Footer() {
     return (
       <footer className="bg-[#0E0E10] text-[#F4F1EC]">
         {/* Main columns */}
-        <div className="mx-auto max-w-[1440px] px-6 py-14 sm:px-10 lg:px-16">
-          <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr_1fr]">
+        <div className="mx-auto max-w-[1440px] px-5 py-12 sm:px-10 sm:py-14 lg:px-16">
+          <div className="grid grid-cols-2 gap-x-6 gap-y-10 lg:grid-cols-[1.4fr_1fr_1fr_1fr_1fr]">
             {/* Brand column */}
-            <div className="space-y-5 sm:col-span-2 lg:col-span-1">
+            <div className="col-span-2 space-y-5 lg:col-span-1">
               <div>
                 <p className="text-[1.1rem] font-bold uppercase tracking-[0.46em] text-[#F4F1EC]">
                   SKXNZ
@@ -108,7 +108,7 @@ export function Footer() {
                   type="email"
                   placeholder="Enter your email"
                   aria-label="Newsletter email"
-                  className="flex-1 bg-transparent px-4 py-2.5 text-[0.72rem] text-[#F4F1EC] placeholder:text-[#F4F1EC]/30 outline-none"
+                  className="min-w-0 flex-1 bg-transparent px-4 py-2.5 text-base sm:text-[0.72rem] text-[#F4F1EC] placeholder:text-[#F4F1EC]/30 outline-none"
                 />
                 <button
                   type="button"
@@ -152,7 +152,7 @@ export function Footer() {
             {/* Explore */}
             <FooterCol title="Explore" links={[
               { label: "Brands", href: "/brands" },
-              { label: "AI Stylist", href: "/ai" },
+              { label: "AI Stylist", href: "/ai/stylist" },
               { label: "Signal Community", href: "/community" },
               { label: "Early Access", href: "/waitlist" },
             ]} />
@@ -174,12 +174,12 @@ export function Footer() {
                 <Link
                   key={l.href + l.label}
                   href={l.href}
-                  className="text-[0.78rem] text-[#F4F1EC]/35 transition hover:text-[#F4F1EC]/70"
+                  className="inline-flex min-h-10 items-center text-[0.78rem] text-[#F4F1EC]/35 transition hover:text-[#F4F1EC]/70"
                 >
                   {l.label}
                 </Link>
               ))}
-              <CookiePreferencesLink className="text-[0.66rem] text-[#F4F1EC]/35 transition hover:text-[#F4F1EC]/70" />
+              <CookiePreferencesLink className="inline-flex min-h-10 items-center text-[0.78rem] text-[#F4F1EC]/35 transition hover:text-[#F4F1EC]/70" />
             </div>
             <p className="text-[0.78rem] text-[#F4F1EC]/35">India (INR ₹)</p>
           </div>

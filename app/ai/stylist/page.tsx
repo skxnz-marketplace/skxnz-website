@@ -18,7 +18,7 @@ export default function AIStylistPage() {
               <p className="text-[0.78rem] font-bold uppercase tracking-[0.14em] text-[var(--skxnz-glint)]">
                 AI Assistant Beta
               </p>
-              <h1 className="mt-3 max-w-3xl text-[2.25rem] font-semibold uppercase leading-[0.96] tracking-[-0.025em] sm:text-5xl">
+              <h1 className="mt-3 max-w-3xl text-[clamp(1.8rem,8.6vw,2.25rem)] font-semibold uppercase leading-[0.96] tracking-[-0.025em] sm:text-5xl">
                 Catalog-aware style workspace.
               </h1>
               <p className="mt-4 max-w-2xl text-sm leading-6 text-white/[0.72]">

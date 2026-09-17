@@ -72,6 +72,9 @@ export function HeroCarousel() {
         aria-hidden="true"
         className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#05101a]/85 to-transparent"
       />
+      {/* Phones: the copy spans the full width and lands on the bright right
+          side of the photo, where the left-to-right scrim has faded out. */}
+      <div aria-hidden="true" className="absolute inset-0 bg-[#05101a]/40 sm:hidden" />
 
       {/* Grid texture overlay */}
       <div
@@ -95,7 +98,7 @@ export function HeroCarousel() {
             // tab order and hit-testing, so no `inert` attribute is needed here.
             aria-hidden={i !== active}
             className={cn(
-              "absolute inset-0 flex flex-col justify-center px-6 py-16 sm:px-10 lg:px-16",
+              "absolute inset-0 flex flex-col justify-center px-5 pb-16 pt-10 sm:px-10 sm:py-16 lg:px-16",
               "transition-[opacity,transform,visibility] ease-out motion-reduce:transition-none",
               i === active
                 ? "visible translate-y-0 opacity-100 duration-[420ms]"
@@ -104,24 +107,24 @@ export function HeroCarousel() {
           >
             <div className="max-w-[600px]">
               <h1
-                className="font-grotesk text-[clamp(2.8rem,7vw,5.5rem)] font-bold uppercase leading-[0.92] tracking-[-0.03em] text-[#F4F1EC]"
+                className="font-grotesk text-[clamp(2.4rem,11vw,5.5rem)] sm:text-[clamp(2.8rem,7vw,5.5rem)] font-bold uppercase leading-[0.92] tracking-[-0.03em] text-[#F4F1EC]"
               >
                 {s.headline}
               </h1>
-              <p className="mt-6 max-w-[480px] text-[clamp(1rem,1.4vw,1.15rem)] font-medium leading-relaxed text-[#F4F1EC]/75">
+              <p className="mt-4 max-w-[480px] sm:mt-6 text-[clamp(1rem,1.4vw,1.15rem)] font-medium leading-relaxed text-[#F4F1EC]/75">
                 {s.subline}
               </p>
-              <div className="mt-9 flex flex-wrap items-center gap-3">
+              <div className="mt-8 flex flex-col gap-3 sm:mt-9 sm:flex-row sm:flex-wrap sm:items-center">
                 <Link
                   href={s.primaryHref}
-                  className="inline-flex h-[52px] items-center gap-2.5 rounded-full bg-[#F4F1EC] px-8 text-sm font-bold uppercase tracking-[0.08em] text-[#0E0E10] transition duration-300 ease-out hover:bg-white motion-reduce:transition-none"
+                  className="inline-flex h-12 items-center justify-center gap-2.5 rounded-full bg-[#F4F1EC] px-6 sm:h-[52px] sm:px-8 text-sm font-bold uppercase tracking-[0.08em] text-[#0E0E10] transition duration-300 ease-out hover:bg-white motion-reduce:transition-none"
                 >
                   {s.primaryCta}
                   <ArrowRight />
                 </Link>
                 <Link
                   href={s.secondaryHref}
-                  className="inline-flex h-[52px] items-center gap-2.5 rounded-full border border-[#00E5FF]/40 bg-[#00E5FF]/10 px-8 text-sm font-bold uppercase tracking-[0.08em] text-[#00E5FF] transition duration-300 ease-out hover:bg-[#00E5FF]/18 motion-reduce:transition-none"
+                  className="inline-flex h-12 items-center justify-center gap-2.5 rounded-full border border-[#00E5FF]/40 bg-[#00E5FF]/10 px-6 backdrop-blur-sm sm:h-[52px] sm:px-8 text-sm font-bold uppercase tracking-[0.08em] text-[#00E5FF] transition duration-300 ease-out hover:bg-[#00E5FF]/18 motion-reduce:transition-none"
                 >
                   {s.secondaryCta}
                 </Link>

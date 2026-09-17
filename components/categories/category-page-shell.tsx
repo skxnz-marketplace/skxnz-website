@@ -385,7 +385,7 @@ export function CategoryPageShell({ category, liveProducts }: CategoryPageShellP
               <p className="text-[0.78rem] font-black uppercase tracking-[0.18em] text-[var(--skxnz-glint)]">
                 Category landing
               </p>
-              <h1 className="mt-4 max-w-[12ch] break-words font-display text-[2.2rem] font-semibold uppercase leading-[0.98] tracking-[-0.02em] sm:text-5xl">
+              <h1 className="mt-4 sm:max-w-[12ch] break-words font-display text-[clamp(1.75rem,8.4vw,2.2rem)] font-semibold uppercase leading-[0.98] tracking-[-0.02em] sm:text-5xl">
                 {category.displayName}
               </h1>
               <p className="mt-4 max-w-xl text-sm leading-6 text-white/78">

@@ -216,7 +216,7 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
             </p>
           </div>
           {hasRealStockData ? (
-            <span className="max-w-full rounded-full border border-[rgba(47,111,115,0.22)] bg-[rgba(34,211,238,0.08)] px-3 py-1 text-[0.66rem] font-bold uppercase tracking-[0.14em] text-[var(--skxnz-maroon)]">
+            <span className="max-w-full rounded-full border border-[rgba(47,111,115,0.22)] bg-[rgba(34,211,238,0.08)] px-3 py-1 text-[0.72rem] font-bold uppercase tracking-[0.14em] text-[var(--skxnz-maroon)]">
               {isVariantBacked && selectedSize
                 ? `${Math.max(availableStock, 0)} in this size`
                 : `${product.stock} in stock`}
@@ -230,7 +230,7 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
           <div className="flex items-center justify-between gap-3">
             <p
               id="product-size-label"
-              className="text-[0.66rem] font-bold uppercase tracking-[0.22em] text-[var(--skxnz-text-muted)]"
+              className="text-[0.72rem] font-bold uppercase tracking-[0.22em] text-[var(--skxnz-text-muted)]"
             >
               Size
             </p>
@@ -257,10 +257,10 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
                   onClick={() => !isUnavailable && setSelectedSize(size)}
                   className={
                     isUnavailable
-                      ? "relative min-w-11 cursor-not-allowed rounded-full border border-[var(--skxnz-border)] bg-[var(--skxnz-surface)] px-4 py-2.5 text-xs font-bold uppercase tracking-[0.16em] text-[var(--skxnz-text-muted)] opacity-40 after:absolute after:inset-x-1 after:top-1/2 after:h-px after:bg-current after:content-['']"
+                      ? "relative min-h-11 min-w-11 cursor-not-allowed rounded-full border border-[var(--skxnz-border)] bg-[var(--skxnz-surface)] px-4 py-2.5 text-xs font-bold uppercase tracking-[0.16em] text-[var(--skxnz-text-muted)] opacity-40 after:absolute after:inset-x-1 after:top-1/2 after:h-px after:bg-current after:content-['']"
                       : isSelected
-                        ? "min-w-11 rounded-full border border-[var(--skxnz-maroon)] bg-[var(--skxnz-maroon-deep)] px-4 py-2.5 text-xs font-bold uppercase tracking-[0.16em] text-[var(--skxnz-text-light)] shadow-[0_0_0_4px_rgba(34,211,238,0.07)]"
-                        : "min-w-11 rounded-full border border-[var(--skxnz-border)] bg-[var(--skxnz-surface)] px-4 py-2.5 text-xs font-bold uppercase tracking-[0.16em] text-[var(--skxnz-text-dark)] transition hover:border-[rgba(34,211,238,0.45)]"
+                        ? "min-h-11 min-w-11 rounded-full border border-[var(--skxnz-maroon)] bg-[var(--skxnz-maroon-deep)] px-4 py-2.5 text-xs font-bold uppercase tracking-[0.16em] text-[var(--skxnz-text-light)] shadow-[0_0_0_4px_rgba(34,211,238,0.07)]"
+                        : "min-h-11 min-w-11 rounded-full border border-[var(--skxnz-border)] bg-[var(--skxnz-surface)] px-4 py-2.5 text-xs font-bold uppercase tracking-[0.16em] text-[var(--skxnz-text-dark)] transition hover:border-[rgba(34,211,238,0.45)]"
                   }
                 >
                   {size}
@@ -274,7 +274,7 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
           <div className="flex items-center justify-between gap-3">
             <p
               id="product-color-label"
-              className="text-[0.66rem] font-bold uppercase tracking-[0.22em] text-[var(--skxnz-text-muted)]"
+              className="text-[0.72rem] font-bold uppercase tracking-[0.22em] text-[var(--skxnz-text-muted)]"
             >
               Color
             </p>
@@ -303,8 +303,8 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
                     isUnavailable
                       ? "inline-flex max-w-full cursor-not-allowed items-center gap-2 rounded-full border border-[var(--skxnz-border)] bg-[var(--skxnz-surface)] px-3 py-2 text-xs font-bold uppercase tracking-[0.14em] text-[var(--skxnz-text-muted)] opacity-40"
                       : isSelected
-                        ? "inline-flex max-w-full items-center gap-2 rounded-full border border-[var(--skxnz-maroon)] bg-[var(--skxnz-maroon-deep)] px-3 py-2 text-xs font-bold uppercase tracking-[0.14em] text-[var(--skxnz-text-light)] shadow-[0_0_0_4px_rgba(139,92,246,0.08)]"
-                        : "inline-flex max-w-full items-center gap-2 rounded-full border border-[var(--skxnz-border)] bg-[var(--skxnz-surface)] px-3 py-2 text-xs font-bold uppercase tracking-[0.14em] text-[var(--skxnz-text-dark)] transition hover:border-[rgba(139,92,246,0.34)]"
+                        ? "inline-flex min-h-11 max-w-full items-center gap-2 rounded-full border border-[var(--skxnz-maroon)] bg-[var(--skxnz-maroon-deep)] px-3 py-2 text-xs font-bold uppercase tracking-[0.14em] text-[var(--skxnz-text-light)] shadow-[0_0_0_4px_rgba(139,92,246,0.08)]"
+                        : "inline-flex min-h-11 max-w-full items-center gap-2 rounded-full border border-[var(--skxnz-border)] bg-[var(--skxnz-surface)] px-3 py-2 text-xs font-bold uppercase tracking-[0.14em] text-[var(--skxnz-text-dark)] transition hover:border-[rgba(139,92,246,0.34)]"
                   }
                 >
                   <span
@@ -400,7 +400,7 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
             }
           >
             {feedback.ok ? (
-              <span className="mr-2 text-[0.66rem] font-bold uppercase tracking-[0.2em] text-[var(--skxnz-maroon)]">
+              <span className="mr-2 text-[0.72rem] font-bold uppercase tracking-[0.2em] text-[var(--skxnz-maroon)]">
                 Added to cart
               </span>
             ) : null}

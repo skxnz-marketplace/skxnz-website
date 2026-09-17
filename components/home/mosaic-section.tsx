@@ -73,7 +73,7 @@ export function MosaicSection() {
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
 
               <div className="relative z-10">
-                <p className="text-[0.95rem] font-bold uppercase tracking-[0.1em] text-[#F4F1EC]">
+                <p className="break-words text-[0.85rem] font-bold uppercase tracking-[0.06em] text-[#F4F1EC] sm:text-[0.95rem] sm:tracking-[0.1em]">
                   {tile.label}
                 </p>
                 <span className="mt-1.5 inline-flex items-center gap-1.5 text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#F4F1EC]/60 transition duration-300 group-hover:text-[#00E5FF] motion-reduce:transition-none">

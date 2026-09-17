@@ -29,7 +29,7 @@ export function TopBrandsToolbar({
             <p className="text-[0.8rem] uppercase tracking-[0.24em] text-teal">
               Top Brands
             </p>
-            <p className="mt-2 max-w-[18rem] text-sm leading-6 text-silver sm:max-w-none sm:leading-7">
+            <p className="mt-2 text-sm leading-6 text-silver sm:max-w-none sm:leading-7">
               Ranked from catalogue momentum across the curated label roster.
             </p>
           </div>

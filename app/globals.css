@@ -79,6 +79,19 @@ html {
   }
 }
 
+/* iOS Safari zooms the page when a focused field's text is under 16px, and it
+   does not zoom back out. Phones get 16px form text; larger screens keep each
+   component's own size. */
+@media (max-width: 639px) {
+  /* The attribute qualifiers lift specificity above a single utility class
+     (e.g. text-sm on the shop filter selects), which otherwise wins. */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  select:not([data-skxnz-small-text]),
+  textarea:not([data-skxnz-small-text]) {
+    font-size: 16px;
+  }
+}
+
 body {
   min-height: 100vh;
   background:

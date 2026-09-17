@@ -185,29 +185,29 @@ export default async function OrderDetailPage({
           </div>
 
           <div className="mt-4 space-y-2 border-t border-[rgba(58,8,24,0.12)] pt-4 text-sm">
-            <div className="flex items-center justify-between">
+            <div className="flex items-baseline justify-between gap-4">
               <span className="text-stone">Subtotal</span>
               <span className="font-semibold text-midnightbrown">
                 {formatInrFromPaise(order.subtotalPaise)}
               </span>
             </div>
-            <div className="flex items-center justify-between">
+            <div className="flex items-baseline justify-between gap-4">
               <span className="text-stone">Delivery</span>
-              <span className="text-stone">
+              <span className="text-right text-stone">
                 {order.shippingPaise !== null
                   ? formatInrFromPaise(order.shippingPaise)
                   : "Calculated at live checkout"}
               </span>
             </div>
-            <div className="flex items-center justify-between">
+            <div className="flex items-baseline justify-between gap-4">
               <span className="text-stone">Taxes</span>
-              <span className="text-stone">
+              <span className="text-right text-stone">
                 {order.taxPaise !== null
                   ? formatInrFromPaise(order.taxPaise)
                   : "Calculated at live checkout"}
               </span>
             </div>
-            <div className="flex items-center justify-between border-t border-[rgba(58,8,24,0.08)] pt-2">
+            <div className="flex items-baseline justify-between gap-4 border-t border-[rgba(58,8,24,0.08)] pt-2">
               <span className="font-semibold text-midnightbrown">
                 {order.totalPaise !== null ? "Total" : "Estimated payable"}
               </span>

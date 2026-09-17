@@ -233,7 +233,7 @@ export function Navbar() {
                     { href: "/categories/streetwear", label: "Streetwear", ai: false },
                     { href: "/categories/watches", label: "Watches", ai: false },
                     { href: "/brands", label: "Brands", ai: false },
-                    { href: "/ai", label: "AI Stylist", ai: true },
+                    { href: "/ai/stylist", label: "AI Stylist", ai: true },
                   ].map((link) => (
                     <Link
                       key={link.href}
