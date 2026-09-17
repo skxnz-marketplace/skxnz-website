@@ -65,7 +65,7 @@ export default async function OrdersPage() {
         />
 
         {!result.backendReady ? (
-          <Card className="section-border rounded-[36px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-8">
+          <Card className="section-border rounded-[36px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-6 sm:p-8">
             <p className="section-kicker text-[0.8rem] uppercase tracking-[0.24em] text-sangria">
               Order history
             </p>
@@ -87,7 +87,7 @@ export default async function OrdersPage() {
               return (
                 <Card
                   key={order.id}
-                  className="section-border rounded-[28px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-6"
+                  className="section-border rounded-[28px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-5 sm:p-6"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-4">
                     <div>

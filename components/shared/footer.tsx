@@ -152,7 +152,7 @@ export function Footer() {
             {/* Explore */}
             <FooterCol title="Explore" links={[
               { label: "Brands", href: "/brands" },
-              { label: "AI Stylist", href: "/ai" },
+              { label: "AI Stylist", href: "/ai/stylist" },
               { label: "Signal Community", href: "/community" },
               { label: "Early Access", href: "/waitlist" },
             ]} />
