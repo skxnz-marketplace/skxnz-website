@@ -77,15 +77,27 @@ export function HeroScrollVideo() {
   useEffect(() => {
     const measure = () => {
       const top = headerHeight();
-      setOffset(top);
+      setOffset((prev) => (prev === top ? prev : top));
       // clientWidth excludes a desktop scrollbar; innerHeight tracks the
       // visible area as mobile browser chrome collapses.
-      setBox(fitRect(document.documentElement.clientWidth, window.innerHeight - top));
+      const next = fitRect(document.documentElement.clientWidth, window.innerHeight - top);
+      // The root box also changes as content loads; skip no-op re-renders.
+      setBox((prev) =>
+        prev.w === next.w && prev.h === next.h && prev.cover === next.cover ? prev : next,
+      );
       setMeasured(true);
     };
     measure();
+    // Observe the root box as well as window resize: some mobile browsers
+    // deliver rotation late or only as a layout change, and a stale portrait
+    // stage in landscape (or the reverse) is badly cropped.
+    const ro = new ResizeObserver(measure);
+    ro.observe(document.documentElement);
     window.addEventListener("resize", measure);
-    return () => window.removeEventListener("resize", measure);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", measure);
+    };
   }, []);
 
   // ---- reduced-motion ----

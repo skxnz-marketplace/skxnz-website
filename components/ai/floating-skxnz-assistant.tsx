@@ -403,12 +403,18 @@ export function FloatingSkxnzAssistant() {
     // position on every resize pinned the button to phone coordinates, so
     // rotating to landscape or a tablet left it floating mid-screen.
     const handleResize = () => {
-      setPosition(readStoredPosition() ?? getDefaultPosition());
+      const next = readStoredPosition() ?? getDefaultPosition();
+      setPosition((prev) => (prev && prev.x === next.x && prev.y === next.y ? prev : next));
     };
 
+    // ResizeObserver catches rotations some mobile browsers report only as a
+    // layout change; without it the button could stay below a landscape fold.
+    const resizeObserver = new ResizeObserver(handleResize);
+    resizeObserver.observe(document.documentElement);
     window.addEventListener("resize", handleResize);
 
     return () => {
+      resizeObserver.disconnect();
       window.removeEventListener("resize", handleResize);
 
       if (animationFrameRef.current !== null) {
