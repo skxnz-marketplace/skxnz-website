@@ -14,7 +14,7 @@ export default function CartPage() {
             <p className="section-kicker text-[0.8rem] uppercase tracking-[0.24em] text-sangria">
               Cart
             </p>
-            <h1 className="mt-4 max-w-[13ch] break-words font-display text-[2.4rem] uppercase leading-[0.92] tracking-[-0.04em] text-midnightbrown sm:max-w-[16ch] sm:text-5xl lg:text-6xl">
+            <h1 className="mt-4 break-words font-display text-[clamp(1.85rem,9vw,2.4rem)] uppercase leading-[0.92] tracking-[-0.04em] text-midnightbrown sm:max-w-[16ch] sm:text-5xl lg:text-6xl">
               Your signal edit.
             </h1>
             <p className="mt-4 max-w-2xl break-words text-sm leading-7 text-stone sm:text-base">

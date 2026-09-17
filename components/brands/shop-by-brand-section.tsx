@@ -30,10 +30,10 @@ export function ShopByBrandSection() {
             <p className="text-[0.8rem] uppercase tracking-[0.24em] text-teal">
               Shop By Brand
             </p>
-            <h2 className="mt-3 max-w-[12ch] text-wrap-safe break-words font-display text-[1.28rem] uppercase leading-[1] tracking-[0.05em] text-midnightbrown sm:max-w-none sm:text-2xl sm:tracking-[0.12em]">
+            <h2 className="mt-3 text-wrap-safe text-balance break-words font-display text-[1.28rem] uppercase leading-[1] tracking-[0.05em] text-midnightbrown sm:max-w-none sm:text-2xl sm:tracking-[0.12em]">
               Explore the curated brand stack.
             </h2>
-            <p className="mt-3 max-w-[19rem] text-sm leading-6 text-silver sm:max-w-none sm:leading-7">
+            <p className="mt-3 text-sm leading-6 text-silver sm:max-w-none sm:leading-7">
               Every label here is hand-picked for the SKXNZ catalogue, with
               placement guided by curation rather than order counts.
             </p>
@@ -41,11 +41,13 @@ export function ShopByBrandSection() {
           <Badge>{rankedBrands.length} curated brands</Badge>
         </div>
 
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        {/* Below md the cards become a swipe rail — stacked, four full cards
+            cost several screens of scrolling. */}
+        <div className="-mx-5 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-2 [scrollbar-width:none] sm:-mx-6 sm:px-6 md:mx-0 md:grid md:snap-none md:grid-cols-2 md:gap-5 md:overflow-visible md:px-0 md:pb-0 xl:grid-cols-3 [&::-webkit-scrollbar]:hidden">
           {rankedBrands.map((snapshot, index) => (
             <Card
               key={snapshot.brand.slug}
-              className="section-border flex h-full min-w-0 flex-col overflow-hidden rounded-[26px] p-0"
+              className="section-border flex h-full w-[82%] min-w-0 shrink-0 snap-start flex-col overflow-hidden rounded-[26px] p-0 sm:w-[60%] md:w-auto"
             >
               <div className="relative aspect-[4/3] overflow-hidden bg-pearlcream">
                 <SafeImage

@@ -200,11 +200,18 @@ export function CardStack({
                 aria-selected={isActive}
                 aria-label={`Show ${item.title}`}
                 onClick={() => goTo(i)}
-                className={cn(
-                  "h-[3px] rounded-full transition-all duration-300",
-                  isActive ? "w-8 bg-[#161616]" : "w-3 bg-[#161616]/25 hover:bg-[#161616]/45",
-                )}
-              />
+                // The bar stays hairline; the button around it is a 44px
+                // touch target.
+                className="group flex h-11 min-w-8 items-center justify-center"
+              >
+                <span
+                  aria-hidden="true"
+                  className={cn(
+                    "h-[3px] rounded-full transition-all duration-300",
+                    isActive ? "w-8 bg-[#161616]" : "w-3 bg-[#161616]/25 group-hover:bg-[#161616]/45",
+                  )}
+                />
+              </button>
             );
           })}
         </div>

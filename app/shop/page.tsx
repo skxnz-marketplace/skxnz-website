@@ -92,8 +92,8 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
         eyebrow="Shop Preview"
         title={pageTitle}
         description={pageDescription}
-        titleClassName="max-w-[13ch] text-[1.38rem] leading-[0.98] tracking-[0.04em] sm:max-w-none sm:text-3xl sm:tracking-[0.1em]"
-        descriptionClassName="max-w-[20rem] sm:max-w-full"
+        titleClassName="text-balance text-[clamp(1.45rem,6.2vw,1.75rem)] leading-[1.02] tracking-[0.04em] sm:text-3xl sm:tracking-[0.1em]"
+        descriptionClassName="max-w-[36rem]"
         actions={
           <Link
             href="/waitlist"
@@ -120,8 +120,12 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
       </div>
 
       <div className="mt-8 grid items-start gap-6 lg:mt-10 lg:grid-cols-[minmax(0,1fr)_minmax(17rem,0.34fr)]">
-        <div className="grid gap-6">
-          <ShopByBrandSection />
+        <div className="grid min-w-0 gap-6">
+          {/* Phones see products first; the brand showcase follows the grid
+              instead of pushing it several screens down. */}
+          <div className="min-w-0 max-lg:order-last">
+            <ShopByBrandSection />
+          </div>
           <ShopCatalog
             initialBrandSlug={activeBrandSlug || undefined}
             initialQuery={normalizedQuery}

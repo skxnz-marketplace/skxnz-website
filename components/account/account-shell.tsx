@@ -50,7 +50,7 @@ export function AccountShell({
               <p className="section-kicker text-[0.8rem] uppercase tracking-[0.24em] text-sangria">
                 {eyebrow}
               </p>
-              <h1 className="mt-4 max-w-[13ch] break-words font-display text-[2.35rem] uppercase leading-[0.92] tracking-[-0.04em] text-midnightbrown sm:text-5xl lg:text-6xl">
+              <h1 className="mt-4 sm:max-w-[13ch] break-words font-display text-[clamp(1.8rem,8.8vw,2.35rem)] uppercase leading-[0.92] tracking-[-0.04em] text-midnightbrown sm:text-5xl lg:text-6xl">
                 {title}
               </h1>
               <p className="mt-4 max-w-2xl break-words text-sm leading-7 text-stone sm:text-base">

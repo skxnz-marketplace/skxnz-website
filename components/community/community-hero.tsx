@@ -24,7 +24,7 @@ export function CommunityHero({
             </span>
           </div>
 
-          <h1 className="mt-5 max-w-[12ch] break-words font-display text-[2.7rem] uppercase leading-[0.9] tracking-[0.05em] sm:text-6xl lg:text-7xl">
+          <h1 className="mt-5 sm:max-w-[12ch] break-words font-display text-[clamp(1.95rem,10vw,2.7rem)] uppercase leading-[0.9] tracking-[0.05em] sm:text-6xl lg:text-7xl">
             Signal Community
           </h1>
           <p className="mt-5 max-w-2xl text-sm leading-7 text-white/76 sm:text-base">

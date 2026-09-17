@@ -126,8 +126,8 @@ export function ShopBrowser({
             </p>
           </div>
 
-          <div className="grid gap-x-3 gap-y-4 sm:grid-cols-2 xl:grid-cols-5">
-            <label className="grid gap-2">
+          <div className="grid grid-cols-2 gap-x-3 gap-y-4 xl:grid-cols-5">
+            <label className="col-span-2 grid gap-2 sm:col-span-1">
               <span className="text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-silver">
                 Category
               </span>
