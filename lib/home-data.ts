@@ -182,12 +182,12 @@ export const trustItems: TrustItem[] = [
   {
     icon: "🔒",
     title: "Encrypted Checkout",
-    desc: "Coming Soon",
+    desc: "Launching Soon",
   },
   {
     icon: "↩",
     title: "Simple Returns",
-    desc: "In Development",
+    desc: "Launching Soon",
   },
   {
     icon: "⚡",
@@ -197,6 +197,6 @@ export const trustItems: TrustItem[] = [
   {
     icon: "✦",
     title: "AI Styling",
-    desc: "In Development",
+    desc: "Live Beta",
   },
 ];

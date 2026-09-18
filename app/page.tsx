@@ -1,15 +1,17 @@
-import { CategoryStrip } from "@/components/home/category-strip";
+import { AiSignalPanel } from "@/components/home/ai-signal-panel";
+import { AuthenticityShowcase } from "@/components/home/authenticity-showcase";
+import { BrandSpotlight } from "@/components/home/brand-spotlight";
+import { CategoryShowcase } from "@/components/home/category-showcase";
 import { FeaturedLabels } from "@/components/home/featured-labels";
 import { HeroCarousel } from "@/components/home/hero-carousel";
 import { HeroScrollVideo } from "@/components/home/hero-scroll-video";
-import { AiSignalPanel } from "@/components/home/ai-signal-panel";
-import { AuthenticityShowcase } from "@/components/home/authenticity-showcase";
-import { SellerInviteBanner } from "@/components/home/seller-invite-banner";
-import { SignalCta } from "@/components/home/signal-cta";
 import { LuxuryFinds } from "@/components/home/luxury-finds";
 import { MosaicSection } from "@/components/home/mosaic-section";
 import { ProductRow } from "@/components/home/product-row";
+import { SellerInviteBanner } from "@/components/home/seller-invite-banner";
 import { ShopSplit } from "@/components/home/shop-split";
+import { SignalCta } from "@/components/home/signal-cta";
+import { SignalRoomTeaser } from "@/components/home/signal-room-teaser";
 import { TrustBar } from "@/components/home/trust-bar";
 import { getActiveBrands, getActiveProducts } from "@/lib/catalog/queries";
 import { mapProductToHomeProduct } from "@/lib/catalog/mappers";
@@ -64,8 +66,9 @@ export default async function HomePage() {
   return (
     <div className="min-h-screen bg-[#F4F1EC]">
       <HeroCarousel />
-      <CategoryStrip />
+      <CategoryShowcase />
       <FeaturedLabels />
+      <BrandSpotlight />
       {trendingSection.length > 0 ? (
         <ProductRow
           heading="Trending Now"
@@ -83,6 +86,7 @@ export default async function HomePage() {
       <HeroScrollVideo />
       <AuthenticityShowcase />
       <AiSignalPanel />
+      <SignalRoomTeaser />
       <SellerInviteBanner />
       <SignalCta />
     </div>
