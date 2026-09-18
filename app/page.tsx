@@ -2,14 +2,10 @@ import { CategoryStrip } from "@/components/home/category-strip";
 import { FeaturedLabels } from "@/components/home/featured-labels";
 import { HeroCarousel } from "@/components/home/hero-carousel";
 import { HeroScrollVideo } from "@/components/home/hero-scroll-video";
-import { HomepageSection10 } from "@/components/home/homepage-section-10";
-import { HomepageSection3 } from "@/components/home/homepage-section-3";
-import { HomepageSection4 } from "@/components/home/homepage-section-4";
-import { HomepageSection5 } from "@/components/home/homepage-section-5";
-import { HomepageSection6 } from "@/components/home/homepage-section-6";
-import { HomepageSection7 } from "@/components/home/homepage-section-7";
-import { HomepageSection8 } from "@/components/home/homepage-section-8";
-import { HomepageSection9 } from "@/components/home/homepage-section-9";
+import { AiSignalPanel } from "@/components/home/ai-signal-panel";
+import { AuthenticityShowcase } from "@/components/home/authenticity-showcase";
+import { SellerInviteBanner } from "@/components/home/seller-invite-banner";
+import { SignalCta } from "@/components/home/signal-cta";
 import { LuxuryFinds } from "@/components/home/luxury-finds";
 import { MosaicSection } from "@/components/home/mosaic-section";
 import { ProductRow } from "@/components/home/product-row";
@@ -85,14 +81,10 @@ export default async function HomePage() {
       {/* Section 1 slot — the signal film. Its long scroll room absorbs what
           were the Section 1 and Section 2 scaffolds, per the founder's layout. */}
       <HeroScrollVideo />
-      <HomepageSection3 />
-      <HomepageSection4 />
-      <HomepageSection5 />
-      <HomepageSection6 />
-      <HomepageSection7 />
-      <HomepageSection8 />
-      <HomepageSection9 />
-      <HomepageSection10 />
+      <AuthenticityShowcase />
+      <AiSignalPanel />
+      <SellerInviteBanner />
+      <SignalCta />
     </div>
   );
 }
