@@ -1,6 +1,14 @@
+import type { Metadata } from "next";
+
 import { LegalPageShell } from "@/components/legal/legal-page-shell";
 import { PolicyNotice } from "@/components/legal/policy-notice";
 import { PolicySection } from "@/components/legal/policy-section";
+
+// Draft privacy notes pending real privacy review — see page body.
+export const metadata: Metadata = {
+  title: "Privacy (Draft)",
+  robots: { index: false, follow: true },
+};
 
 export default function PrivacyPage() {
   return (

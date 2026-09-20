@@ -1,6 +1,14 @@
+import type { Metadata } from "next";
+
 import { LegalPageShell } from "@/components/legal/legal-page-shell";
 import { PolicyNotice } from "@/components/legal/policy-notice";
 import { PolicySection } from "@/components/legal/policy-section";
+
+// Draft terms pending qualified legal counsel review — see page body.
+export const metadata: Metadata = {
+  title: "Terms (Draft)",
+  robots: { index: false, follow: true },
+};
 
 export default function TermsPage() {
   return (

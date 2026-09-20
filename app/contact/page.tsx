@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import { LegalPageShell } from "@/components/legal/legal-page-shell";
@@ -7,6 +8,15 @@ import { ContactFormDemo } from "@/components/support/contact-form-demo";
 import { SupportCard } from "@/components/support/support-card";
 import { buttonVariants } from "@/components/ui/button";
 import { siteConfig } from "@/lib/site";
+
+const description = `Contact SKXNZ for support, seller questions, or private-preview access. Reach us at ${siteConfig.supportEmail}.`;
+
+export const metadata: Metadata = {
+  title: "Contact",
+  description,
+  alternates: { canonical: "/contact" },
+  openGraph: { type: "website", title: "Contact SKXNZ", description, url: "/contact" },
+};
 
 const contactChannels = [
   ["Support", siteConfig.supportEmail],

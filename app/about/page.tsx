@@ -1,8 +1,19 @@
+import type { Metadata } from "next";
+
 import { LegalPageShell } from "@/components/legal/legal-page-shell";
 import { PolicyNotice } from "@/components/legal/policy-notice";
 import { PolicySection } from "@/components/legal/policy-section";
 import { TrustBadges } from "@/components/trust/trust-badges";
 import { siteConfig } from "@/lib/site";
+
+const description = `SKXNZ is an AI-powered futurewear marketplace by ${siteConfig.parentCompany}, built around curated shopping, seller review foundations, and AI-assisted product discovery.`;
+
+export const metadata: Metadata = {
+  title: "About SKXNZ",
+  description,
+  alternates: { canonical: "/about" },
+  openGraph: { type: "website", title: "About SKXNZ", description, url: "/about" },
+};
 
 const principles = [
   {

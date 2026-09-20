@@ -12,6 +12,7 @@ export default function AdminLoginPage() {
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
       <div className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
         <PageIntro
+          headingLevel="h1"
           eyebrow="Admin Login"
           title="The admin entry point is mapped, but not active yet."
           description="This placeholder keeps the admin side visually complete while authentication, permissions, and audit requirements are still being finalized for the private MVP."

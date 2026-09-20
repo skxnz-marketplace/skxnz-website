@@ -1,9 +1,16 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import { LegalPageShell } from "@/components/legal/legal-page-shell";
 import { PolicyNotice } from "@/components/legal/policy-notice";
 import { PolicySection } from "@/components/legal/policy-section";
 import { buttonVariants } from "@/components/ui/button";
+
+// Draft shipping policy — timelines/couriers/charges not finalized yet, see page body.
+export const metadata: Metadata = {
+  title: "Shipping (Draft)",
+  robots: { index: false, follow: true },
+};
 
 export default function ShippingPage() {
   return (

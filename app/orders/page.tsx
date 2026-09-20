@@ -43,6 +43,7 @@ export default async function OrdersPage() {
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
       <div className="space-y-6">
         <PageIntro
+          headingLevel="h1"
           eyebrow="Buyer Orders"
           title="Your orders, only when they are real."
           description="SKXNZ lists only orders that exist in your account. Draft orders are clearly marked unpaid — nothing here claims payment or delivery that has not happened."

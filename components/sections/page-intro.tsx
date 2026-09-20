@@ -11,6 +11,9 @@ type PageIntroProps = {
   footer?: ReactNode;
   titleClassName?: string;
   descriptionClassName?: string;
+  /** Pass "h1" when this PageIntro is the page's only/primary heading (no
+   * other h1 exists on the page). Defaults to h2. See SectionHeading. */
+  headingLevel?: "h1" | "h2";
 };
 
 export function PageIntro({
@@ -21,6 +24,7 @@ export function PageIntro({
   footer,
   titleClassName,
   descriptionClassName,
+  headingLevel,
 }: PageIntroProps) {
   return (
     <Card className="section-border rounded-[28px] p-5 sm:p-6">
@@ -31,6 +35,7 @@ export function PageIntro({
           description={description}
           titleClassName={titleClassName}
           descriptionClassName={descriptionClassName}
+          as={headingLevel}
         />
         {actions ? <div className="flex min-w-0 flex-wrap gap-3">{actions}</div> : null}
       </div>

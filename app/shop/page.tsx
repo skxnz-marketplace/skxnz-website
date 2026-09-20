@@ -92,6 +92,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
         eyebrow="Shop Preview"
         title={pageTitle}
         description={pageDescription}
+        headingLevel="h1"
         titleClassName="text-balance text-[clamp(1.45rem,6.2vw,1.75rem)] leading-[1.02] tracking-[0.04em] sm:text-3xl sm:tracking-[0.1em]"
         descriptionClassName="max-w-[36rem]"
         actions={

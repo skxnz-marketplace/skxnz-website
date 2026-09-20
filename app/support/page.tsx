@@ -17,6 +17,7 @@ import { Card } from "@/components/ui/card";
 export const metadata = {
   title: "Support",
   description: "How to get help with SKXNZ orders, returns, and your account.",
+  alternates: { canonical: "/support" },
 };
 
 const supportAreas = [

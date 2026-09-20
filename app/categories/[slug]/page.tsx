@@ -6,6 +6,7 @@ import { structuredCategories } from "@/src/data/categories";
 import { getStructuredCategoryBySlug } from "@/src/lib/catalog-content";
 import { getActiveCategoryBySlug, getActiveProductsByCategoryId } from "@/lib/catalog/queries";
 import { mapCatalogProductToBuyerProduct, mapCategoryToStructuredCategory } from "@/lib/catalog/mappers";
+import { getSiteBaseUrl } from "@/lib/site";
 
 export const revalidate = 300;
 
@@ -37,11 +38,16 @@ export async function generateMetadata({
 }: CategoryPageProps): Promise<Metadata> {
   const { slug } = await params;
 
+  const canonicalPath = `/categories/${slug}`;
   const liveCategory = await resolveCategoryBySlug(slug);
   if (liveCategory) {
+    const title = `${liveCategory.name} — Premium Fashion`;
+    const description = `Shop ${liveCategory.name} on SKXNZ — curated futurewear and premium fashion.`;
     return {
-      title: liveCategory.name,
-      description: `Live SKXNZ catalog category: ${liveCategory.name}.`,
+      title,
+      description,
+      alternates: { canonical: canonicalPath },
+      openGraph: { type: "website", title, description, url: canonicalPath },
     };
   }
 
@@ -49,12 +55,16 @@ export async function generateMetadata({
   if (!category) {
     return {
       title: "Category Not Found",
+      robots: { index: false, follow: true },
     };
   }
 
+  const title = `${category.displayName} — Premium Fashion`;
   return {
-    title: category.displayName,
+    title,
     description: category.description,
+    alternates: { canonical: canonicalPath },
+    openGraph: { type: "website", title, description: category.description, url: canonicalPath },
   };
 }
 
@@ -69,14 +79,38 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     );
 
     return (
-      <CategoryPageShell
-        category={mapCategoryToStructuredCategory(liveCategory)}
-        liveProducts={liveProducts}
-      />
+      <>
+        <CategoryBreadcrumbJsonLd slug={slug} name={liveCategory.name} />
+        <CategoryPageShell
+          category={mapCategoryToStructuredCategory(liveCategory)}
+          liveProducts={liveProducts}
+        />
+      </>
     );
   }
 
   const category = getStructuredCategoryBySlug(slug) ?? null;
 
-  return <CategoryPageShell category={category} />;
+  return (
+    <>
+      {category ? <CategoryBreadcrumbJsonLd slug={slug} name={category.displayName} /> : null}
+      <CategoryPageShell category={category} />
+    </>
+  );
+}
+
+function CategoryBreadcrumbJsonLd({ slug, name }: { slug: string; name: string }) {
+  const baseUrl = getSiteBaseUrl();
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Shop", item: new URL("/shop", baseUrl).toString() },
+      { "@type": "ListItem", position: 2, name, item: new URL(`/categories/${slug}`, baseUrl).toString() },
+    ],
+  };
+
+  return (
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+  );
 }

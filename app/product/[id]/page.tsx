@@ -13,6 +13,16 @@ import {
   products,
   type Product,
 } from "@/lib/data/products";
+import { getSiteBaseUrl } from "@/lib/site";
+
+/** Meta descriptions read best under ~155 chars — trims on a word boundary
+ * rather than mid-word. */
+function truncateDescription(text: string, maxLength = 155): string {
+  if (text.length <= maxLength) return text;
+  const cut = text.slice(0, maxLength);
+  const lastSpace = cut.lastIndexOf(" ");
+  return `${cut.slice(0, lastSpace > 0 ? lastSpace : maxLength).trimEnd()}…`;
+}
 
 export const revalidate = 300;
 const LIVE_PRODUCT_LOOKUP_TIMEOUT_MS = 2500;
@@ -114,12 +124,38 @@ export async function generateMetadata({
   if (!product) {
     return {
       title: "Product Not Found",
+      // A missing/renamed product id is thin, non-canonical content —
+      // never worth indexing under whatever URL a visitor happened to try.
+      robots: { index: false, follow: true },
     };
   }
 
+  // The PDP resolves by slug OR id (see resolveLiveProduct above), so the
+  // same product is reachable at two URLs. Canonical always points at the
+  // slug form to avoid duplicate-content signals.
+  const canonicalPath = `/product/${product.slug}`;
+  const description = truncateDescription(
+    product.description || product.shortDescription || product.name,
+  );
+  const image = product.image || product.imageUrl;
+
   return {
     title: product.name,
-    description: product.description,
+    description,
+    alternates: { canonical: canonicalPath },
+    openGraph: {
+      type: "website",
+      title: product.name,
+      description,
+      url: canonicalPath,
+      images: image ? [{ url: image }] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: product.name,
+      description,
+      images: image ? [image] : undefined,
+    },
   };
 }
 
@@ -129,10 +165,58 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   const liveSimilarProducts = product ? await resolveLiveSimilarProducts(product) : [];
 
   return (
-    <ProductDetailShell
-      productId={id}
-      seedProduct={product}
-      liveSimilarProducts={liveSimilarProducts}
-    />
+    <>
+      {product ? <ProductJsonLd product={product} /> : null}
+      <ProductDetailShell
+        productId={id}
+        seedProduct={product}
+        liveSimilarProducts={liveSimilarProducts}
+      />
+    </>
+  );
+}
+
+/** Product + BreadcrumbList JSON-LD. Deliberately omits `offers` — checkout,
+ * payments, and delivery are not live yet (see PROGRESS.md), so publishing a
+ * price/availability offer would claim a purchase flow that doesn't exist. */
+function ProductJsonLd({ product }: { product: Product }) {
+  const baseUrl = getSiteBaseUrl();
+  const productUrl = new URL(`/product/${product.slug}`, baseUrl).toString();
+  const image = product.image || product.imageUrl;
+
+  const productJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    description: product.description || product.shortDescription || product.name,
+    sku: product.id,
+    ...(image ? { image: [new URL(image, baseUrl).toString()] } : {}),
+    ...(product.brandName ? { brand: { "@type": "Brand", name: product.brandName } } : {}),
+    url: productUrl,
+  };
+
+  // Only Shop -> Product: the Product type doesn't carry a real category
+  // slug (categoryId is a raw UUID for live products), so a middle
+  // "category" crumb can't be given a real, working link.
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Shop", item: new URL("/shop", baseUrl).toString() },
+      { "@type": "ListItem", position: 2, name: product.name, item: productUrl },
+    ],
+  };
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+    </>
   );
 }

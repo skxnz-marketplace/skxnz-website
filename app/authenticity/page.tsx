@@ -1,6 +1,15 @@
+import type { Metadata } from "next";
+
 import { LegalPageShell } from "@/components/legal/legal-page-shell";
 import { PolicyNotice } from "@/components/legal/policy-notice";
 import { PolicySection } from "@/components/legal/policy-section";
+
+// Draft policy copy pending legal review (see page body) — kept crawlable
+// for buyers who land here, but excluded from search results until final.
+export const metadata: Metadata = {
+  title: "Authenticity (Draft)",
+  robots: { index: false, follow: true },
+};
 
 export default function AuthenticityPage() {
   return (

@@ -3,7 +3,15 @@ import Link from "next/link";
 
 import { CookiePreferencesLink } from "@/components/consent/cookie-preferences-link";
 
-export const metadata: Metadata = { title: "Cookie Policy" };
+const description =
+  "How SKXNZ uses cookies — strictly necessary, preferences, analytics, and marketing categories, and how to change your choices.";
+
+export const metadata: Metadata = {
+  title: "Cookie Policy",
+  description,
+  alternates: { canonical: "/cookies" },
+  openGraph: { type: "website", title: "Cookie Policy", description, url: "/cookies" },
+};
 
 // TRUTHFUL cookie information page. It describes only what SKXNZ actually uses
 // today and states plainly that no analytics or marketing tools are connected.

@@ -12,6 +12,7 @@ export default function SellerLoginPage() {
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
       <div className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
         <PageIntro
+          headingLevel="h1"
           eyebrow="Seller Login"
           title="Authentication stays placeholder-only in the first MVP."
           description="This route is included so the seller workflow feels complete, but real authentication, sessions, and role checks should be added only after the private foundation is approved."

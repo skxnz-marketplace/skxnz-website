@@ -1,7 +1,19 @@
+import type { Metadata } from "next";
+
 import { SellerApplicationForm } from "@/components/seller/seller-application-form";
 import { SellerApplicationHero } from "@/components/seller/seller-application-hero";
 import { SellerBenefits } from "@/components/seller/seller-benefits";
 import { Card } from "@/components/ui/card";
+
+const description =
+  "Apply to sell on SKXNZ. Submit your brand for review — product quality, category fit, and operating readiness are reviewed before listing.";
+
+export const metadata: Metadata = {
+  title: "Sell on SKXNZ",
+  description,
+  alternates: { canonical: "/sell" },
+  openGraph: { type: "website", title: "Sell on SKXNZ", description, url: "/sell" },
+};
 
 const reviewNotes = [
   "SKXNZ reviews brand fit, product quality, category relevance, and operating readiness.",
