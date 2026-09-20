@@ -35,17 +35,16 @@ export async function generateMetadata({ params }: BrandPageProps): Promise<Meta
   const description =
     brand.description || `Shop ${brand.name} on SKXNZ — curated futurewear and premium fashion.`;
   const canonicalPath = `/brands/${slug}`;
+  // `title.absolute` bypasses the root layout's "%s | SKXNZ" template —
+  // "{Brand} at SKXNZ" already names the site, so applying the template on
+  // top would render "{Brand} at SKXNZ | SKXNZ".
+  const title = `${brand.name} at SKXNZ`;
 
   return {
-    title: `${brand.name} at SKXNZ`,
+    title: { absolute: title },
     description,
     alternates: { canonical: canonicalPath },
-    openGraph: {
-      type: "website",
-      title: `${brand.name} at SKXNZ`,
-      description,
-      url: canonicalPath,
-    },
+    openGraph: { type: "website", title, description, url: canonicalPath },
   };
 }
 

@@ -30,12 +30,12 @@ Canonical domain: ${baseUrl}
 - [Sell on SKXNZ](${url("/sell")}): Seller application.
 
 ## Policies
-- [Authenticity](${url("/authenticity")})
-- [Shipping](${url("/shipping")})
 - [Returns](${url("/returns")})
 - [FAQ](${url("/faq")})
-- [Terms](${url("/terms")})
-- [Privacy](${url("/privacy")})
+
+Authenticity, shipping, terms, and privacy pages exist but are draft copy
+pending legal review — not linked here to avoid an assistant quoting them
+as final policy.
 `;
 
   return new Response(body, {
