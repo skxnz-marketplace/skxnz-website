@@ -46,7 +46,7 @@ export function AiStylistBanner() {
             {/* Right: CTA */}
             <div className="shrink-0">
               <Link
-                href="/ai-stylist"
+                href="/ai/stylist"
                 className="inline-flex h-12 items-center gap-2.5 rounded-full bg-[#00E5FF] px-8 text-sm font-bold uppercase tracking-[0.08em] text-[#0E0E10] transition hover:bg-[#33ecff]"
               >
                 Get Early Access

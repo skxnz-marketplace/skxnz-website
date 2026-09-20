@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import { PageIntro } from "@/components/sections/page-intro";
@@ -5,6 +6,16 @@ import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { waitlistBenefits, waitlistSegments } from "@/lib/data/site-content";
+
+const description =
+  "Join the SKXNZ waitlist for early access to curated futurewear discovery ahead of public launch.";
+
+export const metadata: Metadata = {
+  title: "Waitlist",
+  description,
+  alternates: { canonical: "/waitlist" },
+  openGraph: { type: "website", title: "SKXNZ Waitlist", description, url: "/waitlist" },
+};
 
 const fieldClassName =
   "field-shell w-full min-w-0 max-w-full rounded-[20px] px-4 py-3 text-sm";
@@ -15,6 +26,7 @@ export default function WaitlistPage() {
       <div className="grid gap-6 xl:grid-cols-[0.92fr_1.08fr]">
         <div className="space-y-6">
           <PageIntro
+            headingLevel="h1"
             eyebrow="Buyer Waitlist"
             title="Capture early buyer intent before public launch."
             description="This waitlist page gives SKXNZ a clean private intake surface for demand validation while checkout, live inventory, and production emails remain intentionally offline."
@@ -27,7 +39,7 @@ export default function WaitlistPage() {
                   Browse Products
                 </Link>
                 <Link
-                  href="/ai-stylist"
+                  href="/ai/stylist"
                   className={buttonVariants({ variant: "ghost", size: "lg" })}
                 >
                   AI Stylist

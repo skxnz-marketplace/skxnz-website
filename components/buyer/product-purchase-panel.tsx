@@ -380,7 +380,7 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
           View Cart
         </Link>
         <Link
-          href="/ai-stylist"
+          href="/ai/stylist"
           className={`${buttonVariants({ variant: "ghost", size: "md" })} w-full`}
         >
           Ask SKXNZ AI

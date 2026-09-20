@@ -14,13 +14,14 @@ export default function AIVideoPromptGeneratorPage() {
     >
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
         <PageIntro
+          headingLevel="h1"
           eyebrow="AI Video Prompt Generator"
           title="Rule-based launch prompt drafting for future product video workflows."
           description="This MVP placeholder tool builds a four-second product video prompt from seller inputs using fixed SKXNZ rules. No text-to-video model or render pipeline is live."
           actions={
             <>
               <Link
-                href="/ai-tools/product-title"
+                href="/ai/title-generator"
                 className={buttonVariants({ variant: "secondary", size: "lg" })}
               >
                 Title Tool

@@ -14,19 +14,20 @@ export default function AITitleGeneratorPage() {
     >
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
         <PageIntro
+          headingLevel="h1"
           eyebrow="AI Product Title Generator"
           title="Rule-based title concepts for premium SKXNZ product naming."
           description="This is an MVP placeholder tool, not a live AI API. It uses deterministic brand rules to turn product inputs into premium SKXNZ-style title options."
           actions={
             <>
               <Link
-                href="/ai-tools/product-description"
+                href="/ai/description-generator"
                 className={buttonVariants({ variant: "secondary", size: "lg" })}
               >
                 Description Tool
               </Link>
               <Link
-                href="/ai-stylist"
+                href="/ai/stylist"
                 className={buttonVariants({ variant: "ghost", size: "lg" })}
               >
                 AI Stylist

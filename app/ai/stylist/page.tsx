@@ -1,11 +1,18 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import { AiPhaseOneStudio } from "@/components/ai/ai-phase-one-studio";
 import { StylistAccessGate } from "@/components/ai/stylist-access-gate";
 import { buttonVariants } from "@/components/ui/button";
 
-export const metadata = {
+const description =
+  "SKXNZ AI Stylist — a catalog-aware style workspace for outfit direction and SKXNZ catalog picks.";
+
+export const metadata: Metadata = {
   title: "AI Stylist",
+  description,
+  alternates: { canonical: "/ai/stylist" },
+  openGraph: { type: "website", title: "SKXNZ AI Stylist", description, url: "/ai/stylist" },
 };
 
 export default function AIStylistPage() {
@@ -38,7 +45,7 @@ export default function AIStylistPage() {
                   Browse Catalog
                 </Link>
                 <Link
-                  href="/ai-tools/product-title"
+                  href="/ai/title-generator"
                   className={buttonVariants({
                     variant: "ghost",
                     size: "lg",

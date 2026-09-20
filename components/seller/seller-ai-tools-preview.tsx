@@ -40,7 +40,7 @@ export function SellerAiToolsPreview() {
           seller publishing tools.
         </p>
         <Link
-          href="/ai-tools/product-description"
+          href="/ai/description-generator"
           className={buttonVariants({ variant: "secondary", size: "lg" })}
         >
           Open Preview
