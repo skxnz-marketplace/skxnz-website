@@ -1952,8 +1952,11 @@ test("global stylesheet keeps keyboard focus visible", () => {
 });
 
 test("buyer-facing product links route through the shared href helper", () => {
+  // app/community/page.tsx is now a thin server data-wrapper (see
+  // supabase/migrations/0017_community_layer.sql) — it renders no product
+  // links itself anymore; that responsibility lives entirely in
+  // components/community/community-feed.tsx (already checked below).
   const files = [
-    "app/community/page.tsx",
     "components/account/wishlist-grid.tsx",
     "components/buyer/home-trending-grid.tsx",
     "components/categories/category-page-shell.tsx",
@@ -1996,9 +1999,22 @@ test("home and community rendered copy makes no unavailable-capability claims", 
   }
 });
 
-test("community page stays future-truthful with no live-room claims", () => {
-  const source = fs.readFileSync(path.join(process.cwd(), "app/community/page.tsx"), "utf8");
-  assert.match(source, /when the room opens|after the room opens/i);
+test("community page stays truthful about invite-only posting, no fabricated member counts", () => {
+  // Community went from a static "opening soon" preview to a real,
+  // Supabase-backed feed (supabase/migrations/0017_community_layer.sql):
+  // posting is genuinely invite-only, not merely future-tense-unopened, so
+  // the honesty check moved from "room opens later" to "posting is
+  // invite-only right now" — and now lives in the components that actually
+  // render the copy, not the thin page.tsx data wrapper.
+  const files = [
+    "app/community/page.tsx",
+    "components/community/community-feed.tsx",
+    "components/community/community-hero.tsx",
+  ];
+  const source = files
+    .map((file) => fs.readFileSync(path.join(process.cwd(), file), "utf8"))
+    .join("\n");
+  assert.match(source, /invite-only/i);
   assert.equal(/members online|active members|\d+ members/i.test(source), false);
 });
 

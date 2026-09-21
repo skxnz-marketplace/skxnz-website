@@ -169,7 +169,31 @@ export const RATE_LIMIT_POLICIES = {
     windowMs: HOUR,
     scope: "user",
     onStoreFailure: "closed",
-    description: "Community posting. Reserved — public posting is not open yet.",
+    description: "Community posting. Invite-only (community_poster_grants) — still capped per poster.",
+  }),
+  "community.engage": policy({
+    name: "community.engage",
+    limit: 60,
+    windowMs: MINUTE,
+    scope: "user",
+    onStoreFailure: "open",
+    description: "Like/save toggles on community posts. Generous, same shape as commerce.wishlist — real users toggle fast while browsing.",
+  }),
+  "community.report": policy({
+    name: "community.report",
+    limit: 10,
+    windowMs: HOUR,
+    scope: "user",
+    onStoreFailure: "closed",
+    description: "Community post reports. Tight — stops one account from flooding the moderation queue.",
+  }),
+  "community.admin": policy({
+    name: "community.admin",
+    limit: 120,
+    windowMs: 5 * MINUTE,
+    scope: "user",
+    onStoreFailure: "closed",
+    description: "Admin community moderation (grant/revoke posting rights, resolve reports, hide/delete posts). Same ceiling as admin.mutation.",
   }),
 } as const;
 

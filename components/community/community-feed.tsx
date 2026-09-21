@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
 
 import { CommunityEmptyState } from "@/components/community/community-empty-state";
 import { CommunityHero } from "@/components/community/community-hero";
@@ -15,16 +15,12 @@ import { SafeImage } from "@/components/shared/safe-image";
 import { Badge } from "@/components/ui/badge";
 import { getProductHref } from "@/lib/catalog/product-links";
 import {
-  createDemoCommunityPost,
-  getAllCommunityPosts,
-  getCommunityTaggedProducts,
-  getLikedCommunityPostIds,
-  getSavedCommunityPostIds,
-  saveDemoCommunityPost,
-  submitDemoCommunityReport,
+  createCommunityPost,
+  submitCommunityReport,
   toggleCommunityLike,
   toggleCommunitySave,
-} from "@/lib/data/community";
+} from "@/lib/community/community-actions";
+import { pickTaggedProducts } from "@/lib/community/format";
 import { formatProductPrice, type Product } from "@/lib/data/products";
 import type {
   CommunityPost,
@@ -39,12 +35,16 @@ type CommunityFeedProps = {
   products: Product[];
   styleBoards: StyleBoard[];
   tags: string[];
+  initialLikedPostIds: string[];
+  initialSavedPostIds: string[];
+  canPost: boolean;
+  isSignedIn: boolean;
 };
 
 const marketplaceUpdates = [
   {
     title: "New marketplace additions",
-    description: "Fresh demo catalog drops are being queued for buyer testing.",
+    description: "Fresh catalog drops are queued for buyer testing.",
   },
   {
     title: "Upcoming drops",
@@ -54,10 +54,6 @@ const marketplaceUpdates = [
     title: "Brand updates",
     description: "Seller announcements will appear here after review tools are live.",
   },
-  {
-    title: "Coming soon",
-    description: "Community posting access will connect to order history later.",
-  },
 ];
 
 export function CommunityFeed({
@@ -65,46 +61,69 @@ export function CommunityFeed({
   products,
   styleBoards,
   tags,
+  initialLikedPostIds,
+  initialSavedPostIds,
+  canPost,
+  isSignedIn,
 }: CommunityFeedProps) {
-  const [posts, setPosts] = useState(initialPosts);
-  const [likedPostIds, setLikedPostIds] = useState<string[]>([]);
-  const [savedPostIds, setSavedPostIds] = useState<string[]>([]);
+  const [posts] = useState(initialPosts);
+  const [likedPostIds, setLikedPostIds] = useState(initialLikedPostIds);
+  const [savedPostIds, setSavedPostIds] = useState(initialSavedPostIds);
   const [isCreatePostOpen, setIsCreatePostOpen] = useState(false);
   const [reportPost, setReportPost] = useState<CommunityPost | null>(null);
   const [statusMessage, setStatusMessage] = useState("");
-
-  useEffect(() => {
-    setPosts(getAllCommunityPosts());
-    setLikedPostIds(getLikedCommunityPostIds());
-    setSavedPostIds(getSavedCommunityPostIds());
-  }, []);
+  const [isPending, startTransition] = useTransition();
 
   const taggedProductPreview = useMemo(() => {
     const productIdSet = new Set(posts.flatMap((post) => post.taggedProductIds));
-
-    return Array.from(productIdSet)
-      .map((productId) => products.find((product) => product.id === productId))
-      .filter((product): product is Product => Boolean(product))
-      .slice(0, 5);
+    return pickTaggedProducts(products, [...productIdSet]).slice(0, 5);
   }, [posts, products]);
 
   const handleCreatePost = (draft: CommunityPostDraft) => {
-    const post = createDemoCommunityPost(draft);
-
-    saveDemoCommunityPost(post);
-    setPosts((currentPosts) => [post, ...currentPosts]);
-    setIsCreatePostOpen(false);
-    setStatusMessage(
-      "Demo post saved locally. Public posting is still locked until moderation is ready.",
-    );
+    startTransition(async () => {
+      const result = await createCommunityPost(draft);
+      if (result.ok) {
+        setIsCreatePostOpen(false);
+        setStatusMessage(
+          "Post submitted for review — it'll appear in the feed once approved.",
+        );
+      } else {
+        setStatusMessage(result.message);
+      }
+    });
   };
 
   const handleToggleLike = (postId: string) => {
-    setLikedPostIds(toggleCommunityLike(postId));
+    const wasLiked = likedPostIds.includes(postId);
+    setLikedPostIds((current) =>
+      wasLiked ? current.filter((id) => id !== postId) : [...current, postId],
+    );
+    startTransition(async () => {
+      const result = await toggleCommunityLike(postId);
+      if (!result.ok) {
+        // Roll back on failure (e.g. signed out) so the UI never lies.
+        setLikedPostIds((current) =>
+          wasLiked ? [...current, postId] : current.filter((id) => id !== postId),
+        );
+        setStatusMessage(result.message);
+      }
+    });
   };
 
   const handleToggleSave = (postId: string) => {
-    setSavedPostIds(toggleCommunitySave(postId));
+    const wasSaved = savedPostIds.includes(postId);
+    setSavedPostIds((current) =>
+      wasSaved ? current.filter((id) => id !== postId) : [...current, postId],
+    );
+    startTransition(async () => {
+      const result = await toggleCommunitySave(postId);
+      if (!result.ok) {
+        setSavedPostIds((current) =>
+          wasSaved ? [...current, postId] : current.filter((id) => id !== postId),
+        );
+        setStatusMessage(result.message);
+      }
+    });
   };
 
   const handleReportPost = ({
@@ -116,9 +135,13 @@ export function CommunityFeed({
     reason: CommunityReportReason;
     note: string;
   }) => {
-    submitDemoCommunityReport({ postId, reason, note });
-    setReportPost(null);
-    setStatusMessage("Report submitted for review demo. Admin review is not live yet.");
+    startTransition(async () => {
+      const result = await submitCommunityReport({ postId, reason, note });
+      setReportPost(null);
+      setStatusMessage(
+        result.ok ? "Report submitted — our team will review it." : result.message,
+      );
+    });
   };
 
   const scrollToSignals = () => {
@@ -128,12 +151,21 @@ export function CommunityFeed({
     });
   };
 
+  const openCreatePost = () => {
+    if (!isSignedIn) {
+      setStatusMessage("Sign in to post to the community.");
+      return;
+    }
+    if (!canPost) {
+      setStatusMessage("Posting is invite-only right now. Ask an admin for access.");
+      return;
+    }
+    setIsCreatePostOpen(true);
+  };
+
   return (
     <div className="bg-[var(--skxnz-bg)] pb-14">
-      <CommunityHero
-        onCreatePost={() => setIsCreatePostOpen(true)}
-        onExploreSignals={scrollToSignals}
-      />
+      <CommunityHero onCreatePost={openCreatePost} onExploreSignals={scrollToSignals} />
       <TrendingSignals tags={tags} />
 
       <section className="mx-auto grid max-w-7xl gap-6 px-4 pb-10 sm:px-6 lg:grid-cols-[minmax(0,1fr)_22rem] lg:px-8">
@@ -151,11 +183,11 @@ export function CommunityFeed({
                   Community chat area
                 </p>
                 <h2 className="mt-2 text-xl font-semibold uppercase tracking-[-0.01em] text-[var(--skxnz-text-dark)]">
-                  Post access prepared for repeat buyers.
+                  Posting is invite-only during beta.
                 </h2>
                 <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--skxnz-text-muted)]">
-                  Main posting is planned for users with at least 2 completed SKXNZ
-                  orders. This MVP shows demo eligibility only.
+                  Everyone can browse, like, and save. Posting opens to more
+                  buyers as moderation scales.
                 </p>
               </div>
               <Badge>Community Beta</Badge>
@@ -207,16 +239,17 @@ export function CommunityFeed({
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div className="min-w-0">
                 <p className="text-[0.78rem] font-black uppercase tracking-[0.24em] text-[var(--skxnz-maroon)]">
-                  Community updates
+                  Community feed
                 </p>
                 <p className="mt-2 text-sm leading-6 text-[var(--skxnz-text-muted)]">
-                  Demo posts, local likes, saves, and report controls.
+                  Real posts, likes, saves, and reports.
                 </p>
               </div>
               <button
                 type="button"
-                onClick={() => setIsCreatePostOpen(true)}
-                className="inline-flex min-w-0 items-center justify-center rounded-full border border-[var(--skxnz-border)] bg-[var(--skxnz-maroon)] px-5 py-3 text-xs font-black uppercase tracking-[0.16em] text-[var(--skxnz-text-light)] transition hover:bg-[var(--skxnz-obsidian)]"
+                onClick={openCreatePost}
+                disabled={isPending}
+                className="inline-flex min-w-0 items-center justify-center rounded-full border border-[var(--skxnz-border)] bg-[var(--skxnz-maroon)] px-5 py-3 text-xs font-black uppercase tracking-[0.16em] text-[var(--skxnz-text-light)] transition hover:bg-[var(--skxnz-obsidian)] disabled:opacity-60"
               >
                 Create Post
               </button>
@@ -228,7 +261,7 @@ export function CommunityFeed({
                   <CommunityPostCard
                     key={post.id}
                     post={post}
-                    taggedProducts={getCommunityTaggedProducts(post.taggedProductIds)}
+                    taggedProducts={pickTaggedProducts(products, post.taggedProductIds)}
                     isLiked={likedPostIds.includes(post.id)}
                     isSaved={savedPostIds.includes(post.id)}
                     onToggleLike={handleToggleLike}
@@ -238,7 +271,7 @@ export function CommunityFeed({
                 ))}
               </div>
             ) : (
-              <CommunityEmptyState onCreatePost={() => setIsCreatePostOpen(true)} />
+              <CommunityEmptyState onCreatePost={openCreatePost} />
             )}
           </section>
 
@@ -247,9 +280,10 @@ export function CommunityFeed({
               Beta safety note
             </p>
             <p className="mt-3 text-sm leading-7 text-white/[0.76]">
-              Signal Community is in beta. Posts, reports, and moderation tools are
-              being prepared before public launch. Real public uploads, verified
-              creator claims, and admin review outcomes are not live yet.
+              Signal Community is in beta. Posting is invite-only, every post is
+              reviewed before it&apos;s public, and reports go to real moderation.
+              Photo upload isn&apos;t live yet — posts tag existing SKXNZ catalog
+              products.
             </p>
           </section>
         </div>
@@ -283,7 +317,7 @@ export function CommunityFeed({
               Tagged products
             </p>
             <p className="mt-2 text-sm leading-6 text-[var(--skxnz-text-muted)]">
-              Quick links from current demo posts into product pages.
+              Quick links from current posts into product pages.
             </p>
             <div className="mt-4">
               <TaggedProductsStrip products={taggedProductPreview.slice(0, 4)} compact />

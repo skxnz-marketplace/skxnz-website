@@ -28,8 +28,8 @@ export function CommunityHero({
             Signal Community
           </h1>
           <p className="mt-5 max-w-2xl text-sm leading-7 text-white/76 sm:text-base">
-            A private MVP space for SKXNZ style posts, product-tagged looks,
-            saved signals, and moderation-ready community testing.
+            SKXNZ style posts, product-tagged looks, and real moderation.
+            Posting is invite-only while the beta ramps up.
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
@@ -45,9 +45,9 @@ export function CommunityHero({
         <div className="grid min-w-0 gap-4 self-end sm:grid-cols-2">
           {[
             ["Tagged products", "SKXNZ catalog only"],
-            ["Local saves", "Stored locally for now"],
-            ["Reports", "Prepared for review demo"],
-            ["Moderation", "Required before public launch"],
+            ["Likes & saves", "Real, tied to your account"],
+            ["Reports", "Go to real admin review"],
+            ["Posting", "Invite-only during beta"],
           ].map(([label, value]) => (
             <div
               key={label}

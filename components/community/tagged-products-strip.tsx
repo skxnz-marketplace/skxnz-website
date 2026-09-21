@@ -17,7 +17,7 @@ export function TaggedProductsStrip({
   if (products.length === 0) {
     return (
       <p className="rounded-[18px] border border-[var(--skxnz-border)] bg-[var(--skxnz-bg-soft)] px-4 py-3 text-xs leading-5 text-[var(--skxnz-text-muted)]">
-        No tagged SKXNZ products in this demo post.
+        No tagged SKXNZ products on this post.
       </p>
     );
   }

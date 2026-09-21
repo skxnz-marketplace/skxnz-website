@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import type { Product } from "@/lib/data/products";
-import type { CommunityPostDraft, CommunityVisibility } from "@/lib/types/community";
+import type { CommunityPostDraft } from "@/lib/types/community";
 import { cn } from "@/lib/cn";
 
 type CreatePostModalProps = {
@@ -33,7 +33,6 @@ export function CreatePostModal({
   const [caption, setCaption] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>(["#WearTheSignal"]);
   const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
-  const [visibility, setVisibility] = useState<CommunityVisibility>("Private Draft");
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -76,12 +75,12 @@ export function CreatePostModal({
 
   const handleSubmit = () => {
     if (caption.trim().length < 12) {
-      setError("Add a short caption so the demo post has context.");
+      setError("Add a short caption so your post has context.");
       return;
     }
 
     if (selectedProductIds.length === 0) {
-      setError("Tag at least one SKXNZ product for this MVP post.");
+      setError("Tag at least one SKXNZ product.");
       return;
     }
 
@@ -89,12 +88,13 @@ export function CreatePostModal({
       caption,
       styleTags: selectedTags.length > 0 ? selectedTags : ["#WearTheSignal"],
       taggedProductIds: selectedProductIds,
-      visibility,
+      // Retained for CommunityPostDraft's shape; the server derives real
+      // moderation state itself and ignores this field.
+      visibility: "Public Beta",
     });
     setCaption("");
     setSelectedTags(["#WearTheSignal"]);
     setSelectedProductIds([]);
-    setVisibility("Private Draft");
     setError("");
   };
 
@@ -123,8 +123,8 @@ export function CreatePostModal({
               Create Post
             </h2>
             <p className="mt-2 max-w-xl text-sm leading-6 text-white/68">
-              Uploads are placeholder-only in MVP. This creates a local demo post
-              and does not publish publicly.
+              Photo upload isn&apos;t live yet — tag SKXNZ products instead. Your
+              post is reviewed before it appears in the feed.
             </p>
           </div>
           <button
@@ -148,7 +148,7 @@ export function CreatePostModal({
               className="rounded-[18px] border border-white/12 bg-white/[0.08] px-4 py-3 text-sm text-white/58"
             />
             <span className="text-xs leading-5 text-white/54">
-              Real uploads require auth, storage, moderation, and admin tools.
+              Real photo uploads are a planned follow-up.
             </span>
           </label>
 
@@ -217,25 +217,6 @@ export function CreatePostModal({
             </div>
           </div>
 
-          <label className="grid gap-2">
-            <span className="text-[0.8rem] font-black uppercase tracking-[0.2em] text-white/62">
-              Visibility
-            </span>
-            <select
-              value={visibility}
-              onChange={(event) =>
-                setVisibility(event.target.value as CommunityVisibility)
-              }
-              className="rounded-[18px] border border-white/12 bg-white/[0.08] px-4 py-3 text-sm text-white outline-none"
-            >
-              <option className="text-black">Private Draft</option>
-              <option className="text-black">Public Beta</option>
-            </select>
-            <span className="text-xs leading-5 text-white/54">
-              Visibility is a demo label only. Public community posting is not live.
-            </span>
-          </label>
-
           {error ? (
             <p className="rounded-[18px] border border-[rgba(217,70,239,0.28)] bg-[rgba(217,70,239,0.10)] px-4 py-3 text-sm text-white">
               {error}
@@ -247,7 +228,7 @@ export function CreatePostModal({
               Cancel
             </Button>
             <Button type="button" onClick={handleSubmit}>
-              Submit Demo Post
+              Submit for Review
             </Button>
           </div>
         </div>

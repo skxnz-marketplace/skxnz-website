@@ -16,7 +16,7 @@ export function StyleBoardPreview({ boards }: StyleBoardPreviewProps) {
           Featured Style Boards
         </p>
         <p className="mt-2 text-sm leading-6 text-[var(--skxnz-text-muted)]">
-          Demo boards prepared for future account and community saves.
+          Curated by the SKXNZ team.
         </p>
       </div>
 

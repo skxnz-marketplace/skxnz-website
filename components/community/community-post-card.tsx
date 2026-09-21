@@ -52,7 +52,7 @@ export function CommunityPostCard({
         <SafeImage
           src={post.image}
           fallbackSrc={skxnzFallbackAssets.product}
-          alt={`${post.username} Signal Community demo post`}
+          alt={`${post.username} Signal Community post`}
           fill
           sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
           className="object-cover object-center"
@@ -105,7 +105,7 @@ export function CommunityPostCard({
             {isSaved ? "Saved" : "Save"}
           </Button>
           <Button type="button" variant="ghost" size="sm" disabled>
-            Comment Demo
+            Comment
           </Button>
           <Button type="button" variant="ghost" size="sm" onClick={() => onReport(post)}>
             Report
@@ -113,8 +113,8 @@ export function CommunityPostCard({
         </div>
 
         <p className="text-[0.8rem] leading-5 text-[var(--skxnz-text-muted)]">
-          Share and comment actions are demo placeholders until community
-          moderation and account persistence are connected.
+          Comments and sharing are coming soon. Likes, saves, and reports are
+          real.
         </p>
       </div>
     </article>

@@ -39,7 +39,7 @@ export function TrendingSignals({ tags }: TrendingSignalsProps) {
             Trending Signals
           </p>
           <p className="mt-1 text-sm text-[var(--skxnz-text-muted)]">
-            Demo tags route to existing SKXNZ discovery pages.
+            Tags route to existing SKXNZ discovery pages.
           </p>
         </div>
       </div>

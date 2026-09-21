@@ -3,7 +3,8 @@ export type CommunityVisibility = "Public Beta" | "Private Draft";
 export type CommunityPostStatus =
   | "Demo Post"
   | "Beta Draft"
-  | "Pending Moderation";
+  | "Pending Moderation"
+  | "Published";
 
 export type CommunityPost = {
   id: string;

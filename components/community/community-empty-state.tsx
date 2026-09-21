@@ -14,12 +14,12 @@ export function CommunityEmptyState({ onCreatePost }: CommunityEmptyStateProps) 
         Start the beta board.
       </h2>
       <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-[var(--skxnz-text-muted)]">
-        Create a local demo post with tagged SKXNZ products. Public community
-        posting stays locked until moderation and account persistence are ready.
+        Once invited posters share their fits, they&apos;ll show up here after
+        review.
       </p>
       <div className="mt-6">
         <Button type="button" onClick={onCreatePost}>
-          Create Demo Post
+          Create Post
         </Button>
       </div>
     </div>

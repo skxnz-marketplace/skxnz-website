@@ -84,7 +84,14 @@ where contype = 'f'
 order by table_name, conname;
 
 -- =============================================================
--- 9. MANUAL RLS ISOLATION (run separately with two buyer sessions + one
+-- 9. author_display_name column present, not null, default set
+--    (EXPECT: 1 row, is_nullable = 'NO')
+select column_name, is_nullable, column_default
+from information_schema.columns
+where table_schema = 'public' and table_name = 'community_posts'
+  and column_name = 'author_display_name';
+
+-- 10. MANUAL RLS ISOLATION (run separately with two buyer sessions + one
 --    admin session):
 --    a) Buyer A (no grant) inserts into community_posts -> RLS with-check
 --       denies (is_community_poster() is false).

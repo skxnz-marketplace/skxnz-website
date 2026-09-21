@@ -63,7 +63,7 @@ export function ReportPostModal({
         <div className="flex min-w-0 items-start justify-between gap-4">
           <div className="min-w-0">
             <p className="text-[0.78rem] font-black uppercase tracking-[0.24em] text-[var(--skxnz-glint)]">
-              Report demo post
+              Report post
             </p>
             <h2
               id="report-signal-post-title"
@@ -72,7 +72,7 @@ export function ReportPostModal({
               Safety signal
             </h2>
             <p className="mt-2 text-sm leading-6 text-white/68">
-              Reports are stored locally for MVP testing. Admin review is not live yet.
+              Reports go to real admin moderation.
             </p>
           </div>
           <button
@@ -114,7 +114,7 @@ export function ReportPostModal({
               onChange={(event) => setNote(event.target.value)}
               maxLength={180}
               rows={4}
-              placeholder="Add context for the future moderation queue..."
+              placeholder="Add context for the moderation team..."
               className="min-h-28 rounded-[20px] border border-white/12 bg-white/[0.08] px-4 py-3 text-sm leading-6 text-white outline-none placeholder:text-white/38 focus:border-[rgba(34,211,238,0.45)]"
             />
           </label>
@@ -131,7 +131,7 @@ export function ReportPostModal({
                 setNote("");
               }}
             >
-              Submit Report Demo
+              Submit Report
             </Button>
           </div>
         </div>

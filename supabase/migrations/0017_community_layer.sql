@@ -4,12 +4,15 @@
 --         community_saves, community_reports, style_boards
 --
 -- APPLIED to the live `skxnz` Supabase project (hhsorrkvgvxxpwzrggei) on
--- 2026-09-21 via the Supabase MCP (apply_migration), across three
+-- 2026-09-21 via the Supabase MCP (apply_migration), across four
 -- statements folded into this one file: the base schema, a search_path
--- fix on community_posts_force_pending, and perf fixes (missing FK
--- indexes + wrapping auth.uid()/is_admin()/is_community_poster() in
--- `(select ...)` per Supabase's RLS performance guide, both flagged by
--- get_advisors after the base migration). Safe to re-run (idempotent) —
+-- fix on community_posts_force_pending, perf fixes (missing FK indexes +
+-- wrapping auth.uid()/is_admin()/is_community_poster() in `(select ...)`
+-- per Supabase's RLS performance guide, both flagged by get_advisors
+-- after the base migration), and community_posts.author_display_name
+-- (public.users RLS only lets a buyer read their OWN row, so a feed
+-- reader can never join another author's name at read time — it has to
+-- be snapshotted at write time instead). Safe to re-run (idempotent) —
 -- kept in supabase/migrations/ as the source of truth for any other
 -- environment.
 --
@@ -90,19 +93,27 @@ comment on function public.is_community_poster() is
 -- =============================================================
 
 create table if not exists public.community_posts (
-  id                  uuid        primary key default gen_random_uuid(),
-  user_id             uuid        not null references public.users(id) on delete cascade,
-  caption             text        not null default '',
-  style_tags          text[]      not null default '{}',
-  tagged_product_ids  uuid[]      not null default '{}',
-  status              text        not null default 'pending_moderation'
-                                   check (status in ('pending_moderation', 'published', 'hidden', 'removed')),
-  created_at          timestamptz not null default now(),
-  updated_at          timestamptz not null default now()
+  id                    uuid        primary key default gen_random_uuid(),
+  user_id               uuid        not null references public.users(id) on delete cascade,
+  -- Snapshot of the author's display name at post-creation time, set
+  -- server-side from their own public.users.name (never client-supplied).
+  -- public.users RLS only lets a buyer read their OWN row, so a feed
+  -- reader can never join another author's name at read time.
+  author_display_name  text        not null default 'SKXNZ member',
+  caption               text        not null default '',
+  style_tags            text[]      not null default '{}',
+  tagged_product_ids    uuid[]      not null default '{}',
+  status                text        not null default 'pending_moderation'
+                                     check (status in ('pending_moderation', 'published', 'hidden', 'removed')),
+  created_at            timestamptz not null default now(),
+  updated_at            timestamptz not null default now()
 );
 
 comment on table public.community_posts is
   'Signal Community fit/style posts. status is server-forced to pending_moderation on insert (see trigger below) — never trust the client on moderation state.';
+
+comment on column public.community_posts.author_display_name is
+  'Snapshot of the author''s display name at post-creation time, set server-side from their own public.users.name. Never joined from public.users at read time — RLS there only allows an owner to read their own row.';
 
 create index if not exists community_posts_user_id_idx on public.community_posts (user_id);
 create index if not exists community_posts_status_idx on public.community_posts (status);
