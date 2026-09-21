@@ -250,6 +250,51 @@ export async function getActiveProducts(): Promise<Product[]> {
   return data ?? [];
 }
 
+/** Homepage "Trending Now": admin-curated products (trending_sort_order,
+ * set via /admin/products — see 0018_catalogue_upload_and_placement.sql)
+ * first, in order, then newest-first ACTIVE products fill any remaining
+ * slots up to `limit`. Falls back to pure newest-first when nothing has
+ * been manually curated yet, matching the previous behaviour exactly. */
+export async function getTrendingProducts(limit: number): Promise<Product[]> {
+  const supabase = createPublicCatalogClient();
+
+  const { data: curated, error: curatedError } = await supabase
+    .from("products")
+    .select("*")
+    .eq("status", "ACTIVE")
+    .not("trending_sort_order", "is", null)
+    .order("trending_sort_order", { ascending: true })
+    .limit(limit);
+
+  if (curatedError && !isMissingTableError(curatedError)) {
+    console.warn("[catalog] getTrendingProducts curated read failed:", curatedError.message);
+  }
+
+  const curatedProducts = curated ?? [];
+  if (curatedProducts.length >= limit) {
+    return curatedProducts.slice(0, limit);
+  }
+
+  const excludeIds = curatedProducts.map((product) => product.id);
+  let fillQuery = supabase
+    .from("products")
+    .select("*")
+    .eq("status", "ACTIVE")
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (excludeIds.length > 0) {
+    fillQuery = fillQuery.not("id", "in", `(${excludeIds.join(",")})`);
+  }
+
+  const { data: fill, error: fillError } = await fillQuery;
+  if (fillError && !isMissingTableError(fillError)) {
+    console.warn("[catalog] getTrendingProducts fill read failed:", fillError.message);
+  }
+
+  return [...curatedProducts, ...(fill ?? [])].slice(0, limit);
+}
+
 export async function getActiveProductsWithRelations(): Promise<ProductWithRelations[]> {
   const supabase = await createClient();
   const { data: products, error } = await supabase

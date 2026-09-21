@@ -64,7 +64,9 @@ export default async function NewSellerProductPage() {
           sets the current seller as owner and forces the product status to
           PENDING_REVIEW. For this V1 QA flow, SKXNZ assigns the first active
           brand/category automatically when none is selected. Brand-specific
-          seller assignment will be added later.
+          seller assignment will be added later. Image URL below is optional —
+          after creating the product, use its &quot;Manage photos&quot; page to
+          upload real photos directly (up to 8, JPEG/PNG/WebP, 5MB each).
         </Card>
         {loadProblems.length > 0 && (
           <Card className="section-border rounded-[28px] border-sangria/30 bg-sangria/10 p-5">

@@ -177,6 +177,12 @@ function ReviewSection({
                     >
                       View Details
                     </Link>
+                    <Link
+                      href={`/admin/products/${product.id}`}
+                      className={buttonVariants({ variant: "ghost", size: "sm" })}
+                    >
+                      Photos & Placement
+                    </Link>
                   </div>
                 </td>
               </tr>

@@ -48,6 +48,10 @@ export type Product = {
   tags: string[];
   is_featured: boolean;
   is_limited: boolean;
+  /** Null = not manually curated into homepage Trending Now. Non-null =
+   * shown there, ordered ascending. Admin-only in practice — see
+   * products_enforce_admin_only_placement in 0018_catalogue_upload_and_placement.sql. */
+  trending_sort_order: number | null;
   created_at: string;
   updated_at: string;
 };
@@ -71,6 +75,9 @@ export type ProductImage = {
   url: string;
   alt: string | null;
   sort_order: number;
+  /** storage.objects path under the product-images bucket. Null for legacy
+   * rows created from a pasted URL — no owned storage object to clean up. */
+  storage_path: string | null;
   created_at: string;
 };
 

@@ -12,7 +12,7 @@ import { ShopSplit } from "@/components/home/shop-split";
 import { SignalCta } from "@/components/home/signal-cta";
 import { SignalRoomTeaser } from "@/components/home/signal-room-teaser";
 import { TrustBar } from "@/components/home/trust-bar";
-import { getActiveBrands, getActiveProducts } from "@/lib/catalog/queries";
+import { getActiveBrands, getTrendingProducts } from "@/lib/catalog/queries";
 import { mapProductToHomeProduct } from "@/lib/catalog/mappers";
 import { getProductHref } from "@/lib/catalog/product-links";
 import {
@@ -42,15 +42,16 @@ function mapCatalogueToHomeProduct(product: CatalogueProduct): HomeProduct {
 }
 
 export default async function HomePage() {
-  const [liveBrands, liveProducts] = await Promise.all([
+  const [liveBrands, trendingProducts] = await Promise.all([
     getActiveBrands(),
-    getActiveProducts(),
+    getTrendingProducts(TRENDING_COUNT),
   ]);
 
   const brandNameById = new Map(liveBrands.map((brand) => [brand.id, brand.name]));
 
-  // liveProducts is already ordered by created_at desc (latest first).
-  const latestHomeProducts: HomeProduct[] = liveProducts.map((product) =>
+  // Admin-curated (products.trending_sort_order) first, newest-first fills
+  // any remaining slots — see lib/catalog/queries.ts#getTrendingProducts.
+  const liveTrendingSection: HomeProduct[] = trendingProducts.map((product) =>
     mapProductToHomeProduct(product, brandNameById),
   );
 
@@ -58,8 +59,8 @@ export default async function HomePage() {
   const catalogueHomeProducts = approvedCatalogue.map(mapCatalogueToHomeProduct);
 
   const trendingSection =
-    latestHomeProducts.length >= TRENDING_COUNT
-      ? latestHomeProducts.slice(0, TRENDING_COUNT)
+    liveTrendingSection.length >= TRENDING_COUNT
+      ? liveTrendingSection
       : catalogueHomeProducts.slice(0, TRENDING_COUNT);
 
   return (

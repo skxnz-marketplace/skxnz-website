@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 
 import { useMarketplace } from "@/components/marketplace/marketplace-provider";
 import { Badge } from "@/components/ui/badge";
@@ -165,9 +166,16 @@ export function SellerProductTable({ liveProducts }: SellerProductTableProps) {
                   </td>
                   <td className="px-5 py-4">
                     {product.isLive ? (
-                      <span className="text-xs font-bold uppercase tracking-[0.12em] text-stone">
-                        Read-only
-                      </span>
+                      <Link
+                        href={`/seller/products/${product.id}`}
+                        className={buttonVariants({
+                          variant: "secondary",
+                          size: "sm",
+                          className: "text-[0.6rem]",
+                        })}
+                      >
+                        Manage photos
+                      </Link>
                     ) : (
                       <div className="flex gap-2">
                         <button
