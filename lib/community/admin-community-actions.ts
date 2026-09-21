@@ -163,3 +163,122 @@ export async function adminResolveCommunityReport(input: {
   revalidatePath("/community");
   return { ok: true };
 }
+
+const SLUG_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+const MAX_STYLE_BOARD_TAGS = 8;
+const MAX_STYLE_BOARD_PRODUCTS = 12;
+
+export type StyleBoardInput = {
+  slug: string;
+  title: string;
+  description: string;
+  imageUrl: string;
+  tags: string[];
+  productIds: string[];
+};
+
+function validateStyleBoardInput(input: StyleBoardInput): { message: string } | null {
+  const slug = input.slug.trim();
+  if (!SLUG_RE.test(slug) || slug.length > 80) {
+    return { message: "Slug must be lowercase letters, numbers, and hyphens only." };
+  }
+  if (!input.title.trim() || input.title.trim().length > 120) {
+    return { message: "Title is required (max 120 characters)." };
+  }
+  if (input.description.length > 400) {
+    return { message: "Description must be 400 characters or fewer." };
+  }
+  if (input.imageUrl && !/^https?:\/\//.test(input.imageUrl.trim())) {
+    return { message: "Image URL must start with http:// or https://." };
+  }
+  return null;
+}
+
+export async function adminCreateStyleBoard(input: StyleBoardInput): Promise<AdminActionResult> {
+  const validationError = validateStyleBoardInput(input);
+  if (validationError) return { ok: false, code: "VALIDATION_FAILED", message: validationError.message };
+
+  const { supabase, user, forbidden } = await requireAdmin();
+  if (!user) return { ok: false, code: "UNAUTHENTICATED", message: "Please sign in." };
+  if (forbidden) return { ok: false, code: "FORBIDDEN", message: "Only administrators can create style boards." };
+
+  const limit = await guardServerAction("community.admin", { userId: user.id });
+  if (!limit.ok) return limit.error;
+
+  const { error } = await supabase.from("style_boards").insert({
+    slug: input.slug.trim(),
+    title: input.title.trim(),
+    description: input.description.trim() || null,
+    image_url: input.imageUrl.trim() || null,
+    tags: [...new Set(input.tags.map((tag) => tag.trim()).filter(Boolean))].slice(0, MAX_STYLE_BOARD_TAGS),
+    product_ids: [...new Set(input.productIds)].filter(isUuidShape).slice(0, MAX_STYLE_BOARD_PRODUCTS),
+    created_by: user.id,
+  });
+
+  if (error) {
+    if (isMissingTableError(error)) return notWired();
+    if (error.code === "23505") {
+      return { ok: false, code: "VALIDATION_FAILED", message: "That slug is already in use." };
+    }
+    console.warn("[community] create style board failed:", error.message);
+    return dbError();
+  }
+
+  revalidatePath("/admin/community");
+  revalidatePath("/community");
+  return { ok: true };
+}
+
+export async function adminSetStyleBoardPublished(
+  boardId: string,
+  isPublished: boolean,
+): Promise<AdminActionResult> {
+  if (!isUuidShape(boardId)) {
+    return { ok: false, code: "VALIDATION_FAILED", message: "Invalid style board." };
+  }
+
+  const { supabase, user, forbidden } = await requireAdmin();
+  if (!user) return { ok: false, code: "UNAUTHENTICATED", message: "Please sign in." };
+  if (forbidden) return { ok: false, code: "FORBIDDEN", message: "Only administrators can publish style boards." };
+
+  const limit = await guardServerAction("community.admin", { userId: user.id });
+  if (!limit.ok) return limit.error;
+
+  const { error } = await supabase
+    .from("style_boards")
+    .update({ is_published: isPublished })
+    .eq("id", boardId);
+
+  if (error) {
+    if (isMissingTableError(error)) return notWired();
+    return dbError();
+  }
+
+  revalidatePath("/admin/community");
+  revalidatePath("/community");
+  return { ok: true };
+}
+
+export async function adminDeleteStyleBoard(boardId: string): Promise<AdminActionResult> {
+  if (!isUuidShape(boardId)) {
+    return { ok: false, code: "VALIDATION_FAILED", message: "Invalid style board." };
+  }
+
+  const { supabase, user, forbidden } = await requireAdmin();
+  if (!user) return { ok: false, code: "UNAUTHENTICATED", message: "Please sign in." };
+  if (forbidden) return { ok: false, code: "FORBIDDEN", message: "Only administrators can delete style boards." };
+
+  const limit = await guardServerAction("community.admin", { userId: user.id });
+  if (!limit.ok) return limit.error;
+
+  const { error } = await supabase.from("style_boards").delete().eq("id", boardId);
+
+  if (error) {
+    if (isMissingTableError(error)) return notWired();
+    return dbError();
+  }
+
+  revalidatePath("/admin/community");
+  revalidatePath("/community");
+  return { ok: true };
+}

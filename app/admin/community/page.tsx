@@ -2,16 +2,24 @@ import Link from "next/link";
 
 import { CommunityModerationTable } from "@/components/admin/community-moderation-table";
 import { CommunityPosterGrantsPanel } from "@/components/admin/community-poster-grants-panel";
+import { CommunityStyleBoardsPanel } from "@/components/admin/community-style-boards-panel";
 import { DemoRoleGate } from "@/components/auth/demo-role-gate";
 import { DashboardShell } from "@/components/shared/dashboard-shell";
 import { buttonVariants } from "@/components/ui/button";
 import { adminSidebarLinks } from "@/lib/data/site-content";
-import { getCommunityPosterGrants, getCommunityReportsForModeration } from "@/lib/community/admin-read-community";
+import {
+  getAllStyleBoardsForAdmin,
+  getCommunityPosterGrants,
+  getCommunityReportsForModeration,
+} from "@/lib/community/admin-read-community";
+import { getCommunityCatalogProducts } from "@/lib/community/read-community";
 
 export default async function AdminCommunityPage() {
-  const [reportsResult, grants] = await Promise.all([
+  const [reportsResult, grants, styleBoards, products] = await Promise.all([
     getCommunityReportsForModeration(),
     getCommunityPosterGrants(),
+    getAllStyleBoardsForAdmin(),
+    getCommunityCatalogProducts(),
   ]);
 
   return (
@@ -53,6 +61,7 @@ export default async function AdminCommunityPage() {
           ) : (
             <>
               <CommunityPosterGrantsPanel grants={grants} />
+              <CommunityStyleBoardsPanel boards={styleBoards} products={products} />
               <CommunityModerationTable reports={reportsResult.reports} />
             </>
           )}

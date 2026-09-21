@@ -107,3 +107,45 @@ export async function getCommunityPosterGrants(): Promise<CommunityPosterGrant[]
     grantedAt: row.granted_at,
   }));
 }
+
+export type AdminStyleBoard = {
+  id: string;
+  slug: string;
+  title: string;
+  description: string;
+  imageUrl: string;
+  tags: string[];
+  productIds: string[];
+  isPublished: boolean;
+  createdAt: string;
+};
+
+/** All style boards (published or not) — RLS's "style_boards: admin can
+ * select all" is the gate; a non-admin caller gets only published rows. */
+export async function getAllStyleBoardsForAdmin(): Promise<AdminStyleBoard[]> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("style_boards")
+    .select("id, slug, title, description, image_url, tags, product_ids, is_published, created_at")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    if (!isMissingTableError(error)) {
+      console.warn("[community] admin style boards read failed:", error.message);
+    }
+    return [];
+  }
+
+  return data.map((row) => ({
+    id: row.id,
+    slug: row.slug,
+    title: row.title,
+    description: row.description ?? "",
+    imageUrl: row.image_url ?? "",
+    tags: row.tags ?? [],
+    productIds: row.product_ids ?? [],
+    isPublished: row.is_published,
+    createdAt: row.created_at,
+  }));
+}
