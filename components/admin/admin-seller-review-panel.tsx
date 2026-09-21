@@ -71,8 +71,6 @@ export function AdminSellerReviewPanel() {
       <EmptyState
         title="No seller applications yet."
         description="Seller applications will appear here once the local MVP onboarding form is submitted."
-        actionHref="/sell"
-        actionLabel="Open Seller Application"
       />
     );
   }

@@ -27,7 +27,6 @@ Canonical domain: ${baseUrl}
 ## Company
 - [About](${url("/about")}): What SKXNZ is and who runs it.
 - [Contact](${url("/contact")}): How to reach SKXNZ.
-- [Sell on SKXNZ](${url("/sell")}): Seller application.
 
 ## Policies
 - [Returns](${url("/returns")})

@@ -24,12 +24,6 @@ export default function SellerLoginPage() {
               >
                 Open Demo Login
               </Link>
-              <Link
-                href="/sell"
-                className={buttonVariants({ variant: "ghost", size: "lg" })}
-              >
-                Back to Apply
-              </Link>
             </>
           }
           footer={

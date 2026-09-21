@@ -8,7 +8,6 @@ import { HeroScrollVideo } from "@/components/home/hero-scroll-video";
 import { LuxuryFinds } from "@/components/home/luxury-finds";
 import { MosaicSection } from "@/components/home/mosaic-section";
 import { ProductRow } from "@/components/home/product-row";
-import { SellerInviteBanner } from "@/components/home/seller-invite-banner";
 import { ShopSplit } from "@/components/home/shop-split";
 import { SignalCta } from "@/components/home/signal-cta";
 import { SignalRoomTeaser } from "@/components/home/signal-room-teaser";
@@ -87,7 +86,6 @@ export default async function HomePage() {
       <AuthenticityShowcase />
       <AiSignalPanel />
       <SignalRoomTeaser />
-      <SellerInviteBanner />
       <SignalCta />
     </div>
   );

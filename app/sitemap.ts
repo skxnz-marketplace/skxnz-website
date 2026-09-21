@@ -8,6 +8,8 @@ import { getActiveBrandsDetail, getActiveProducts } from "@/lib/catalog/queries"
 // - Cart/checkout/account/orders/login/etc: session-specific or
 //   transactional (see app/robots.ts for the matching disallow list).
 // - /search: a pure redirect to /shop?q=..., never itself a content page.
+// - /sell: seller recruitment is not part of the public/buyer site — the
+//   route itself 404s (see app/sell/page.tsx).
 // - /authenticity, /community-guidelines, /privacy, /seller-terms,
 //   /shipping, /terms: draft legal/policy copy pending review, marked
 //   `robots: { index: false }` on the page itself — kept out of the
@@ -23,7 +25,6 @@ const staticPaths = [
   "/cookies",
   "/faq",
   "/returns",
-  "/sell",
   "/shop",
   "/support",
   "/waitlist",

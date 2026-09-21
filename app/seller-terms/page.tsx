@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 
 import { LegalPageShell } from "@/components/legal/legal-page-shell";
 import { PolicyNotice } from "@/components/legal/policy-notice";
 import { PolicySection } from "@/components/legal/policy-section";
-import { buttonVariants } from "@/components/ui/button";
 
 // Draft seller terms pending legal review — see page body.
 export const metadata: Metadata = {
@@ -56,10 +54,6 @@ export default function SellerTermsPage() {
         foundations. They do not publish live products to buyers unless a later phase
         explicitly connects review and publishing logic.
       </PolicyNotice>
-
-      <Link href="/sell" className={buttonVariants({ variant: "secondary", size: "lg" })}>
-        Apply to Sell
-      </Link>
     </LegalPageShell>
   );
 }

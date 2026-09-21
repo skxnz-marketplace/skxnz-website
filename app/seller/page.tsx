@@ -26,12 +26,6 @@ export default function SellerDashboardPage() {
           >
             Product Workspace
           </Link>
-          <Link
-            href="/sell"
-            className={buttonVariants({ variant: "ghost", size: "lg" })}
-          >
-            Seller Application
-          </Link>
         </>
       }
     >

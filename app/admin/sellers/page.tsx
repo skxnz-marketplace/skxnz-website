@@ -25,12 +25,6 @@ export default function AdminSellersPage() {
             >
               Dashboard
             </Link>
-            <Link
-              href="/sell"
-              className={buttonVariants({ variant: "ghost", size: "lg" })}
-            >
-              Seller Apply Page
-            </Link>
           </>
         }
         sidebarTitle="Admin Workspace"

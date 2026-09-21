@@ -26,6 +26,4 @@ export const siteConfig = {
   supportEmail: "support@skxnz.com",
   sellerEmail: "sellers@skxnz.com",
   waitlistUrl: process.env.NEXT_PUBLIC_WAITLIST_URL || "/waitlist",
-  sellerApplicationUrl:
-    process.env.NEXT_PUBLIC_SELLER_APPLICATION_URL || "/sell",
 };

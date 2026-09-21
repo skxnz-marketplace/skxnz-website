@@ -25,12 +25,6 @@ export default async function SellerDashboardPage() {
           >
             Products
           </Link>
-          <Link
-            href="/sell"
-            className={buttonVariants({ variant: "secondary", size: "lg" })}
-          >
-            Seller Application
-          </Link>
         </>
       }
     >
