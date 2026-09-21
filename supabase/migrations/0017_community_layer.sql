@@ -2,10 +2,16 @@
 -- SKXNZ — Slice 17: SKXNZ Community (Signal Community) layer
 -- Tables: community_poster_grants, community_posts, community_likes,
 --         community_saves, community_reports, style_boards
--- Run this in the Supabase SQL Editor (Project -> SQL Editor -> New query).
--- Do NOT run via CLI or ORM. Do NOT modify .env.local.
 --
--- DRAFT — NOT YET APPLIED. Safe to re-run (idempotent).
+-- APPLIED to the live `skxnz` Supabase project (hhsorrkvgvxxpwzrggei) on
+-- 2026-09-21 via the Supabase MCP (apply_migration), across three
+-- statements folded into this one file: the base schema, a search_path
+-- fix on community_posts_force_pending, and perf fixes (missing FK
+-- indexes + wrapping auth.uid()/is_admin()/is_community_poster() in
+-- `(select ...)` per Supabase's RLS performance guide, both flagged by
+-- get_advisors after the base migration). Safe to re-run (idempotent) —
+-- kept in supabase/migrations/ as the source of truth for any other
+-- environment.
 --
 -- Scope for v1 (founder-confirmed):
 --   - Posting is invite-only: an admin grants posting rights per user via
@@ -32,7 +38,7 @@
 --    "owner can update" RLS policy with no column-level restriction, so a
 --    flag living there could be self-granted by any buyer through a normal
 --    profile update. A dedicated table with NO owner-write policy at all
---    (admin-only insert/delete, see section 6) closes that off entirely.
+--    (admin-only insert/delete, see section 8) closes that off entirely.
 --    Existence of a row = that user may post. No status/boolean column
 --    needed; revoke = delete the row.
 -- =============================================================
@@ -45,6 +51,8 @@ create table if not exists public.community_poster_grants (
 
 comment on table public.community_poster_grants is
   'Invite-only Signal Community posting rights. Row exists = user may create posts. Admin-only write (see RLS); a user may only read whether THEY have a grant.';
+
+create index if not exists community_poster_grants_granted_by_idx on public.community_poster_grants (granted_by);
 
 
 -- =============================================================
@@ -102,9 +110,12 @@ create index if not exists community_posts_status_idx on public.community_posts 
 -- Force every new post to pending_moderation regardless of what the client
 -- sends. Defense in depth alongside the RLS insert policy — matches the
 -- server-authoritative principle CLAUDE.md already requires for payments.
+-- search_path pinned (same reason as public.is_admin() in 0003): prevents
+-- search-path hijacking of the unqualified `new` reference.
 create or replace function public.community_posts_force_pending()
 returns trigger
 language plpgsql
+set search_path = public
 as $$
 begin
   new.status = 'pending_moderation';
@@ -148,7 +159,9 @@ create table if not exists public.community_saves (
 );
 
 create index if not exists community_likes_post_id_idx on public.community_likes (post_id);
+create index if not exists community_likes_user_id_idx on public.community_likes (user_id);
 create index if not exists community_saves_post_id_idx on public.community_saves (post_id);
+create index if not exists community_saves_user_id_idx on public.community_saves (user_id);
 
 
 -- =============================================================
@@ -183,6 +196,8 @@ comment on table public.community_reports is
 
 create index if not exists community_reports_post_id_idx on public.community_reports (post_id);
 create index if not exists community_reports_status_idx on public.community_reports (status);
+create index if not exists community_reports_reporter_id_idx on public.community_reports (reporter_id);
+create index if not exists community_reports_reviewed_by_idx on public.community_reports (reviewed_by);
 
 
 -- =============================================================
@@ -207,6 +222,8 @@ create table if not exists public.style_boards (
 
 comment on table public.style_boards is
   'Admin-curated Signal Community style boards. Publicly readable only when is_published = true.';
+
+create index if not exists style_boards_created_by_idx on public.style_boards (created_by);
 
 drop trigger if exists style_boards_set_updated_at on public.style_boards;
 create trigger style_boards_set_updated_at
@@ -247,6 +264,11 @@ grant insert, update, delete on public.style_boards to authenticated;
 
 -- =============================================================
 -- 8. ROW LEVEL SECURITY
+--    auth.uid() / public.is_admin() / public.is_community_poster() are all
+--    wrapped in `(select ...)` in every policy below. Supabase's planner
+--    then evaluates them once per query (a stable initplan) instead of
+--    once per row — same result, flagged by get_advisors otherwise.
+--    https://supabase.com/docs/guides/database/postgres/row-level-security#call-functions-with-select
 -- =============================================================
 
 alter table public.community_poster_grants enable row level security;
@@ -263,13 +285,13 @@ drop policy if exists "community_poster_grants: owner can select" on public.comm
 create policy "community_poster_grants: owner can select"
   on public.community_poster_grants
   for select
-  using (auth.uid() = user_id);
+  using ((select auth.uid()) = user_id);
 
 drop policy if exists "community_poster_grants: admin can select all" on public.community_poster_grants;
 create policy "community_poster_grants: admin can select all"
   on public.community_poster_grants
   for select
-  using (public.is_admin());
+  using ((select public.is_admin()));
 
 -- Only admin can grant or revoke posting rights. No owner-insert policy
 -- exists at all, so a buyer can never self-grant.
@@ -277,13 +299,13 @@ drop policy if exists "community_poster_grants: admin can insert" on public.comm
 create policy "community_poster_grants: admin can insert"
   on public.community_poster_grants
   for insert
-  with check (public.is_admin());
+  with check ((select public.is_admin()));
 
 drop policy if exists "community_poster_grants: admin can delete" on public.community_poster_grants;
 create policy "community_poster_grants: admin can delete"
   on public.community_poster_grants
   for delete
-  using (public.is_admin());
+  using ((select public.is_admin()));
 
 
 -- ── public.community_posts policies ──────────────────────────
@@ -299,13 +321,13 @@ drop policy if exists "community_posts: owner can select own" on public.communit
 create policy "community_posts: owner can select own"
   on public.community_posts
   for select
-  using (auth.uid() = user_id);
+  using ((select auth.uid()) = user_id);
 
 drop policy if exists "community_posts: admin can select all" on public.community_posts;
 create policy "community_posts: admin can select all"
   on public.community_posts
   for select
-  using (public.is_admin());
+  using ((select public.is_admin()));
 
 -- Only an invited poster may create a post, and only for themselves.
 -- (status is additionally force-set by the trigger above — belt and braces.)
@@ -313,7 +335,7 @@ drop policy if exists "community_posts: eligible poster can insert" on public.co
 create policy "community_posts: eligible poster can insert"
   on public.community_posts
   for insert
-  with check (auth.uid() = user_id and public.is_community_poster());
+  with check ((select auth.uid()) = user_id and (select public.is_community_poster()));
 
 -- Only admin may change a post's moderation status (publish/hide).
 -- No owner-update policy in v1 — an author retracts by deleting, not editing.
@@ -321,20 +343,20 @@ drop policy if exists "community_posts: admin can update" on public.community_po
 create policy "community_posts: admin can update"
   on public.community_posts
   for update
-  using (public.is_admin());
+  using ((select public.is_admin()));
 
 -- An author can delete (retract) their own post at any moderation stage.
 drop policy if exists "community_posts: owner can delete" on public.community_posts;
 create policy "community_posts: owner can delete"
   on public.community_posts
   for delete
-  using (auth.uid() = user_id);
+  using ((select auth.uid()) = user_id);
 
 drop policy if exists "community_posts: admin can delete" on public.community_posts;
 create policy "community_posts: admin can delete"
   on public.community_posts
   for delete
-  using (public.is_admin());
+  using ((select public.is_admin()));
 
 
 -- ── public.community_likes / community_saves policies ────────
@@ -345,14 +367,14 @@ drop policy if exists "community_likes: owner can select" on public.community_li
 create policy "community_likes: owner can select"
   on public.community_likes
   for select
-  using (auth.uid() = user_id);
+  using ((select auth.uid()) = user_id);
 
 drop policy if exists "community_likes: owner can insert" on public.community_likes;
 create policy "community_likes: owner can insert"
   on public.community_likes
   for insert
   with check (
-    auth.uid() = user_id
+    (select auth.uid()) = user_id
     and exists (
       select 1 from public.community_posts p
       where p.id = post_id and p.status = 'published'
@@ -363,20 +385,20 @@ drop policy if exists "community_likes: owner can delete" on public.community_li
 create policy "community_likes: owner can delete"
   on public.community_likes
   for delete
-  using (auth.uid() = user_id);
+  using ((select auth.uid()) = user_id);
 
 drop policy if exists "community_saves: owner can select" on public.community_saves;
 create policy "community_saves: owner can select"
   on public.community_saves
   for select
-  using (auth.uid() = user_id);
+  using ((select auth.uid()) = user_id);
 
 drop policy if exists "community_saves: owner can insert" on public.community_saves;
 create policy "community_saves: owner can insert"
   on public.community_saves
   for insert
   with check (
-    auth.uid() = user_id
+    (select auth.uid()) = user_id
     and exists (
       select 1 from public.community_posts p
       where p.id = post_id and p.status = 'published'
@@ -387,7 +409,7 @@ drop policy if exists "community_saves: owner can delete" on public.community_sa
 create policy "community_saves: owner can delete"
   on public.community_saves
   for delete
-  using (auth.uid() = user_id);
+  using ((select auth.uid()) = user_id);
 
 
 -- ── public.community_reports policies ─────────────────────────
@@ -397,27 +419,27 @@ drop policy if exists "community_reports: reporter can select own" on public.com
 create policy "community_reports: reporter can select own"
   on public.community_reports
   for select
-  using (auth.uid() = reporter_id);
+  using ((select auth.uid()) = reporter_id);
 
 drop policy if exists "community_reports: admin can select all" on public.community_reports;
 create policy "community_reports: admin can select all"
   on public.community_reports
   for select
-  using (public.is_admin());
+  using ((select public.is_admin()));
 
 -- Any signed-in user can report any post that exists, as themselves only.
 drop policy if exists "community_reports: reporter can insert" on public.community_reports;
 create policy "community_reports: reporter can insert"
   on public.community_reports
   for insert
-  with check (auth.uid() = reporter_id);
+  with check ((select auth.uid()) = reporter_id);
 
 -- Only admin resolves reports (Dismiss / Hide / Delete in the admin UI).
 drop policy if exists "community_reports: admin can update" on public.community_reports;
 create policy "community_reports: admin can update"
   on public.community_reports
   for update
-  using (public.is_admin());
+  using ((select public.is_admin()));
 
 
 -- ── public.style_boards policies ──────────────────────────────
@@ -432,26 +454,26 @@ drop policy if exists "style_boards: admin can select all" on public.style_board
 create policy "style_boards: admin can select all"
   on public.style_boards
   for select
-  using (public.is_admin());
+  using ((select public.is_admin()));
 
 -- Only admin authors style boards.
 drop policy if exists "style_boards: admin can insert" on public.style_boards;
 create policy "style_boards: admin can insert"
   on public.style_boards
   for insert
-  with check (public.is_admin());
+  with check ((select public.is_admin()));
 
 drop policy if exists "style_boards: admin can update" on public.style_boards;
 create policy "style_boards: admin can update"
   on public.style_boards
   for update
-  using (public.is_admin());
+  using ((select public.is_admin()));
 
 drop policy if exists "style_boards: admin can delete" on public.style_boards;
 create policy "style_boards: admin can delete"
   on public.style_boards
   for delete
-  using (public.is_admin());
+  using ((select public.is_admin()));
 
 -- =============================================================
 -- Intentionally NOT added this slice:
@@ -462,4 +484,13 @@ create policy "style_boards: admin can delete"
 --     without a schema change).
 --   - Any like/save COUNT column — the current UI never shows one.
 --   - Any service_role logic, any broad/default grants left in place.
+--
+-- Accepted (pre-existing repo pattern, not fixed here):
+--   - get_advisors flags "multiple permissive policies" on several of
+--     these tables (e.g. community_posts has both an "owner can select
+--     own" and an "admin can select all" policy for the same SELECT
+--     action). This is the same shape public.saved_items (0007) already
+--     uses throughout the schema — separate, readable, independently
+--     auditable policies rather than one large OR'd condition. Left as-is
+--     for consistency; revisit only if it becomes a measured bottleneck.
 -- =============================================================
