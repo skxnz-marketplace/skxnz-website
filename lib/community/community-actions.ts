@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { z } from "zod";
 
 import { createClient } from "@/lib/supabase/server";
 import { guardServerAction } from "@/lib/security/rate-limit/rate-limit";
@@ -13,6 +14,31 @@ const MAX_STYLE_TAGS = 8;
 const MAX_TAGGED_PRODUCTS = 4;
 const MAX_REPORT_NOTE_LENGTH = 500;
 
+// Runtime shape validation at the server-action boundary. Server Actions are
+// callable network endpoints (a POST to an action id) — the TypeScript param
+// type is compile-time only and enforces nothing against a raw/adversarial
+// payload. Matches CLAUDE.md's "Validate all input (zod)" hard rule.
+const REPORT_REASONS = [
+  "Spam",
+  "Inappropriate content",
+  "Fake product claim",
+  "Harassment",
+  "Copyright concern",
+  "Other",
+] as const satisfies readonly CommunityReportReason[];
+
+const createPostSchema = z.object({
+  caption: z.string(),
+  styleTags: z.array(z.string()).max(64), // generous pre-filter cap; MAX_STYLE_TAGS trims after
+  taggedProductIds: z.array(z.string()).max(64),
+});
+
+const submitReportSchema = z.object({
+  postId: z.string(),
+  reason: z.enum(REPORT_REASONS),
+  note: z.string(),
+});
+
 type ActionResult =
   | { ok: true }
   | {
@@ -20,6 +46,10 @@ type ActionResult =
       code: "UNAUTHENTICATED" | "NOT_ELIGIBLE" | "VALIDATION_FAILED" | "RATE_LIMITED" | "NOT_WIRED" | "DB_ERROR";
       message: string;
     };
+
+function schemaError(): ActionResult {
+  return { ok: false, code: "VALIDATION_FAILED", message: "That request wasn't in the right shape." };
+}
 
 function isMissingTableError(error: { code?: string; message?: string } | null) {
   if (!error) return false;
@@ -50,7 +80,10 @@ async function requireUser() {
 }
 
 export async function createCommunityPost(draft: CommunityPostDraft): Promise<ActionResult> {
-  const caption = draft.caption.trim();
+  const parsed = createPostSchema.safeParse(draft);
+  if (!parsed.success) return schemaError();
+
+  const caption = parsed.data.caption.trim();
   if (caption.length < MIN_CAPTION_LENGTH || caption.length > MAX_CAPTION_LENGTH) {
     return {
       ok: false,
@@ -59,12 +92,12 @@ export async function createCommunityPost(draft: CommunityPostDraft): Promise<Ac
     };
   }
 
-  const taggedProductIds = [...new Set(draft.taggedProductIds)].filter(isUuidShape).slice(0, MAX_TAGGED_PRODUCTS);
+  const taggedProductIds = [...new Set(parsed.data.taggedProductIds)].filter(isUuidShape).slice(0, MAX_TAGGED_PRODUCTS);
   if (taggedProductIds.length === 0) {
     return { ok: false, code: "VALIDATION_FAILED", message: "Tag at least one SKXNZ product." };
   }
 
-  const styleTags = [...new Set(draft.styleTags)]
+  const styleTags = [...new Set(parsed.data.styleTags)]
     .map((tag) => tag.trim())
     .filter((tag) => tag.length > 0 && tag.length <= 40)
     .slice(0, MAX_STYLE_TAGS);
@@ -182,11 +215,13 @@ export async function submitCommunityReport(input: {
   reason: CommunityReportReason;
   note: string;
 }): Promise<ActionResult> {
-  if (!isUuidShape(input.postId)) {
+  const parsed = submitReportSchema.safeParse(input);
+  if (!parsed.success) return schemaError();
+  if (!isUuidShape(parsed.data.postId)) {
     return { ok: false, code: "VALIDATION_FAILED", message: "Invalid post." };
   }
 
-  const note = input.note.trim().slice(0, MAX_REPORT_NOTE_LENGTH);
+  const note = parsed.data.note.trim().slice(0, MAX_REPORT_NOTE_LENGTH);
 
   const { supabase, user } = await requireUser();
   if (!user) {
@@ -197,9 +232,9 @@ export async function submitCommunityReport(input: {
   if (!limit.ok) return limit.error;
 
   const { error } = await supabase.from("community_reports").insert({
-    post_id: input.postId,
+    post_id: parsed.data.postId,
     reporter_id: user.id,
-    reason: input.reason,
+    reason: parsed.data.reason,
     note,
   });
 
