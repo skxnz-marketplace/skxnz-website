@@ -5,6 +5,7 @@ import "@fontsource/syne/500.css";
 import "@fontsource/syne/600.css";
 import "@fontsource/syne/700.css";
 
+import { Analytics } from "@vercel/analytics/next";
 import { ConsentManager } from "@/components/consent/consent-manager";
 import { DemoRoleProvider } from "@/components/auth/demo-role-provider";
 import { MarketplaceProvider } from "@/components/marketplace/marketplace-provider";
@@ -73,6 +74,7 @@ export default function RootLayout({
           </MarketplaceProvider>
         </DemoRoleProvider>
         <ConsentManager />
+        <Analytics />
       </body>
     </html>
   );
