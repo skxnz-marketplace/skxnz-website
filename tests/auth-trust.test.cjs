@@ -279,6 +279,22 @@ test("canRun: corrupt consent denies optional (fail safe)", () => {
   assert.equal(canRun("{garbage", "analytics"), false);
 });
 
-test("no optional integrations are installed (truthful scaffold)", () => {
-  assert.equal(hasInstalledOptionalIntegrations(), false);
+test("Google Analytics is registered as optional", () => {
+  assert.equal(hasInstalledOptionalIntegrations(), true);
+});
+
+test("GA4 requires consent and a production host", () => {
+  const { canTrackPage } = require("@/lib/consent/google-analytics");
+  assert.equal(canTrackPage("skxnz.com", true), true);
+  assert.equal(canTrackPage("www.skxnz.com", true), true);
+  assert.equal(canTrackPage("skxnz.com", false), false);
+  for (const host of ["localhost", "preview.vercel.app", "skxnz.com.evil.test"]) assert.equal(canTrackPage(host, true), false);
+});
+test("GA4 initializes once without a duplicate manual page view", () => {
+  const { GA_INIT, GA_MEASUREMENT_ID } = require("@/lib/consent/google-analytics");
+  const window = { dataLayer: [] };
+  require("node:vm").runInNewContext(GA_INIT, { window });
+  assert.equal(GA_MEASUREMENT_ID, "G-DB3L1WH491");
+  assert.deepEqual(window.dataLayer.map(c => c[0]), ["js", "config"]);
+  assert.equal(window.dataLayer[1][1], GA_MEASUREMENT_ID);
 });

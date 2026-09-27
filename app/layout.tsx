@@ -7,6 +7,7 @@ import "@fontsource/syne/700.css";
 
 import { Analytics } from "@vercel/analytics/next";
 import { ConsentManager } from "@/components/consent/consent-manager";
+import { GoogleAnalytics } from "@/components/consent/google-analytics";
 import { DemoRoleProvider } from "@/components/auth/demo-role-provider";
 import { MarketplaceProvider } from "@/components/marketplace/marketplace-provider";
 import { PageShell } from "@/components/layout/page-shell";
@@ -74,6 +75,7 @@ export default function RootLayout({
           </MarketplaceProvider>
         </DemoRoleProvider>
         <ConsentManager />
+        <GoogleAnalytics />
         <Analytics />
       </body>
     </html>

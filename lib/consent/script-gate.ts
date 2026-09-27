@@ -1,8 +1,5 @@
-// Consent gating — the single decision point a future optional integration
-// must pass through before it initializes. There are currently NO analytics or
-// marketing scripts installed, so nothing is gated in practice yet; this is the
-// truthful extension point, not a live tracker. It never makes a network
-// request, sets a pixel, or loads a third-party script on its own.
+// Consent gating helpers. GoogleAnalytics uses the same validated consent
+// record via useConsent. This registry does not load scripts itself.
 //
 // Usage when an analytics/marketing tool is later added:
 //   if (canRun(consentCookieValue, "analytics")) initAnalytics()
@@ -24,14 +21,13 @@ export function canRun(
 
 /**
  * Registry of optional integrations, for documentation + a future gated loader.
- * Empty on purpose: SKXNZ ships no analytics/marketing scripts today. Adding an
- * entry here does NOT auto-load anything — a loader must still call canRun().
+ * Entries do not auto-load anything; each loader must enforce consent.
  */
 export const OPTIONAL_INTEGRATIONS: ReadonlyArray<{
   id: string;
   category: Exclude<ConsentCategory, "necessary">;
   installed: boolean;
-}> = [];
+}> = [{ id: "google-analytics", category: "analytics", installed: true }];
 
 /** True only if at least one optional integration is actually installed. */
 export function hasInstalledOptionalIntegrations(): boolean {
