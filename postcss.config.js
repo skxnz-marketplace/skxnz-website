@@ -1,3 +1,5 @@
+// PostCSS loads this file as CommonJS, so require() is correct here.
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const path = require("node:path");
 
 module.exports = {
