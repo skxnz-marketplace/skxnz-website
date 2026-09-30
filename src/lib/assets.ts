@@ -53,17 +53,19 @@ export const skxnzAssetMap = {
     },
   },
   products: {
+    // SKXNZ: the six "trending/*.jpeg" files below don't show the products
+    // their names claim — Chrome Trace Hoodie was a perfume ad, Liquid
+    // Silver Perfume was a cowboy in a desert, Pearl Signal Crop Jacket had
+    // another brand's visible tag ("L·E·J") in frame. Pointed at the
+    // fallback placeholder until real SKXNZ product photography exists;
+    // do not restore these filenames without checking the actual image.
     demo: {
-      "obsidian-signal-oversized-tee":
-        "/assets/home/trending/obsidian-signal-tee.jpeg",
-      "pearl-signal-crop-jacket":
-        "/assets/home/trending/pearl-signal-crop-jacket.jpeg",
-      "chrome-trace-hoodie": "/assets/home/trending/chrome-trace-hoodie.jpeg",
-      ["sonic-ma" + "genta-mini-bag"]:
-        "/assets/home/trending/sonic-magenta-mini-bag.jpeg",
-      "liquid-silver-perfume":
-        "/assets/home/trending/liquid-silver-perfume.jpeg",
-      "midnight-cargo-pants": "/assets/home/trending/midnight-cargo-pants.jpeg",
+      "obsidian-signal-oversized-tee": skxnzFallbackAssets.product,
+      "pearl-signal-crop-jacket": skxnzFallbackAssets.product,
+      "chrome-trace-hoodie": skxnzFallbackAssets.product,
+      ["sonic-ma" + "genta-mini-bag"]: skxnzFallbackAssets.product,
+      "liquid-silver-perfume": skxnzFallbackAssets.product,
+      "midnight-cargo-pants": skxnzFallbackAssets.product,
       "ultraviolet-mesh-top": "/assets/products/demo/ultraviolet-mesh-top.webp",
       "pearl-white-sneakers": "/assets/products/demo/pearl-white-sneakers.webp",
       "obsidian-rider-vest": "/assets/products/demo/obsidian-rider-vest.webp",
