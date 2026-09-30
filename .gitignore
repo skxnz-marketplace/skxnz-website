@@ -18,3 +18,15 @@ scripts/__pycache__/
 
 # Commerce test build output (tsc -p tests/tsconfig.json)
 tests/.build/
+
+# Local-only: env files (any variant) except the committed template
+.env*
+!.env.example
+
+# Local-only: Vercel CLI link (.vercel/project.json) and pulled env
+.vercel/
+
+# Local-only: per-developer agent settings, Supabase CLI temp, task worktrees
+.claude/settings.local.json
+supabase/.temp/
+.worktrees/
