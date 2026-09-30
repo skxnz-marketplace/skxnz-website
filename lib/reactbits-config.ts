@@ -20,12 +20,22 @@ export const dotFieldWrapperOpacity = 0.28;
 
 export const prismConfig = {
   animationType: "3drotate" as const,
-  timeScale: 0.45,
+  // Slower than the original 0.45 — the restored version spun fast enough to
+  // feel more like a loading spinner than an ambient background.
+  timeScale: 0.18,
   scale: 3.0,
   height: 2.8,
   baseWidth: 3.8,
-  noise: 0.25,
+  // Down from 0.25 — less static/grain in the render.
+  noise: 0.14,
   glow: 1.0,
   hueShift: 0.35,
   colorFrequency: 3.0,
+  // Up from the component's own default of 1.5 — more color, less pastel.
+  saturation: 2.1,
+  // Ray-march steps per pixel (the shader's dominant cost). Down from the
+  // library default of 100 — this scene is glowy/blurred by design, so the
+  // lost precision isn't visible, and it's the single biggest lever for FPS.
+  steps: 64,
+  maxFps: 30,
 };

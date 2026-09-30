@@ -28,6 +28,17 @@
    fonts actually rendered — Source Sans 3 (body) and Syne (display, loaded via
    @fontsource in the layout) — remain. */
 
+/* Scrollable row/panel that keeps its native scroll behaviour but hides the
+   scrollbar chrome — used where a visible scrollbar would break a seamless
+   glass surface (e.g. the SKXNZ Assistant chat on /ai). */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 :root {
   --font-grotesk: "Syne", system-ui, sans-serif;
   --skxnz-header-offset: 5.5rem;
@@ -62,6 +73,17 @@
     BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-accent: "Space Grotesk", "Inter", "Source Sans 3", system-ui,
     -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  /* SKXNZ: both self-hosted via @fontsource (OFL-1.1), scoped to the /ai
+     "SKXNZ Assistant" heading only — free lookalikes standing in for two
+     paid fonts (Yapari, Druk) the brand doesn't have a license for.
+     --font-signal (Unbounded, thin 200): the "SKXNZ" word — wide letter
+     tracking does the work of reading "horizontal", not a huge font-size.
+     --font-impact (Space Grotesk, bold): the "Assistant" word — bold
+     without Bebas Neue's condensed/boxy tallness; not much shorter, but a
+     lot less thick and blocky. Neither font ships a true italic; the page
+     applies `italic` for a synthetic slant only where it reads well. */
+  --font-signal: "Unbounded", "Syne", system-ui, sans-serif;
+  --font-impact: "Space Grotesk", "Syne", system-ui, sans-serif;
 }
 
 * {

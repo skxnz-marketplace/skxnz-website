@@ -41,6 +41,8 @@ const config: Config = {
       fontFamily: {
         grotesk: ["var(--font-grotesk)", "system-ui", "sans-serif"],
         display: ["var(--font-display)", "Times New Roman", "serif"],
+        signal: ["var(--font-signal)", "system-ui", "sans-serif"],
+        impact: ["var(--font-impact)", "system-ui", "sans-serif"],
         sans: [
           "var(--font-primary)",
           "system-ui",

@@ -19,6 +19,15 @@ type PrismProps = {
   bloom?: number;
   suspendWhenOffscreen?: boolean;
   timeScale?: number;
+  /** Ray-march steps per pixel. The shader's dominant cost — lower is faster,
+   * higher is a crisper silhouette. Halved automatically on phones. */
+  steps?: number;
+  /** Caps the render loop so the GPU isn't redrawing faster than needed for
+   * this slow, ambient animation. Lower = cheaper, still reads as smooth. */
+  maxFps?: number;
+  /** Color saturation multiplier. Undefined keeps the original behavior
+   * (1.5 when transparent, 1 otherwise) so existing callers are unaffected. */
+  saturation?: number;
 };
 
 const Prism: React.FC<PrismProps> = ({
@@ -36,7 +45,10 @@ const Prism: React.FC<PrismProps> = ({
   inertia = 0.05,
   bloom = 1,
   suspendWhenOffscreen = false,
-  timeScale = 0.5
+  timeScale = 0.5,
+  steps = 64,
+  maxFps = 30,
+  saturation
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -51,7 +63,7 @@ const Prism: React.FC<PrismProps> = ({
     const NOISE = Math.max(0.0, noise);
     const offX = offset?.x ?? 0;
     const offY = offset?.y ?? 0;
-    const SAT = transparent ? 1.5 : 1;
+    const SAT = saturation ?? (transparent ? 1.5 : 1);
     const SCALE = Math.max(0.001, scale);
     const HUE = hueShift || 0;
     const CFREQ = Math.max(0.0, colorFrequency || 1);
@@ -66,9 +78,15 @@ const Prism: React.FC<PrismProps> = ({
     const HOVSTR = Math.max(0, hoverStrength || 1);
     const INERT = Math.max(0, Math.min(1, inertia || 0.12));
 
-    // SKXNZ: the fragment shader ray-marches 100 steps per pixel, so phones
-    // (whose DPR is 2-3) render at 1x; larger screens keep the original 1.25 cap.
-    const dpr = Math.min(window.innerWidth < 768 ? 1 : 1.25, window.devicePixelRatio || 1);
+    const isNarrowScreen = window.innerWidth < 768;
+
+    // SKXNZ: the fragment shader ray-marches STEPS times per pixel, so phones
+    // get a shorter march on top of already rendering at 1x DPR below.
+    const STEPS = Math.round(Math.max(24, Math.min(100, steps)) * (isNarrowScreen ? 0.65 : 1));
+
+    // SKXNZ: capped at 1x everywhere — the shader's per-pixel cost made the
+    // previous 1.25x desktop DPR a bad trade for a soft, glowing background.
+    const dpr = Math.min(1, window.devicePixelRatio || 1);
     const renderer = new Renderer({
       dpr,
       alpha: transparent,
@@ -183,7 +201,7 @@ const Prism: React.FC<PrismProps> = ({
           wob = mat2(c0, c1, c2, c0);
         }
 
-        const int STEPS = 100;
+        const int STEPS = ${STEPS};
         for (int i = 0; i < STEPS; i++) {
           p = vec3(f, z);
           p.xz = p.xz * wob;
@@ -302,6 +320,12 @@ const Prism: React.FC<PrismProps> = ({
     const NOISE_IS_ZERO = NOISE < 1e-6;
     let raf = 0;
     const t0 = performance.now();
+    // SKXNZ: this scene is slow and ambient — redrawing faster than maxFps
+    // just burns GPU/battery without looking any smoother. rAF still fires
+    // every display refresh so input (hover) stays responsive; we just skip
+    // the uniform math + draw call on the frames we don't need.
+    let lastDrawTime = 0;
+    const frameInterval = 1000 / Math.max(1, maxFps);
     const startRAF = () => {
       if (raf) return;
       raf = requestAnimationFrame(render);
@@ -362,6 +386,12 @@ const Prism: React.FC<PrismProps> = ({
     }
 
     const render = (t: number) => {
+      if (t - lastDrawTime < frameInterval) {
+        raf = requestAnimationFrame(render);
+        return;
+      }
+      lastDrawTime = t;
+
       const time = (t - t0) * 0.001;
       program.uniforms.iTime.value = time;
 
@@ -465,7 +495,10 @@ const Prism: React.FC<PrismProps> = ({
     hoverStrength,
     inertia,
     bloom,
-    suspendWhenOffscreen
+    suspendWhenOffscreen,
+    steps,
+    maxFps,
+    saturation
   ]);
 
   return <div className="w-full h-full relative" ref={containerRef} />;
