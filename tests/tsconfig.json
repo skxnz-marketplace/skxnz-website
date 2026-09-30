@@ -40,6 +40,7 @@
     "../lib/security/rate-limit/keys.ts",
     "../lib/security/rate-limit/helpers.ts",
     "../lib/security/rate-limit/adapters/index.ts",
-    "../lib/security/rate-limit/adapters/memory-store.ts"
+    "../lib/security/rate-limit/adapters/memory-store.ts",
+    "../lib/net/fetch-with-retry.ts"
   ]
 }
