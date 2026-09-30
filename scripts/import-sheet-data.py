@@ -923,7 +923,9 @@ def generate_modules() -> None:
     backend = build_backend_summary()
     ai = build_ai_summary()
 
-    products_content = f"""// Auto-generated from project-data/source-sheets/SKXNZ_MASTER_STORE_DATABASE_FINAL.xlsx
+    products_content = f"""// FALLBACK / DEVELOPMENT DATA — NOT the production catalogue (that is Supabase).
+// See src/data/README.md and docs/engineering/SOURCE_OF_TRUTH.md.
+// Auto-generated from project-data/source-sheets/SKXNZ_MASTER_STORE_DATABASE_FINAL.xlsx
 // by scripts/import-sheet-data.py. Keep demo compatibility layers elsewhere.
 
 export type StructuredProduct = {{

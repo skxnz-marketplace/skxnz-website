@@ -19,9 +19,16 @@ This folder stores the planning spreadsheets and future structured data exports 
 - `project-data/readme/`
   - Extra notes, mapping docs, and implementation references if needed later.
 
-## Source Of Truth Sheets
+## Status (2026-10-01): planning inputs, NOT the catalogue source of truth
 
-These spreadsheet files are the current source of truth:
+The live catalogue is **Supabase**. These June 2026 sheets only feed the fallback/demo modules in
+`src/data/` (via `scripts/import-sheet-data.py`), and some of their image paths are known to be
+wrong. See `docs/engineering/SOURCE_OF_TRUTH.md` for the full hierarchy. Raw brand or seller
+catalogues belong in the workspace-level `data/catalog/imports/`, not here.
+
+## Planning sheets
+
+These spreadsheet files are the planning inputs:
 
 - `project-data/source-sheets/SKXNZ_MASTER_STORE_DATABASE_FINAL.xlsx`
   - Primary store data planning for products, brands, categories, homepage content, and search-related content.

@@ -1,3 +1,5 @@
+// FALLBACK / DEVELOPMENT DATA — NOT the production catalogue (that is Supabase).
+// See src/data/README.md and docs/engineering/SOURCE_OF_TRUTH.md.
 // Auto-generated from project-data/source-sheets/SKXNZ_MASTER_STORE_DATABASE_FINAL.xlsx
 // by scripts/import-sheet-data.py. Keep demo compatibility layers elsewhere.
 
