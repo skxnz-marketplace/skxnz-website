@@ -1,3 +1,5 @@
+import { fetchWithRetry } from "@/lib/net/fetch-with-retry";
+
 // Cloudflare Turnstile — shared config + server-side Siteverify.
 //
 // SECURITY CONTRACT
@@ -22,6 +24,10 @@ const TEST_SECRET_KEY = "1x0000000000000000000000000000000AA";
 
 const SITEVERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
 const SITEVERIFY_TIMEOUT_MS = 8000;
+// A Turnstile token is single-use, but a connection-level failure (the kind
+// this retries) means the request never reached Cloudflare in the first
+// place, so the token was never consumed — safe to retry with the same one.
+const SITEVERIFY_RETRIES = 2;
 
 /** Public site key for the widget. Falls back to Cloudflare's test key. */
 export function turnstileSiteKey(): string {
@@ -104,13 +110,17 @@ export async function verifyTurnstileToken(
 
   let body: SiteverifyBody;
   try {
-    const res = await fetch(SITEVERIFY_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: form,
-      signal: controller.signal,
-      cache: "no-store",
-    });
+    const res = await fetchWithRetry(
+      SITEVERIFY_URL,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: form,
+        signal: controller.signal,
+        cache: "no-store",
+      },
+      { retries: SITEVERIFY_RETRIES, baseDelayMs: 150 },
+    );
     if (!res.ok) {
       return { success: false, testMode, reason: `siteverify-http-${res.status}` };
     }

@@ -4,6 +4,8 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
+import { fetchWithRetry } from '@/lib/net/fetch-with-retry'
+
 export async function createClient() {
   const cookieStore = await cookies()
 
@@ -24,6 +26,11 @@ export async function createClient() {
             // Server Components cannot write cookies — Middleware handles refresh
           }
         },
+      },
+      global: {
+        // Retries transient connection-level failures before a read/auth
+        // call gives up — never retries an actual HTTP error response.
+        fetch: (input, init) => fetchWithRetry(input, init),
       },
     },
   )

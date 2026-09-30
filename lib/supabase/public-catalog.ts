@@ -12,6 +12,8 @@
 // be cached and served without hitting the database at all.
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 
+import { fetchWithRetry } from "@/lib/net/fetch-with-retry";
+
 export function createPublicCatalogClient() {
   return createSupabaseClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -21,6 +23,11 @@ export function createPublicCatalogClient() {
         // No session to persist or refresh: this client is anonymous by design.
         persistSession: false,
         autoRefreshToken: false,
+      },
+      global: {
+        // Retries transient connection-level failures (never an HTTP error
+        // response) before this read-only, side-effect-free query gives up.
+        fetch: (input, init) => fetchWithRetry(input, init),
       },
     },
   );
