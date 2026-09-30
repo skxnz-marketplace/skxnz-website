@@ -27,7 +27,7 @@ const OPTIONAL: { key: Exclude<ConsentCategory, "necessary">; title: string; bod
   {
     key: "analytics",
     title: "Analytics",
-    body: "Would let us measure which pages and products are used, in aggregate, to improve the experience. No analytics tool is currently connected — this control is here for when one is.",
+    body: "Allows Google Analytics to measure page usage. Off until you allow it; you can withdraw permission at any time.",
   },
   {
     key: "marketing",

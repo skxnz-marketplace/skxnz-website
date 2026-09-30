@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 };
 
 // TRUTHFUL cookie information page. It describes only what SKXNZ actually uses
-// today and states plainly that no analytics or marketing tools are connected.
+// today. Google Analytics requires analytics consent.
 // It deliberately does NOT state a legal entity, registered office, grievance
 // officer, retention periods, third-party vendors, or jurisdiction — those are
 // founder-supplied legal facts and are tracked as a blocker, not invented here.
@@ -52,9 +52,9 @@ export default function CookiesPage() {
         <div>
           <h2 className="font-semibold text-midnightbrown">Analytics</h2>
           <p className="mt-1">
-            Optional, and <strong>not currently connected</strong>. No analytics
-            tool is installed on SKXNZ today. This control exists so that if one is
-            added later, it will only run after you allow it.
+            Optional. Google Analytics measures page usage on our production
+            website only after you allow Analytics. Withdrawing permission stops
+            further collection by this tag.
           </p>
         </div>
         <div>
