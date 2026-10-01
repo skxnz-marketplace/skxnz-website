@@ -15,7 +15,11 @@ Single source of truth for project status. Read this before starting work and up
   - Removed 3 broken `SKXNZ_SKILL_EXPORTS/_upstream` gitlinks.
   - `src/data/` is labelled FALLBACK. It is still read at runtime by site search, the discovery menu, brands and the AI assistant: the main source-of-truth gap.
   - CLAUDE.md/AGENTS.md no longer claim "push to main auto-deploys".
-  - Workspace-level cleanup is pending founder approval: removing 30 stale worktrees, archiving the command pack and old copies, and moving the repo to `SKXNZ/code/web`. Steps are in `C:\vivaan all work 31st aug\SKXNZ\README.md`.
+  - Workspace migration **complete** (founder-approved, gated build/verify/retire):
+    - This repo now lives at `SKXNZ/code/web` as a standalone repository, copied from and verified against the old Git database.
+    - The 30 historical worktrees were retired, with all branches kept.
+    - The old command pack was archived intact under `SKXNZ/archive/command-pack/` (frozen).
+    - The full record is in `SKXNZ/archive/backups/normalization-state/history.log` (state `RETIRED`).
   - Bundles of all refs are in `SKXNZ/archive/backups/`.
 - **GA4 reporting verified (2026-09-27):** correct property `555746634`, stream `15837388615`, tag `G-DB3L1WH491`. Google Analytics Realtime showed 1 active user and a `page_view` for SKXNZ after a real visit. ARGUS already has this property connected; its processed daily report was still empty when checked, not an authentication error. Focused auth/consent tests rerun: 35/35 passed. User now authorized the GA4 commit; no push requested.
 - **GA4 live deployment (2026-09-27):** user-approved production deployment `dpl_3jcbgTobUaMQTmTfzmX5SeZHnkHB`, aliased to `https://skxnz.com`. Vercel pnpm 10.33.0 install, Next production build, lint/typechecking completed; existing lint/catalog fallback warnings remain. Auth/GA focused tests: 35/35 passed. Live browser: before consent no Google tag or collection request and opt-out true; after consent one tag and real `page_view` POST for `G-DB3L1WH491` returned HTTP 204. Rejecting optional cookies restored opt-out true. GA reporting UI not verified. No commit or push; lockfile/dependency versions unchanged. Next: inspect GA4 reporting visibility separately; commit only on user instruction.
