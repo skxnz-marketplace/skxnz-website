@@ -1,11 +1,20 @@
 import { cache } from "react";
 import type { Metadata } from "next";
 
+import { notFound } from "next/navigation";
+
 import { CategoryPageShell } from "@/components/categories/category-page-shell";
-import { structuredCategories } from "@/src/data/categories";
 import { getStructuredCategoryBySlug } from "@/src/lib/catalog-content";
-import { getActiveCategoryBySlug, getActiveProductsByCategoryId } from "@/lib/catalog/queries";
+import { isDemoCatalogueEnabled } from "@/lib/catalog/demo-fallback";
 import { mapCatalogProductToBuyerProduct, mapCategoryToStructuredCategory } from "@/lib/catalog/mappers";
+import {
+  CatalogUnavailableError,
+  findActiveCategoryBySlug,
+  listActiveCategories,
+  listActiveProducts,
+  unwrapCatalog,
+} from "@/lib/catalog/public-catalog";
+import type { Category } from "@/lib/catalog/types";
 import { getSiteBaseUrl } from "@/lib/site";
 
 export const revalidate = 300;
@@ -14,7 +23,14 @@ export const revalidate = 300;
 // by slug, so every category page ran the query twice per request. React
 // cache() dedupes it to one lookup per render pass. Request-scoped only — no
 // cross-request staleness.
-const resolveCategoryBySlug = cache((slug: string) => getActiveCategoryBySlug(slug));
+// null = no such active category (404). A query error throws (5xx) unless the
+// lib/catalog/demo-fallback switch is on, in which case "demo" is returned.
+const resolveCategoryBySlug = cache(async (slug: string): Promise<Category | null | "demo"> => {
+  const result = await findActiveCategoryBySlug(slug);
+  if (result.ok) return result.data ?? (isDemoCatalogueEnabled() && getStructuredCategoryBySlug(slug) ? "demo" : null);
+  if (isDemoCatalogueEnabled()) return getStructuredCategoryBySlug(slug) ? "demo" : null;
+  throw new CatalogUnavailableError(result.error.operation);
+});
 
 type CategoryPageProps = {
   params: Promise<{
@@ -22,15 +38,10 @@ type CategoryPageProps = {
   }>;
 };
 
+/** Pre-render live category slugs; on a catalogue error pre-render nothing (render on demand). */
 export async function generateStaticParams() {
-  return [
-    ...structuredCategories.map((category) => ({
-      slug: category.slug,
-    })),
-    { slug: "women" },
-    { slug: "ai-styled" },
-    { slug: "shoes" },
-  ];
+  const result = await listActiveCategories();
+  return result.ok ? result.data.map((category) => ({ slug: category.slug })) : [];
 }
 
 export async function generateMetadata({
@@ -40,7 +51,7 @@ export async function generateMetadata({
 
   const canonicalPath = `/categories/${slug}`;
   const liveCategory = await resolveCategoryBySlug(slug);
-  if (liveCategory) {
+  if (liveCategory && liveCategory !== "demo") {
     const title = `${liveCategory.name} — Premium Fashion`;
     const description = `Shop ${liveCategory.name} on SKXNZ — curated futurewear and premium fashion.`;
     return {
@@ -51,7 +62,7 @@ export async function generateMetadata({
     };
   }
 
-  const category = getStructuredCategoryBySlug(slug);
+  const category = liveCategory === "demo" ? getStructuredCategoryBySlug(slug) : null;
   if (!category) {
     return {
       title: "Category Not Found",
@@ -72,23 +83,23 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   const { slug } = await params;
 
   const liveCategory = await resolveCategoryBySlug(slug);
+  if (!liveCategory) notFound();
 
-  if (liveCategory) {
-    const liveProducts = (await getActiveProductsByCategoryId(liveCategory.id)).map(
-      mapCatalogProductToBuyerProduct,
-    );
+  if (liveCategory !== "demo") {
+    const products = unwrapCatalog(await listActiveProducts({ categoryId: liveCategory.id }));
 
     return (
       <>
         <CategoryBreadcrumbJsonLd slug={slug} name={liveCategory.name} />
         <CategoryPageShell
           category={mapCategoryToStructuredCategory(liveCategory)}
-          liveProducts={liveProducts}
+          liveProducts={products.map(mapCatalogProductToBuyerProduct)}
         />
       </>
     );
   }
 
+  // Only reachable with the lib/catalog/demo-fallback switch on.
   const category = getStructuredCategoryBySlug(slug) ?? null;
 
   return (

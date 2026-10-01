@@ -7,6 +7,7 @@ import {
   getDemoRoleFromHeaders,
 } from "@/src/lib/ai/safety";
 import type { BuyerAssistantRequest } from "@/src/lib/ai/types";
+import { CatalogUnavailableError } from "@/lib/catalog/public-catalog";
 import { guardRouteHandler } from "@/lib/security/rate-limit/rate-limit";
 
 export const dynamic = "force-dynamic";
@@ -34,7 +35,17 @@ export async function POST(request: Request) {
     );
   }
 
-  const response = await handleBuyerAssistantRequest(payload, role);
+  let response;
+  try {
+    response = await handleBuyerAssistantRequest(payload, role);
+  } catch (error) {
+    // Live catalogue unavailable (logged in lib/catalog): an honest 503, never a
+    // recommendation drawn from the generated demo catalogue.
+    if (error instanceof CatalogUnavailableError) {
+      return NextResponse.json({ error: "The SKXNZ catalogue is unavailable right now. Please try again shortly." }, { status: 503 });
+    }
+    throw error;
+  }
 
   return NextResponse.json(response);
 }

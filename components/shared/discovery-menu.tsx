@@ -1,12 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 
 import { BrandMark } from "@/components/layout/brand-mark";
 import { SiteSearchBar } from "@/components/shared/site-search-bar";
 import { cn } from "@/lib/cn";
-import { demoBrands } from "@/src/data/demo-brands";
 
 type DiscoveryLink = {
   label: string;
@@ -116,7 +115,56 @@ const discoverySections: DiscoverySection[] = [
   },
 ];
 
-const topBrands = demoBrands.slice(0, 6);
+// Live brands/categories (app/api/catalog/navigation). The section copy above is
+// static editorial navigation; only its category links and the brand pills
+// depend on live data. Fetched once per page load, when a menu first opens.
+type LiveNavigation = {
+  brands: Array<{ slug: string; name: string }>;
+  categorySlugs: Set<string>;
+} | null;
+
+let navigationRequest: Promise<LiveNavigation> | null = null;
+
+function loadLiveNavigation(): Promise<LiveNavigation> {
+  navigationRequest ??= fetch("/api/catalog/navigation")
+    .then(async (response) => {
+      if (!response.ok) throw new Error(`navigation ${response.status}`);
+      const data = (await response.json()) as {
+        brands: Array<{ slug: string; name: string }>;
+        categories: Array<{ slug: string }>;
+      };
+      return { brands: data.brands, categorySlugs: new Set(data.categories.map((category) => category.slug)) };
+    })
+    .catch(() => {
+      navigationRequest = null; // allow a retry next time a menu opens
+      return null;
+    });
+  return navigationRequest;
+}
+
+function useLiveNavigation(active: boolean): LiveNavigation {
+  const [navigation, setNavigation] = useState<LiveNavigation>(null);
+  useEffect(() => {
+    if (!active) return;
+    let current = true;
+    void loadLiveNavigation().then((loaded) => {
+      if (current) setNavigation(loaded);
+    });
+    return () => {
+      current = false;
+    };
+  }, [active]);
+  return navigation;
+}
+
+/** A /categories/<slug> link goes to that page only if the category exists in
+ * the live catalogue; otherwise (or while loading/unavailable) it becomes a
+ * shop search for the label, so the menu never links to a missing page. */
+function resolveHref(href: string, label: string, navigation: LiveNavigation): string {
+  const match = href.match(/^\/categories\/([^/?#]+)$/);
+  if (!match) return href;
+  return navigation?.categorySlugs.has(match[1]) ? href : `/shop?q=${encodeURIComponent(label)}`;
+}
 
 function ArrowIcon() {
   return (
@@ -135,9 +183,11 @@ function ArrowIcon() {
 function DrawerSection({
   section,
   onNavigate,
+  navigation,
 }: {
   section: DiscoverySection;
   onNavigate: () => void;
+  navigation: LiveNavigation;
 }) {
   return (
     <details className="group rounded-[16px] bg-white/[0.055] ring-1 ring-white/[0.08]">
@@ -159,7 +209,7 @@ function DrawerSection({
           {section.description}
         </p>
         <Link
-          href={section.href}
+          href={resolveHref(section.href, section.title, navigation)}
           onClick={onNavigate}
           className="mt-3 flex items-center justify-between rounded-full bg-white/[0.07] px-3 py-2 text-[0.8rem] font-bold uppercase tracking-[0.08em] text-[#FFFEFA] ring-1 ring-[rgba(34,211,238,0.18)]"
         >
@@ -170,7 +220,7 @@ function DrawerSection({
           {section.links.map((link) => (
             <Link
               key={`${section.title}-${link.label}`}
-              href={link.href}
+              href={resolveHref(link.href, link.label, navigation)}
               onClick={onNavigate}
               className="truncate rounded-full bg-white/[0.05] px-3 py-2 text-[0.78rem] font-semibold uppercase tracking-[0.06em] text-[rgba(255,254,250,0.74)] ring-1 ring-white/[0.08] transition hover:text-[#FFFEFA] hover:ring-[rgba(34,211,238,0.35)]"
             >
@@ -183,12 +233,12 @@ function DrawerSection({
   );
 }
 
-function BrandPills({ onNavigate }: { onNavigate: () => void }) {
+function BrandPills({ onNavigate, navigation }: { onNavigate: () => void; navigation: LiveNavigation }) {
   return (
     <div className="flex flex-wrap gap-2">
-      {topBrands.map((brand) => (
+      {(navigation?.brands ?? []).slice(0, 6).map((brand) => (
         <Link
-          key={brand.id}
+          key={brand.slug}
           href={`/brands/${brand.slug}`}
           onClick={onNavigate}
           className="rounded-full bg-white/[0.08] px-3 py-1.5 text-[0.78rem] font-bold uppercase tracking-[0.08em] text-white/[0.78] ring-1 ring-white/[0.08] transition hover:text-white hover:ring-[rgba(34,211,238,0.32)]"
@@ -212,6 +262,7 @@ export function DesktopMegaMenu({
   onClose,
   onNavigate,
 }: DiscoveryMenuProps) {
+  const navigation = useLiveNavigation(isOpen);
   if (!isOpen) {
     return null;
   }
@@ -261,7 +312,7 @@ export function DesktopMegaMenu({
             </Link>
           </div>
           <div className="mt-3">
-            <BrandPills onNavigate={onNavigate} />
+            <BrandPills onNavigate={onNavigate} navigation={navigation} />
           </div>
         </div>
 
@@ -271,6 +322,7 @@ export function DesktopMegaMenu({
               key={section.title}
               section={section}
               onNavigate={onNavigate}
+              navigation={navigation}
             />
           ))}
         </div>
@@ -284,7 +336,7 @@ export function DesktopMegaMenu({
           ].map((item) => (
             <Link
               key={item.href}
-              href={item.href}
+              href={resolveHref(item.href, item.label, navigation)}
               onClick={onNavigate}
               className="flex items-center justify-between rounded-[16px] bg-white/[0.055] px-4 py-3 text-xs font-bold uppercase tracking-[0.08em] text-[rgba(255,254,250,0.84)] ring-1 ring-white/[0.08] transition hover:bg-white/[0.10] hover:text-[#FFFEFA] hover:ring-[rgba(34,211,238,0.32)]"
             >
@@ -306,6 +358,7 @@ export function MobileDiscoveryDrawer({
   pathname,
   searchFocusSignal = 0,
 }: DiscoveryMenuProps) {
+  const navigation = useLiveNavigation(isOpen);
   return (
     <aside
       id="skxnz-mobile-discovery-menu"
@@ -361,7 +414,7 @@ export function MobileDiscoveryDrawer({
             </Link>
           </div>
           <div className="mt-3">
-            <BrandPills onNavigate={onNavigate} />
+            <BrandPills onNavigate={onNavigate} navigation={navigation} />
           </div>
         </div>
 
@@ -393,7 +446,7 @@ export function MobileDiscoveryDrawer({
               </summary>
               <div className="border-t border-[rgba(58,8,24,0.08)] px-4 py-4">
                 <Link
-                  href={section.href}
+                  href={resolveHref(section.href, section.title, navigation)}
                   onClick={onNavigate}
                   className="mb-3 flex items-center justify-between rounded-full border border-[rgba(34,211,238,0.24)] bg-[rgba(34,211,238,0.08)] px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-[var(--skxnz-maroon)]"
                 >
@@ -404,7 +457,7 @@ export function MobileDiscoveryDrawer({
                   {section.links.map((link) => (
                     <Link
                       key={`${section.title}-${link.label}`}
-                      href={link.href}
+                      href={resolveHref(link.href, link.label, navigation)}
                       onClick={onNavigate}
                       className="min-w-0 rounded-full bg-[var(--skxnz-card)] px-3 py-2.5 text-xs font-semibold uppercase tracking-[0.08em] text-[var(--skxnz-text-dark)] ring-1 ring-[rgba(58,8,24,0.07)] transition hover:ring-[rgba(34,211,238,0.28)]"
                     >

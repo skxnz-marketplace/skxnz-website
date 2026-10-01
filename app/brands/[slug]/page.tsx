@@ -1,9 +1,18 @@
+import { cache } from "react";
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 
 import { BrandPageShell } from "@/components/brands/brand-page-shell";
-import { demoBrands, getDemoBrandBySlug, getTopBrands } from "@/lib/data/brands";
-import { getActiveBrandBySlug, getActiveProductsByBrandId } from "@/lib/catalog/queries";
-import { mapBrandToDemoBrand, mapCatalogProductToBuyerProduct } from "@/lib/catalog/mappers";
+import { getDemoBrandBySlug, getTopBrands } from "@/lib/data/brands";
+import { isDemoCatalogueEnabled } from "@/lib/catalog/demo-fallback";
+import { buildLiveBrandSnapshots, mapBrandToDemoBrand, mapCatalogProductToBuyerProduct } from "@/lib/catalog/mappers";
+import {
+  CatalogUnavailableError,
+  findActiveBrandBySlug,
+  listActiveBrands,
+  listActiveProducts,
+} from "@/lib/catalog/public-catalog";
+import type { Brand } from "@/lib/catalog/types";
 import { getSiteBaseUrl } from "@/lib/site";
 
 export const revalidate = 300;
@@ -14,19 +23,24 @@ type BrandPageProps = {
   }>;
 };
 
+/** Pre-render live brand slugs; on a catalogue error pre-render nothing (render on demand). */
 export async function generateStaticParams() {
-  return demoBrands.map((brand) => ({
-    slug: brand.slug,
-  }));
+  const result = await listActiveBrands();
+  return result.ok ? result.data.map((brand) => ({ slug: brand.slug })) : [];
 }
+
+/** Live brand (null = no such active brand). Errors throw unless the demo switch is on. */
+const resolveBrand = cache(async (slug: string): Promise<Brand | null | "demo"> => {
+  const result = await findActiveBrandBySlug(slug);
+  if (result.ok) return result.data ?? (isDemoCatalogueEnabled() && getDemoBrandBySlug(slug) ? "demo" : null);
+  if (isDemoCatalogueEnabled()) return getDemoBrandBySlug(slug) ? "demo" : null;
+  throw new CatalogUnavailableError(result.error.operation);
+});
 
 export async function generateMetadata({ params }: BrandPageProps): Promise<Metadata> {
   const { slug } = await params;
-
-  const liveBrand = await getActiveBrandBySlug(slug);
-  const brand = liveBrand
-    ? { name: liveBrand.name, description: liveBrand.description }
-    : getDemoBrandBySlug(slug);
+  const resolved = await resolveBrand(slug);
+  const brand = resolved === "demo" ? getDemoBrandBySlug(slug) : resolved;
 
   if (!brand) {
     return { title: "Brand Not Found", robots: { index: false, follow: true } };
@@ -50,25 +64,34 @@ export async function generateMetadata({ params }: BrandPageProps): Promise<Meta
 
 export default async function BrandPage({ params }: BrandPageProps) {
   const { slug } = await params;
-  const topBrands = getTopBrands({ limit: 6 });
+  const resolved = await resolveBrand(slug);
+  if (!resolved) notFound();
 
-  const liveBrand = await getActiveBrandBySlug(slug);
+  if (resolved === "demo") {
+    const demoBrand = getDemoBrandBySlug(slug);
+    return (
+      <>
+        {demoBrand ? <BrandBreadcrumbJsonLd slug={slug} name={demoBrand.name} /> : null}
+        <BrandPageShell brandSlug={slug} topBrands={getTopBrands({ limit: 6 })} />
+      </>
+    );
+  }
 
-  const liveProducts = liveBrand
-    ? (await getActiveProductsByBrandId(liveBrand.id)).map(mapCatalogProductToBuyerProduct)
-    : [];
+  const [brands, products] = await Promise.all([listActiveBrands(), listActiveProducts()]);
+  if (!brands.ok) throw new CatalogUnavailableError(brands.error.operation);
+  if (!products.ok) throw new CatalogUnavailableError(products.error.operation);
 
-  const liveDemoBrand = liveBrand ? mapBrandToDemoBrand(liveBrand, liveProducts.length) : null;
-  const brandName = liveDemoBrand?.name ?? getDemoBrandBySlug(slug)?.name;
+  const brandProducts = products.data.filter((product) => product.brand_id === resolved.id);
+  const liveBrand = mapBrandToDemoBrand(resolved, brandProducts.length);
 
   return (
     <>
-      {brandName ? <BrandBreadcrumbJsonLd slug={slug} name={brandName} /> : null}
+      <BrandBreadcrumbJsonLd slug={slug} name={liveBrand.name} />
       <BrandPageShell
         brandSlug={slug}
-        topBrands={topBrands}
-        liveBrand={liveDemoBrand}
-        liveProducts={liveProducts}
+        topBrands={buildLiveBrandSnapshots(brands.data, products.data).slice(0, 6)}
+        liveBrand={liveBrand}
+        liveProducts={brandProducts.map(mapCatalogProductToBuyerProduct)}
       />
     </>
   );

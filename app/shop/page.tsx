@@ -7,9 +7,10 @@ import { PageIntro } from "@/components/sections/page-intro";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { mapCatalogProductToBuyerProduct } from "@/lib/catalog/mappers";
-import { getActiveBrands, getActiveProductsWithRelations } from "@/lib/catalog/queries";
-import { getTopBrands } from "@/lib/data/brands";
+import { isDemoCatalogueEnabled } from "@/lib/catalog/demo-fallback";
+import { buildLiveBrandSnapshots, mapCatalogProductToBuyerProduct } from "@/lib/catalog/mappers";
+import { CatalogUnavailableError, listActiveBrands, listActiveProducts } from "@/lib/catalog/public-catalog";
+import { getTopBrands, type BrandPerformanceSnapshot } from "@/lib/data/brands";
 import type { Product } from "@/lib/data/products";
 import { normalizeSearchQuery } from "@/src/lib/site-search";
 
@@ -32,28 +33,30 @@ type ShopPageProps = {
   }>;
 };
 
-async function getLiveShopCatalog(): Promise<{
+/** The live Supabase catalogue. A query error is NOT an empty catalogue: it
+ * throws (route error boundary, 5xx) unless the explicit demo switch is on. */
+async function getShopCatalog(): Promise<{
+  source: "live" | "fixture";
   products: Product[];
   brands: Array<{ slug: string; name: string }>;
+  rankedBrands: BrandPerformanceSnapshot[];
 }> {
-  try {
-    const [products, brands] = await Promise.all([
-      getActiveProductsWithRelations(),
-      getActiveBrands(),
-    ]);
+  const [products, brands] = await Promise.all([listActiveProducts(), listActiveBrands()]);
 
-    if (products.length === 0) {
-      return { products: [], brands: [] };
-    }
-
+  if (products.ok && brands.ok) {
     return {
-      products: products.map(mapCatalogProductToBuyerProduct),
-      brands: brands.map((brand) => ({ slug: brand.slug, name: brand.name })),
+      source: "live",
+      products: products.data.map(mapCatalogProductToBuyerProduct),
+      brands: brands.data.map((brand) => ({ slug: brand.slug, name: brand.name })),
+      rankedBrands: buildLiveBrandSnapshots(brands.data, products.data),
     };
-  } catch (err) {
-    console.warn("[shop] falling back to local marketplace products:", err);
-    return { products: [], brands: [] };
   }
+
+  if (isDemoCatalogueEnabled()) {
+    return { source: "fixture", products: [], brands: [], rankedBrands: getTopBrands({ limit: 6 }) };
+  }
+
+  throw new CatalogUnavailableError(!products.ok ? products.error.operation : !brands.ok ? brands.error.operation : "shop");
 }
 
 export default async function ShopPage({ searchParams }: ShopPageProps) {
@@ -61,8 +64,8 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
   const displayQuery = q?.trim().replace(/\s+/g, " ") ?? "";
   const normalizedQuery = normalizeSearchQuery(displayQuery);
   const isSearchMode = normalizedQuery.length > 0;
-  const topBrands = getTopBrands({ limit: 6 });
-  const liveCatalog = await getLiveShopCatalog();
+  const liveCatalog = await getShopCatalog();
+  const topBrands = liveCatalog.rankedBrands.slice(0, 6);
   const activeBrandSlug = normalizeSearchQuery(brand ?? "");
   const isBrandMode = activeBrandSlug.length > 0;
   const activeBrand = isBrandMode
@@ -125,11 +128,12 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
           {/* Phones see products first; the brand showcase follows the grid
               instead of pushing it several screens down. */}
           <div className="min-w-0 max-lg:order-last">
-            <ShopByBrandSection />
+            <ShopByBrandSection rankedBrands={liveCatalog.source === "live" ? liveCatalog.rankedBrands : undefined} />
           </div>
           <ShopCatalog
             initialBrandSlug={activeBrandSlug || undefined}
             initialQuery={normalizedQuery}
+            source={liveCatalog.source}
             liveProducts={liveCatalog.products}
             liveBrands={liveCatalog.brands}
           />

@@ -13,6 +13,7 @@ import {
 import { useMarketplace } from "@/components/marketplace/marketplace-provider";
 import { SafeImage } from "@/components/shared/safe-image";
 import { buttonVariants } from "@/components/ui/button";
+import { isDemoCatalogueEnabled } from "@/lib/catalog/demo-fallback";
 import { getProductHref } from "@/lib/catalog/product-links";
 import { cn } from "@/lib/cn";
 import {
@@ -88,7 +89,12 @@ const openingMessage: AssistantMessage = {
     "I’ll keep this inside SKXNZ. Ask for a product, outfit, budget, category, or styling brief.",
 };
 
-const assistantPreviewProducts = (featuredProducts.length ? featuredProducts : demoProducts)
+// "Picked for you" preview chips come from the local demo catalogue, so they are
+// shown only with the lib/catalog/demo-fallback switch on. Live recommendations
+// arrive in the assistant's replies (/api/ai-assistant uses the live catalogue).
+const assistantPreviewProducts = (
+  isDemoCatalogueEnabled() ? (featuredProducts.length ? featuredProducts : demoProducts) : []
+)
   .slice(0, 3)
   .map((product) => ({
     id: `assistant-preview-${product.id}`,
@@ -792,7 +798,7 @@ export function FloatingSkxnzAssistant() {
             className="flex-1 overflow-y-auto bg-[#1A030B]/[0.88] p-4"
             aria-live="polite"
           >
-            <div className="mb-4">
+            <div className={assistantPreviewProducts.length ? "mb-4" : "hidden"}>
               <p className="text-xs font-semibold text-pearlcream/[0.72]">Picked for you.</p>
               <div className="mt-3 grid grid-cols-3 gap-2">
                 {assistantPreviewProducts.map((product) => (

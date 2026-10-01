@@ -1,7 +1,8 @@
 import { BrandsIndexShell } from "@/components/brands/brands-index-shell";
 import { demoBrands, getTopBrands } from "@/lib/data/brands";
-import { getActiveBrands, getActiveProducts } from "@/lib/catalog/queries";
-import { mapBrandToDemoBrand } from "@/lib/catalog/mappers";
+import { isDemoCatalogueEnabled } from "@/lib/catalog/demo-fallback";
+import { buildLiveBrandSnapshots } from "@/lib/catalog/mappers";
+import { CatalogUnavailableError, listActiveBrands, listActiveProducts } from "@/lib/catalog/public-catalog";
 
 export const metadata = {
   title: "Brands",
@@ -10,24 +11,18 @@ export const metadata = {
 export const revalidate = 300;
 
 export default async function BrandsPage() {
-  const topBrands = getTopBrands({ limit: 6 });
+  const [brands, products] = await Promise.all([listActiveBrands(), listActiveProducts()]);
 
-  const [liveBrands, liveProducts] = await Promise.all([
-    getActiveBrands(),
-    getActiveProducts(),
-  ]);
-
-  const productCountByBrandId = new Map<string, number>();
-  for (const product of liveProducts) {
-    if (!product.brand_id) continue;
-    productCountByBrandId.set(product.brand_id, (productCountByBrandId.get(product.brand_id) ?? 0) + 1);
+  if (brands.ok && products.ok) {
+    const ranked = buildLiveBrandSnapshots(brands.data, products.data);
+    // Alphabetical directory, with the live product counts the ranking computed.
+    const directory = ranked.map((snapshot) => snapshot.brand).sort((a, b) => a.name.localeCompare(b.name));
+    return <BrandsIndexShell topBrands={ranked.slice(0, 6)} brands={directory} />;
   }
 
-  const liveDemoBrands = liveBrands.map((brand) =>
-    mapBrandToDemoBrand(brand, productCountByBrandId.get(brand.id) ?? 0),
-  );
+  if (isDemoCatalogueEnabled()) {
+    return <BrandsIndexShell topBrands={getTopBrands({ limit: 6 })} brands={demoBrands} />;
+  }
 
-  const brands = liveDemoBrands.length > 0 ? liveDemoBrands : demoBrands;
-
-  return <BrandsIndexShell topBrands={topBrands} brands={brands} />;
+  throw new CatalogUnavailableError(!brands.ok ? brands.error.operation : !products.ok ? products.error.operation : "brands");
 }

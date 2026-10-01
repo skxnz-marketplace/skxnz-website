@@ -8,6 +8,10 @@ import { deriveProductFacets, type Product } from "@/lib/data/products";
 type ShopCatalogProps = {
   initialBrandSlug?: string;
   initialQuery?: string;
+  /** Decided on the server: "live" = Supabase catalogue (an empty list is a real,
+   * empty catalogue); "fixture" = local fixtures, only when lib/catalog/demo-fallback
+   * allows it. Never inferred from an empty live list. */
+  source: "live" | "fixture";
   liveProducts?: Product[];
   liveBrands?: Array<{
     slug: string;
@@ -18,14 +22,15 @@ type ShopCatalogProps = {
 export function ShopCatalog({
   initialBrandSlug,
   initialQuery,
+  source,
   liveProducts = [],
   liveBrands = [],
 }: ShopCatalogProps) {
   const { approvedProducts, approvedFacets } = useMarketplace();
-  const hasLiveProducts = liveProducts.length > 0;
-  const products = hasLiveProducts ? liveProducts : approvedProducts;
-  const facets = hasLiveProducts ? deriveProductFacets(liveProducts) : approvedFacets;
-  const brands = hasLiveProducts
+  const isLive = source === "live";
+  const products = isLive ? liveProducts : approvedProducts;
+  const facets = isLive ? deriveProductFacets(liveProducts) : approvedFacets;
+  const brands = isLive
     ? liveBrands
     : demoBrands.map((brand) => ({ slug: brand.slug, name: brand.name }));
 

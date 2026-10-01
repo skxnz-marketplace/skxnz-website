@@ -4,6 +4,7 @@ import {
   runOutfitBuilderEngine,
   runSellerProductCheckEngine,
 } from "@/src/lib/ai/engines";
+import { loadAiCatalog } from "@/src/lib/ai/live-catalog";
 import { getAiProviderConfig } from "@/src/lib/ai/provider";
 import {
   appendAiAuditLog,
@@ -85,7 +86,7 @@ export async function handleBuyerAssistantRequest(
   payload: BuyerAssistantRequest,
   actorId: string | null,
 ) {
-  const response = runBuyerAssistantEngine(payload);
+  const response = runBuyerAssistantEngine(payload, await loadAiCatalog());
 
   recordAiUsage({
     feature: "Buyer AI Assistant",
@@ -102,7 +103,7 @@ export async function handleOutfitBuilderRequest(
   payload: OutfitBuilderRequest,
   actorId: string | null,
 ) {
-  const response = runOutfitBuilderEngine(payload);
+  const response = runOutfitBuilderEngine(payload, await loadAiCatalog());
 
   saveOutfitResult({
     id: response.requestId,

@@ -2,9 +2,14 @@ import { NextResponse } from "next/server";
 
 import {
   createSkxnzAssistantResponse,
+  demoAssistantCatalog,
   skxnzAssistantLimits,
+  type AssistantCatalog,
   type SkxnzAssistantContext,
 } from "@/src/lib/skxnzAssistant";
+import { isDemoCatalogueEnabled } from "@/lib/catalog/demo-fallback";
+import { mapCatalogProductToBuyerProduct } from "@/lib/catalog/mappers";
+import { listActiveBrands, listActiveCategories, listActiveProducts } from "@/lib/catalog/public-catalog";
 import { guardRouteHandler } from "@/lib/security/rate-limit/rate-limit";
 
 export const dynamic = "force-dynamic";
@@ -107,10 +112,39 @@ export async function POST(request: Request) {
     );
   }
 
+  const catalog = await loadAssistantCatalog();
+  if (!catalog) {
+    return NextResponse.json(
+      { error: "The SKXNZ catalogue is unavailable right now. Please try again shortly." },
+      { status: 503 },
+    );
+  }
+
   const result = createSkxnzAssistantResponse(
     message,
+    catalog,
     sanitizeAssistantContext(body.context),
   );
 
   return NextResponse.json(result);
+}
+
+/** The live catalogue the assistant may recommend from. null = catalogue error
+ * (logged in lib/catalog/public-catalog); demo data only via the demo switch. */
+async function loadAssistantCatalog(): Promise<AssistantCatalog | null> {
+  const [products, brands, categories] = await Promise.all([
+    listActiveProducts(),
+    listActiveBrands(),
+    listActiveCategories(),
+  ]);
+
+  if (products.ok && brands.ok && categories.ok) {
+    return {
+      products: products.data.map(mapCatalogProductToBuyerProduct),
+      brands: brands.data.map((brand) => ({ slug: brand.slug, name: brand.name })),
+      categorySlugs: categories.data.map((category) => category.slug),
+    };
+  }
+
+  return isDemoCatalogueEnabled() ? demoAssistantCatalog : null;
 }

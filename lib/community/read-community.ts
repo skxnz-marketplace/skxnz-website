@@ -4,7 +4,7 @@
 // boundary; every filter here is defensive, not the source of truth.
 
 import { createClient } from "@/lib/supabase/server";
-import { getActiveProductsWithRelations } from "@/lib/catalog/queries";
+import { listActiveProducts, unwrapCatalog } from "@/lib/catalog/public-catalog";
 import { mapCatalogProductToBuyerProduct } from "@/lib/catalog/mappers";
 import { fallbackProductImage, type Product } from "@/lib/data/products";
 import { avatarInitialsFromName, relativeTimeLabel } from "@/lib/community/format";
@@ -59,8 +59,9 @@ function mapPostRow(row: CommunityPostRow, productsById: Map<string, Product>): 
  * throughout the site (real Supabase uuid ids — required since
  * community_posts.tagged_product_ids is a uuid[] column). */
 export async function getCommunityCatalogProducts(): Promise<Product[]> {
-  const relations = await getActiveProductsWithRelations();
-  return relations.map(mapCatalogProductToBuyerProduct);
+  // Canonical public read; a catalogue error throws rather than showing posts
+  // with their tagged products silently missing.
+  return unwrapCatalog(await listActiveProducts()).map(mapCatalogProductToBuyerProduct);
 }
 
 export type CommunityPageData = {

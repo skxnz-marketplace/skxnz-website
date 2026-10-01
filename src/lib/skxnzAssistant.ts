@@ -6,6 +6,7 @@ import {
 } from "@/lib/data/products";
 import { demoBrands } from "@/src/data/demo-brands";
 import { aiOutfitMetadata, type AiOutfitMetadata } from "@/src/data/aiOutfitMetadata";
+import { structuredCategories } from "@/src/data/categories";
 import { ensureProductAsset, skxnzFallbackAssets } from "@/src/lib/assets";
 import {
   getCategoryPageHref,
@@ -418,6 +419,27 @@ const vibeTerms = [
 
 const aiMetadataBySlug = new Map(aiOutfitMetadata.map((metadata) => [metadata.slug, metadata]));
 
+/** The products and brands the assistant may recommend. The API route passes
+ * the LIVE catalogue (lib/catalog/public-catalog); demoAssistantCatalog exists
+ * only for lib/catalog/demo-fallback (dev without a backend). */
+export type AssistantCatalog = {
+  products: Product[];
+  brands: Array<{ slug: string; name: string; searchKeywords?: string[] }>;
+  /** Category slugs that have a real category page; other categories link to shop search. */
+  categorySlugs: string[];
+};
+
+export const demoAssistantCatalog: AssistantCatalog = {
+  products: demoProducts,
+  brands: demoBrands,
+  categorySlugs: structuredCategories.map((category) => category.slug),
+};
+
+/** Recommendable = in stock and either a live catalogue product or an approved demo preview. */
+function isRecommendable(product: Product) {
+  return (product.dataSource === "live" || isApprovedProduct(product)) && product.stock > 0;
+}
+
 function compactWhitespace(value: string) {
   return value.trim().replace(/\s+/g, " ");
 }
@@ -645,16 +667,16 @@ function detectColors(normalizedMessage: string) {
   );
 }
 
-function detectBrands(normalizedMessage: string) {
+function detectBrands(normalizedMessage: string, catalog: AssistantCatalog) {
   const productBrands = new Map<string, string>();
 
-  for (const product of demoProducts) {
+  for (const product of catalog.products) {
     productBrands.set(product.brandSlug, product.brandName || product.brandSlug);
   }
 
   return Array.from(productBrands.entries())
     .map(([slug, name]) => {
-      const brand = demoBrands.find((entry) => entry.slug === slug);
+      const brand = catalog.brands.find((entry) => entry.slug === slug);
       const searchTerms = unique([
         slug,
         slug.replace(/-/g, " "),
@@ -747,7 +769,7 @@ export function classifySkxnzAssistantRequest(message: string): SkxnzAssistantIn
   return classifyIntent(normalizeText(message));
 }
 
-function detectSignals(message: string, context?: SkxnzAssistantContext): QuerySignals {
+function detectSignals(message: string, catalog: AssistantCatalog, context?: SkxnzAssistantContext): QuerySignals {
   const normalizedMessage = normalizeText(message);
   const categories = detectCategories(normalizedMessage);
   const requestedColors = detectColors(normalizedMessage);
@@ -756,7 +778,7 @@ function detectSignals(message: string, context?: SkxnzAssistantContext): QueryS
   const intent = classifyIntent(normalizedMessage, categories, requestedColors);
   const detectedFitTerms = fitTerms.filter((term) => hasTerm(normalizedMessage, term));
   const detectedStyleTerms = vibeTerms.filter((term) => hasTerm(normalizedMessage, term));
-  const detectedBrands = detectBrands(normalizedMessage);
+  const detectedBrands = detectBrands(normalizedMessage, catalog);
   const contextTerms = getContextTerms(context);
 
   return {
@@ -1101,8 +1123,8 @@ function findCartAwareProducts(approvedProducts: Product[], signals: QuerySignal
     .map((entry) => entry.product);
 }
 
-function findRecommendations(signals: QuerySignals): RecommendationResult {
-  const approvedProducts = demoProducts.filter((product) => isApprovedProduct(product) && product.stock > 0);
+function findRecommendations(signals: QuerySignals, catalog: AssistantCatalog): RecommendationResult {
+  const approvedProducts = catalog.products.filter(isRecommendable);
 
   if (approvedProducts.length === 0) {
     return {
@@ -1317,6 +1339,7 @@ function createReply(signals: QuerySignals, recommendations: SkxnzAssistantProdu
 function createSuggestedLinks(
   signals: QuerySignals,
   recommendations: SkxnzAssistantProductRecommendation[],
+  catalog: AssistantCatalog,
 ): SkxnzAssistantSuggestedLink[] {
   const categoryLinks = uniqueNonEmpty([
     ...signals.categoryLabels,
@@ -1332,7 +1355,7 @@ function createSuggestedLinks(
         id: `category-${categorySlug}`,
         type: "category" as const,
         label,
-        href: structuredCategory
+        href: catalog.categorySlugs.includes(categorySlug)
           ? getCategoryPageHref(categorySlug)
           : `/shop?q=${encodeURIComponent(label)}`,
         helperText: "Browse this SKXNZ category.",
@@ -1345,12 +1368,12 @@ function createSuggestedLinks(
     .reduce<SkxnzAssistantSuggestedLink[]>((links, brandValue) => {
       const normalizedValue = normalizeText(brandValue);
       const brand =
-        demoBrands.find(
+        catalog.brands.find(
           (entry) =>
             normalizeText(entry.slug) === normalizedValue ||
             normalizeText(entry.name) === normalizedValue,
         ) ??
-        demoBrands.find((entry) =>
+        catalog.brands.find((entry) =>
           recommendations.some((product) => product.brandName === entry.name),
         );
 
@@ -1378,8 +1401,8 @@ function createSuggestedLinks(
   return Array.from(uniqueLinks.values()).slice(0, 4);
 }
 
-export function extractQueryIntent(message: string, context?: SkxnzAssistantContext) {
-  const signals = detectSignals(message, context);
+export function extractQueryIntent(message: string, catalog: AssistantCatalog, context?: SkxnzAssistantContext) {
+  const signals = detectSignals(message, catalog, context);
 
   return {
     intent: signals.intent,
@@ -1395,10 +1418,11 @@ export function extractQueryIntent(message: string, context?: SkxnzAssistantCont
 
 export function findProductsForPrompt(
   message: string,
+  catalog: AssistantCatalog,
   context?: SkxnzAssistantContext,
 ) {
-  const signals = detectSignals(message, context);
-  const recommendationResult = findRecommendations(signals);
+  const signals = detectSignals(message, catalog, context);
+  const recommendationResult = findRecommendations(signals, catalog);
   const nextSignals = {
     ...signals,
     exactMatchWasWeak: recommendationResult.exactMatchWasWeak,
@@ -1410,19 +1434,19 @@ export function findProductsForPrompt(
     .map((product) => toRecommendation(product, nextSignals, recommendationResult.isAlternative));
 }
 
-export function recommendByStyle(style: string, limit = 4) {
-  const signals = detectSignals(style);
+export function recommendByStyle(style: string, catalog: AssistantCatalog, limit = 4) {
+  const signals = detectSignals(style, catalog);
 
   return rankProducts(
-    demoProducts.filter((product) => isApprovedProduct(product) && product.stock > 0),
+    catalog.products.filter(isRecommendable),
     signals,
   )
     .slice(0, limit)
     .map((entry) => toRecommendation(entry.product, signals, false));
 }
 
-export function recommendSimilarProducts(productId: string, limit = 4) {
-  const product = demoProducts.find(
+export function recommendSimilarProducts(productId: string, catalog: AssistantCatalog, limit = 4) {
+  const product = catalog.products.find(
     (entry) => entry.id === productId || entry.slug === productId,
   );
 
@@ -1438,36 +1462,35 @@ export function recommendSimilarProducts(productId: string, limit = 4) {
       ...product.tags,
       ...product.colors,
     ].join(" "),
+    catalog,
   );
 
   return rankProducts(
-    demoProducts.filter(
-      (entry) =>
-        entry.id !== product.id && isApprovedProduct(entry) && entry.stock > 0,
-    ),
+    catalog.products.filter((entry) => entry.id !== product.id && isRecommendable(entry)),
     signals,
   )
     .slice(0, limit)
     .map((entry) => toRecommendation(entry.product, signals, false));
 }
 
-export function getAIStyledProducts(limit = 4) {
-  return recommendByStyle("ai styled ai stylised futurewear", limit);
+export function getAIStyledProducts(catalog: AssistantCatalog, limit = 4) {
+  return recommendByStyle("ai styled ai stylised futurewear", catalog, limit);
 }
 
-export function getLimitedEditionProducts(limit = 4) {
-  return recommendByStyle("limited edition drop exclusive", limit);
+export function getLimitedEditionProducts(catalog: AssistantCatalog, limit = 4) {
+  return recommendByStyle("limited edition drop exclusive", catalog, limit);
 }
 
-export function getNewSeasonProducts(limit = 4) {
-  return recommendByStyle("new season latest fresh drops", limit);
+export function getNewSeasonProducts(catalog: AssistantCatalog, limit = 4) {
+  return recommendByStyle("new season latest fresh drops", catalog, limit);
 }
 
 export function createSkxnzAssistantResponse(
   message: string,
+  catalog: AssistantCatalog,
   context?: SkxnzAssistantContext,
 ): SkxnzAssistantResponse {
-  const signals = detectSignals(message, context);
+  const signals = detectSignals(message, catalog, context);
 
   if (signals.intent === "blocked_out_of_scope") {
     return {
@@ -1490,7 +1513,7 @@ export function createSkxnzAssistantResponse(
     };
   }
 
-  const recommendationResult = findRecommendations(signals);
+  const recommendationResult = findRecommendations(signals, catalog);
   const nextSignals = {
     ...signals,
     exactMatchWasWeak: recommendationResult.exactMatchWasWeak,
@@ -1505,7 +1528,7 @@ export function createSkxnzAssistantResponse(
     intent: nextSignals.intent,
     blocked: false,
     recommendedProducts,
-    suggestedLinks: createSuggestedLinks(nextSignals, recommendedProducts),
+    suggestedLinks: createSuggestedLinks(nextSignals, recommendedProducts, catalog),
     followUpQuestion: createFollowUpQuestion(nextSignals),
   };
 }

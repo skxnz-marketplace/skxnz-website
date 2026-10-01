@@ -6,6 +6,7 @@ import { structuredBrands } from "@/src/data/brands";
 import { structuredCategories } from "@/src/data/categories";
 import { structuredCollections } from "@/src/data/collections";
 import { structuredProducts } from "@/src/data/products";
+import type { Product as BuyerProduct } from "@/lib/data/products";
 import {
   controlledSkxnzPlaceholderImage,
   ensureCatalogImage,
@@ -80,6 +81,61 @@ export const aiCatalogProducts: AiCatalogProduct[] = structuredProducts.map((pro
   href: `/product/${product.slug}`,
   metadata: aiMetadataById.get(product.id) ?? null,
 }));
+
+export type AiCatalogBrand = {
+  name: string;
+  slug: string;
+  tagline?: string;
+  shortDescription?: string;
+  searchKeywords: string[];
+  categories: string[];
+};
+
+/** What the buyer AI engines may recommend from. The service passes the LIVE
+ * catalogue (src/lib/ai/live-catalog.ts); demoAiCatalog (generated from the
+ * planning sheet) exists only for lib/catalog/demo-fallback. */
+export type AiCatalog = { products: AiCatalogProduct[]; brands: AiCatalogBrand[] };
+
+export const demoAiCatalog: AiCatalog = { products: aiCatalogProducts, brands: structuredBrands };
+
+/** A live catalogue product (already mapped to the buyer Product shape by
+ * lib/catalog/mappers) in the AI engine's shape. Live rows carry no gender. */
+export function toAiCatalogProduct(product: BuyerProduct): AiCatalogProduct {
+  return {
+    id: product.id,
+    slug: product.slug,
+    name: product.name,
+    brandId: product.brandId,
+    brandSlug: product.brandSlug,
+    brandName: product.brandName,
+    category: product.category,
+    subcategory: product.subcategory,
+    gender: "Unisex",
+    collections: product.collections,
+    price: product.price,
+    salePrice: product.salePrice,
+    effectivePrice: product.salePrice ?? product.price,
+    description: product.description,
+    shortDescription: product.shortDescription,
+    image: ensureCatalogImage(product.image),
+    gallery: product.gallery.map((entry) => ensureCatalogImage(entry)),
+    sizes: product.sizes,
+    colors: product.colors,
+    stockQuantity: product.stock,
+    stockStatus: product.stock > 0 ? "In Stock" : "Out of Stock",
+    tags: product.tags,
+    searchKeywords: uniqueNonEmpty([
+      ...product.tags,
+      ...product.collections,
+      ...product.searchAliases,
+      product.brandName,
+      product.category,
+      product.subcategory,
+    ]),
+    href: `/product/${product.slug}`,
+    metadata: null,
+  };
+}
 
 export function getAiCatalogProductBySlug(slug: string) {
   const normalizedSlug = normalizeCatalogValue(slug);

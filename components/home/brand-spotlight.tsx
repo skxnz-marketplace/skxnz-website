@@ -1,16 +1,16 @@
 import Link from "next/link";
 
 import { SafeImage } from "@/components/shared/safe-image";
-import { getTopBrands } from "@/lib/data/brands";
+import type { BrandPerformanceSnapshot } from "@/lib/data/brands";
 import { skxnzFallbackAssets } from "@/src/lib/assets";
 
 /**
- * Ranked brand cards — same getTopBrands() ranking the shop page's brand
- * toolbar uses, just a distinct full-bleed treatment for the homepage
- * instead of the horizontal-scroll chip list.
+ * Ranked brand cards — the same live ranking the shop page's brand toolbar
+ * uses (lib/catalog/mappers#buildLiveBrandSnapshots, built by the page), in a
+ * full-bleed homepage treatment. Renders nothing when there are no brands.
  */
-export function BrandSpotlight() {
-  const top = getTopBrands({ limit: 3 });
+export function BrandSpotlight({ snapshots }: { snapshots: BrandPerformanceSnapshot[] }) {
+  const top = snapshots.slice(0, 3);
 
   if (top.length === 0) return null;
 
@@ -20,7 +20,7 @@ export function BrandSpotlight() {
         <div className="mb-8 flex items-end justify-between gap-4">
           <div>
             <p className="text-[0.78rem] font-bold uppercase tracking-[0.24em] text-[#2E1014]/60">
-              Ranked by Momentum
+              Ranked by Catalogue
             </p>
             <h2 className="mt-2 font-grotesk text-2xl font-bold uppercase tracking-[-0.015em] text-[#161616] sm:text-3xl">
               Brand Spotlight

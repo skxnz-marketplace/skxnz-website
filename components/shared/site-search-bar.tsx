@@ -13,6 +13,7 @@ import {
 
 import { useMarketplace } from "@/components/marketplace/marketplace-provider";
 import { SafeImage } from "@/components/shared/safe-image";
+import { isDemoCatalogueEnabled } from "@/lib/catalog/demo-fallback";
 import { cn } from "@/lib/cn";
 import { demoBrands } from "@/src/data/demo-brands";
 import { skxnzFallbackAssets } from "@/src/lib/assets";
@@ -111,7 +112,7 @@ export function SiteSearchBar({
   const [query, setQuery] = useState("");
   const [isFocused, setIsFocused] = useState(false);
   const [isSurfaceActive, setIsSurfaceActive] = useState(surface == null);
-  /** Live catalog product suggestions; null = live unavailable/failed → local fallback. */
+  /** Live catalogue suggestions (products, brands, categories); null = pending or failed. */
   const [liveProductSuggestions, setLiveProductSuggestions] = useState<SearchSuggestion[] | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -192,24 +193,24 @@ export function SiteSearchBar({
       return [];
     }
 
+    // Products, brands and categories come ONLY from the live catalogue
+    // (/api/search/suggestions). Locally we keep static navigation — site pages
+    // and search-query collections — which never present merchandise. With the
+    // lib/catalog/demo-fallback switch on (dev only), the old local catalogue
+    // suggestions are allowed for offline work.
+    const demoAllowed = isDemoCatalogueEnabled();
     const localSuggestions = buildSearchSuggestions({
       query,
-      products: approvedProducts,
-      brands: demoBrands,
+      products: demoAllowed ? approvedProducts : [],
+      brands: demoAllowed ? demoBrands : [],
       limit: 8,
     });
+    const navigationSuggestions = demoAllowed
+      ? localSuggestions
+      : localSuggestions.filter((suggestion) => suggestion.type === "page" || suggestion.type === "collection");
 
-    if (liveProductSuggestions === null) {
-      return localSuggestions;
-    }
-
-    // Live catalog reachable: live products replace local product rows;
-    // brand/category/collection/page navigation suggestions stay local.
-    const navigationSuggestions = localSuggestions.filter(
-      (suggestion) => suggestion.type !== "product",
-    );
-
-    return [...liveProductSuggestions, ...navigationSuggestions]
+    // null = live request pending or failed: show navigation only, never demo items.
+    return [...(liveProductSuggestions ?? []), ...navigationSuggestions]
       .sort((left, right) => right.score - left.score)
       .slice(0, 8);
   }, [approvedProducts, isSurfaceActive, liveProductSuggestions, query]);

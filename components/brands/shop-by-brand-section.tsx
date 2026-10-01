@@ -8,18 +8,24 @@ import { SafeImage } from "@/components/shared/safe-image";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { buildBrandPerformance } from "@/lib/data/brands";
+import { buildBrandPerformance, type BrandPerformanceSnapshot } from "@/lib/data/brands";
 import {
   ensureBrandLogoAsset,
   ensureHeroAsset,
   skxnzFallbackAssets,
 } from "@/src/lib/assets";
 
-export function ShopByBrandSection() {
+type ShopByBrandSectionProps = {
+  /** Server-built ranking of live brands. When omitted, the local fixture
+   * ranking is used, which only happens with the catalogue fixture switch on. */
+  rankedBrands?: BrandPerformanceSnapshot[];
+};
+
+export function ShopByBrandSection({ rankedBrands: providedRanking }: ShopByBrandSectionProps = {}) {
   const { catalog, orders } = useMarketplace();
   const rankedBrands = useMemo(
-    () => buildBrandPerformance(catalog, orders),
-    [catalog, orders],
+    () => providedRanking ?? buildBrandPerformance(catalog, orders),
+    [providedRanking, catalog, orders],
   );
 
   return (

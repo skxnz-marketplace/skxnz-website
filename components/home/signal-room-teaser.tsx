@@ -2,16 +2,16 @@ import Link from "next/link";
 
 import { SafeImage } from "@/components/shared/safe-image";
 import { getProductHref } from "@/lib/catalog/product-links";
-import { products } from "@/lib/data/products";
+type TeaserProduct = { id: string; slug: string; name: string; image: string };
 import { skxnzFallbackAssets } from "@/src/lib/assets";
 
 const pillars = ["Drop Discussions", "Style Signals", "Member Fits"];
 
 // Same honest framing as /community itself: the room is upcoming, not live.
 // No invented posts, threads, or member activity — just what's arriving.
-const previewProducts = products.slice(0, 4);
-
-export function SignalRoomTeaser() {
+// Product tiles are live catalogue products passed in by the page.
+export function SignalRoomTeaser({ products }: { products: TeaserProduct[] }) {
+  const previewProducts = products.slice(0, 4);
   return (
     <section aria-label="Signal Room" className="bg-[#F4F1EC] py-16 sm:py-24">
       <div className="mx-auto grid max-w-[1440px] items-center gap-10 px-6 sm:px-10 lg:grid-cols-[1fr_0.9fr] lg:gap-16 lg:px-16">

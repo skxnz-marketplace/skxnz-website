@@ -12,63 +12,40 @@ import { ShopSplit } from "@/components/home/shop-split";
 import { SignalCta } from "@/components/home/signal-cta";
 import { SignalRoomTeaser } from "@/components/home/signal-room-teaser";
 import { TrustBar } from "@/components/home/trust-bar";
-import { getActiveBrands, getTrendingProducts } from "@/lib/catalog/queries";
-import { mapProductToHomeProduct } from "@/lib/catalog/mappers";
-import { getProductHref } from "@/lib/catalog/product-links";
-import {
-  isApprovedProduct,
-  products as approvedCataloguePool,
-  type Product as CatalogueProduct,
-} from "@/lib/data/products";
-import { type HomeProduct } from "@/lib/home-data";
+import { buildLiveBrandSnapshots, mapCatalogProductToBuyerProduct, mapProductToHomeProduct } from "@/lib/catalog/mappers";
+import { listActiveBrands, listActiveProducts, listTrendingProducts } from "@/lib/catalog/public-catalog";
+import type { HomeProduct } from "@/lib/home-data";
 
 export const revalidate = 300;
 
 const TRENDING_COUNT = 6;
 
-// Every homepage card must point at a real product-detail page. When the live
-// catalog is unavailable we fall back to the same approved local catalogue the
-// shop grid renders — never to invented products.
-function mapCatalogueToHomeProduct(product: CatalogueProduct): HomeProduct {
-  return {
-    id: product.id,
-    brand: product.brandName,
-    name: product.name,
-    price: (product.salePrice ?? product.price) * 100,
-    oldPrice: product.salePrice != null ? product.price * 100 : undefined,
-    href: getProductHref(product),
-    image: product.image ?? "",
-  };
-}
-
+// Every homepage product and brand comes from the live catalogue
+// (lib/catalog/public-catalog). If a read fails, that section is not rendered
+// (the error is logged there) — it is never refilled with demo products.
 export default async function HomePage() {
-  const [liveBrands, trendingProducts] = await Promise.all([
-    getActiveBrands(),
-    getTrendingProducts(TRENDING_COUNT),
+  const [trending, brands, products] = await Promise.all([
+    listTrendingProducts(TRENDING_COUNT),
+    listActiveBrands(),
+    listActiveProducts(),
   ]);
 
-  const brandNameById = new Map(liveBrands.map((brand) => [brand.id, brand.name]));
+  // Admin-curated (products.trending_sort_order) first, newest fills the rest.
+  const trendingSection: HomeProduct[] = trending.ok
+    ? trending.data.map((product) => {
+        const card = mapProductToHomeProduct(product, new Map(product.brand ? [[product.brand.id, product.brand.name]] : []));
+        return { ...card, image: product.images[0]?.url ?? card.image };
+      })
+    : [];
 
-  // Admin-curated (products.trending_sort_order) first, newest-first fills
-  // any remaining slots — see lib/catalog/queries.ts#getTrendingProducts.
-  const liveTrendingSection: HomeProduct[] = trendingProducts.map((product) =>
-    mapProductToHomeProduct(product, brandNameById),
-  );
-
-  const approvedCatalogue = approvedCataloguePool.filter(isApprovedProduct);
-  const catalogueHomeProducts = approvedCatalogue.map(mapCatalogueToHomeProduct);
-
-  const trendingSection =
-    liveTrendingSection.length >= TRENDING_COUNT
-      ? liveTrendingSection
-      : catalogueHomeProducts.slice(0, TRENDING_COUNT);
+  const brandSnapshots = brands.ok && products.ok ? buildLiveBrandSnapshots(brands.data, products.data) : [];
 
   return (
     <div className="min-h-screen bg-[#F4F1EC]">
       <HeroCarousel />
       <CategoryShowcase />
       <FeaturedLabels />
-      <BrandSpotlight />
+      <BrandSpotlight snapshots={brandSnapshots} />
       {trendingSection.length > 0 ? (
         <ProductRow
           heading="Trending Now"
@@ -86,7 +63,9 @@ export default async function HomePage() {
       <HeroScrollVideo />
       <AuthenticityShowcase />
       <AiSignalPanel />
-      <SignalRoomTeaser />
+      <SignalRoomTeaser
+        products={trending.ok ? trending.data.map(mapCatalogProductToBuyerProduct) : []}
+      />
       <SignalCta />
     </div>
   );

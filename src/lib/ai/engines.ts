@@ -1,9 +1,9 @@
-import { structuredBrands } from "@/src/data/brands";
 import { structuredCategories } from "@/src/data/categories";
 import { structuredCollections } from "@/src/data/collections";
 import {
   aiCatalogProducts,
   getAiProductSearchTerms,
+  type AiCatalog,
   type AiCatalogProduct,
 } from "@/src/lib/ai/catalog";
 import {
@@ -93,8 +93,8 @@ function parseBudgetFromText(value: string) {
   return null;
 }
 
-function findMatchedBrands(query: string) {
-  return structuredBrands.filter((brand) => {
+function findMatchedBrands(query: string, catalog: AiCatalog) {
+  return catalog.brands.filter((brand) => {
     const searchableValues = [
       brand.name,
       brand.slug,
@@ -102,7 +102,7 @@ function findMatchedBrands(query: string) {
       brand.shortDescription,
       ...brand.searchKeywords,
       ...brand.categories,
-    ];
+    ].filter((value): value is string => Boolean(value));
 
     return computeMatchScore(query, searchableValues) > 0;
   });
@@ -141,14 +141,16 @@ function filterProductsBySignals({
   category,
   stylePreference,
   size,
+  catalog,
 }: {
+  catalog: AiCatalog;
   query: string;
   budget: number | null;
   category?: string;
   stylePreference?: string;
   size?: string;
 }) {
-  return aiCatalogProducts
+  return catalog.products
     .map((product) => {
       let score = computeMatchScore(query, getAiProductSearchTerms(product));
 
@@ -246,11 +248,13 @@ function buildWhyItMatches(
 
 export function runBuyerAssistantEngine(
   request: BuyerAssistantRequest,
+  catalog: AiCatalog,
 ): BuyerAssistantResponse {
   const question = normalizeText(request.question);
   const normalizedQuestion = normalizeSearch(question);
   const derivedBudget = request.budget ?? parseBudgetFromText(question);
   const matchedProducts = filterProductsBySignals({
+    catalog,
     query: question,
     budget: derivedBudget,
     category: request.category,
@@ -258,7 +262,7 @@ export function runBuyerAssistantEngine(
     size: request.size,
   }).slice(0, 6);
 
-  const matchedBrands = findMatchedBrands(question);
+  const matchedBrands = findMatchedBrands(question, catalog);
   const matchedCategories = findMatchedCategories(question);
   const matchedCollections = findMatchedCollections(question);
 
@@ -475,8 +479,9 @@ function buildOutfitExplanation(optionTitle: string, items: AiCatalogProduct[], 
 
 export function runOutfitBuilderEngine(
   request: OutfitBuilderRequest,
+  catalog: AiCatalog,
 ): OutfitBuilderResponse {
-  const eligibleProducts = aiCatalogProducts.filter(
+  const eligibleProducts = catalog.products.filter(
     (product) =>
       product.stockQuantity > 0 &&
       product.effectivePrice <= request.budget &&

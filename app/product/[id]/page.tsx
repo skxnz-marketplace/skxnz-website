@@ -1,16 +1,17 @@
 import { cache } from "react";
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 
 import { ProductDetailShell } from "@/components/buyer/product-detail-shell";
+import { isDemoCatalogueEnabled } from "@/lib/catalog/demo-fallback";
 import { mapCatalogProductToBuyerProduct } from "@/lib/catalog/mappers";
 import {
-  getActiveProductBySlug,
-  getActiveProductsWithRelations,
-  getProductById,
-} from "@/lib/catalog/queries";
+  CatalogUnavailableError,
+  findActiveProduct,
+  listActiveProducts,
+} from "@/lib/catalog/public-catalog";
 import {
   getProductById as getSeedProductById,
-  products,
   type Product,
 } from "@/lib/data/products";
 import { getSiteBaseUrl } from "@/lib/site";
@@ -25,7 +26,6 @@ function truncateDescription(text: string, maxLength = 155): string {
 }
 
 export const revalidate = 300;
-const LIVE_PRODUCT_LOOKUP_TIMEOUT_MS = 2500;
 
 type ProductPageProps = {
   params: Promise<{
@@ -33,86 +33,46 @@ type ProductPageProps = {
   }>;
 };
 
+/** Pre-render live product slugs. On a catalogue error, pre-render nothing:
+ * pages then render on demand (and surface the error) instead of failing the build. */
 export async function generateStaticParams() {
-  return products.map((product) => ({
-    id: product.id,
-  }));
+  const result = await listActiveProducts();
+  return result.ok ? result.data.map((product) => ({ id: product.slug })) : [];
 }
 
-async function resolveLiveProduct(id: string) {
-  let timeoutId: ReturnType<typeof setTimeout> | undefined;
-  const controller = new AbortController();
-
-  const timeout = new Promise<null>((resolve) => {
-    timeoutId = setTimeout(() => {
-      console.warn("[product] live product lookup timed out; falling back to local product data.");
-      controller.abort();
-      resolve(null);
-    }, LIVE_PRODUCT_LOOKUP_TIMEOUT_MS);
-  });
-
-  const lookup = async () =>
-    (await getActiveProductBySlug(id, controller.signal)) ??
-    (await getProductById(id, controller.signal));
-
-  try {
-    return await Promise.race([lookup(), timeout]);
-  } finally {
-    if (timeoutId) {
-      clearTimeout(timeoutId);
-    }
-  }
-}
-
-// PERF (D13-A): generateMetadata AND the page body both resolve the same
-// product for one request. Each call was up to two sequential Supabase lookups
-// (slug then id) plus their relation fetches and a 2.5s timeout race, so the
-// page paid that cost twice. React cache() memoizes per render pass, keyed by
-// id, so the second caller reuses the first's promise. This is request-scoped
-// only — it never persists across requests, so it cannot serve stale product
-// data. Behaviour is identical; the work happens once.
+// PERF (D13-A): generateMetadata and the page body both resolve the same
+// product; React cache() makes that one lookup per render pass (request-scoped).
+// null = no such ACTIVE product (404). A query error throws (5xx) — it is never
+// replaced by a demo product unless lib/catalog/demo-fallback allows it.
 const resolveProduct = cache(async (id: string): Promise<Product | null> => {
-  try {
-    const liveProduct = await resolveLiveProduct(id);
+  const result = await findActiveProduct(id);
 
-    if (liveProduct) {
-      return mapCatalogProductToBuyerProduct(liveProduct);
-    }
-  } catch (err) {
-    console.warn("[product] falling back to local product data:", err);
+  if (result.ok) {
+    if (result.data) return mapCatalogProductToBuyerProduct(result.data);
+    return isDemoCatalogueEnabled() ? getSeedProductById(id) ?? null : null;
   }
 
-  return getSeedProductById(id) ?? null;
+  if (isDemoCatalogueEnabled()) return getSeedProductById(id) ?? null;
+  throw new CatalogUnavailableError(result.error.operation);
 });
 
-/** Live catalog products related to a live product — same category first, then
- * the latest actives. Never demo products, so a live PDP stays consistent. */
+/** Other live products — same category first, then the newest. A secondary
+ * section: on error it renders nothing (logged in lib/catalog), never demo. */
 async function resolveLiveSimilarProducts(product: Product): Promise<Product[]> {
   if (product.dataSource !== "live") {
     return [];
   }
 
-  try {
-    const timeout = new Promise<null>((resolve) => {
-      setTimeout(() => resolve(null), LIVE_PRODUCT_LOOKUP_TIMEOUT_MS);
-    });
-    const candidates = await Promise.race([getActiveProductsWithRelations(), timeout]);
+  const result = await listActiveProducts({ limit: 24 });
+  if (!result.ok) return [];
 
-    if (!candidates) {
-      return [];
-    }
+  const others = result.data.filter((candidate) => candidate.id !== product.id);
+  const sameCategory = others.filter(
+    (candidate) => candidate.category_id != null && candidate.category_id === product.categoryId,
+  );
+  const rest = others.filter((candidate) => !sameCategory.includes(candidate));
 
-    const others = candidates.filter((candidate) => candidate.id !== product.id);
-    const sameCategory = others.filter(
-      (candidate) => candidate.category_id != null && candidate.category_id === product.categoryId,
-    );
-    const rest = others.filter((candidate) => !sameCategory.includes(candidate));
-
-    return [...sameCategory, ...rest].slice(0, 3).map(mapCatalogProductToBuyerProduct);
-  } catch (err) {
-    console.warn("[product] live similar products unavailable:", err);
-    return [];
-  }
+  return [...sameCategory, ...rest].slice(0, 3).map(mapCatalogProductToBuyerProduct);
 }
 
 export async function generateMetadata({
@@ -162,11 +122,12 @@ export async function generateMetadata({
 export default async function ProductDetailPage({ params }: ProductPageProps) {
   const { id } = await params;
   const product = await resolveProduct(id);
-  const liveSimilarProducts = product ? await resolveLiveSimilarProducts(product) : [];
+  if (!product) notFound();
+  const liveSimilarProducts = await resolveLiveSimilarProducts(product);
 
   return (
     <>
-      {product ? <ProductJsonLd product={product} /> : null}
+      <ProductJsonLd product={product} />
       <ProductDetailShell
         productId={id}
         seedProduct={product}
