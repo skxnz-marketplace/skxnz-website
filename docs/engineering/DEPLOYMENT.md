@@ -9,10 +9,14 @@ Facts only. Where something is not proven, it says so.
   connection is read-only (it lists deployments; it cannot deploy).
 - GitHub repo: `skxnz-marketplace/skxnz-website` (public). Its default branch is `main`.
 
-## Production branch: UNKNOWN
+## Production branch: `launch-war-july30` (founder-designated 2026-10-01)
 
-Nobody has confirmed which Git branch Vercel treats as Production. The evidence is inconsistent,
-so **do not assume `main`**, and do not push to test it.
+The founder designated `launch-war-july30` (tip `81d863d`) as the production branch for
+deployment planning on 2026-10-01. This rests on high-confidence evidence: a successful
+`skxnz-website` deployment of that tip, and a live homepage that matches its code while `main`
+does not. The Vercel Settings → Git field itself has not been read: no available Vercel
+connection can see the project. **Do not assume `main`.** Pushing to `launch-war-july30` is
+expected to trigger a production deployment, so treat a push there as a deploy.
 
 Production history, from GitHub's deployments API (all created by `vercel[bot]`) and the
 deploy notes in PROGRESS.md. Each one is a local Git tag `deployed/<date>-<source>-<sha>`:

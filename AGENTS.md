@@ -8,7 +8,7 @@ Read PROGRESS.md before starting ANY work, and update it before you finish.
 - Supabase — Postgres, Auth, Storage, Edge Functions
 - Hosting: Vercel (region: Mumbai / bom1)
 - Payments: Razorpay | Shipping: Shiprocket | AI: Codex API
-- Deploy: Vercel project `skxnz-website`. The production branch is NOT confirmed (it has not been `main` since 2026-08-08). Read docs/engineering/DEPLOYMENT.md. Never push or deploy without the founder's explicit approval.
+- Deploy: Vercel project `skxnz-website`. The production branch is `launch-war-july30` (founder-designated 2026-10-01; a push there is a production deploy). Read docs/engineering/DEPLOYMENT.md. Never push or deploy without the founder's explicit approval.
 - Canonical branch: `integrate/recover-missing-work`. Where things live and what is authoritative: docs/engineering/REPOSITORY_MAP.md and SOURCE_OF_TRUTH.md.
 
 ## Who you're working with
