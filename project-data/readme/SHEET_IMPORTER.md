@@ -1,9 +1,9 @@
 # SKXNZ Sheet Importer
 
-Use `/Users/vrishank/Downloads/SKXNZ_PROJECT_ECOSYSTEM_COMMAND_PACK 2/website/scripts/import-sheet-data.py`
+Use `scripts/import-sheet-data.py` (run from the repo root)
 to convert the planning workbooks into structured TypeScript app data.
 
-Use `/Users/vrishank/Downloads/SKXNZ_PROJECT_ECOSYSTEM_COMMAND_PACK 2/website/scripts/export-backend-seed-data.py`
+Use `scripts/export-backend-seed-data.py` (run from the repo root)
 to convert the same planning workbooks into JSON seed artifacts for Prisma/backend preparation.
 
 ## Direct XLSX Path
