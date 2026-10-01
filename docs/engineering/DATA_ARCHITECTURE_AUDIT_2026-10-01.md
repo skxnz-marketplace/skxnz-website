@@ -375,3 +375,20 @@ addendum records what Phase 1B changed; the current design is in
 | Demo static params / demo JSON-LD | **Fixed:** static params from live slugs; JSON-LD only for resolved live entities |
 | QA product `skxnz-qa-test-approval-01-bd37e28c` | **Open, awaiting approval:** proposed reversible `status ACTIVE → ARCHIVED` |
 | Production `/shop` showing demo | Fixed in code. Takes effect only after 0019 is applied **and** this branch is deployed |
+
+### Execution record — founder-approved production changes (2026-10-01)
+
+- **0019 applied** at 14:08 UTC via Supabase `apply_migration` (only this SQL; history row
+  `20261001140816 0019_fix_brand_category_public_reads`). No `db push`, no catch-up of
+  0001–0016, `saved_items` untouched. Verified:
+  - Policies: exactly `public can select active` (PUBLIC) and `admin can select all`
+    (authenticated, `is_admin()`) per table.
+  - Role tests: anon 11 brands / 6 categories, users 42501; non-admin 11/6 with
+    `is_admin` = false; admin 11/6 with `is_admin` = true.
+  - Anonymous REST: brands 200 (11), categories 200 (6), users 401/42501.
+  - No new security advisor findings.
+- **QA product archived** at 14:15 UTC: guarded update, `RETURNING` exactly 1 row, ACTIVE →
+  ARCHIVED. The row and its 8 variants are kept. Undo with `status = 'ACTIVE'`.
+  - Public removal verified: sitemap, shop, search, AI assistant, product route (404). The
+    homepage, `/categories/jackets` and `/brands/apex` cleared after one 5-minute ISR window.
+  - Live catalogue now has 6 ACTIVE products.

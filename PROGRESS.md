@@ -8,7 +8,8 @@ Single source of truth for project status. Read this before starting work and up
   - New canonical public layer `lib/catalog/public-catalog.ts` (`CatalogResult`: data / empty / error). Thirteen buyer surfaces moved onto it; query errors now give 5xx/503/hidden sections, never demo data. Demo fixtures only behind `lib/catalog/demo-fallback.ts` (impossible in production).
   - Docs: `docs/engineering/DATA_ARCHITECTURE.md`, addendum on the Phase 1A audit.
   - Gates: lint 0 errors, typecheck clean, commerce 173/173, auth 35/35. Production build fails until 0019 is applied (prerendered `/brands` read throws). This is intentional.
-  - Next up: (1) founder approves applying 0019, then rerun build and smoke tests; (2) founder approves archiving QA product `skxnz-qa-test-approval-01-bd37e28c`; (3) confirm the Vercel production branch before any push/deploy.
+  - **Founder-approved production changes done:** 0019 applied to the live DB (verified: anon brands 11 / categories 6, users still denied). QA product archived (1 row, ACTIVE to ARCHIVED, not deleted). The production build now passes, and every buyer route returns 200 on live data.
+  - Next up: confirm the Vercel production branch (the connected Vercel account cannot see `skxnz-website`). Then push/deploy only with founder approval.
 - **Phase 0 repository normalization (2026-10-01, `integrate/recover-missing-work`):** no push, no deploy.
   - Canonical branch is `integrate/recover-missing-work`. It includes the live GA4 line (`06d78d5`, merged in `2f96774`) and read-only fetch retries (`0a4e020`).
   - Known production deploys are tagged locally as `deployed/*`.
