@@ -42,6 +42,8 @@
     "../lib/security/rate-limit/adapters/index.ts",
     "../lib/security/rate-limit/adapters/memory-store.ts",
     "../lib/net/fetch-with-retry.ts",
-    "../lib/consent/google-analytics.ts"
+    "../lib/consent/google-analytics.ts",
+    "../lib/catalog/public-catalog.ts",
+    "../lib/catalog/demo-fallback.ts"
   ]
 }

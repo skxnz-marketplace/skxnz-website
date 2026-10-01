@@ -14,6 +14,7 @@ const path = require("path");
 const buildRoot = path.join(__dirname, ".build");
 const supabaseMockPath = path.join(__dirname, "mocks", "supabase-server.cjs");
 const supabaseAdminMockPath = path.join(__dirname, "mocks", "supabase-admin.cjs");
+const supabasePublicCatalogMockPath = path.join(__dirname, "mocks", "supabase-public-catalog.cjs");
 const nextStubsPath = path.join(__dirname, "mocks", "next-stubs.cjs");
 
 const originalResolve = Module._resolveFilename;
@@ -23,6 +24,9 @@ Module._resolveFilename = function (request, ...rest) {
   }
   if (request === "@/lib/supabase/admin") {
     return originalResolve.call(this, supabaseAdminMockPath, ...rest);
+  }
+  if (request === "@/lib/supabase/public-catalog") {
+    return originalResolve.call(this, supabasePublicCatalogMockPath, ...rest);
   }
   if (
     request === "next/cache" ||

@@ -2064,9 +2064,13 @@ test("D10-C: homepage no longer ships fabricated fallback products", () => {
   for (const fake of ["VANTA", "AXIS", "MERIDIAN", "HALO", "trendingProducts", "luxuryFinds", "newInProducts"]) {
     assert.equal(homeData.includes(fake), false, `home-data still carries "${fake}"`);
   }
+  // Phase 1B: the homepage no longer has a catalogue fallback at all — Trending,
+  // Brand Spotlight and the Signal Room tiles read the live catalogue, and a
+  // failed read hides the section instead of refilling it with fixtures.
   const page = fs.readFileSync(path.join(process.cwd(), "app/page.tsx"), "utf8");
-  assert.equal(page.includes("getProductHref"), true, "homepage fallback must build real PDP links");
-  assert.equal(page.includes("isApprovedProduct"), true, "homepage fallback must use approved catalogue products");
+  assert.match(page, /@\/lib\/catalog\/public-catalog/, "homepage must read the canonical live catalogue");
+  assert.equal(page.includes("@/lib/data/products"), false, "homepage must not import the fixture product pool");
+  assert.equal(page.includes("isApprovedProduct"), false, "homepage must not fall back to fixture products");
 });
 
 test("D10-C: featured labels rail shows no inflated +N badge", () => {
@@ -2196,7 +2200,8 @@ test("public catalog grant migration is least-privilege and preserves RLS policy
     path.join(process.cwd(), "supabase/migrations/0012_catalog_public_read_grants.sql"),
     "utf8",
   );
-  const queries = fs.readFileSync(path.join(process.cwd(), "lib/catalog/queries.ts"), "utf8");
+  // Public (buyer) catalogue reads live in the canonical layer since Phase 1B.
+  const queries = fs.readFileSync(path.join(process.cwd(), "lib/catalog/public-catalog.ts"), "utf8");
   const verification = fs.readFileSync(
     path.join(process.cwd(), "supabase/verification/0013_public_catalog_read_grants_verify.sql"),
     "utf8",
