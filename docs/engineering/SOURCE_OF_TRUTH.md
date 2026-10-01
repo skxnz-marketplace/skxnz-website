@@ -32,14 +32,10 @@ One owner per kind of fact. If two places disagree, the one listed here wins.
 4. **Raw incoming spreadsheets** (brand or seller catalogues) go into the workspace-level
    `data/catalog/imports/`, **not** this repo. They aren't canonical until validated.
 5. **Fallback / development data — `src/data/*.ts`.** Generated demo content. It is **not** the
-   production catalogue, but some runtime features still read it directly:
-   - site search: `src/lib/site-search.ts`, `components/shared/site-search-bar.tsx`
-   - discovery menu: `components/shared/discovery-menu.tsx`
-   - brand data: `lib/data/brands.ts`
-   - AI assistant and stylist: `src/lib/skxnzAssistant.ts`, `src/lib/ai/*`
-
-   So those features show demo products, not Supabase products. This is the biggest open
-   source-of-truth gap; moving them onto Supabase is its own task. See `src/data/README.md`.
+   production catalogue. Since Phase 1B (2026-10-01) no buyer surface reads it in production:
+   every public read goes through `lib/catalog/public-catalog.ts`, and fixtures are reachable
+   only through `lib/catalog/demo-fallback.ts` (never in a production build). Remaining
+   exceptions are listed in `docs/engineering/DATA_ARCHITECTURE.md`. See `src/data/README.md`.
 
 ## Known data problems (for the data-integrity pass, not fixed here)
 

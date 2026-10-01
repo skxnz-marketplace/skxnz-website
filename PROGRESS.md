@@ -3,6 +3,12 @@
 Single source of truth for project status. Read this before starting work and update it before finishing.
 
 ## Current state
+- **Phase 1B live catalogue correction (2026-10-01, `integrate/recover-missing-work`):** no push, no deploy, live DB not modified.
+  - Root cause of empty/demo catalogue: PUBLIC admin SELECT policies on brands/categories run an inline `public.users` subquery, so every anonymous read fails with `42501`. Fix is `supabase/migrations/0019_fix_brand_category_public_reads.sql` (admin SELECT `to authenticated using (public.is_admin())`), validated in a rolled-back transaction. **Not applied; needs founder approval.**
+  - New canonical public layer `lib/catalog/public-catalog.ts` (`CatalogResult`: data / empty / error). Thirteen buyer surfaces moved onto it; query errors now give 5xx/503/hidden sections, never demo data. Demo fixtures only behind `lib/catalog/demo-fallback.ts` (impossible in production).
+  - Docs: `docs/engineering/DATA_ARCHITECTURE.md`, addendum on the Phase 1A audit.
+  - Gates: lint 0 errors, typecheck clean, commerce 173/173, auth 35/35. Production build fails until 0019 is applied (prerendered `/brands` read throws). This is intentional.
+  - Next up: (1) founder approves applying 0019, then rerun build and smoke tests; (2) founder approves archiving QA product `skxnz-qa-test-approval-01-bd37e28c`; (3) confirm the Vercel production branch before any push/deploy.
 - **Phase 0 repository normalization (2026-10-01, `integrate/recover-missing-work`):** no push, no deploy.
   - Canonical branch is `integrate/recover-missing-work`. It includes the live GA4 line (`06d78d5`, merged in `2f96774`) and read-only fetch retries (`0a4e020`).
   - Known production deploys are tagged locally as `deployed/*`.

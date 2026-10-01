@@ -357,3 +357,21 @@ data/catalog/imports (workspace) ───────► nothing yet (staging o
 - **The PDP brand/category degradation in a running page:** established from code (§4), but not
   reproduced in a browser.
 - **Who created the two drift policies, and when:** not recorded in the migration history.
+
+---
+
+## Addendum — Phase 1B resolution status (2026-10-01)
+
+*The findings above are the historical Phase 1A record and are left unchanged. This
+addendum records what Phase 1B changed; the current design is in
+`docs/engineering/DATA_ARCHITECTURE.md`.*
+
+| Finding | Status |
+|---|---|
+| §8 `permission denied for table users` (brands/categories) | **Fix written, NOT yet applied:** `supabase/migrations/0019_fix_brand_category_public_reads.sql`. Validated against the live project in a rolled-back transaction: anon brands 11 / categories 6, anon still denied on users, admin unchanged. Needs founder approval to apply |
+| Live schema drift (two untracked `… active public select` policies) | Recorded in 0019 (dropped as exact duplicates of the tracked policies). Untracked 0001–0016 history and the missing live `saved_items` table (0007 never applied) remain open |
+| F1–F8 / F9b silent production fallbacks | **Removed in code.** Every public reader uses `lib/catalog/public-catalog.ts`; errors become 5xx/503/hidden sections, never demo data. Demo only behind `isDemoCatalogueEnabled()` (impossible in production) |
+| F10 hard-wired demo surfaces | **Migrated:** discovery menu (live brands; category links only to live categories), Brand Spotlight, Signal Room tiles, AI assistant and the buyer AI engines. Remaining exceptions are listed in DATA_ARCHITECTURE.md |
+| Demo static params / demo JSON-LD | **Fixed:** static params from live slugs; JSON-LD only for resolved live entities |
+| QA product `skxnz-qa-test-approval-01-bd37e28c` | **Open, awaiting approval:** proposed reversible `status ACTIVE → ARCHIVED` |
+| Production `/shop` showing demo | Fixed in code. Takes effect only after 0019 is applied **and** this branch is deployed |
