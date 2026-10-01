@@ -3,9 +3,50 @@
 // unaware of where data came from.
 import type { HomeProduct, BrandLabel } from "@/lib/home-data";
 import { fallbackProductImage, type Product as BuyerProduct } from "@/lib/data/products";
-import type { DemoBrand } from "@/lib/data/brands";
+import type { BrandPerformanceSnapshot, DemoBrand } from "@/lib/data/brands";
 import type { StructuredCategory } from "@/src/data/categories";
+import { skxnzFallbackAssets } from "@/src/lib/assets";
 import type { Brand, Category, Product, ProductWithRelations } from "./types";
+
+/** Live brands ranked by their number of ACTIVE products, in the snapshot shape
+ * the brand widgets render. Order/revenue fields are 0: SKXNZ has no live order
+ * analytics yet, and nothing here is invented. */
+export function buildLiveBrandSnapshots(
+  brands: Brand[],
+  products: ProductWithRelations[],
+): BrandPerformanceSnapshot[] {
+  const productsByBrand = new Map<string, ProductWithRelations[]>();
+  for (const product of products) {
+    if (!product.brand_id) continue;
+    const list = productsByBrand.get(product.brand_id) ?? [];
+    list.push(product);
+    productsByBrand.set(product.brand_id, list);
+  }
+
+  return brands
+    .map((brand) => {
+      const brandProducts = productsByBrand.get(brand.id) ?? [];
+      const firstImage = brandProducts
+        .flatMap((product) => [product.images[0]?.url ?? null, product.image_url])
+        .find((url): url is string => Boolean(url));
+      return {
+        brand: mapBrandToDemoBrand(brand, brandProducts.length),
+        orderCount: 0,
+        totalRevenue: 0,
+        averageOrderValue: 0,
+        approvedProductCount: brandProducts.length,
+        totalProductCount: brandProducts.length,
+        deliveredOrderCount: 0,
+        returnRequestCount: 0,
+        rankingScore: brandProducts.length,
+        momentumLabel: brandProducts.length > 0 ? "Curated" : "Preview",
+        featuredImage: brand.hero_image_url ?? firstImage ?? skxnzFallbackAssets.hero,
+        dataSource: "real" as const,
+        isLiveData: true,
+      };
+    })
+    .sort((a, b) => b.rankingScore - a.rankingScore || a.brand.name.localeCompare(b.brand.name));
+}
 
 export function mapProductToHomeProduct(
   product: Product,
