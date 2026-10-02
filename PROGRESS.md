@@ -3,7 +3,7 @@
 Single source of truth for project status. Read this before starting work and update it before finishing.
 
 ## Current state
-- **Commerce DB reconciliation, migration 0020 (2026-10-01):** written and validated by forced rollback; **NOT applied**, no push, no deploy.
+- **Commerce DB reconciliation, migration 0020:** **APPLIED to production 2026-10-02 20:46 UTC** (founder-approved, `apply_migration` only, applied bytes md5 188e02c4… verified). Database, security, commerce smoke, build and all tests verified (DB_RECONCILIATION doc, section 11). No push, no deploy. Next: 45-commit release-candidate review. Open: revoke stray anon/authenticated TRUNCATE grants on `users` separately; atomic stock decrement before payment capture.
   - Live commerce schema = 0005 + 0006 only. Missing: 8 RPCs (checkout, admin order/return, seller fulfilment, idempotent support/returns), `saved_items`, `order_item_events`. Checkout, admin actions, seller fulfilment and wishlist are already broken on skxnz.com for this reason.
   - `0020_reconcile_missing_commerce_objects.sql` (md5 188e02c4…) is forward-only and verbatim from 0007-0011/0016 with documented deviations. Fixes 2 real defects (return requests always failed with 42702; mixed carts stored wrong line prices) plus 2026-10-02 review fixes (buyer role checks on support/return RPCs, race-safe ticket create, NULL validation).
   - Full rollback suite green (11 pricing cases, rejections, idempotency, RLS, privileges). Details: `docs/engineering/DB_RECONCILIATION_2026-10-01.md`.

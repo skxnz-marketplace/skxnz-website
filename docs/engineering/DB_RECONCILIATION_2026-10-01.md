@@ -1,7 +1,7 @@
 # Commerce database reconciliation: migration 0020 (2026-10-01)
 
-Status: **0020 is written and validated by forced rollback. It is NOT applied.** It needs
-founder approval before it touches production.
+Status: **0020 APPLIED to production on 2026-10-02 20:46 UTC**, with founder approval, via
+Supabase `apply_migration` only (history row `20261002204620`). Verification is in section 11.
 
 - Migration: `supabase/migrations/0020_reconcile_missing_commerce_objects.sql`
   (md5 `188e02c43c02fdde67cd8fa7fe1388b8`)
@@ -288,3 +288,48 @@ tables directly, so nothing else changes.
   SECURITY DEFINER functions callable by signed-in users (by design for these RPCs).
 - No inventory decrement on order; payments (Razorpay) not wired. **Atomic stock
   decrement/revalidation is a hard prerequisite before real payment capture goes live.**
+
+## 11. Production application record (2026-10-02 UTC)
+
+- **Applied via** Supabase `apply_migration`, project `hhsorrkvgvxxpwzrggei`.
+- **Exact bytes:** before applying, the file and the committed copy both hashed to
+  `188e02c43c02fdde67cd8fa7fe1388b8` (LF, 0 CR). After applying, `md5(statements[1])` of the new
+  history row is also `188e02c43c02fdde67cd8fa7fe1388b8`.
+- **Migration history:** exactly one new row, `20261002204620 0020_reconcile_missing_commerce_objects`.
+  The 0017-0019 rows are unchanged; 0001-0016 were not added or touched.
+- **Objects:**
+  - `saved_items` and `order_item_events`, both with RLS on.
+  - All 8 RPCs, each SECURITY DEFINER with `search_path=public, pg_temp`.
+  - 11 new columns, 9 indexes, 6 constraints (three 0008 checks NOT VALID as designed), the
+    `saved_items_set_updated_at` trigger, and the expected policies and grants.
+- **Security:**
+  - Anon has EXECUTE on none of the 8 RPCs; authenticated has it on all 8.
+  - Direct authenticated inserts into `return_requests` and `return_request_items` give 42501.
+  - ADMIN and SELLER calling the three buyer RPCs get `BUYER_REQUIRED`.
+  - Anon REST: `users`, `saved_items`, `return_requests` and the ticket RPC all give
+    401/42501; brands 200 (11), categories 200 (6), ACTIVE products 200 (6).
+  - The Supabase security advisor shows no new anon findings; the only new entries are the
+    intended "authenticated can execute SECURITY DEFINER" notices for the 8 RPCs.
+- **Commerce smoke** (live functions, synthetic users, forced rollback), all pass:
+  - order create and retry;
+  - mixed option/plain cart: 120000 + 50000 = 170000 subtotal and line sum;
+  - seller ACCEPTED, then admin FULFILLING > SHIPPED > DELIVERED;
+  - return REQUESTED, then admin IN_REVIEW;
+  - ticket create/retry plus message;
+  - saved items visible to the owner only;
+  - anon RPC, `users` and `saved_items` give 42501.
+- **App gates on live data:**
+  - production build passes (82 pages, 0 catalogue errors), typecheck clean, lint 0 errors;
+  - tests: commerce 173/173, catalogue 11/11, auth 35/35;
+  - route smoke: public pages 200, archived QA product and unknown product 404, signed-in
+    pages redirect to login, AI assistant 200, sitemap 6 products.
+- **Live row counts after application:**
+  - users 7, products 7 (6 ACTIVE), brands 11, categories 6;
+  - every commerce table and `saved_items` / `order_item_events`: 0;
+  - addresses 0; no test users or products left.
+- **Unexpected finding, not caused by 0020 and not changed:** on `public.users`, anon holds
+  TRUNCATE/TRIGGER/REFERENCES and authenticated holds TRUNCATE. These look like Supabase
+  default table grants that were never revoked. The Data API does not expose TRUNCATE, but the
+  grants should be removed in a separate, reviewed change.
+- **Still required before real payment capture:** atomic stock revalidation/decrement at the
+  payment or order boundary.
