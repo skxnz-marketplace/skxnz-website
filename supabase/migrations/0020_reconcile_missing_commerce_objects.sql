@@ -22,6 +22,12 @@
 --     line (subtotal stayed right, line prices did not; found by the 2026-10-01 pricing
 --     test). 0020 clears v_variant for such lines and adds a SKXNZ_PRICE_MISMATCH guard
 --     that rejects the order if stored line totals do not add up to the subtotal.
+--   * 0016, review fixes (2026-10-02): the three buyer support/return RPCs now check
+--     public.users.role = 'BUYER' and return code BUYER_REQUIRED otherwise (they only
+--     checked for a session); create_support_ticket_idempotent inserts with
+--     ON CONFLICT DO NOTHING and resolves the existing ticket, so concurrent duplicate
+--     submits reuse one ticket and write one opening message; a NULL category and a
+--     NULL sender role are rejected (NOT IN / <> let NULL through).
 --
 -- Every commerce table touched is empty in production at audit time (0 rows), so no
 -- existing data is rewritten. Depends only on objects verified present live:
@@ -611,12 +617,17 @@ set search_path = public, pg_temp
 as $$
 declare
   v_buyer uuid := auth.uid();
+  v_role text;
   v_existing public.support_tickets%rowtype;
   v_ticket_id uuid;
   v_fingerprint text;
 begin
   if v_buyer is null then return jsonb_build_object('ok', false, 'code', 'UNAUTHENTICATED'); end if;
+  -- 0020 review fix: buyer-only RPC; check the caller's real role, not just a session.
+  select role into v_role from public.users where id = v_buyer;
+  if v_role is distinct from 'BUYER' then return jsonb_build_object('ok', false, 'code', 'BUYER_REQUIRED'); end if;
   if p_idempotency_key is null
+    or p_category is null
     or p_category not in ('ORDER','RETURN','PAYMENT','DELIVERY','PRODUCT','ACCOUNT','OTHER')
     or char_length(btrim(coalesce(p_subject,''))) not between 1 and 160
     or char_length(btrim(coalesce(p_message,''))) not between 1 and 4000 then
@@ -639,11 +650,24 @@ begin
     return jsonb_build_object('ok', false, 'code', 'IDEMPOTENCY_CONFLICT');
   end if;
 
+  -- 0020 review fix: race-safe create. A concurrent duplicate that passed the check above
+  -- hits the unique index here, inserts nothing, and resolves to the winning ticket.
+  -- Only the transaction that created the ticket writes the opening message.
   insert into public.support_tickets(
     buyer_id, order_id, category, status, subject, idempotency_key, idempotency_fingerprint
   ) values (
     v_buyer, p_order_id, p_category, 'OPEN', btrim(p_subject), p_idempotency_key, v_fingerprint
-  ) returning id into v_ticket_id;
+  )
+  on conflict (buyer_id, idempotency_key) where idempotency_key is not null do nothing
+  returning id into v_ticket_id;
+  if v_ticket_id is null then
+    select * into v_existing from public.support_tickets
+    where buyer_id = v_buyer and idempotency_key = p_idempotency_key;
+    if v_existing.idempotency_fingerprint = v_fingerprint then
+      return jsonb_build_object('ok', true, 'ticket_id', v_existing.id, 'status', v_existing.status, 'reused', true);
+    end if;
+    return jsonb_build_object('ok', false, 'code', 'IDEMPOTENCY_CONFLICT');
+  end if;
 
   insert into public.support_ticket_messages(ticket_id, sender_id, sender_role, message, metadata)
   values(v_ticket_id, v_buyer, 'BUYER', btrim(p_message), jsonb_build_object('source','create_support_ticket_idempotent'));
@@ -669,13 +693,17 @@ set search_path = public, pg_temp
 as $$
 declare
   v_sender uuid := auth.uid();
+  v_role text;
   v_ticket public.support_tickets%rowtype;
   v_existing public.support_ticket_messages%rowtype;
   v_message_id uuid;
   v_fingerprint text;
 begin
   if v_sender is null then return jsonb_build_object('ok', false, 'code', 'UNAUTHENTICATED'); end if;
-  if p_idempotency_key is null or p_sender_role <> 'BUYER' or char_length(btrim(coalesce(p_message,''))) not between 1 and 4000 then
+  -- 0020 review fix: buyer-only RPC; check the caller's real role, not just a session.
+  select role into v_role from public.users where id = v_sender;
+  if v_role is distinct from 'BUYER' then return jsonb_build_object('ok', false, 'code', 'BUYER_REQUIRED'); end if;
+  if p_idempotency_key is null or p_sender_role is distinct from 'BUYER' or char_length(btrim(coalesce(p_message,''))) not between 1 and 4000 then
     return jsonb_build_object('ok', false, 'code', 'VALIDATION_FAILED');
   end if;
   select * into v_ticket from public.support_tickets where id = p_ticket_id and buyer_id = v_sender for update;
@@ -722,6 +750,7 @@ set search_path = public, pg_temp
 as $$
 declare
   v_buyer uuid := auth.uid();
+  v_role text;
   v_status text;
   v_existing public.return_requests%rowtype;
   v_req uuid;
@@ -731,6 +760,9 @@ declare
   v_claimed bigint;
 begin
   if v_buyer is null then return jsonb_build_object('ok', false, 'code', 'UNAUTHENTICATED'); end if;
+  -- 0020 review fix: buyer-only RPC; check the caller's real role, not just a session.
+  select role into v_role from public.users where id = v_buyer;
+  if v_role is distinct from 'BUYER' then return jsonb_build_object('ok', false, 'code', 'BUYER_REQUIRED'); end if;
   if p_idempotency_key is null
     or p_order_id is null
     or char_length(btrim(coalesce(p_reason,''))) not between 1 and 500

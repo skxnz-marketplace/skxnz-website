@@ -32,6 +32,12 @@ declare
 --     line (subtotal stayed right, line prices did not; found by the 2026-10-01 pricing
 --     test). 0020 clears v_variant for such lines and adds a SKXNZ_PRICE_MISMATCH guard
 --     that rejects the order if stored line totals do not add up to the subtotal.
+--   * 0016, review fixes (2026-10-02): the three buyer support/return RPCs now check
+--     public.users.role = 'BUYER' and return code BUYER_REQUIRED otherwise (they only
+--     checked for a session); create_support_ticket_idempotent inserts with
+--     ON CONFLICT DO NOTHING and resolves the existing ticket, so concurrent duplicate
+--     submits reuse one ticket and write one opening message; a NULL category and a
+--     NULL sender role are rejected (NOT IN / <> let NULL through).
 --
 -- Every commerce table touched is empty in production at audit time (0 rows), so no
 -- existing data is rewritten. Depends only on objects verified present live:
@@ -621,12 +627,17 @@ set search_path = public, pg_temp
 as $$
 declare
   v_buyer uuid := auth.uid();
+  v_role text;
   v_existing public.support_tickets%rowtype;
   v_ticket_id uuid;
   v_fingerprint text;
 begin
   if v_buyer is null then return jsonb_build_object('ok', false, 'code', 'UNAUTHENTICATED'); end if;
+  -- 0020 review fix: buyer-only RPC; check the caller's real role, not just a session.
+  select role into v_role from public.users where id = v_buyer;
+  if v_role is distinct from 'BUYER' then return jsonb_build_object('ok', false, 'code', 'BUYER_REQUIRED'); end if;
   if p_idempotency_key is null
+    or p_category is null
     or p_category not in ('ORDER','RETURN','PAYMENT','DELIVERY','PRODUCT','ACCOUNT','OTHER')
     or char_length(btrim(coalesce(p_subject,''))) not between 1 and 160
     or char_length(btrim(coalesce(p_message,''))) not between 1 and 4000 then
@@ -649,11 +660,24 @@ begin
     return jsonb_build_object('ok', false, 'code', 'IDEMPOTENCY_CONFLICT');
   end if;
 
+  -- 0020 review fix: race-safe create. A concurrent duplicate that passed the check above
+  -- hits the unique index here, inserts nothing, and resolves to the winning ticket.
+  -- Only the transaction that created the ticket writes the opening message.
   insert into public.support_tickets(
     buyer_id, order_id, category, status, subject, idempotency_key, idempotency_fingerprint
   ) values (
     v_buyer, p_order_id, p_category, 'OPEN', btrim(p_subject), p_idempotency_key, v_fingerprint
-  ) returning id into v_ticket_id;
+  )
+  on conflict (buyer_id, idempotency_key) where idempotency_key is not null do nothing
+  returning id into v_ticket_id;
+  if v_ticket_id is null then
+    select * into v_existing from public.support_tickets
+    where buyer_id = v_buyer and idempotency_key = p_idempotency_key;
+    if v_existing.idempotency_fingerprint = v_fingerprint then
+      return jsonb_build_object('ok', true, 'ticket_id', v_existing.id, 'status', v_existing.status, 'reused', true);
+    end if;
+    return jsonb_build_object('ok', false, 'code', 'IDEMPOTENCY_CONFLICT');
+  end if;
 
   insert into public.support_ticket_messages(ticket_id, sender_id, sender_role, message, metadata)
   values(v_ticket_id, v_buyer, 'BUYER', btrim(p_message), jsonb_build_object('source','create_support_ticket_idempotent'));
@@ -679,13 +703,17 @@ set search_path = public, pg_temp
 as $$
 declare
   v_sender uuid := auth.uid();
+  v_role text;
   v_ticket public.support_tickets%rowtype;
   v_existing public.support_ticket_messages%rowtype;
   v_message_id uuid;
   v_fingerprint text;
 begin
   if v_sender is null then return jsonb_build_object('ok', false, 'code', 'UNAUTHENTICATED'); end if;
-  if p_idempotency_key is null or p_sender_role <> 'BUYER' or char_length(btrim(coalesce(p_message,''))) not between 1 and 4000 then
+  -- 0020 review fix: buyer-only RPC; check the caller's real role, not just a session.
+  select role into v_role from public.users where id = v_sender;
+  if v_role is distinct from 'BUYER' then return jsonb_build_object('ok', false, 'code', 'BUYER_REQUIRED'); end if;
+  if p_idempotency_key is null or p_sender_role is distinct from 'BUYER' or char_length(btrim(coalesce(p_message,''))) not between 1 and 4000 then
     return jsonb_build_object('ok', false, 'code', 'VALIDATION_FAILED');
   end if;
   select * into v_ticket from public.support_tickets where id = p_ticket_id and buyer_id = v_sender for update;
@@ -732,6 +760,7 @@ set search_path = public, pg_temp
 as $$
 declare
   v_buyer uuid := auth.uid();
+  v_role text;
   v_status text;
   v_existing public.return_requests%rowtype;
   v_req uuid;
@@ -741,6 +770,9 @@ declare
   v_claimed bigint;
 begin
   if v_buyer is null then return jsonb_build_object('ok', false, 'code', 'UNAUTHENTICATED'); end if;
+  -- 0020 review fix: buyer-only RPC; check the caller's real role, not just a session.
+  select role into v_role from public.users where id = v_buyer;
+  if v_role is distinct from 'BUYER' then return jsonb_build_object('ok', false, 'code', 'BUYER_REQUIRED'); end if;
   if p_idempotency_key is null
     or p_order_id is null
     or char_length(btrim(coalesce(p_reason,''))) not between 1 and 500
@@ -1026,6 +1058,36 @@ begin
   perform pg_temp.t_as(b2);
   j := public.add_support_ticket_message_idempotent(tk, 'intrude', 'BUYER', gen_random_uuid()); out := out || ' other_buyer=' || coalesce(j->>'code', 'ok');
   j := public.create_support_ticket_idempotent('ORDER', 'Not mine', 'x', o, gen_random_uuid()); out := out || ' other_buyer_order=' || coalesce(j->>'code', 'ok');
+
+  -- G2. review fixes: role boundary, NULL validation, race-safe ticket create
+  perform pg_temp.t_as(a);
+  j := public.create_support_ticket_idempotent('ORDER', 'admin ticket', 'x', null, gen_random_uuid()); out := out || ' | ROLE admin_ticket=' || coalesce(j->>'code', 'ok');
+  j := public.add_support_ticket_message_idempotent(tk, 'admin as buyer', 'BUYER', gen_random_uuid()); out := out || ' admin_message=' || coalesce(j->>'code', 'ok');
+  j := public.create_return_request_idempotent(o, 'admin return', null, jsonb_build_array(jsonb_build_object('order_item_id', li, 'quantity', 1)), gen_random_uuid()); out := out || ' admin_return_rpc=' || coalesce(j->>'code', 'ok');
+  perform pg_temp.t_as(s);
+  j := public.create_support_ticket_idempotent('ORDER', 'seller ticket', 'x', null, gen_random_uuid()); out := out || ' seller_ticket=' || coalesce(j->>'code', 'ok');
+  j := public.add_support_ticket_message_idempotent(tk, 'seller as buyer', 'BUYER', gen_random_uuid()); out := out || ' seller_message=' || coalesce(j->>'code', 'ok');
+  j := public.create_return_request_idempotent(o, 'seller return', null, jsonb_build_array(jsonb_build_object('order_item_id', li, 'quantity', 1)), gen_random_uuid()); out := out || ' seller_return_rpc=' || coalesce(j->>'code', 'ok');
+  reset role;
+  select count(*) into n from public.support_tickets where buyer_id in (a, s); out := out || ' non_buyer_tickets_written=' || n;
+  perform pg_temp.t_as(b);
+  j := public.create_support_ticket_idempotent(null, 'Null category', 'x', null, gen_random_uuid()); out := out || ' | NULLS category=' || coalesce(j->>'code', 'ok');
+  j := public.add_support_ticket_message_idempotent(tk, 'null role', null, gen_random_uuid()); out := out || ' sender_role=' || coalesce(j->>'code', 'ok');
+  reset role;
+  select pg_get_functiondef(p.oid) into x from pg_proc p where p.pronamespace = 'public'::regnamespace and p.proname = 'create_support_ticket_idempotent';
+  x := replace(x, 'public.create_support_ticket_idempotent', 'pg_temp.cst_race');
+  if position('for update;' || chr(10) || '  if found then' in x) = 0 then raise exception 'race test: fast path marker not found'; end if;
+  x := replace(x, 'for update;' || chr(10) || '  if found then', 'for update;' || chr(10) || '  if false then');
+  execute x;
+  select count(*) into n from public.support_ticket_messages where ticket_id = tk;
+  perform pg_temp.t_as(b);
+  j := pg_temp.cst_race('ORDER', 'Where is my order', 'Hello', o, k4); out := out || ' | RACE same_key reused=' || coalesce(j->>'reused', j->>'code') || ' same_ticket=' || ((j->>'ticket_id')::uuid = tk);
+  j := pg_temp.cst_race('ORDER', 'Changed', 'Hello', o, k4); out := out || ' changed=' || coalesce(j->>'code', 'ok');
+  j := pg_temp.cst_race('ORDER', 'Fresh ticket', 'Hi', o, gen_random_uuid()); out := out || ' fresh ok=' || (j->>'ok') || ' reused=' || (j->>'reused');
+  reset role;
+  select count(*) into n2 from public.support_ticket_messages where ticket_id = tk; out := out || ' opening_messages_added=' || (n2 - n);
+  select count(*) into n from public.support_ticket_messages where ticket_id = (j->>'ticket_id')::uuid; out := out || ' fresh_ticket_messages=' || n;
+  select count(*) into n from public.support_tickets where buyer_id = b and idempotency_key = k4; out := out || ' tickets_for_key=' || n;
 
   -- H. saved items
   perform pg_temp.t_as(b);

@@ -4,7 +4,7 @@ Status: **0020 is written and validated by forced rollback. It is NOT applied.**
 founder approval before it touches production.
 
 - Migration: `supabase/migrations/0020_reconcile_missing_commerce_objects.sql`
-  (md5 `2d1769c199829842681e15967553c1cb`)
+  (md5 `188e02c43c02fdde67cd8fa7fe1388b8`)
 - Test: `supabase/verification/0020_forced_rollback_test.sql`
 - Project: `hhsorrkvgvxxpwzrggei` ("skxnz"), shared by local development and skxnz.com
 
@@ -104,6 +104,8 @@ Deviations from the historical SQL (everything else is byte-for-byte, checked by
    idempotent version replaces it).
 3. 0016: alias fix in `create_return_request_idempotent` (section 6).
 4. 0011: pricing fix plus guard in `create_order_intent_atomic` (section 7).
+5. 0016, review fixes (section 7a): buyer role checks, a race-safe ticket create, and NULL
+   validation.
 
 ## 6. Defect 1: return requests always failed (42702)
 
@@ -149,6 +151,32 @@ Fix in 0020:
 
 The guard never fired in the fixed run. It is a safety net, not a path that was exercised.
 
+## 7a. Review fixes in the 0016 support and return RPCs (2026-10-02)
+
+Found in founder review of the first 0020 draft, not by the original tests:
+
+1. **Buyer role not enforced.** `create_support_ticket_idempotent`,
+   `add_support_ticket_message_idempotent` and `create_return_request_idempotent` only checked
+   that a session existed. These functions are SECURITY DEFINER and callable by every
+   signed-in user, so an ADMIN or SELLER could open their own ticket and have it recorded with
+   `sender_role = 'BUYER'`. No other customer's data was exposed, but it broke the role
+   model. All three now read `public.users.role` and return `{ok:false, code:'BUYER_REQUIRED'}`
+   for anyone who is not a BUYER. They keep their JSON results rather than raising errors, so
+   the app's handling is unchanged. The app has no special case for `BUYER_REQUIRED`; it falls
+   through to the generic error, which is fine because only non-buyers can hit it.
+2. **Ticket creation not race-safe.** It did "look up key, then insert". Two simultaneous
+   submits could both miss the lookup, and the loser then failed on the unique index instead
+   of getting `reused=true`. It now inserts with
+   `ON CONFLICT (buyer_id, idempotency_key) WHERE idempotency_key IS NOT NULL DO NOTHING`
+   (the same pattern as the order RPC) and resolves the existing ticket when nothing was
+   inserted. Only the transaction that created the ticket writes the opening message.
+   `add_support_ticket_message_idempotent` needed no change here: it locks the parent ticket
+   first, which serializes concurrent writes. Returns lock the order first, so they are
+   already serialized too.
+3. **NULL slipped through validation.** `p_category NOT IN (...)` and `p_sender_role <> 'BUYER'`
+   are unknown, not true, for NULL. Now `p_category IS NULL OR ...` and
+   `p_sender_role IS DISTINCT FROM 'BUYER'`.
+
 ## 8. Rollback-test evidence
 
 Method: the whole migration text is executed inside one `DO` block. The block then creates
@@ -158,7 +186,19 @@ and variants, and an address. It calls every function as those users via
 Real customers, orders and products were never read or written by the test. The first value
 reported is `md5(migration text)`, which proves which file was tested.
 
-Final run (md5 `2d1769c199829842681e15967553c1cb`, equal to the file), all green:
+Final run (md5 `188e02c43c02fdde67cd8fa7fe1388b8`, equal to the file), all green:
+
+- **Review fixes** (new):
+  - ADMIN and SELLER calling ticket create, message add or return create all get
+    `BUYER_REQUIRED`; 0 tickets were written for non-buyers.
+  - NULL category and NULL sender role give `VALIDATION_FAILED`.
+  - **Race path:** a temporary copy of the ticket function with only its early key lookup
+    disabled forces the `ON CONFLICT` branch. Same key and same content returns
+    `reused=true` with the same ticket and adds 0 opening messages; same key with different
+    content gives `IDEMPOTENCY_CONFLICT`; a new key creates a ticket with exactly 1 opening
+    message; 1 ticket exists for the key. True parallel sessions cannot run inside one
+    rolled-back transaction, so this exercises the conflict branch, not two live connections.
+- Everything below re-ran unchanged and green:
 
 - **Pricing**: 11/11 PASS. Each case compares an independently computed expected unit price
   with the stored unit price, line total, sum of lines and order subtotal. Cases:
@@ -221,6 +261,7 @@ Earlier runs, kept for the record:
 2. Run 2 found defect 2.
 3. Run 3 caught an ambiguous column in the new guard itself, fixed by qualifying it as
    `oi.order_id`.
+4. Run 4 (md5 `2d1769c1…`) was green; founder review then found the issues in section 7a.
 
 ## 9. Security effect: closing direct buyer inserts into return requests
 
@@ -245,4 +286,5 @@ tables directly, so nothing else changes.
 - Untracked history rows for 0001-0016 (deliberately left as is).
 - Supabase advisor warnings: `set_updated_at` search_path, leaked-password protection,
   SECURITY DEFINER functions callable by signed-in users (by design for these RPCs).
-- No inventory decrement on order; payments (Razorpay) not wired.
+- No inventory decrement on order; payments (Razorpay) not wired. **Atomic stock
+  decrement/revalidation is a hard prerequisite before real payment capture goes live.**
