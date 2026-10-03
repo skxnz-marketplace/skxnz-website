@@ -6,6 +6,11 @@ import { useRef, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
+  PRODUCT_IMAGE_MAX_LABEL,
+  PRODUCT_IMAGE_UPLOAD_RETRY_MESSAGE,
+  validateProductImage,
+} from "@/lib/catalog/image-upload-contract";
+import {
   deleteProductImage,
   reorderProductImages,
   uploadProductImage,
@@ -33,14 +38,33 @@ export function ProductGalleryManager({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleUpload = (formData: FormData) => {
+    const file = formData.get("file");
+    if (!(file instanceof File)) {
+      setMessage("Choose an image file.");
+      return;
+    }
+    const validationError = validateProductImage(file);
+    if (validationError) {
+      setMessage(validationError);
+      return;
+    }
+    // Send only the intended fields with a bounded filename, leaving room for
+    // multipart metadata below the unchanged action transport limit.
+    const upload = new FormData();
+    upload.set("productId", productId);
+    upload.set("file", file, "product-image");
     startTransition(async () => {
-      const result = await uploadProductImage(formData);
-      if (result.ok) {
-        setImages((current) => [...current, { id: result.imageId, url: result.url }]);
-        setMessage("");
-        if (fileInputRef.current) fileInputRef.current.value = "";
-      } else {
-        setMessage(result.message);
+      try {
+        const result = await uploadProductImage(upload);
+        if (result.ok) {
+          setImages((current) => [...current, { id: result.imageId, url: result.url }]);
+          setMessage("");
+          if (fileInputRef.current) fileInputRef.current.value = "";
+        } else {
+          setMessage(result.message);
+        }
+      } catch {
+        setMessage(PRODUCT_IMAGE_UPLOAD_RETRY_MESSAGE);
       }
     });
   };
@@ -87,7 +111,7 @@ export function ProductGalleryManager({
       </h2>
       <p className="mt-3 max-w-2xl text-sm leading-7 text-silver">
         The first image is the product&apos;s main photo everywhere it appears.
-        JPEG, PNG, or WebP, up to 5MB each.
+        JPEG, PNG, or WebP, up to {PRODUCT_IMAGE_MAX_LABEL} each.
       </p>
 
       <form

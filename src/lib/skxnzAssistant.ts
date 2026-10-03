@@ -435,9 +435,14 @@ export const demoAssistantCatalog: AssistantCatalog = {
   categorySlugs: structuredCategories.map((category) => category.slug),
 };
 
-/** Recommendable = in stock and either a live catalogue product or an approved demo preview. */
+/** One eligibility boundary for selection, constraints and ranking. */
 function isRecommendable(product: Product) {
-  return (product.dataSource === "live" || isApprovedProduct(product)) && product.stock > 0;
+  const eligibleStatus = product.dataSource === "live"
+    ? product.status === "Active Catalog"
+    : isApprovedProduct(product);
+  return eligibleStatus && Number.isInteger(product.stock) && product.stock > 0
+    && Number.isFinite(product.price) && product.price > 0
+    && Boolean(product.id?.trim() && product.slug?.trim() && product.name?.trim());
 }
 
 function compactWhitespace(value: string) {
@@ -885,7 +890,7 @@ function hasHardConstraints(signals: QuerySignals) {
 }
 
 function matchesHardConstraints(product: Product, signals: QuerySignals) {
-  if (!isApprovedProduct(product) || product.stock <= 0) {
+  if (!isRecommendable(product)) {
     return false;
   }
 
@@ -901,7 +906,7 @@ function matchesHardConstraints(product: Product, signals: QuerySignals) {
 }
 
 function scoreProduct(product: Product, signals: QuerySignals) {
-  if (!isApprovedProduct(product) || product.stock <= 0) {
+  if (!isRecommendable(product)) {
     return -1;
   }
 

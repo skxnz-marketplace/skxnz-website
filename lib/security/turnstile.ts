@@ -1,4 +1,8 @@
-// Cloudflare Turnstile — shared config + server-side Siteverify.
+import "server-only";
+import { isDummyTurnstileKey, isLocalTurnstileContext, isTurnstileTestMode, turnstileSiteKey } from "@/lib/security/turnstile-public";
+export { isTurnstileTestMode, turnstileSiteKey, captchaOptions } from "@/lib/security/turnstile-public";
+
+// Cloudflare Turnstile — server-side Siteverify for non-auth callers only.
 //
 // SECURITY CONTRACT
 //   * The secret (CLOUDFLARE_TURNSTILE_SECRET_KEY) is read ONLY here, in server
@@ -17,42 +21,16 @@
 
 // Cloudflare's official testing keys (public, documented, safe to commit).
 // Site key + secret that ALWAYS pass — for local/dev only.
-const TEST_SITE_KEY = "1x00000000000000000000AA";
 const TEST_SECRET_KEY = "1x0000000000000000000000000000000AA";
 
 const SITEVERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
 const SITEVERIFY_TIMEOUT_MS = 8000;
 
-/** Public site key for the widget. Falls back to Cloudflare's test key. */
-export function turnstileSiteKey(): string {
-  return process.env.NEXT_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY?.trim() || TEST_SITE_KEY;
-}
-
-/** Server-only secret. Falls back to Cloudflare's test secret in dev. */
+/** Server-only secret. Dummy fallback is limited to explicit development/test. */
 function turnstileSecretKey(): string {
-  return process.env.CLOUDFLARE_TURNSTILE_SECRET_KEY?.trim() || TEST_SECRET_KEY;
-}
-
-/**
- * True when either configured key is a Cloudflare dummy (or unset). In this
- * state the challenge is cosmetic — real bot protection is NOT active. Surface
- * it to the user and never claim production protection.
- */
-export function isTurnstileTestMode(): boolean {
-  const site = process.env.NEXT_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY?.trim();
-  const secret = process.env.CLOUDFLARE_TURNSTILE_SECRET_KEY?.trim();
-  if (!site || !secret) return true;
-  return site === TEST_SITE_KEY || secret === TEST_SECRET_KEY;
-}
-
-/**
- * Build the Supabase auth `options` fragment that forwards a Turnstile token as
- * `captchaToken`. Returns {} when there is no token, so a caller can always
- * spread it. This is the ONLY way auth flows pass the token — the token is
- * never Siteverify'd by us (single-use) and never logged.
- */
-export function captchaOptions(token: string | null | undefined): { captchaToken?: string } {
-  return token ? { captchaToken: token } : {};
+  const key = process.env.CLOUDFLARE_TURNSTILE_SECRET_KEY?.trim();
+  if (!key) return isLocalTurnstileContext() ? TEST_SECRET_KEY : "";
+  return !isLocalTurnstileContext() && isDummyTurnstileKey(key) ? "" : key;
 }
 
 export type TurnstileVerifyResult =
@@ -89,13 +67,18 @@ export async function verifyTurnstileToken(
   opts: VerifyOptions = {},
 ): Promise<TurnstileVerifyResult> {
   const testMode = isTurnstileTestMode();
+  const secretKey = turnstileSecretKey();
+
+  if (!turnstileSiteKey() || !secretKey) {
+    return { success: false, testMode: false, reason: "configuration-error" };
+  }
 
   if (!token || typeof token !== "string" || token.length > 4096) {
     return { success: false, testMode, reason: "missing-token" };
   }
 
   const form = new URLSearchParams();
-  form.set("secret", turnstileSecretKey());
+  form.set("secret", secretKey);
   form.set("response", token);
   if (opts.remoteIp) form.set("remoteip", opts.remoteIp);
 

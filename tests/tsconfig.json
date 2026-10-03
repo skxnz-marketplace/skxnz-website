@@ -16,6 +16,11 @@
     "types": ["node"]
   },
   "include": [
+    "../lib/security/json-ld.ts",
+    "../lib/catalog/image-upload-contract.ts",
+    "../lib/catalog/mappers.ts",
+    "../lib/catalog/upload-actions.ts",
+    "../src/lib/skxnzAssistant.ts",
     "../lib/returns/create-return-request.ts",
     "../lib/support/create-support-ticket.ts",
     "../lib/support/add-support-ticket-message.ts",

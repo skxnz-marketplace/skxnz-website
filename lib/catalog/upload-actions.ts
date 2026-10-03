@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { guardServerAction } from "@/lib/security/rate-limit/rate-limit";
 import { isUuidShape } from "@/lib/saved/saved-items";
+import { validateProductImage } from "@/lib/catalog/image-upload-contract";
 
 type UploadActionResult =
   | { ok: true; imageId: string; url: string }
@@ -22,8 +23,6 @@ type SimpleActionResult =
       message: string;
     };
 
-const MAX_FILE_BYTES = 5 * 1024 * 1024; // matches the bucket's own file_size_limit
-const ALLOWED_MIME_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 const MAX_IMAGES_PER_PRODUCT = 8;
 
 function uploadDbError(): UploadActionResult {
@@ -79,12 +78,8 @@ export async function uploadProductImage(formData: FormData): Promise<UploadActi
   if (!(file instanceof File) || file.size === 0) {
     return { ok: false, code: "VALIDATION_FAILED", message: "Choose an image file." };
   }
-  if (file.size > MAX_FILE_BYTES) {
-    return { ok: false, code: "VALIDATION_FAILED", message: "Image must be 5MB or smaller." };
-  }
-  if (!ALLOWED_MIME_TYPES.has(file.type)) {
-    return { ok: false, code: "VALIDATION_FAILED", message: "Image must be JPEG, PNG, or WebP." };
-  }
+  const validationError = validateProductImage(file);
+  if (validationError) return { ok: false, code: "VALIDATION_FAILED", message: validationError };
 
   const { supabase, user, allowed, sellerId } = await authorizeProductImageAccess(productId);
   if (!user) return { ok: false, code: "UNAUTHENTICATED", message: "Please sign in." };

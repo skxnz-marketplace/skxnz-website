@@ -8,6 +8,7 @@ import "@fontsource/unbounded/200.css";
 import "@fontsource/space-grotesk/700.css";
 
 import { Analytics } from "@vercel/analytics/next";
+import { serializeJsonLd } from "@/lib/security/json-ld";
 import { ConsentManager } from "@/components/consent/consent-manager";
 import { GoogleAnalytics } from "@/components/consent/google-analytics";
 import { DemoRoleProvider } from "@/components/auth/demo-role-provider";
@@ -99,11 +100,11 @@ export default function RootLayout({
         />
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(organizationJsonLd) }}
         />
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(websiteJsonLd) }}
         />
         <SiteOpeningLoader />
         <DemoRoleProvider>

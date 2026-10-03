@@ -15,7 +15,8 @@
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push",
     "db:seed": "prisma db seed",
-    "test:auth": "tsc -p tests/tsconfig.json && node --test tests/auth-trust.test.cjs"
+    "test:auth": "tsc -p tests/tsconfig.json && node --test tests/auth-trust.test.cjs",
+    "test:release-hardening": "tsc -p tests/tsconfig.json && node --test tests/release-hardening.test.cjs"
   },
   "dependencies": {
     "@fontsource/manrope": "^5.2.8",

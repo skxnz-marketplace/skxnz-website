@@ -1,5 +1,6 @@
 import { cache } from "react";
 import type { Metadata } from "next";
+import { serializeJsonLd } from "@/lib/security/json-ld";
 import { notFound } from "next/navigation";
 
 import { BrandPageShell } from "@/components/brands/brand-page-shell";
@@ -109,6 +110,6 @@ function BrandBreadcrumbJsonLd({ slug, name }: { slug: string; name: string }) {
   };
 
   return (
-    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }} />
   );
 }

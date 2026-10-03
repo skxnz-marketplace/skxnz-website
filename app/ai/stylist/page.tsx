@@ -3,10 +3,11 @@ import Link from "next/link";
 
 import { AiPhaseOneStudio } from "@/components/ai/ai-phase-one-studio";
 import { StylistAccessGate } from "@/components/ai/stylist-access-gate";
+import { StylistUnavailable } from "@/components/ai/stylist-unavailable";
 import { buttonVariants } from "@/components/ui/button";
 
 const description =
-  "SKXNZ AI Stylist — a catalog-aware style workspace for outfit direction and SKXNZ catalog picks.";
+  "The SKXNZ styling workspace is unavailable for this release. Browse the SKXNZ catalogue.";
 
 export const metadata: Metadata = {
   title: "AI Stylist",
@@ -16,6 +17,7 @@ export const metadata: Metadata = {
 };
 
 export default function AIStylistPage() {
+  if (process.env.NODE_ENV === "production") return <StylistUnavailable />;
   return (
     <StylistAccessGate>
       <div className="min-h-screen bg-[linear-gradient(135deg,var(--skxnz-obsidian),var(--skxnz-maroon-deep)_52%,var(--skxnz-maroon))] text-[var(--skxnz-text-light)] motion-safe:animate-[skxnz-ai-page-in_420ms_ease-out]">

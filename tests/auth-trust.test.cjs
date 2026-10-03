@@ -167,6 +167,7 @@ test("consentCookieAttributes: production is Secure + SameSite=Lax, not HttpOnly
 // ---------------- turnstile (fail closed) ----------------
 
 test("isTurnstileTestMode: true when keys are unset", () => {
+  process.env.NODE_ENV = "test";
   delete process.env.NEXT_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY;
   delete process.env.CLOUDFLARE_TURNSTILE_SECRET_KEY;
   assert.equal(isTurnstileTestMode(), true);

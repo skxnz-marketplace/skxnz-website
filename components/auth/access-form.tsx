@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { turnstileSiteKey, isTurnstileTestMode, captchaOptions } from "@/lib/security/turnstile";
+import { turnstileSiteKey, isTurnstileTestMode, captchaOptions, TURNSTILE_CONFIGURATION_ERROR } from "@/lib/security/turnstile-public";
 import { TurnstileWidget } from "@/components/security/turnstile-widget";
 import {
   normalizeAuthError,
@@ -51,6 +51,7 @@ export function AccessForm({ mode, nextPath }: Props) {
   }
 
   function validate(): string | null {
+    if (needsCaptcha && !siteKey) return TURNSTILE_CONFIGURATION_ERROR;
     if (mode !== "reset" && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
       return "Enter a valid email address.";
     }
@@ -297,7 +298,10 @@ export function AccessForm({ mode, nextPath }: Props) {
         </div>
       )}
 
-      {needsCaptcha && (
+      {needsCaptcha && !siteKey && (
+        <p role="alert" className="text-sm text-[#ffc2d4]">{TURNSTILE_CONFIGURATION_ERROR}</p>
+      )}
+      {needsCaptcha && siteKey && (
         <TurnstileWidget
           key={turnstileKey}
           siteKey={siteKey}
@@ -320,7 +324,7 @@ export function AccessForm({ mode, nextPath }: Props) {
 
       <button
         type="submit"
-        disabled={loading}
+        disabled={loading || (needsCaptcha && !siteKey)}
         aria-busy={loading}
         className="min-h-[48px] rounded-full bg-[var(--skxnz-pearl)] px-6 text-[0.82rem] font-semibold uppercase tracking-[0.16em] text-[var(--skxnz-obsidian)] transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--skxnz-ai-aqua)]"
       >

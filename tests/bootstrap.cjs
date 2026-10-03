@@ -29,6 +29,7 @@ Module._resolveFilename = function (request, ...rest) {
     return originalResolve.call(this, supabasePublicCatalogMockPath, ...rest);
   }
   if (
+    request === "server-only" ||
     request === "next/cache" ||
     request === "next/navigation" ||
     request === "next/headers"
