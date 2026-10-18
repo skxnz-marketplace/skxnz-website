@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { formatProductPrice, type Product } from "@/lib/data/products";
+import { selectedProductPrice } from "@/lib/data/selected-price";
 
 type ProductPurchasePanelProps = {
   product: Product;
@@ -60,7 +61,6 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
     null,
   );
 
-  const displayPrice = product.salePrice ?? product.price;
   const isLiveProduct = product.dataSource === "live";
   const isApproved = product.status === "Approved Preview" || isLiveProduct;
   const savedInWishlist = isInWishlist(product.id);
@@ -90,6 +90,8 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
       options.find((option) => (option.size ?? "") === size && !option.color) ??
       options.find((option) => (option.color ?? "") === color && !option.size)
     );  }, [isVariantBacked, product.variants, selectedSize, selectedColor]);
+
+  const displayPrice = selectedProductPrice(product, selectedVariant?.id);
 
   // Available stock for the current selection: the resolved variant's stock
   // when variant-backed, else the product-level summed stock.
@@ -365,7 +367,11 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
         </Button>
         <button
           type="button"
-          onClick={() => toggleWishlist(product.id, product)}
+          onClick={() => toggleWishlist(product.id, product, {
+            productVariantId: selectedVariant?.id ?? null,
+            selectedSize,
+            selectedColor,
+          })}
           className={`${buttonVariants({ variant: "secondary", size: "lg" })} w-full sm:w-auto`}
         >
           {savedInWishlist ? "Saved" : "Save"}

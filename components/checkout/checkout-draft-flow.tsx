@@ -22,6 +22,7 @@ import {
   writeCheckoutReview,
 } from "@/lib/checkout/checkout-review";
 import { formatProductPrice } from "@/lib/data/products";
+import { cartUnitPrice } from "@/lib/data/selected-price";
 import { cn } from "@/lib/cn";
 import { skxnzFallbackAssets } from "@/src/lib/assets";
 
@@ -52,7 +53,7 @@ export function CheckoutDraftFlow() {
     () =>
       cartItems.reduce(
         (total, item) =>
-          total + (item.product.salePrice ?? item.product.price) * item.quantity,
+          total + cartUnitPrice(item) * item.quantity,
         0,
       ),
     [cartItems],

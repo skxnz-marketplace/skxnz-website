@@ -11,14 +11,17 @@ import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { getProductHref } from "@/lib/catalog/product-links";
 import { formatProductPrice } from "@/lib/data/products";
+import { restoreWishlistSelection } from "@/lib/data/wishlist";
+import { selectedProductPrice } from "@/lib/data/selected-price";
 import { skxnzFallbackAssets } from "@/src/lib/assets";
 
 export function WishlistGrid() {
-  const { wishlistProducts, moveWishlistItemToCart, removeFromWishlist } =
+  const { wishlistEntries, moveWishlistItemToCart, removeFromWishlist } =
     useMarketplace();
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [movingId, setMovingId] = useState<string | null>(null);
 
-  if (wishlistProducts.length === 0) {
+  if (wishlistEntries.length === 0) {
     return (
       <EmptyState
         title="No saved products yet."
@@ -42,7 +45,7 @@ export function WishlistGrid() {
               device. Account sync is shown separately above.
             </p>
           </div>
-          <Badge>{wishlistProducts.length} saved</Badge>
+          <Badge>{wishlistEntries.length} saved</Badge>
         </div>
         {feedback ? (
           <div
@@ -56,7 +59,10 @@ export function WishlistGrid() {
       </Card>
 
       <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-        {wishlistProducts.map((product) => (
+        {wishlistEntries.map((entry) => {
+          const { product } = entry;
+          const selection = restoreWishlistSelection(entry, product);
+          return (
           <Card
             key={product.id}
             className="section-border flex h-full min-w-0 flex-col rounded-[32px] border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-surface)] p-4"
@@ -90,13 +96,13 @@ export function WishlistGrid() {
 
               <div className="mt-4 flex flex-wrap gap-2">
                 <Badge>{product.category}</Badge>
-                <Badge>{product.colors[0] ?? "Color"}</Badge>
-                <Badge>{product.sizes[0] ?? "Size"}</Badge>
+                <Badge>{selection?.color ?? entry.selectedColor ?? "Choose color"}</Badge>
+                <Badge>{selection?.size ?? entry.selectedSize ?? "Choose size"}</Badge>
               </div>
 
               <div className="mt-4 flex items-end justify-between gap-3">
                 <p className="product-price text-lg font-black text-sangria">
-                  {formatProductPrice(product.salePrice ?? product.price)}
+                  {formatProductPrice(selectedProductPrice(product, entry.productVariantId))}
                 </p>
                 {product.salePrice ? (
                   <p className="text-sm text-stone line-through">
@@ -106,11 +112,18 @@ export function WishlistGrid() {
               </div>
 
               <div className="mt-auto flex flex-col gap-3 pt-5">
+                {!selection ? <p className="text-sm text-sangria">Saved option unavailable or needs reselection. Open the product to choose again.</p> : null}
                 <button
                   type="button"
-                  onClick={() => {
-                    const result = moveWishlistItemToCart(product.id);
-                    setFeedback(result.message);
+                  disabled={!selection || movingId !== null}
+                  onClick={async () => {
+                    setMovingId(product.id);
+                    try {
+                      const result = await moveWishlistItemToCart(product.id);
+                      setFeedback(`${product.name}: ${result.message}`);
+                    } finally {
+                      setMovingId(null);
+                    }
                   }}
                   className={buttonVariants({ variant: "primary", size: "md" })}
                 >
@@ -142,7 +155,8 @@ export function WishlistGrid() {
               </div>
             </div>
           </Card>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

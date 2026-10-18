@@ -30,7 +30,7 @@ export function LegalPageShell({
         <p className="mt-5 max-w-3xl text-sm leading-7 text-pearlcream/78 sm:text-base">
           {description}
         </p>
-        <PolicyNotice tone="beta" className="mt-7 border-pearlcream/15 bg-pearlcream/[0.08] text-pearlcream/82">
+        <PolicyNotice tone="hero" className="mt-7">
           {notice}
         </PolicyNotice>
       </section>

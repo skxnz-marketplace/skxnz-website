@@ -24,8 +24,12 @@ import {
 } from "@/lib/data/products";
 import {
   normalizeStoredWishlist,
+  restoreWishlistSelection,
+  type WishlistSelection,
   type WishlistSnapshot,
 } from "@/lib/data/wishlist";
+import { selectedProductPrice } from "@/lib/data/selected-price";
+import { resolveSavedProduct } from "@/lib/catalog/resolve-saved-product";
 import {
   demoBuyerName,
   orderStatusFlow,
@@ -403,6 +407,7 @@ type MarketplaceContextValue = {
   returnRequests: ReturnRequestRecord[];
   cartItems: CartPreviewItem[];
   wishlistProducts: Product[];
+  wishlistEntries: WishlistSnapshot[];
   supportTickets: SupportTicketRecord[];
   sellerApplications: SellerApplicationRecord[];
   latestSellerApplication: SellerApplicationRecord | undefined;
@@ -432,10 +437,10 @@ type MarketplaceContextValue = {
     quantity: number,
   ) => void;
   clearCart: () => void;
-  addToWishlist: (productId: string, product?: Product) => void;
+  addToWishlist: (productId: string, product?: Product, selection?: WishlistSelection) => void;
   removeFromWishlist: (productId: string) => void;
-  toggleWishlist: (productId: string, product?: Product) => void;
-  moveWishlistItemToCart: (productId: string) => { ok: boolean; message: string };
+  toggleWishlist: (productId: string, product?: Product, selection?: WishlistSelection) => void;
+  moveWishlistItemToCart: (productId: string) => Promise<{ ok: boolean; message: string }>;
   isInWishlist: (productId: string) => boolean;
   createSupportTicket: (input: CreateSupportTicketInput) => SupportTicketRecord;
   getProductById: (productId: string) => Product | undefined;
@@ -619,10 +624,10 @@ function normalizeStoredProduct(
 
 function normalizeStoredCartItems(items: CartPreviewItem[]) {
   return items.map((item) => {
-    // Live catalog snapshots are kept exactly as stored so cart rendering
-    // stays stable; demo-media normalization only applies to demo products.
+    // Resolve a stored line's estimate from its selected variant. This is still
+    // a snapshot; the order RPC rechecks the current DB price and availability.
     if (item.product?.dataSource === "live") {
-      return item;
+      return { ...item, unitPriceCents: Math.round(selectedProductPrice(item.product, item.productVariantId) * 100) };
     }
 
     const seedMatch = seedProducts.find(
@@ -1022,6 +1027,7 @@ export function MarketplaceProvider({ children }: MarketplaceProviderProps) {
       ),
     [catalog, wishlistItems],
   );
+  const wishlistEntries = wishlistItems.map((item, index) => ({ ...item, product: wishlistProducts[index] }));
   const buyerOrders = useMemo(
     () => orders.filter((order) => order.buyerName === demoBuyerName),
     [orders],
@@ -1253,12 +1259,15 @@ export function MarketplaceProvider({ children }: MarketplaceProviderProps) {
               : `Only ${variant.stock} left for that option.`,
         };
       }
+      size = variant.size ?? "One Size";
+      color = variant.color ?? "Default";
     }
 
     setCartItems((current) => {
       const existingItem = current.find(
         (item) =>
           item.product.id === productId &&
+          (item.productVariantId ?? null) === variantId &&
           item.size === size &&
           item.color === color,
       );
@@ -1267,7 +1276,7 @@ export function MarketplaceProvider({ children }: MarketplaceProviderProps) {
         const nextCartItems = [
           ...current,
           {
-            id: `cart_item_${product.id}_${size}_${color}`
+            id: `cart_item_${product.id}_${variantId ?? "default"}_${size}_${color}`
               .toLowerCase()
               .replace(/[^a-z0-9_]+/g, "_"),
             cartId: "cart_demo_buyer_active",
@@ -1278,8 +1287,7 @@ export function MarketplaceProvider({ children }: MarketplaceProviderProps) {
             quantity,
             size,
             color,
-            unitPriceCents:
-              (product.salePrice ?? product.price) * 100,
+            unitPriceCents: Math.round(selectedProductPrice(product, variantId) * 100),
             createdAt: createIsoTimestamp(),
             updatedAt: createIsoTimestamp(),
           },
@@ -1291,12 +1299,15 @@ export function MarketplaceProvider({ children }: MarketplaceProviderProps) {
 
       const nextCartItems = current.map((item) =>
         item.product.id === productId &&
+        (item.productVariantId ?? null) === variantId &&
         item.size === size &&
         item.color === color
           ? {
               ...item,
               // Keep the freshest resolved variant id for this size/color.
-              productVariantId: variantId ?? item.productVariantId,
+              productVariantId: variantId,
+              product,
+              unitPriceCents: Math.round(selectedProductPrice(product, variantId) * 100),
               quantity: item.quantity + quantity,
               updatedAt: createIsoTimestamp(),
             }
@@ -1358,6 +1369,7 @@ export function MarketplaceProvider({ children }: MarketplaceProviderProps) {
   function resolveWishlistSnapshot(
     productId: string,
     product?: Product,
+    selection?: WishlistSelection,
   ): WishlistSnapshot | null {
     const resolved =
       product ?? catalog.find((item) => item.id === productId);
@@ -1367,24 +1379,25 @@ export function MarketplaceProvider({ children }: MarketplaceProviderProps) {
     }
 
     return {
+      ...selection,
       productId: resolved.id,
       product: resolved,
       addedAt: createIsoTimestamp(),
     };
   }
 
-  function addToWishlist(productId: string, product?: Product) {
-    const snapshot = resolveWishlistSnapshot(productId, product);
+  function addToWishlist(productId: string, product?: Product, selection?: WishlistSelection) {
+    const snapshot = resolveWishlistSnapshot(productId, product, selection);
     if (!snapshot) {
       return;
     }
 
     setWishlistItems((current) => {
-      if (current.some((item) => item.productId === snapshot.productId)) {
+      if (!selection && current.some((item) => item.productId === snapshot.productId)) {
         return current;
       }
 
-      const nextWishlistItems = [snapshot, ...current];
+      const nextWishlistItems = [snapshot, ...current.filter((item) => item.productId !== productId)];
       writeStoredValue(wishlistStorageKey, nextWishlistItems);
       return nextWishlistItems;
     });
@@ -1401,9 +1414,10 @@ export function MarketplaceProvider({ children }: MarketplaceProviderProps) {
     });
   }
 
-  function toggleWishlist(productId: string, product?: Product) {
+  function toggleWishlist(productId: string, product?: Product, selection?: WishlistSelection) {
     setWishlistItems((current) => {
-      if (current.some((item) => item.productId === productId)) {
+      if (current.some((item) => item.productId === productId &&
+        (!selection || item.productVariantId === selection.productVariantId))) {
         const nextWishlistItems = current.filter(
           (item) => item.productId !== productId,
         );
@@ -1411,12 +1425,12 @@ export function MarketplaceProvider({ children }: MarketplaceProviderProps) {
         return nextWishlistItems;
       }
 
-      const snapshot = resolveWishlistSnapshot(productId, product);
+      const snapshot = resolveWishlistSnapshot(productId, product, selection);
       if (!snapshot) {
         return current;
       }
 
-      const nextWishlistItems = [snapshot, ...current];
+      const nextWishlistItems = [snapshot, ...current.filter((item) => item.productId !== productId)];
       writeStoredValue(wishlistStorageKey, nextWishlistItems);
       return nextWishlistItems;
     });
@@ -1426,31 +1440,40 @@ export function MarketplaceProvider({ children }: MarketplaceProviderProps) {
     return wishlistItems.some((item) => item.productId === productId);
   }
 
-  function moveWishlistItemToCart(productId: string) {
+  async function moveWishlistItemToCart(productId: string) {
     const snapshot = wishlistItems.find((item) => item.productId === productId);
-    const product =
+    let product =
       catalog.find((item) => item.id === productId) ?? snapshot?.product;
 
-    if (!product) {
+    if (!product || !snapshot) {
       return {
         ok: false,
         message: "Wishlist product could not be found in the current catalog.",
       };
     }
 
-    // For a live variant-backed product, resolve the first in-stock active
-    // variant and use its size/color so the cart carries a real variant id.
-    const firstVariant =
-      product.dataSource === "live"
-        ? product.variants?.find((option) => option.isActive && option.stock > 0)
-        : undefined;
+    if (product.dataSource === "live") {
+      try {
+        const fresh = await resolveSavedProduct(productId);
+        if (!fresh.ok) return { ok: false, message: "Could not check this saved option. Try again." };
+        if (!fresh.product) return { ok: false, message: "This saved product is unavailable. Choose a product again." };
+        product = fresh.product;
+        const resolvedProduct = product;
+        setWishlistItems((current) => current.map((item) => item.productId === productId
+          ? { ...item, product: resolvedProduct } : item));
+      } catch {
+        return { ok: false, message: "Could not check this saved option. Try again." };
+      }
+    }
+    const selection = restoreWishlistSelection(snapshot, product);
+    if (!selection) return { ok: false, message: "This saved option is unavailable or needs reselection. Open the product and select an option again." };
 
     const result = addToCart({
       productId,
-      size: firstVariant?.size ?? product.sizes[0] ?? "",
-      color: firstVariant?.color ?? product.colors[0] ?? "",
+      size: selection.size,
+      color: selection.color,
       quantity: 1,
-      variantId: firstVariant?.id ?? null,
+      variantId: selection.variantId,
       // Pass the snapshot so LIVE products (not in `catalog`) can reach the cart.
       product,
     });
@@ -1512,6 +1535,7 @@ export function MarketplaceProvider({ children }: MarketplaceProviderProps) {
         returnRequests,
         cartItems,
         wishlistProducts,
+        wishlistEntries,
         supportTickets,
         sellerApplications,
         latestSellerApplication,

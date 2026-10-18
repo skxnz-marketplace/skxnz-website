@@ -10,6 +10,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { getProductHref } from "@/lib/catalog/product-links";
 import { formatProductPrice, type Product } from "@/lib/data/products";
+import { cartUnitPrice } from "@/lib/data/selected-price";
 import { cn } from "@/lib/cn";
 import { skxnzFallbackAssets } from "@/src/lib/assets";
 
@@ -20,7 +21,7 @@ export function CartPreviewTable() {
   const totals = useMemo(() => {
     const subtotal = cartItems.reduce(
       (total, item) =>
-        total + (item.product.salePrice ?? item.product.price) * item.quantity,
+        total + cartUnitPrice(item) * item.quantity,
       0,
     );
 
@@ -43,10 +44,10 @@ export function CartPreviewTable() {
     );
   }
 
-  function saveForLater(product: Product, size: string, color: string) {
+  function saveForLater(product: Product, size: string, color: string, variantId: string | null) {
     // Pass the full snapshot so LIVE catalog items (not in the demo catalog)
     // can be saved and still render in the wishlist.
-    addToWishlist(product.id, product);
+    addToWishlist(product.id, product, { productVariantId: variantId, selectedSize: size, selectedColor: color });
     updateCartQuantity(product.id, size, color, 0);
     setNotice(`${product.name} moved to your wishlist on this device.`);
   }
@@ -77,7 +78,7 @@ export function CartPreviewTable() {
 
         <div className="divide-y divide-[rgba(58,8,24,0.10)]">
           {cartItems.map((item) => {
-            const unitPrice = item.product.salePrice ?? item.product.price;
+            const unitPrice = cartUnitPrice(item);
             const lineTotal = unitPrice * item.quantity;
 
             return (
@@ -167,7 +168,7 @@ export function CartPreviewTable() {
                     <button
                       type="button"
                       onClick={() =>
-                        saveForLater(item.product, item.size, item.color)
+                        saveForLater(item.product, item.size, item.color, item.productVariantId)
                       }
                       className="rounded-full border border-[rgba(58,8,24,0.12)] bg-[var(--skxnz-bg-soft)] px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] text-sangria transition hover:border-[rgba(139,92,246,0.28)]"
                     >

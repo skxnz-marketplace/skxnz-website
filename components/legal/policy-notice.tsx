@@ -4,11 +4,12 @@ import { cn } from "@/lib/cn";
 
 type PolicyNoticeProps = {
   children: ReactNode;
-  tone?: "draft" | "beta" | "warning";
+  tone?: "draft" | "beta" | "warning" | "hero";
   className?: string;
 };
 
 const toneClassNames = {
+  hero: "border-pearlcream/20 bg-white/5 text-pearlcream",
   draft: "border-sangria/20 bg-sangria/[0.06] text-sangria",
   beta: "border-teal/20 bg-teal/[0.08] text-midnightbrown",
   warning: "border-bronze/30 bg-bronze/[0.08] text-midnightbrown",

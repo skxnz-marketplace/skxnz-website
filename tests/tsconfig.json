@@ -16,6 +16,10 @@
     "types": ["node"]
   },
   "include": [
+    "../lib/data/selected-price.ts",
+    "../lib/data/wishlist.ts",
+    "../lib/catalog/resolve-saved-product.ts",
+    "../lib/checkout/checkout-review.ts",
     "../lib/security/json-ld.ts",
     "../lib/catalog/image-upload-contract.ts",
     "../lib/catalog/mappers.ts",

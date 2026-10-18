@@ -23,7 +23,23 @@ export type WishlistSnapshot = {
   productId: string;
   product: Product;
   addedAt: string;
-};
+} & Partial<Omit<WishlistItemDraft, "productId">>;
+
+export type WishlistSelection = Pick<WishlistSnapshot, "productVariantId" | "selectedSize" | "selectedColor">;
+
+/** Variant IDs are authoritative identities; never substitute another SKU. */
+export function restoreWishlistSelection(saved: WishlistSnapshot, product: Product) {
+  if (saved.productVariantId || (product.dataSource === "live" && (product.variants?.length ?? 0) > 0)) {
+    const variant = product.variants?.find((option) => option.id === saved.productVariantId);
+    if (!variant || !variant.isActive || variant.stock <= 0) return null;
+    return { variantId: variant.id, size: variant.size ?? "One Size", color: variant.color ?? "Default" };
+  }
+  return {
+    variantId: null,
+    size: saved.selectedSize ?? product.sizes[0] ?? "One Size",
+    color: saved.selectedColor ?? product.colors[0] ?? "Default",
+  };
+}
 
 export function getWishlistMergeKey(item: WishlistItemDraft) {
   return [
@@ -96,6 +112,9 @@ export function normalizeStoredWishlist(raw: unknown): WishlistSnapshot[] {
         result.push({
           productId,
           product,
+          productVariantId: typeof snapshot.productVariantId === "string" ? snapshot.productVariantId : null,
+          selectedSize: typeof snapshot.selectedSize === "string" ? snapshot.selectedSize : null,
+          selectedColor: typeof snapshot.selectedColor === "string" ? snapshot.selectedColor : null,
           addedAt:
             typeof snapshot.addedAt === "string"
               ? snapshot.addedAt

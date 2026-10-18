@@ -2,7 +2,7 @@ import type { ButtonHTMLAttributes } from "react";
 
 import { cn } from "@/lib/cn";
 
-type ButtonVariant = "primary" | "secondary" | "ghost";
+type ButtonVariant = "primary" | "secondary" | "ghost" | "inverse";
 type ButtonSize = "sm" | "md" | "lg";
 
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
@@ -11,6 +11,8 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 };
 
 const variantClasses: Record<ButtonVariant, string> = {
+  inverse:
+    "border-pearlcream/30 bg-transparent text-pearlcream visited:text-pearlcream hover:border-pearlcream hover:bg-pearlcream hover:text-softblack focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pearlcream focus-visible:ring-offset-2 focus-visible:ring-offset-sangria",
   primary:
     "border-sangria bg-sangria text-pearlcream shadow-[0_16px_28px_rgba(90,31,46,0.18)] hover:border-obsidian hover:bg-obsidian hover:text-pearlcream",
   secondary:

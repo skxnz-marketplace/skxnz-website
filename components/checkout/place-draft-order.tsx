@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { cartUnitPrice } from "@/lib/data/selected-price";
 import { useRouter } from "next/navigation";
 import { useRef, useState, useTransition } from "react";
 
@@ -100,7 +101,7 @@ export function PlaceDraftOrder({ addresses, backendReady }: PlaceDraftOrderProp
       productSlug: item.product.slug,
       variantId: item.productVariantId ?? null,
       quantity: item.quantity,
-      clientUnitPricePaise: item.unitPriceCents,
+      clientUnitPricePaise: Math.round(cartUnitPrice(item) * 100),
     }));
     const notes = readCheckoutDraft().deliveryNote?.trim() || null;
 

@@ -6,10 +6,11 @@
 // clean handoff. No order is placed, no payment is taken, no order id / payment
 // id / tracking number / delivery ETA is created here.
 //
-// Money rule: line + subtotal amounts are integer paise, sourced from
-// `CartPreviewItem.unitPriceCents`.
+// Money rule: line + subtotal estimates are integer paise, resolved from the
+// selected variant in the product snapshot. The order RPC rechecks DB prices.
 
 import type { CartPreviewItem } from "@/lib/data/products";
+import { cartUnitPrice } from "@/lib/data/selected-price";
 import type { CheckoutDraft } from "@/lib/checkout/checkout-draft";
 import type {
   CheckoutReviewSnapshot,
@@ -41,7 +42,7 @@ function toIntentDraft(draft: CheckoutDraft): OrderIntentDraft {
 
 function toLineItems(cartItems: CartPreviewItem[]): OrderLineItemSnapshot[] {
   return cartItems.map((item) => {
-    const unitPriceCents = Math.max(0, Math.round(item.unitPriceCents));
+    const unitPriceCents = Math.max(0, Math.round(cartUnitPrice(item) * 100));
     const quantity = Math.max(1, Math.round(item.quantity));
 
     return {

@@ -71,7 +71,7 @@ export default function SupportPage() {
           </Link>
           <Link
             href="/faq"
-            className={`${buttonVariants({ variant: "ghost", size: "lg" })} text-pearlcream`}
+            className={buttonVariants({ variant: "inverse", size: "lg" })}
           >
             Read FAQ
           </Link>
