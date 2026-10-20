@@ -264,7 +264,19 @@ async function runLineQuery(
     .select(columns)
     .in("product_id", productIds);
   if (orderId) query = query.eq("order_id", orderId);
-  return query.order("created_at", { ascending: false });
+  const result = await query.order("created_at", { ascending: false });
+  if (result.error || !result.data?.length) return result;
+  // RLS policies are additive: a seller's separate buyer policy can also
+  // expose their own purchase. Recheck this workspace's lifecycle scope.
+  // Requires the reviewed 0021 helper correction; never bypass with admin keys.
+  const lines = result.data as unknown as RawLineRow[];
+  const eligibility = await Promise.all(lines.map((line) => supabase.rpc(
+    "seller_owns_post_payment_order_line",
+    { p_order_id: line.order_id, p_product_id: line.product_id },
+  )));
+  const failure = eligibility.find((check) => check.error);
+  if (failure?.error) return { ...result, data: null, error: failure.error };
+  return { ...result, data: result.data.filter((_, index) => eligibility[index].data === true) };
 }
 
 async function selectSellerLines(

@@ -20,7 +20,7 @@ export function describeSellerFulfilment(
     case "PENDING":
       return {
         label: "Awaiting action",
-        note: "Buyer has paid. Accept the line to start preparing it.",
+        note: "Accept an eligible order line to start preparing it.",
       };
     case "ACCEPTED":
       return {

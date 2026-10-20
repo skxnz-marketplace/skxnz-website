@@ -925,6 +925,7 @@ function sellerReadResolver({ products = [{ id: SELLER_PRODUCT_ID }], lines = []
   return (query) => {
     if (query.table === "products") return { data: products, error: null };
     if (query.table === "order_items") return { data: lines, error: null };
+    if (query.table === "rpc" && query.fn === "seller_owns_post_payment_order_line") return { data: true, error: null };
     if (query.table === "rpc" && query.fn === "seller_active_return_indicators") return { data: indicators, error: indicatorError };
     throw new Error(`Unexpected table: ${query.table}`);
   };

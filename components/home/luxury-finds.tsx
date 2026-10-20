@@ -50,16 +50,17 @@ export function LuxuryFinds() {
       <div className="mx-auto max-w-[1200px] px-6 sm:px-10 lg:px-16">
         <div className="mb-6 flex items-center justify-between gap-4">
           <h2 className="font-grotesk text-xl font-bold uppercase tracking-[-0.01em] text-[#161616]">
-            Luxury Finds
+            Luxury Inspiration
           </h2>
           <Link
             href="/shop"
             className="inline-flex min-h-[44px] shrink-0 items-center px-2 text-[0.8rem] font-bold uppercase tracking-[0.12em] text-[#2E1014] transition hover:opacity-70"
           >
-            View All →
+            Browse Catalogue →
           </Link>
         </div>
 
+        <p className="mb-5 text-sm text-[#2E1014]">Editorial imagery and style references. These are not product listings; browse the catalogue for availability.</p>
         <CardStack items={items} initialIndex={0} showDots />
       </div>
     </section>

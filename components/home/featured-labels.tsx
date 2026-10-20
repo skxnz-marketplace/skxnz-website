@@ -52,19 +52,20 @@ export function FeaturedLabels() {
   }));
 
   return (
-    <section aria-label="Top brands" className="overflow-hidden bg-[#F4F1EC] py-14 sm:py-20">
+    <section aria-label="Editorial brand inspiration" className="overflow-hidden bg-[#F4F1EC] py-14 sm:py-20">
       <div className="mx-auto mb-8 flex max-w-[1440px] items-center justify-between gap-4 px-6 sm:px-10 lg:px-16">
         <h2 className="font-grotesk text-2xl font-bold uppercase tracking-[-0.015em] text-[#161616] sm:text-3xl">
-          Top Brands
+          Brand Inspiration
         </h2>
         <Link
           href="/brands"
           className="inline-flex min-h-[44px] shrink-0 items-center rounded-full px-2 text-[0.8rem] font-bold uppercase tracking-[0.1em] text-[#2E1014] transition hover:opacity-70"
         >
-          View All →
+          Catalogue Brands →
         </Link>
       </div>
 
+      <p className="mx-auto mb-5 max-w-[1440px] px-6 text-sm text-[#2E1014] sm:px-10 lg:px-16">Editorial references. Logos do not indicate stock or marketplace partnerships.</p>
       <LogoLoop
         logos={logos}
         speed={28}
@@ -74,7 +75,7 @@ export function FeaturedLabels() {
         pauseOnHover
         fadeOut
         fadeOutColor="#F4F1EC"
-        ariaLabel="Top brands"
+        ariaLabel="Editorial brand inspiration"
       />
     </section>
   );

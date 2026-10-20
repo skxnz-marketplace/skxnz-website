@@ -65,8 +65,8 @@ function SuggestionRow({
       type="button"
       onMouseDown={(event) => {
         event.preventDefault();
-        onSelect(suggestion.href);
       }}
+      onClick={() => onSelect(suggestion.href)}
       className="flex w-full min-w-0 items-center gap-3 rounded-[20px] px-3 py-3 text-left transition hover:bg-white/75"
     >
       {suggestion.image ? (
@@ -110,10 +110,12 @@ export function SiteSearchBar({
   const searchParams = useSearchParams();
   const { approvedProducts } = useMarketplace();
   const [query, setQuery] = useState("");
-  const [isFocused, setIsFocused] = useState(false);
+  // Focus/edit opens; submit/Escape/outside blur closes without faking DOM blur.
+  const [suggestionsOpen, setSuggestionsOpen] = useState(false);
+  const [activeSuggestion, setActiveSuggestion] = useState(-1);
   const [isSurfaceActive, setIsSurfaceActive] = useState(surface == null);
   /** Live catalogue suggestions (products, brands, categories); null = pending or failed. */
-  const [liveProductSuggestions, setLiveProductSuggestions] = useState<SearchSuggestion[] | null>(null);
+  const [liveProductSuggestions, setLiveProductSuggestions] = useState<{ query: string; items: SearchSuggestion[] } | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const urlQuery = searchParams.get("q") ?? "";
@@ -174,7 +176,9 @@ export function SiteSearchBar({
 
         // live=true means the catalog query ran (even with 0 rows) — honest
         // empty beats swapping in demo items for a term with no real matches.
-        setLiveProductSuggestions(data.live ? data.suggestions ?? [] : null);
+        if (!controller.signal.aborted) {
+          setLiveProductSuggestions(data.live ? { query: normalizedQuery, items: data.suggestions ?? [] } : null);
+        }
       } catch {
         if (!controller.signal.aborted) {
           setLiveProductSuggestions(null);
@@ -210,12 +214,12 @@ export function SiteSearchBar({
       : localSuggestions.filter((suggestion) => suggestion.type === "page" || suggestion.type === "collection");
 
     // null = live request pending or failed: show navigation only, never demo items.
-    return [...(liveProductSuggestions ?? []), ...navigationSuggestions]
+    return [...(liveProductSuggestions?.query === normalizedQuery ? liveProductSuggestions.items : []), ...navigationSuggestions]
       .sort((left, right) => right.score - left.score)
       .slice(0, 8);
-  }, [approvedProducts, isSurfaceActive, liveProductSuggestions, query]);
+  }, [approvedProducts, isSurfaceActive, liveProductSuggestions, normalizedQuery, query]);
   const shouldShowSuggestions =
-    isSurfaceActive && isFocused && normalizedQuery.length > 0;
+    isSurfaceActive && suggestionsOpen && normalizedQuery.length > 0;
 
   const navigateToQuery = (nextQuery: string) => {
     const normalized = normalizeSearchQuery(nextQuery);
@@ -231,29 +235,43 @@ export function SiteSearchBar({
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     navigateToQuery(query);
-    setIsFocused(false);
+    setSuggestionsOpen(false);
   };
 
   const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if ((event.key === "ArrowDown" || event.key === "ArrowUp") && normalizedQuery && suggestions.length) {
+      event.preventDefault();
+      setSuggestionsOpen(true);
+      setActiveSuggestion((current) => event.key === "ArrowDown"
+        ? (current + 1) % suggestions.length
+        : (current <= 0 ? suggestions.length : current) - 1);
+      return;
+    }
     if (event.key === "Enter") {
       event.preventDefault();
-      navigateToQuery(event.currentTarget.value);
-      setIsFocused(false);
+      if (shouldShowSuggestions && suggestions[activeSuggestion]) {
+        router.push(suggestions[activeSuggestion].href);
+      } else {
+        navigateToQuery(event.currentTarget.value);
+      }
+      setActiveSuggestion(-1);
+      setSuggestionsOpen(false);
       return;
     }
 
     if (event.key === "Escape") {
-      setIsFocused(false);
+      setSuggestionsOpen(false);
       inputRef.current?.blur();
     }
   };
 
-  const closeSuggestions = () => {
-    window.setTimeout(() => setIsFocused(false), 100);
-  };
-
   return (
-    <div className={cn("relative z-[80]", className)}>
+    <div className={cn("relative z-[80]", className)} onBlur={(event) => {
+      if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+        setSuggestionsOpen(false);
+        setActiveSuggestion(-1);
+      }
+    }}>
       <form onSubmit={handleSubmit} className="relative">
         <label htmlFor={inputId} className="sr-only">
           Search products, brands, categories, collections, and tags
@@ -268,10 +286,13 @@ export function SiteSearchBar({
           role="combobox"
           inputMode="search"
           value={query}
-          onChange={(event) => setQuery(event.target.value)}
+          onChange={(event) => {
+            setQuery(event.target.value);
+            setSuggestionsOpen(true);
+            setActiveSuggestion(-1);
+          }}
           onKeyDown={handleKeyDown}
-          onFocus={() => setIsFocused(true)}
-          onBlur={closeSuggestions}
+          onFocus={() => { setSuggestionsOpen(true); setActiveSuggestion(-1); }}
           placeholder={placeholder}
           className="field-shell h-12 w-full min-w-0 rounded-full pl-12 pr-4 text-sm text-midnightbrown shadow-[0_18px_36px_rgba(90,31,46,0.08)]"
           autoComplete="off"
@@ -279,6 +300,7 @@ export function SiteSearchBar({
           aria-autocomplete="list"
           aria-controls={shouldShowSuggestions ? suggestionsId : undefined}
           aria-expanded={shouldShowSuggestions}
+          aria-activedescendant={shouldShowSuggestions && suggestions[activeSuggestion] ? `${suggestionsId}-${activeSuggestion}` : undefined}
         />
       </form>
 
@@ -288,16 +310,17 @@ export function SiteSearchBar({
           className="absolute inset-x-0 top-[calc(100%+0.7rem)] overflow-hidden rounded-[28px] border border-[var(--skxnz-border)] bg-[var(--skxnz-surface)] p-3 shadow-[0_24px_56px_rgba(35,31,27,0.12)] backdrop-blur-xl"
         >
           {suggestions.length > 0 ? (
-            <div className="grid gap-1.5">
-              {suggestions.map((suggestion) => (
+            <div className="grid gap-1.5" role="listbox">
+              {suggestions.map((suggestion, index) => (
+                <div key={`${suggestion.type}-${suggestion.href}`} id={`${suggestionsId}-${index}`} role="option" aria-selected={activeSuggestion === index} className={activeSuggestion === index ? "rounded-[20px] bg-white/75" : undefined}>
                 <SuggestionRow
-                  key={`${suggestion.type}-${suggestion.href}`}
                   suggestion={suggestion}
                   onSelect={(href) => {
                     router.push(href);
-                    setIsFocused(false);
+                    setSuggestionsOpen(false);
                   }}
                 />
+                </div>
               ))}
             </div>
           ) : (

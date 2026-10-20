@@ -38,9 +38,10 @@ export function MosaicSection() {
 
       <div className="relative mx-auto max-w-[1440px] px-6 sm:px-10 lg:px-16">
         <h2 className="font-grotesk mb-8 text-2xl font-bold uppercase tracking-[-0.015em] text-[#F4F1EC] sm:text-3xl">
-          Shop The Edit
+          Explore The Edit
         </h2>
 
+        <p className="mb-5 text-sm text-[#F4F1EC]">Editorial inspiration. Follow a category to see current listings.</p>
         {/*
           Mosaic grid:
           desktop: 4 cols — tile[0] spans 2×2, rest fill remaining cells

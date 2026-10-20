@@ -25,6 +25,7 @@ export function CategoryShowcase() {
           </h2>
         </div>
 
+        <p className="mb-5 text-sm text-[#2E1014]">Style inspiration. Category results show current availability.</p>
         <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
           {CATEGORIES.map((cat) => (
             <Link

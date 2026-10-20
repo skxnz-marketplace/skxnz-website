@@ -98,7 +98,7 @@ export default async function SellerOrdersPage() {
                   <div className="flex flex-wrap items-start justify-between gap-4">
                     <div className="min-w-0">
                       <p className="text-[0.64rem] font-bold uppercase tracking-[0.2em] text-sangria">
-                        Order {order.orderId.slice(0, 8).toUpperCase()} · Paid
+                        Order {order.orderId.slice(0, 8).toUpperCase()} · Seller lines
                       </p>
                       <p className="mt-2 text-sm font-semibold text-midnightbrown">
                         {order.lineCount === 1

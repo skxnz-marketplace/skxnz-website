@@ -376,6 +376,8 @@ export function FloatingSkxnzAssistant() {
   const [isLoading, setIsLoading] = useState(false);
   const [notice, setNotice] = useState("");
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const launcherRef = useRef<HTMLButtonElement | null>(null);
+  const wasOpenRef = useRef(false);
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const activeDragRef = useRef<DragState | null>(null);
   const pendingPositionRef = useRef<AssistantPosition | null>(null);
@@ -435,8 +437,11 @@ export function FloatingSkxnzAssistant() {
 
   useEffect(() => {
     if (!isOpen) {
+      if (wasOpenRef.current) launcherRef.current?.focus();
+      wasOpenRef.current = false;
       return;
     }
+    wasOpenRef.current = true;
 
     const timer = window.setTimeout(() => inputRef.current?.focus(), 120);
 
@@ -751,7 +756,7 @@ export function FloatingSkxnzAssistant() {
         <section
           aria-label="SKXNZ AI Assistant chat"
           className={cn(
-            "fixed z-[120] flex max-h-[calc(100vh-1.25rem)] min-w-0 flex-col overflow-hidden border border-[rgba(255,248,234,0.14)] bg-[#1A030B]/[0.96] text-[#FFF8EA] shadow-[0_28px_76px_rgba(9,7,10,0.38)] backdrop-blur-2xl",
+            "fixed z-[120] flex max-h-[calc(100dvh-1.25rem)] min-w-0 flex-col overflow-hidden border border-[rgba(255,248,234,0.14)] bg-[#1A030B]/[0.96] text-[#FFF8EA] shadow-[0_28px_76px_rgba(9,7,10,0.38)] backdrop-blur-2xl",
             "inset-x-3 bottom-3 rounded-[30px]",
             "md:inset-auto md:bottom-24 md:right-5 md:h-[min(650px,calc(100vh-8rem))] md:w-[min(430px,calc(100vw-2rem))] md:rounded-[34px]",
           )}
@@ -795,7 +800,7 @@ export function FloatingSkxnzAssistant() {
 
           <div
             ref={scrollRef}
-            className="flex-1 overflow-y-auto bg-[#1A030B]/[0.88] p-4"
+            className="min-h-0 flex-1 overflow-y-auto bg-[#1A030B]/[0.88] p-4"
             aria-live="polite"
           >
             <div className={assistantPreviewProducts.length ? "mb-4" : "hidden"}>
@@ -867,7 +872,7 @@ export function FloatingSkxnzAssistant() {
             </div>
           </div>
 
-          <footer className="border-t border-pearlcream/[0.12] bg-pearlcream/[0.05] p-4">
+          <footer className="shrink-0 border-t border-pearlcream/[0.12] bg-pearlcream/[0.05] p-4">
             <div className="mb-3 flex gap-2 overflow-x-auto pb-1">
               {starterPrompts.map((prompt) => (
                 <button
@@ -917,6 +922,8 @@ export function FloatingSkxnzAssistant() {
       ) : null}
 
       <button
+        ref={launcherRef}
+        hidden={isOpen}
         type="button"
         aria-label="Open SKXNZ AI Assistant"
         onPointerDown={handlePointerDown}
@@ -935,7 +942,8 @@ export function FloatingSkxnzAssistant() {
           }
         }}
         className={cn(
-          "fixed z-[121] flex h-16 w-16 touch-none select-none items-center justify-center rounded-full border border-[rgba(255,248,234,0.62)] bg-[#1A030B]/[0.96] text-[#FFF8EA] shadow-[inset_0_1px_0_rgba(255,255,255,0.24),0_14px_34px_rgba(58,8,24,0.30),0_0_0_5px_rgba(34,211,238,0.18),0_0_30px_rgba(139,92,246,0.30)] backdrop-blur-xl transition hover:border-[#FFF8EA] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.28),0_18px_42px_rgba(58,8,24,0.38),0_0_0_7px_rgba(34,211,238,0.22),0_0_38px_rgba(139,92,246,0.36)] focus:outline-none focus:ring-4 focus:ring-[rgba(34,211,238,0.24)]",
+          "fixed z-[121] h-16 w-16 touch-none select-none items-center justify-center rounded-full border border-[rgba(255,248,234,0.62)] bg-[#1A030B]/[0.96] text-[#FFF8EA] shadow-[inset_0_1px_0_rgba(255,255,255,0.24),0_14px_34px_rgba(58,8,24,0.30),0_0_0_5px_rgba(34,211,238,0.18),0_0_30px_rgba(139,92,246,0.30)] backdrop-blur-xl transition hover:border-[#FFF8EA] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.28),0_18px_42px_rgba(58,8,24,0.38),0_0_0_7px_rgba(34,211,238,0.22),0_0_38px_rgba(139,92,246,0.36)] focus:outline-none focus:ring-4 focus:ring-[rgba(34,211,238,0.24)]",
+          isOpen ? "hidden" : "flex",
           isDragging ? "cursor-grabbing transition-none" : "cursor-grab",
         )}
         style={buttonStyle}

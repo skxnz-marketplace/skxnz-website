@@ -75,7 +75,7 @@ export const heroSlides: HeroSlide[] = [
   {
     id: "drops",
     headline: "SHARP NEW DROPS.",
-    subline: "Fresh pieces and sharp signals from curated labels.",
+    subline: "Explore the current catalogue and find your next signal.",
     primaryCta: "Browse the Catalogue",
     secondaryCta: "Preview AI Stylist",
     primaryHref: "/shop",
@@ -84,7 +84,7 @@ export const heroSlides: HeroSlide[] = [
   {
     id: "luxury",
     headline: "PRECISION LUXURY.",
-    subline: "Watches, sneakers, and designer selects — authenticity-first curation.",
+    subline: "A luxury-inspired perspective. Explore the current catalogue.",
     primaryCta: "Browse the Catalogue",
     secondaryCta: "Preview AI Stylist",
     primaryHref: "/shop",
@@ -93,7 +93,7 @@ export const heroSlides: HeroSlide[] = [
   {
     id: "future",
     headline: "FUTURE READY.",
-    subline: "An AI style companion meets a curated marketplace. The next era of fashion.",
+    subline: "Shopping guidance meets a curated catalogue. AI Stylist is currently unavailable.",
     primaryCta: "Browse the Catalogue",
     secondaryCta: "Preview AI Stylist",
     primaryHref: "/shop",
@@ -182,21 +182,21 @@ export const trustItems: TrustItem[] = [
   {
     icon: "🔒",
     title: "Encrypted Checkout",
-    desc: "Launching Soon",
+    desc: "Not Connected",
   },
   {
     icon: "↩",
     title: "Simple Returns",
-    desc: "Launching Soon",
+    desc: "Not Connected",
   },
   {
     icon: "⚡",
-    title: "Nationwide Shipping",
-    desc: "Rolling Out",
+    title: "Shipping",
+    desc: "Not Connected",
   },
   {
     icon: "✦",
     title: "AI Styling",
-    desc: "Live Beta",
+    desc: "Unavailable",
   },
 ];

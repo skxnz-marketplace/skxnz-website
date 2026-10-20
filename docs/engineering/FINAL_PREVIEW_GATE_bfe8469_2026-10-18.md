@@ -268,3 +268,78 @@ Evidence beside the consolidated report is prefixed FINAL_GATE_: BUYER_B_SESSION
 **READY FOR PRODUCTION: NO. CERTIFIED ROLLBACK DEPLOYMENT: NONE.** No production action taken. Preview remains suitable for controlled isolated QA; this is not approval to promote it or ship QA credentials.
 
 Remaining gates: (1) FG-H01 and FG-H02 corrections/reverification plus M04 truthful claims; (2) full ordinary-Chrome wrong-password, missing/invalid CAPTCHA enforcement, signup/confirmation, recovery/reset, logout/relogin/protected destination — successful user-completed Buyer B sign-in and persisted private session alone do not close this gate; (3) stale/inactivated/missing saved variant and network/retry cases; (4) complete responsive/physical-touch/gallery/Prism/private-screen matrix or explicit accepted exceptions; (5) fresh eligible buyer return submission/admin review where required, plus any untested fulfilment flow only after FG-H02 resolution; (6) authenticated raw HTTP status capture behind Vercel protection and eventual six-product production sitemap; (7) full retained rollback source/environment/additive-DB compatibility and eligibility certification; (8) explicit remaining MEDIUM/LOW exception acceptance, including new search finding; (9) approved production-host GA4 network smoke at final production stage. No production recommendation while these are unresolved. No local tests were rerun for documentation-only QA evidence; prior automated build/test results remain unchanged.
+
+## 15. PRE-PRODUCTION DEFECT PASS — 2026-10-20
+
+Scope: exactly FG-H01, FG-H02, M04 and SEARCH. Starting local c48a713f5b246b17953d4de47c000aee5c1168d6 on integrate/recover-missing-work. Remote/hosted application remains bfe8469; production branch remains81d863d. This section records LOCAL corrections and disposable local SQL tests, not a new hosted pass. No push, deployment, production ref/domain change, production-data mutation, hosted migration, payment/refund/courier enablement, archive or ga4-skxnz modification occurred. Historical sections remain intact.
+
+### FG-H01: launcher and composer
+
+Root cause: the fixed draggable launcher remained at z121 above the z120 panel; at320 the launcher's rectangle occupied Send's pointer target. The launcher's pointer-up toggle could therefore close the panel instead of submitting. Loader/global CSS did not supply a competing dismissal path.
+
+Correction: hide and remove the launcher from pointer/tab interaction while open (hidden attribute plus explicit hidden/flex class), retaining the existing close button and Escape. Restore focus to the launcher after closing, without auto-focusing on initial mount. Keep the drag/closed-launcher behavior. Use100dvh for mobile maximum panel height, min-h-0 on scrolling messages and shrink-0 on the composer footer so short viewports preserve the input.
+
+Local production-build ordinary Chrome:320/360/390/430 and1440. Open, input, actual pointer Send, close/reopen and Escape exercised; chat remains open on Send. At320 the original Send center now resolves to Send message to SKXNZ AI; launcher hidden; no page horizontal overflow. A live Signal Black Hoodie recommendation3999 returned. Close restored launcher focus. Settled desktop geometry: width1440, panel430×650 atx975/y154, existing desktop placement retained. Short320×500 viewport: Send visible and topmost, no horizontal overflow. Physical touch hardware and actual mobile virtual keyboard were not available; the short viewport is supporting evidence, not proof of keyboard behavior on a phone. Hosted recheck remains required after a separately authorized Preview.
+
+### FG-H02: authoritative source comparison and lifecycle
+
+Full path: orders.status→0006 seller_owns_post_payment_order_line→order_items seller SELECT policy→read-seller-orders.runLineQuery (owned product ids)→list/detail→SellerLineActions→updateSellerLineFulfilment→seller_update_line_fulfilment. The list hardcoded Paid and PENDING vocabulary said Buyer has paid; neither read actual payment evidence. seller_active_return_indicators separately scopes returned line indicators but previously lacked a parent lifecycle filter.
+
+Fresh READ-ONLY dashboard queries of pg_proc/pg_get_functiondef inspected QA uktgghekyeolkppdujjj and production hhsorrkvgvxxpwzrggei. Production pg_policies confirms seller SELECT invokes seller_owns_post_payment_order_line; buyer SELECT is additive and admin remains is_admin(). The actual orders_status_check contains DRAFT, PAYMENT_PENDING, PAID, FULFILLING, SHIPPED, DELIVERED, CANCELLED, REFUNDED.
+
+| Function | Repository body MD5 | QA deployed body MD5 | Production deployed body MD5 | Comparison |
+| --- | --- | --- | --- | --- |
+| seller_owns_post_payment_order_line | 5d64409f02b6c5f6d907e1b1b98dc3b7 | 5d64409f02b6c5f6d907e1b1b98dc3b7 | 5d64409f02b6c5f6d907e1b1b98dc3b7 | Body bytes identical; helper denies only DRAFT/PAYMENT_PENDING, so admits CANCELLED/REFUNDED |
+| seller_update_line_fulfilment | a2b959ebb1a5486d9fc0fb4e1c9abaef | 20ad542845f4f3918bcd75b5292cbee0 | a2b959ebb1a5486d9fc0fb4e1c9abaef | QA differs only CRLF/LF; normalized bodies identical; same faulty deny-list |
+| seller_active_return_indicators | 77165ee4600db6e90bb99d64d453fd3d | 7943f7be8c1e92aef47c986fc589123a | 77165ee4600db6e90bb99d64d453fd3d | QA differs only CRLF/LF; normalized bodies identical; no parent lifecycle filter |
+
+QA/production SECURITY DEFINER and ACLs match: helper search_path=public and NULL ACL (default privileges); write/return functions search_path=public,pg_temp with postgres/authenticated EXECUTE only. No role, grant or policy was changed during this inspection. The source comparison replaces the earlier deployed-function UNVERIFIED status. No cancelled fulfilment mutation was attempted on either hosted DB.
+
+Derived invariant: seller history/return reads only for owned lines with parent PAID/FULFILLING/SHIPPED/DELIVERED. ADVANCE only while parent PAID/FULFILLING and through PENDING→ACCEPTED→PACKED→HANDED_TO_DELIVERY. SHIPPED/DELIVERED retain history and scoped notes/returns, not new preparation/hand-off advances. DRAFT/PAYMENT_PENDING/CANCELLED/REFUNDED cannot read as seller work or mutate through seller RPC. Existing orders lifecycle/roles are reused; no new status invented. Admin's independent policy and admin commerce functions remain unchanged; admin/buyer still cannot invoke seller-only mutations.
+
+Application correction: remove fabricated Paid/Buyer has paid labels. Recheck each owned line through the existing boolean helper at the shared server reader, failing closed on helper errors, so an additive buyer SELECT policy cannot bypass the seller workspace's scope after0021. This check still depends on correcting the existing deployed helper; UI hiding alone does NOT resolve FG-H02. Additional helper calls run in parallel; large-queue performance was not load-tested.
+
+**Database correction REQUIRED:** supabase/migrations/0021_seller_order_lifecycle_allowlist.sql. Replaces only the three functions above using CREATE OR REPLACE; replaces the deny-list with the explicit parent allow-list, bounds ADVANCE, locks parent order with its line to serialize against cancellation, and aligns return indicators. Preserves ownership/SELLER checks, signatures, events, owners and grants; pins all three search paths to public,pg_temp. No table, data, policy or historical migration change.0020 remains byte-for-byte unchanged. Helper comment updated to reflect its corrected invariant.
+
+**0021 SHA-256 (UTF-8/LF): 5debeca2f16ee4ad80e4220f2018a2914a6ff90a374412696f8e70ec31b072c4. NOT APPLIED to QA or production.**
+
+Verification: supabase/verification/0021_seller_order_lifecycle_test.mjs plus0021_seller_order_lifecycle_verify.sql. Runner accepts a PGlite module installed outside the repository; creates only an in-memory disposable PostgreSQL contract fixture, loads original canonical function definitions, reproduces cancelled admission, opens BEGIN, loads the exact0021 bytes, tests and ROLLBACKs. No hosted URL/credentials or migration-history writes. Required ineligible states, eligible reads, owned action ladder, cross-seller denial, buyer/admin/anon action denial, terminal/cancelled action and note denial, audit events, actual authenticated RLS matrix, admin read policy, SECURITY DEFINER/search_path/ACL/owner preservation and rollback restoration PASS. Twelve check groups. This is not a live hosted migration application, a full Supabase instance integration test or a concurrent-load proof. Review exact SQL separately before any application.
+
+### M04: truthful public content
+
+- AI Styling Live Beta→Unavailable; unavailable checkout/returns/shipping labels use Not Connected rather than launch timing promises. Hero copy no longer asserts particular luxury inventory or a currently functioning AI Stylist.
+- AI panel explicitly says Stylist unavailable; CTA is AI Stylist Status. Decorative chat is labeled Illustrative conversation and no longer recommends fictional Chrome District/Signal Studio stock.
+- Static FeaturedLabels is Brand Inspiration with an explicit no-stock/no-partnership disclaimer; CTA leads to actual catalogue brands. Live Brand Spotlight stays canonical.
+- Luxury Finds becomes Luxury Inspiration with explicit editorial/non-listing context; category and mosaic imagery likewise distinguish inspiration from actual result availability. Existing layouts/routes remain. No new catalogue source or SEO redesign.
+
+### SEARCH: state machine and async ordering
+
+Root cause: submit/Enter set isFocused=false while the input stayed focused; subsequent onChange never reopened it. Correction models suggestionsOpen explicitly: focus/edit opens, submit/Escape/outside blur closes; empty query remains closed. No arbitrary close timeout. Internal focus is retained; suggestion buttons work by native click/keyboard activation. ArrowUp/Down tracks an active option, Enter selects it or submits the query if no option selected. Query changes reset selection. Live results carry their originating query and aborted responses are ignored, preventing old responses/results from replacing a newer query.
+
+Focused tests cover Enter/edit, form-submit/edit, empty, Escape, inside/outside blur, arrow/Enter selection, stale query visibility and an actual deferred response resolving after abort. Ordinary Chrome1440: submit hoodie, retain focus, edit jacket→expanded=true and live jacket suggestion; ArrowDown/Enter reaches Obsidian Utility Jacket PDP. At320/360/390/430 each submit closed, subsequent edit reopened and Escape closed. Mobile placement preserved. Hosted recheck remains required.
+
+### Verification and file classification
+
+Application and test TypeScript compilation PASS. All276 tests PASS (265 existing+11 new); local SQL suite separate PASS. Lint0errors/8 unchanged warnings. Production build PASS with82 pages against read-only live catalogue. Initial build attempt hit machine certificate trust failures; final build uses Node's system CA trust, without disabling TLS verification. Initial pnpm wrapper attempted module reconciliation; equivalent local Next/TypeScript/ESLint binaries ran directly without dependency/lockfile changes. Frozen reinstall was unnecessary. Final route/API smoke108 probes matches prior statuses; sitemap36URLs/6ACTIVE products, archived QA/private URLs excluded. Missing-key login/signup/recovery remain200 with explicit configuration error and disabled submission. git diff --check PASS.
+
+Prior B01/H01/H02/H03/H04, Returns/FAQ contrast, M3999/L4299 pricing, wishlist exact variant behavior, GA4 consent/host gating, canonical catalogue and unpaid checkout tests remain green. No secret/config/payment gate changed. Local live-catalogue browser checks are read-only; no order/upload/support/return mutations in this defect pass.
+
+| Application file | Sole finding classification |
+| --- | --- |
+| components/ai/floating-skxnz-assistant.tsx | FG-H01 |
+| app/seller/orders/page.tsx | FG-H02 |
+| lib/orders/read-seller-orders.ts | FG-H02 |
+| lib/orders/seller-fulfilment-vocabulary.ts | FG-H02 |
+| components/shared/site-search-bar.tsx | SEARCH |
+| lib/home-data.ts | M04 |
+| components/home/ai-signal-panel.tsx | M04 |
+| components/home/featured-labels.tsx | M04 |
+| components/home/luxury-finds.tsx | M04 |
+| components/home/category-showcase.tsx | M04 |
+| components/home/mosaic-section.tsx | M04 |
+
+Tests: pre-production-defects.test.cjs covers the four findings; commerce-actions.test.cjs adapts only the seller fixture resolver to the added eligibility read. Database commit contains only0021 and its two verification files. Allowed documentation: this append-only report and concise PROGRESS.md entry. No unrelated application changes or historical report rewrites.
+
+Disposition: FG-H01/M04/SEARCH locally corrected, awaiting new exact-SHA hosted QA. **FG-H02 remains HIGH and MUST FIX before production because0021 is unapplied.** UI code is suitable for another controlled Preview regression pass, but that Preview cannot clear seller lifecycle until SQL is separately reviewed, authorized/applied to isolated QA and reverified. Production remains NOT READY. Existing complete Chrome CAPTCHA/signup/recovery, stale-variant/network and remaining responsive/return gates, exception acceptance and certified rollback NONE remain unchanged/out of this fix pass. No automatic migration application or promotion is authorized.
+
+Evidence in the existing external outputs directory: PREPROD_QA_FUNCTIONS/PRODUCTION_FUNCTIONS/FUNCTION_COMPARISON/PRODUCTION_POLICY_2026-10-20.json, PREPROD_0021_LOCAL_ROLLBACK_2026-10-20.json; PREPROD_DEFECT_TESTS/LINT/BUILD/ROUTE_2026-10-20.txt; PREPROD_ASSISTANT_MATRIX/DESKTOP_GEOMETRY/SHORT_VIEWPORT and PREPROD_SEARCH_REOPEN/MOBILE_MATRIX records/screenshots. No consolidated historical report was rewritten in this pass.

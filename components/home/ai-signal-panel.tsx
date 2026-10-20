@@ -2,8 +2,8 @@ import Link from "next/link";
 
 const capabilities = [
   "Style guidance from what's actually in the catalogue",
-  "Outfit pairing across brands and categories",
-  "Answers questions on fit, fabric, and sizing",
+  "Recommendations from current catalogue listings",
+  "AI Stylist is currently unavailable",
 ];
 
 /** Real feature teaser — links to /ai (the Prism screen) and /ai/stylist. */
@@ -60,7 +60,7 @@ export function AiSignalPanel() {
               href="/ai/stylist"
               className="inline-flex h-12 items-center justify-center rounded-full bg-[#F4F1EC] px-7 text-[0.9rem] font-semibold uppercase tracking-[0.075em] text-[#0E0E10] transition duration-300 hover:bg-white sm:h-[52px] sm:px-8"
             >
-              Try the AI Stylist
+              AI Stylist Status
             </Link>
             <Link
               href="/ai"
@@ -81,7 +81,7 @@ export function AiSignalPanel() {
               AI
             </span>
             <span className="text-[0.72rem] font-bold uppercase tracking-[0.18em] text-white/50">
-              SKXNZ Assistant
+              Illustrative conversation
             </span>
           </div>
           <div className="mt-4 space-y-3">
@@ -89,8 +89,8 @@ export function AiSignalPanel() {
               Something for a night out, under 3,500
             </div>
             <div className="mr-auto max-w-[85%] rounded-2xl rounded-tl-sm bg-[#00E5FF]/12 px-4 py-2.5 text-sm text-white/90">
-              A few Chrome District and Signal Studio pieces fit that brief —
-              want me to lay out a full look?
+              I can check the current catalogue for options within your budget.
+              Availability depends on the listings returned.
             </div>
           </div>
         </div>
