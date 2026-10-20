@@ -1,5 +1,9 @@
 -- LOCAL DISPOSABLE POSTGRES ONLY. Runner opens BEGIN, loads exact 0021, then runs
 -- this suite and ROLLBACK. Never run against production/QA to apply candidate DDL.
+-- This original owner-side compatibility suite is retained in full. Actual
+-- authenticated/anon LOGIN, RLS, rejection snapshots and independent-session
+-- concurrency assertions live in the companion PostgreSQL runner. JWT settings
+-- alone in this DO block are not evidence of non-elevated role execution.
 DO $test$
 DECLARE s text; n integer; failed boolean; before_events integer;
 BEGIN
@@ -53,3 +57,32 @@ BEGIN
   BEGIN PERFORM seller_update_line_fulfilment('cccccccc-cccc-4ccc-8ccc-cccccccccccc','ADD_NOTE',NULL,'Cannot mutate cancelled'); EXCEPTION WHEN SQLSTATE 'P0002' THEN failed:=true; END;
   IF NOT failed THEN RAISE EXCEPTION 'cancelled note admitted'; END IF;
 END $test$;
+
+-- Additional SQL-level row-integrity regression, still within caller's BEGIN.
+DO $corrections$
+DECLARE action text; line_before jsonb; line_after jsonb; event_count bigint;
+        received_state text;
+BEGIN
+  PERFORM set_config('request.jwt.claim.sub','11111111-1111-4111-8111-111111111111',true);
+  UPDATE orders SET status='PAID';
+  SELECT to_jsonb(oi) INTO line_before FROM order_items oi
+    WHERE id='cccccccc-cccc-4ccc-8ccc-cccccccccccc';
+  SELECT count(*) INTO event_count FROM order_item_events;
+  FOREACH action IN ARRAY ARRAY[NULL::text,'INVALID'] LOOP
+    received_state:=NULL;
+    BEGIN
+      PERFORM seller_update_line_fulfilment('cccccccc-cccc-4ccc-8ccc-cccccccccccc',action,'ACCEPTED','must not persist');
+    EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS received_state=RETURNED_SQLSTATE;
+    END;
+    IF received_state IS DISTINCT FROM '22023' THEN RAISE EXCEPTION 'wrong SQLSTATE for action %: %',action,received_state; END IF;
+    SELECT to_jsonb(oi) INTO line_after FROM order_items oi
+      WHERE id='cccccccc-cccc-4ccc-8ccc-cccccccccccc';
+    IF line_after IS DISTINCT FROM line_before OR (SELECT count(*) FROM order_item_events)<>event_count THEN
+      RAISE EXCEPTION 'invalid action mutated a line/timestamp/event';
+    END IF;
+  END LOOP;
+  UPDATE users SET role='BUYER' WHERE id=auth.uid();
+  IF seller_owns_post_payment_order_line('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb') THEN RAISE EXCEPTION 'downgraded role admitted'; END IF;
+  UPDATE users SET role='SELLER' WHERE id=auth.uid();
+  IF seller_owns_post_payment_order_line('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaab','bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb') THEN RAISE EXCEPTION 'unrelated order/product admitted'; END IF;
+END $corrections$;

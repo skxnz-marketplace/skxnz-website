@@ -12,13 +12,19 @@ returns boolean
 language sql
 security definer
 set search_path = public, pg_temp
+-- Fail closed instead of recursing if a future owner cannot bypass table RLS.
+set row_security = off
 stable
 as $$
   select exists (
     select 1
     from public.orders o
-    join public.products p on p.id = p_product_id
+    join public.order_items oi on oi.order_id = o.id
+    join public.products p on p.id = oi.product_id
+    join public.users u on u.id = auth.uid()
     where o.id = p_order_id
+      and p.id = p_product_id
+      and u.role = 'SELLER'
       and p.seller_id = auth.uid()
       and o.status in ('PAID', 'FULFILLING', 'SHIPPED', 'DELIVERED')
   );
@@ -42,6 +48,8 @@ as $$
 declare
   v_actor_id uuid := auth.uid();
   v_role text;
+  v_order_id uuid;
+  v_order_status text;
   v_line public.order_items%rowtype;
   v_note text := nullif(btrim(p_note), '');
   v_from_status text;
@@ -55,7 +63,7 @@ begin
   if v_role is distinct from 'SELLER' then
     raise exception 'SKXNZ_SELLER_REQUIRED' using errcode = '42501';
   end if;
-  if p_action not in ('ADVANCE', 'ADD_NOTE') then
+  if p_action is null or p_action not in ('ADVANCE', 'ADD_NOTE') then
     raise exception 'SKXNZ_INVALID_ACTION' using errcode = '22023';
   end if;
   if v_note is not null and char_length(v_note) > 500 then
@@ -65,15 +73,39 @@ begin
     raise exception 'SKXNZ_NOTE_REQUIRED' using errcode = '22023';
   end if;
 
+  -- Discover the candidate parent without locking the line. All locking
+  -- statements follow the same order as buyer returns: parent, then line.
+  select oi.order_id into v_order_id
+  from public.order_items oi
+  join public.products p on p.id = oi.product_id
+  where oi.id = p_order_item_id
+    and p.seller_id = v_actor_id;
+
+  if not found then
+    raise exception 'SKXNZ_LINE_NOT_FOUND' using errcode = 'P0002';
+  end if;
+
+  select o.status into v_order_status
+  from public.orders o
+  where o.id = v_order_id
+  for update of o;
+
+  if not found
+    or v_order_status not in ('PAID', 'FULFILLING', 'SHIPPED', 'DELIVERED')
+    or (p_action = 'ADVANCE' and v_order_status not in ('PAID', 'FULFILLING')) then
+    raise exception 'SKXNZ_LINE_NOT_FOUND' using errcode = 'P0002';
+  end if;
+
+  -- Revalidate the relationship, ownership and current role after any wait.
   select oi.* into v_line
   from public.order_items oi
   join public.products p on p.id = oi.product_id
-  join public.orders o on o.id = oi.order_id
+  join public.users u on u.id = v_actor_id
   where oi.id = p_order_item_id
+    and oi.order_id = v_order_id
     and p.seller_id = v_actor_id
-    and o.status in ('PAID', 'FULFILLING', 'SHIPPED', 'DELIVERED')
-    and (p_action = 'ADD_NOTE' or o.status in ('PAID', 'FULFILLING'))
-  for update of oi, o;
+    and u.role = 'SELLER'
+  for update of oi;
 
   if not found then
     -- Same outcome for absent, pre-payment, and another seller's line.

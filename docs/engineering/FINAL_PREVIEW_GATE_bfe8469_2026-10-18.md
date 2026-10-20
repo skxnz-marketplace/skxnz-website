@@ -343,3 +343,61 @@ Tests: pre-production-defects.test.cjs covers the four findings; commerce-action
 Disposition: FG-H01/M04/SEARCH locally corrected, awaiting new exact-SHA hosted QA. **FG-H02 remains HIGH and MUST FIX before production because0021 is unapplied.** UI code is suitable for another controlled Preview regression pass, but that Preview cannot clear seller lifecycle until SQL is separately reviewed, authorized/applied to isolated QA and reverified. Production remains NOT READY. Existing complete Chrome CAPTCHA/signup/recovery, stale-variant/network and remaining responsive/return gates, exception acceptance and certified rollback NONE remain unchanged/out of this fix pass. No automatic migration application or promotion is authorized.
 
 Evidence in the existing external outputs directory: PREPROD_QA_FUNCTIONS/PRODUCTION_FUNCTIONS/FUNCTION_COMPARISON/PRODUCTION_POLICY_2026-10-20.json, PREPROD_0021_LOCAL_ROLLBACK_2026-10-20.json; PREPROD_DEFECT_TESTS/LINT/BUILD/ROUTE_2026-10-20.txt; PREPROD_ASSISTANT_MATRIX/DESKTOP_GEOMETRY/SHORT_VIEWPORT and PREPROD_SEARCH_REOPEN/MOBILE_MATRIX records/screenshots. No consolidated historical report was rewritten in this pass.
+
+## 16. MIGRATION 0021 FINAL CORRECTION PASS — 2026-10-20
+
+Starting commit826e7e4d349b8f986b8416e746c7f0b8fcc150bc on integrate/recover-missing-work. Scope only the existing unapplied0021, its two verification files and this report/PROGRESS.md. Independent review correctly identified NULL-action validation, missing current-role/real-line checks and non-explicit joined lock ordering. The previous5debeca2f16ee4ad80e4220f2018a2914a6ff90a374412696f8e70ec31b072c4 candidate was NOT APPROVED and is superseded. Neither version was applied to QA/production. No application source,0020, other historical migration, migration history, dependencies, production branch or provider setting changed; no0022, push or deployment.
+
+### Exact corrections and reproductions
+
+1. `p_action IS NULL OR p_action NOT IN ('ADVANCE','ADD_NOTE')` raises SKXNZ_INVALID_ACTION/22023 before locks or mutations. The runner loads the previous immutable0021 inside a local rollback transaction and reproduces NULL causing a false NOTE_ADDED event. New NULL/invalid cases under PAID and FULFILLING assert exact22023 and equality of every line field (including timestamp), parent rows and seller events. Valid ADVANCE and ADD_NOTE retain their payload/side effects; valid FULFILLING advancement also passes.
+2. Helper requires the authenticated caller's CURRENT users.role='SELLER', owned product and a real order_items row matching BOTH supplied IDs. A previously owned product is not authorization after downgrade. Old candidate reproduces TRUE after downgrade and for an unrelated eligible order/product pair. New authenticated sessions reject both; missing public user and admin owning the actual matching product also return false. Genuine buyer/admin access through their independent policies remains available. Event history and scoped return indicators retain ownership/role semantics.
+3. RPC discovers the candidate parent without row locks, locks orders first, checks its locked status, then locks order_items and rechecks its ID/order relationship, ownership and current role. Line update and audit remain one transaction. No `FOR UPDATE OF oi,o` remains. This matches canonical0020 buyer-return's parent→line ordering. Cancellation committed before parent acquisition rejects; cancellation after the seller's parent lock waits. Separate wait tests downgrade the actor or transfer the product while the parent lock is held; seller revalidation rejects with no line/audit change.
+
+Read/history remains PAID/FULFILLING/SHIPPED/DELIVERED; ADVANCE only PAID/FULFILLING; DRAFT/PAYMENT_PENDING/CANCELLED/REFUNDED excluded. The PENDING→ACCEPTED→PACKED→HANDED_TO_DELIVERY ladder, note trimming/500-character limit, signatures, return types and audit semantics remain.
+
+### Helper recursion and trust boundary
+
+Checking order_items inside its own policy helper is safe only with appropriate definer privileges. Added function-local `row_security=off` is a fail-closed safeguard: it does not grant RLS bypass; an incompatible owner raises42501 instead of evaluating recursive policies. All relation references are schema-qualified. Tests cover BYPASSRLS owner with FORCE RLS, a non-bypassing non-owner, and a table owner without BYPASSRLS under FORCE RLS. The incompatible cases fail42501 rather than recurse. This behavior is consistent with PostgreSQL's documented row_security setting and SECURITY DEFINER guidance:
+https://www.postgresql.org/docs/17/runtime-config-client.html
+https://www.postgresql.org/docs/17/sql-createfunction.html
+
+Fresh SELECT-only pg_proc/pg_roles/pg_class/schema-privilege inspection in BOTH QA uktgghekyeolkppdujjj and production hhsorrkvgvxxpwzrggei confirms all three existing exact signatures, owner postgres (NOSUPERUSER, BYPASSRLS), SECURITY DEFINER, original ACLs and controlled search paths. orders/order_items/products/users are postgres-owned, RLS enabled, FORCE RLS false. Thus the current hosted owner can safely execute the relationship check. Existing helper ACL is NULL/default (PUBLIC EXECUTE); write/indicator functions grant postgres and authenticated EXECUTE, not anon/PUBLIC.0021 preserves ownership/ACLs and pins search_path=public,pg_temp; only the helper gains row_security=off. No dynamic SQL or new function identity is introduced.
+
+Anon/authenticated have no CREATE on public/auth/pg_catalog in either project. TEMP privilege is present, so their private temporary schemas can exist; it is not correct to claim they cannot create temporary objects. Explicit public/auth qualification and placing pg_temp last prevent those objects substituting the referenced relations; the helper does not trust unqualified temporary objects. Re-check these prerequisites immediately before any later separately authorized application, since this read-only snapshot cannot guarantee future ownership/grant settings.
+
+### Real PostgreSQL verification
+
+PGlite was replaced for this suite by PostgreSQL17.11 Windows binaries from EDB's official distribution, a fresh disposable cluster bound only to127.0.0.1:55421. `pg` was installed outside the application repository; no package/lockfile change. Runner accepts only that fixed loopback test endpoint, not a hosted URL or credentials. Runtime: NOSUPERUSER/BYPASSRLS definer matching hosted capability; actual authenticated and anon LOGIN sessions are NOSUPERUSER/NOBYPASSRLS. Canonical user/order/order-item/event policies and canonical buyer-return/admin-status functions are extracted verbatim from repository SQL, not simplified substitutes. The product table is a reduced typed ownership fixture with an explicitly labeled fixture-only policy; this is not a complete Supabase clone or a replay of prior migrations.
+
+Original0021 SQL suite is retained and passes. Its owner-side/JWT-only checks are explicitly labeled compatibility tests; they are not offered as proof of unprivileged execution. New role assertions use real non-elevated sessions. Final runner: **213 assertions PASS**, including:
+
+- Current seller, foreign seller, downgrade, missing user, admin with matching owned product, anonymous, true relationship/unrelated pair; real seller/buyer/admin/anon RLS and event history.
+- All lifecycle states, exact SQLSTATE/rejected full-state snapshots, NULL/invalid action, NULL/empty/whitespace/501-character notes, accepted500-character note; valid ladder and FULFILLING advance.
+- Exact actor/from/to/message/metadata for advancement and ADD_NOTE; forced audit-insert failure rolls the prior line/timestamp update back.
+- Return ownership, mixed-owner ID arrays, NULL/empty arrays, six active statuses and rejected/closed/refunded exclusion; buyer/admin receive no seller indicators.
+- Three exact function signatures/results/owners/ACLs/definer preservation, controlled configuration, unrelated functions unchanged, effective EXECUTE and schema CREATE checks, owner/FORCE behavior.
+
+**Genuine concurrent schedules:** different backend PIDs and seven observed waits recorded through pg_blocking_pids; statement timeout6s, lock timeout5s, observer deadline3.5s. No sequential/PGlite result is substituted for concurrency proof.
+
+| Schedule | Final-state result |
+| --- | --- |
+| A cancellation first | Seller actually waits; after cancellation commit, P0002; CANCELLED parent, identical line/timestamp, zero seller event |
+| B seller first | Cancellation actually waits; seller commits one ACCEPTED transition/event; cancellation then commits CANCELLED parent |
+| C overlapping same seller advancements | Second session waits; revalidates ACCEPTED, rejects stale requested ACCEPTED with22023; one line transition/event |
+| D delivered ADD_NOTE vs canonical buyer return | Both orders tested: note first and return first; observed lock waits, no deadlock; exactly one note event and correct REQUESTED buyer return/audit |
+| Post-wait role/owner changes | Downgrade and product transfer tested separately; rejected after wait, no line/timestamp/event change |
+
+### Artifact integrity, rollback and regression gates
+
+**New exact migration SHA-256 (UTF-8, LF, no BOM): 4b290d28e67a796e2c731ee65aa061bd8494aaac49e1feb8c349c491af4f08ff. This hash is NOT YET APPROVED.** The runner pins this exact hash and rejects changed bytes before connecting; an intentionally altered disposable copy demonstrated the negative case. This pin is integrity verification, not deployment authorization. Only three intended CREATE OR REPLACE definitions plus the existing helper comment are in the migration; test-only DDL remains in verification, not0021.
+
+The local transaction restores original function definitions/configuration/comments, owners and ACLs; all fixture tables and audit events are empty afterward. Cross-connection tests require committed local fixtures, so they use a separate disposable database. Both local test databases are dropped and absence verified before PASS is printed. The local server is stopped at task end. A forced local rollback/database disposal does NOT certify any future deployed rollback procedure.
+
+Application/test TypeScript PASS; all276 application tests PASS; lint0errors/8 unchanged warnings; production build82pages PASS;108 route/API probes match prior expected statuses; sitemap36URLs/6ACTIVE products with QA/private entries excluded; missing-key auth remains fail-closed; git diff --check PASS. The first application typecheck raced a concurrently rebuilding generated .next/types tree; it was rerun successfully after the build, sequentially, without code changes.
+
+Independent scoped pre-patch investigation and post-patch bypass review completed. Review found no concrete remaining bypass/regression in the final migration bytes; suggested post-wait and FULFILLING success tests were added and pass. No further audit or unrelated launch fix was performed.
+
+Remaining limits: representative typed local schema rather than hosted application; no hosted migration or post-application smoke; no adversarial production load/latency proof; future owner/ACL/FORCE changes require a new prerequisite check; local rollback is not production rollback certification. Current helper default PUBLIC EXECUTE is preserved and understood, not newly expanded. No unresolved reported NULL/role/relationship/parent-lock defect remains in the tested candidate, but independent final SQL/hash approval is still required.
+
+**QA application: NOT APPLIED. Production application: NOT APPLIED. Production release remains blocked.** Final SQL review must cover helper current-role/relationship/row_security setting, NULL validation, parent-first acquisition/revalidation, and unchanged update/event/return-indicator semantics. Do not apply based solely on this test result. Evidence: existing outputs/0021_CORRECTION_QA_CATALOG.json,0021_CORRECTION_PRODUCTION_CATALOG.json,0021_CORRECTION_POSTGRES_TESTS.json,0021_CORRECTION_APP_TESTS.txt,0021_CORRECTION_LINT.txt,0021_CORRECTION_BUILD.txt,0021_CORRECTION_ROUTE.txt. Scope is committed locally only; stop without push/deployment/application.
