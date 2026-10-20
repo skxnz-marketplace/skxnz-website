@@ -1,6 +1,6 @@
 # FINAL PREVIEW GATE — bfe8469
 
-Review date: 2026-10-18. Application candidate: integrate/recover-missing-work at bfe8469e6c18fd0e04fa09b364969aa09e379299. This addendum supersedes earlier readiness statements only where new evidence is recorded. Historical tests against 4ed351f are not passes for this artifact.
+Review date: 2026-10-18; signed-in continuation: 2026-10-20 (section 14). Application candidate: integrate/recover-missing-work at bfe8469e6c18fd0e04fa09b364969aa09e379299. This addendum supersedes earlier readiness statements only where new evidence is recorded. Historical tests against 4ed351f are not passes for this artifact.
 
 **Production recommendation: NO.** A new HIGH mobile Assistant defect was reproduced. Signed-in and complete ordinary-Chrome auth gates remain unverified. The rollback discrepancy is explained by a pre-commit deployment, but exact uploaded-tree equivalence and full compatibility are not certified. No production deployment, production ref movement, provider configuration change, application fix, migration, production-data mutation, payment/refund/courier enablement or rollback occurred.
 
@@ -195,3 +195,76 @@ Required remaining gates:
 New evidence is in C:/Users/BHOLENATH/Documents/Codex/2026-10-03/skxnz-release-candidate-review-pre-production/outputs, prefixed FINAL_GATE_. Important files: CLEAN_DEPLOYMENT_FULL/CLEAN_INSTALL_START/CLEAN_INSTALL_DONE/CLEAN_BUILD_END; RETURNS/FAQ/FAQ_HOVER; PRICE_SWITCH/CART_L2/CHECKOUT_L2; NAV/HOME/SHOP/PDP/PRISM_MATRIX; JSONLD/RAW_SEO; CONSENT; ASSISTANT_LIVE/ASSISTANT_OVERLAP/ASSISTANT_320; CHROME_TURNSTILE_SUCCESS; ROLLBACK_FULL/ROLLBACK_UPLOADED_GA4_FULL/ROLLBACK_GIT_PROVENANCE/ROLLBACK_57_TO_06. Some early AX files contain diffs only; the explicitly FULL files and body/log excerpts supersede them. The empty BUILD_ALL file is not proof.
 
 The external consolidated SKXNZ_FULL_TASK_REPORT_2026-10-10.md receives this addendum. Repository documentation and PROGRESS.md are committed separately; application source remains exactly bfe8469. No documentation commit is pushed in this pass. Production branch remains81d863d. Stop at this recommendation.
+
+## 14. Signed-in hosted continuation — 2026-10-20
+
+This section supersedes the pending signed-in/upload/hero statements above only for the cases actually completed here. Earlier deployment/build/SEO/consent/rollback evidence remains as recorded. The same stable integration Preview and bfe8469 application were tested. Local HEAD started at documentation-only 5b11b4fcac94c9f5862000eef8b2584641a2e9a8; origin integration remains bfe8469. No additional push or application deployment occurred. Production branch remains81d863d. All persistent mutations below target isolated QA project uktgghekyeolkppdujjj, never production hhsorrkvgvxxpwzrggei.
+
+### 14.1 Four-fix and role results
+
+| Gate | Current hosted evidence | Result / limits |
+| --- | --- | --- |
+| Returns / FAQ contrast | Earlier requested1440/1280/390/320 checks retained | PASS for recorded scope; no new application change |
+| M06 authoritative variant price | Buyer B selected L, quantity2; cart/checkout4299 each /8598. Created draft370f606d-725d-466f-a3d3-a6aa8f5d42a0; refreshed buyer and independent admin details both show L / Black / Qty2 /4299 each /8598 | PASS core stored-price gate. Buyer reader selects saved order_items unit_price_paise/quantity, not a local estimate. Fixture M explicitly3999; null-price fallback not freshly hosted |
+| M09 exact selected variant | L save→reload→wishlist→cart remains L4299; cart Save for Later→reload→cart remains L4299. M save→reload→cart remains M3999. Plain product saves/restores One Size / Default /1999 | PASS positive cases; local-only wishlist remains accepted |
+| M09 reselection | Unsized jacket product-card bookmark shows Choose Color / Choose Size and unavailable/reselection message; Move to Cart disabled | PASS legacy/unspecified selection boundary. Actual later-inactivated/missing variant and network-failure/retry cases still UNVERIFIED |
+| Buyer isolation | Buyer B cannot read Buyer A order9d6067cd or tickete6b9ddf3 (not-found screens). Admin/seller routes redirect to /?denied=role. Own returns list empty | PASS tested UI/reader paths, not an exhaustive API authorization audit. Nonexistent per-return buyer URL was discarded as invalid test evidence |
+| Seller isolation | Seller B sees its two owned products. Seller A producta3333333-3333-4333-8333-333333333331 gives not-found; admin route denies role | PASS tested owner/role paths |
+| Admin order | New draft correctly says unpaid/no provider. Admin cancelled it with explicit QA audit note; terminal state and audit event persisted; ordinary Chrome buyer detail also shows Cancelled and return unavailable | PASS cancellation/audit/buyer propagation. Never set paid, shipped, refunded or delivered |
+| Support | Buyer B created linked ticket902b5b07-618a-453b-af5e-8385c4226bd3 and reply; admin reply and Resolved persisted after reload; ordinary Chrome buyer sees all three messages and reply-disabled resolved state | PASS tested thread/status path. No email/push integration invoked |
+| Returns | Existing synthetic delivered return04326a33-74a2-4217-8f22-95fa02b15d20 remains Approved — refund not executed. No admin transition available; text explicitly excludes refund/pickup | PASS read-only state/gating recheck. New eligible return submission/approval not repeated against bfe8469 |
+
+Verified accounts: ordinary Chrome QA Buyer B (2ce4df67-31ef-4824-984a-7126413f8650), IAB QA Seller B (c10d2abd-4a96-4f89-8347-17c1ff021a68), then IAB QA Admin A (e7668505-1a11-4b97-8852-c95e36be77d7). User performed sign-ins privately. Buyer A was originally requested, but actual Buyer B identity was verified and used as the approved isolated fixture; no identity assumption was carried forward.
+
+### 14.2 H02 exact 768 KiB upload
+
+Seller B used owned unpublished product4c4cff2a-c669-4cd4-bf80-e0885ff2fc6b, [QA ONLY] Upload boundary fixture. UI correctly states JPEG/PNG/WebP up to768KiB each. Filesystem-verified PNG sizes:
+
+| Bytes/type | Result |
+| --- | --- |
+| 786431 PNG | Accepted; gallery2→3 |
+| 786432 PNG | Accepted; gallery3→4 |
+| 786433 PNG | Rejected: Image must be768KiB or smaller; gallery unchanged |
+| Unsupported text | Rejected: Image must beJPEG,PNG,orWebP; gallery unchanged |
+
+Reload retained4images; both accepted uploads persisted. Invalid-file state recovered to successful valid upload. Product remained PENDING_REVIEW; no publication or ownership change. Cross-seller product access was denied. **PASS normal hosted boundary/persistence/ownership scope.** Forged oversized server-action requests, transport outage recovery and independent Storage byte inspection remain UNVERIFIED. Asynchronous completion was awaited before interpreting result; no duplicate retry submission was used.
+
+### 14.3 Responsive interaction additions
+
+All widths measured in ordinary Chrome at height900:1440/1280/768/430/412/390/375/360/320.
+
+| Flow | All nine widths | Limits |
+| --- | --- | --- |
+| Hero scroll film | PASS forward early≈2s→later≈6.4s→reverse≈3.5s; readyState4, no media error, settled seek within0.15s of target; visible frames inspected at all widths; no horizontal overflow | Native wheel input and state-based frame checks, not screenshots alone. Physical touch/reduced-motion/media-failure behavior unverified |
+| Address form | PASS no overflow and keyboard Full Name→Phone focus; mobile inputs16px | Physical iOS zoom not proven |
+| Community | PASS empty feed, no overflow, invite-only Create Post guard | No post created; populated cards and query-error state unverified |
+| Earlier navigation/shop/PDP matrix | Retained PASS for documented drawer/Escape/scroll-lock, filtering/reset/empty, price/quantity cases | Gallery gestures, complete focus trap/return, physical touch and all private-screen widths remain incomplete |
+
+Hero evidence is FINAL_GATE_FILM_SETTLED_MATRIX_bfe8469.json and27 settled screenshots. Earlier rapid-resize/transient FILM_MATRIX samples are superseded and must not be used as passes. Search flow stopped at the new defect below; there is no all-width search PASS. Prism full resize/context-loss/cleanup/fallback gate remains incomplete.
+
+### 14.4 New findings and explicit disposition changes
+
+| Finding | Severity / disposition | Behavior, evidence and minimum safe correction |
+| --- | --- | --- |
+| FG-H02 cancelled order presented as paid to seller; supersedes narrow QA-L06 scope | HIGH — MUST FIX BEFORE PRODUCTION | Seller B queue labels order9D6067CD Paid / Awaiting action / Buyer has paid. Independent admin list confirms Cancelled / No payment record. app/seller/orders/page.tsx:101 hardcodes Paid; lib/orders/read-seller-orders.ts:256–269 queries owned lines without parent status; lib/orders/seller-fulfilment-vocabulary.ts:22–23 claims payment for PENDING. More seriously, recorded RPC in supabase/migrations/0020_reconcile_missing_commerce_objects.sql:318 excludes only DRAFT/PAYMENT_PENDING, allowing CANCELLED through that predicate; lib/orders/seller-update-line-fulfilment.ts:73 delegates without a parent-state guard. No Accept/fulfilment action was attempted. Deployed function definition and actual cancelled-line mutation are NOT freshly verified; do not claim server rejection. Minimum: verify deployed RPC, require an explicit allowed parent lifecycle at the authoritative transactional boundary, omit/disable cancelled/unpaid fulfilment controls and derive truthful payment labels from parent/payment evidence. Forward-only correction needs separate authorization; do not edit/apply historical migration during QA |
+| FG-M02 search loses suggestions while input stays focused | MEDIUM — ACCEPT FOR LAUNCH only if explicitly accepted; otherwise MUST FIX BEFORE PRODUCTION | Ordinary Chrome1440: submit query with Enter, then edit still-focused input to jacket; focused=true, query=jacket, aria-expanded=false, suggestions0. Enter search/no-result navigation still works. components/shared/site-search-bar.tsx:231–247 sets isFocused=false on submit/Enter without blurring; onChange:271 only updates query, while shouldShowSuggestions:217 requires isFocused. Minimum: keep logical/DOM focus consistent or reopen on editing; recheck keyboard and widths. Flow stopped, no fix |
+| QA-L05 support list reload | LOW — ACCEPT FOR LAUNCH, proposed | Not reproduced in this signed-in attempt: newly created ticket appeared without reload. Unchanged source and one successful attempt do not establish a fix; historical finding retained with narrower current evidence |
+
+FG-H01 HIGH Assistant launcher overlap remains MUST FIX BEFORE PRODUCTION. M04 MEDIUM unsupported Live Beta/editorial catalogue claims remains MUST FIX BEFORE PRODUCTION. No finding disappeared: M01/M02 conditional acceptance still needs owner acceptance and remaining stale tests; M03/M07/M08 proposed post-launch exceptions remain pending; M05 local-only wishlist already accepted; L01/L02/L03/L04 remain post-launch; QA-L06 is now subsumed by FG-H02 rather than quietly closed. Known users grant hardening remains separately post-launch. Payment/refund/courier/Stylist generation stay disabled.
+
+### 14.5 Persistent QA ledger and scope
+
+- One synthetic Buyer B address added: QA FIXTURE ONLY — DO NOT SHIP, Isolated QA release bfe8469, QA City / QA State110001, dummy phone9999999999.
+- One new unpaid order370f606d-725d-466f-a3d3-a6aa8f5d42a0: Lqty2, unit429900paise, subtotal859800paise. Created18Oct per stored UI; cancelled20Oct with audit note. No charge/refund/shipment.
+- One linked ticket902b5b07-618a-453b-af5e-8385c4226bd3: two buyer messages plus one admin reply; final RESOLVED. No external notification.
+- Upload fixture4c4cff2a-c669-4cd4-bf80-e0885ff2fc6b: old2images plus2accepted boundary PNGs; final4images, PENDING_REVIEW.
+- Local-only Buyer B cart retains jacket Lqty2 and plain teeqty1; wishlist empty after moves. No checkout submitted with the plain tee. No persistent record was deleted.
+- Existing cancelled9d6067cd, synthetic delivereda7777777 and approved return04326a33 were not mutated. No production data/provider/schema/settings changes.
+
+Evidence beside the consolidated report is prefixed FINAL_GATE_: BUYER_B_SESSION, WISHLIST_L_RELOAD/L_TO_CART/M_TO_CART/UNSELECTED/PLAIN_TO_CART, SAVE_FOR_LATER_L, BUYER_B_STORED_DRAFT, BUYER_B_ISOLATION, UPLOAD_786431/786432/786433/TEXT/PERSISTED_4, SELLER_ISOLATION/QUEUE, ADMIN_A_SESSION/CANCELLED_ORDER_PROOF/CANCELLED_BUYER_B/TICKET_RESOLVED/APPROVED_RETURN, BUYER_TICKET_ADMIN_REPLY/CANCELLED_DRAFT, SEARCH_FOCUS_REGRESSION, ADDRESS_MATRIX, COMMUNITY_MATRIX, FILM_SETTLED_MATRIX. Text snapshots and screenshots distinguish intermediate asynchronous states from persisted results.
+
+### 14.6 Final recommendation after signed-in continuation
+
+**READY FOR PRODUCTION: NO. CERTIFIED ROLLBACK DEPLOYMENT: NONE.** No production action taken. Preview remains suitable for controlled isolated QA; this is not approval to promote it or ship QA credentials.
+
+Remaining gates: (1) FG-H01 and FG-H02 corrections/reverification plus M04 truthful claims; (2) full ordinary-Chrome wrong-password, missing/invalid CAPTCHA enforcement, signup/confirmation, recovery/reset, logout/relogin/protected destination — successful user-completed Buyer B sign-in and persisted private session alone do not close this gate; (3) stale/inactivated/missing saved variant and network/retry cases; (4) complete responsive/physical-touch/gallery/Prism/private-screen matrix or explicit accepted exceptions; (5) fresh eligible buyer return submission/admin review where required, plus any untested fulfilment flow only after FG-H02 resolution; (6) authenticated raw HTTP status capture behind Vercel protection and eventual six-product production sitemap; (7) full retained rollback source/environment/additive-DB compatibility and eligibility certification; (8) explicit remaining MEDIUM/LOW exception acceptance, including new search finding; (9) approved production-host GA4 network smoke at final production stage. No production recommendation while these are unresolved. No local tests were rerun for documentation-only QA evidence; prior automated build/test results remain unchanged.
